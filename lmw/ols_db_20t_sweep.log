@@ -1,0 +1,56 @@
+
+=== OLS × DiscoveryBench-Real-train ===
+  inner=openai/gpt-4o-mini  judge=openai/gpt-4o  budget=12.0 actions/episode
+  tasks: 20 (stratified by file order); ablations: ['OLS-full', 'OLS-all-off']
+
+--- ablation: OLS-full ---
+  [1/40] train/evolution_freshwater_fish/metadata_0/q0                 HMS=0.72  n_act= 3  (12s)  submitted='Maximum body length evolution (MBL_evol) is the most impactf'
+  [2/40] train/evolution_freshwater_fish/metadata_0/q1                 HMS=0.90  n_act= 4  (14s)  submitted='The spatial variation in speciation rates in South American '
+  [3/40] train/evolution_freshwater_fish/metadata_0/q2                 HMS=1.00  n_act= 3  (14s)  submitted='There is a strong positive relationship between the rate of '
+  [4/40] train/evolution_freshwater_fish/metadata_1/q0                 HMS=0.00  n_act= 4  (14s)  submitted=''
+  [5/40] train/evolution_freshwater_fish/metadata_1/q1                 HMS=0.60  n_act= 3  (15s)  submitted='The rate of Relative Maxillary Length evolution exhibits a n'
+  [6/40] train/evolution_freshwater_fish/metadata_1/q2                 HMS=0.00  n_act= 0  (19s)  submitted=''
+  [7/40] train/evolution_freshwater_fish/metadata_2/q0                 HMS=0.60  n_act= 4  (13s)  submitted='There is no significant association between the rates of bod'
+  [8/40] train/evolution_freshwater_fish/metadata_2/q1                 HMS=0.25  n_act= 3  (17s)  submitted='There is a moderate positive relationship between the rate o'
+  [9/40] train/evolution_freshwater_fish/metadata_3/q0                 HMS=0.00  n_act= 5  (17s)  submitted=''
+  [10/40] train/evolution_freshwater_fish/metadata_3/q1                 HMS=0.75  n_act= 3  (13s)  submitted='There is a very weak positive relationship between speciatio'
+  [11/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.00  n_act= 6  (7s)  submitted=''
+  [12/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.00  n_act= 6  (14s)  submitted=''
+  [13/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.00  n_act= 6  (11s)  submitted=''
+  [14/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.00  n_act= 6  (11s)  submitted=''
+  [15/40] train/nls_bmi/metadata_0/q0                                   HMS=0.75  n_act= 3  (9s)  submitted='In the 1989 data, individuals with poorer saving behaviors, '
+  [16/40] train/nls_bmi/metadata_0/q1                                   HMS=1.00  n_act= 2  (9s)  submitted='In the 1989 data, higher time preference, as indicated by sa'
+  [17/40] train/nls_bmi/metadata_1/q0                                   HMS=1.00  n_act= 3  (11s)  submitted='In Hispanic men, a higher tendency to dissaving (22.8%) is a'
+  [18/40] train/nls_bmi/metadata_2/q0                                   HMS=0.00  n_act= 4  (8s)  submitted=''
+  [19/40] train/nls_bmi/metadata_3/q0                                   HMS=1.00  n_act= 3  (7s)  submitted='As age increases, the likelihood of withdrawing more money f'
+  [20/40] train/nls_bmi/metadata_3/q1                                   HMS=1.00  n_act= 3  (9s)  submitted='Younger individuals, particularly those around the age of 27'
+--- ablation: OLS-all-off ---
+  [21/40] train/evolution_freshwater_fish/metadata_0/q0                 HMS=1.00  n_act= 3  (22s)  submitted='Maximum body length evolution (MBL_evol) significantly impac'
+  [22/40] train/evolution_freshwater_fish/metadata_0/q1                 HMS=0.95  n_act= 3  (11s)  submitted='The spatial variation in speciation rates in South American '
+  [23/40] train/evolution_freshwater_fish/metadata_0/q2                 HMS=0.95  n_act= 3  (10s)  submitted='There is a strong positive relationship between the rate of '
+  [24/40] train/evolution_freshwater_fish/metadata_1/q0                 HMS=0.00  n_act= 3  (13s)  submitted='No evolutionary traits exhibit a negative relationship with '
+  [25/40] train/evolution_freshwater_fish/metadata_1/q1                 HMS=1.00  n_act= 3  (17s)  submitted='The rate of Relative Maxillary Length evolution (RML_evol) e'
+  [26/40] train/evolution_freshwater_fish/metadata_1/q2                 HMS=0.50  n_act= 2  (13s)  submitted='The evolutionary rate of oral gape position (OGP_evol) is po'
+  [27/40] train/evolution_freshwater_fish/metadata_2/q0                 HMS=0.38  n_act= 4  (18s)  submitted='There is no significant association between the rates of Rel'
+  [28/40] train/evolution_freshwater_fish/metadata_2/q1                 HMS=0.25  n_act= 2  (10s)  submitted='There is a moderate positive relationship between the rate o'
+  [29/40] train/evolution_freshwater_fish/metadata_3/q0                 HMS=0.20  n_act= 6  (22s)  submitted="Several entities including 'HYBAS_ID', 'long', 'lat', 'BAMM_"
+  [30/40] train/evolution_freshwater_fish/metadata_3/q1                 HMS=0.75  n_act= 3  (12s)  submitted='There is a very weak positive relationship between speciatio'
+  [31/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.00  n_act= 6  (11s)  submitted=''
+  [32/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.00  n_act= 6  (14s)  submitted=''
+  [33/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.00  n_act= 7  (12s)  submitted=''
+  [34/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.00  n_act= 6  (18s)  submitted=''
+  [35/40] train/nls_bmi/metadata_0/q0                                   HMS=0.75  n_act= 3  (11s)  submitted='In the 1989 data, individuals who exhibit higher time prefer'
+  [36/40] train/nls_bmi/metadata_0/q1                                   HMS=0.75  n_act= 3  (8s)  submitted='In the 1989 data, higher time preference, as indicated by di'
+  [37/40] train/nls_bmi/metadata_1/q0                                   HMS=1.00  n_act= 3  (14s)  submitted='In Hispanic men, lower time preference, indicated by saving '
+  [38/40] train/nls_bmi/metadata_2/q0                                   HMS=0.50  n_act= 5  (16s)  submitted='In Black women, higher time preference, as indicated by diss'
+  [39/40] train/nls_bmi/metadata_3/q0                                   HMS=1.00  n_act= 3  (12s)  submitted='As age increases, the likelihood of withdrawing more money f'
+  [40/40] train/nls_bmi/metadata_3/q1                                   HMS=0.75  n_act= 3  (12s)  submitted='Younger individuals exhibit higher rates of savings withdraw'
+
+=== Summary (total wall 550s) ===
+  OLS-full        HMS.mean=0.479  HMS.sd=0.439  N=20
+  OLS-all-off     HMS.mean=0.536  HMS.sd=0.400  N=20
+
+  Paired Δ HMS (OLS-full − OLS-all-off) = -0.058 ± 0.095 (95% CI)
+  per-task wins/losses/ties (|Δ|>0.05): 4/5/11
+
+[written C:\Users\psgpe\Downloads\Long Horizon Research\lmw\ols_db_openai-gpt-4o-mini_20t.json]

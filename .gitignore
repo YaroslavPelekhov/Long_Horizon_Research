@@ -1,5 +1,6 @@
 # external clones / private data / venvs / caches / secrets
 autodiscovery/
+discoverybench_repo/
 smell/
 _ARCHIVED_nonsmell/
 

@@ -1,0 +1,273 @@
+{
+ "model": "openai/gpt-4o-mini",
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "ablations": [
+  "OLS-full",
+  "OLS-all-off"
+ ],
+ "OLS-full": [
+  {
+   "master_seed": 1,
+   "persistent": true,
+   "ablation": {
+    "use_persistent_store": true,
+    "use_agenda_controller": true,
+    "use_futility_detector": true,
+    "require_claim_before_advance": true,
+    "min_claims_per_subgoal": 1
+   },
+   "reached": 0,
+   "total_rps": -0.09,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.09,
+     "axis1": 0.0,
+     "n_actions": 3,
+     "n_claims_active": 5,
+     "ols_axis1_ratio": 0.231,
+     "ols_axis6_regret": 0.595,
+     "n_subgoals_done": 1,
+     "n_subgoals_abandoned": 1
+    }
+   ]
+  },
+  {
+   "master_seed": 2,
+   "persistent": true,
+   "ablation": {
+    "use_persistent_store": true,
+    "use_agenda_controller": true,
+    "use_futility_detector": true,
+    "require_claim_before_advance": true,
+    "min_claims_per_subgoal": 1
+   },
+   "reached": 0,
+   "total_rps": -0.757,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.757,
+     "axis1": 0.0,
+     "n_actions": 8,
+     "n_claims_active": 19,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 3,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  },
+  {
+   "master_seed": 3,
+   "persistent": true,
+   "ablation": {
+    "use_persistent_store": true,
+    "use_agenda_controller": true,
+    "use_futility_detector": true,
+    "require_claim_before_advance": true,
+    "min_claims_per_subgoal": 1
+   },
+   "reached": 0,
+   "total_rps": -0.305,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.305,
+     "axis1": 0.0,
+     "n_actions": 3,
+     "n_claims_active": 6,
+     "ols_axis1_ratio": 0.5,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 1,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  },
+  {
+   "master_seed": 4,
+   "persistent": true,
+   "ablation": {
+    "use_persistent_store": true,
+    "use_agenda_controller": true,
+    "use_futility_detector": true,
+    "require_claim_before_advance": true,
+    "min_claims_per_subgoal": 1
+   },
+   "reached": 0,
+   "total_rps": -0.909,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.909,
+     "axis1": 0.0,
+     "n_actions": 6,
+     "n_claims_active": 16,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 3,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  },
+  {
+   "master_seed": 5,
+   "persistent": true,
+   "ablation": {
+    "use_persistent_store": true,
+    "use_agenda_controller": true,
+    "use_futility_detector": true,
+    "require_claim_before_advance": true,
+    "min_claims_per_subgoal": 1
+   },
+   "reached": 0,
+   "total_rps": -0.79,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.79,
+     "axis1": 0.0,
+     "n_actions": 6,
+     "n_claims_active": 11,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 0,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  }
+ ],
+ "OLS-all-off": [
+  {
+   "master_seed": 1,
+   "persistent": false,
+   "ablation": {
+    "use_persistent_store": false,
+    "use_agenda_controller": false,
+    "use_futility_detector": false,
+    "require_claim_before_advance": false
+   },
+   "reached": 0,
+   "total_rps": -0.913,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.913,
+     "axis1": 0.0,
+     "n_actions": 3,
+     "n_claims_active": 13,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 0,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  },
+  {
+   "master_seed": 2,
+   "persistent": false,
+   "ablation": {
+    "use_persistent_store": false,
+    "use_agenda_controller": false,
+    "use_futility_detector": false,
+    "require_claim_before_advance": false
+   },
+   "reached": 0,
+   "total_rps": -0.15,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.15,
+     "axis1": 0.0,
+     "n_actions": 3,
+     "n_claims_active": 13,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 1,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  },
+  {
+   "master_seed": 3,
+   "persistent": false,
+   "ablation": {
+    "use_persistent_store": false,
+    "use_agenda_controller": false,
+    "use_futility_detector": false,
+    "require_claim_before_advance": false
+   },
+   "reached": 0,
+   "total_rps": -0.43,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.43,
+     "axis1": 0.0,
+     "n_actions": 3,
+     "n_claims_active": 20,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 1,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  },
+  {
+   "master_seed": 4,
+   "persistent": false,
+   "ablation": {
+    "use_persistent_store": false,
+    "use_agenda_controller": false,
+    "use_futility_detector": false,
+    "require_claim_before_advance": false
+   },
+   "reached": 0,
+   "total_rps": -1.864,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -1.864,
+     "axis1": 0.0,
+     "n_actions": 3,
+     "n_claims_active": 29,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 1,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  },
+  {
+   "master_seed": 5,
+   "persistent": false,
+   "ablation": {
+    "use_persistent_store": false,
+    "use_agenda_controller": false,
+    "use_futility_detector": false,
+    "require_claim_before_advance": false
+   },
+   "reached": 0,
+   "total_rps": -1.864,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -1.864,
+     "axis1": 0.0,
+     "n_actions": 4,
+     "n_claims_active": 29,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 1,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  }
+ ]
+}

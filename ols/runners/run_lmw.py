@@ -144,17 +144,30 @@ def run_seed(
 
 # -- run sweep ---------------------------------------------------------------
 
+# v0.2: OLS-full enables the require_claim_before_advance gate so the
+# inner LLM cannot skip past sub-goals without populating the ClaimStore.
+# Diagnosis from v0.1 was that gpt-4o-mini bypassed claim assertion when
+# the overlay's machinery was optional. The gate makes it load-bearing.
 ABLATIONS = [
     ("OLS-full",
-     dict(use_persistent_store=True, use_agenda_controller=True, use_futility_detector=True)),
+     dict(use_persistent_store=True, use_agenda_controller=True,
+          use_futility_detector=True, require_claim_before_advance=True,
+          min_claims_per_subgoal=1)),
     ("OLS-mem-off",
-     dict(use_persistent_store=False, use_agenda_controller=True, use_futility_detector=True)),
+     dict(use_persistent_store=False, use_agenda_controller=True,
+          use_futility_detector=True, require_claim_before_advance=True,
+          min_claims_per_subgoal=1)),
     ("OLS-agn-off",
-     dict(use_persistent_store=True, use_agenda_controller=False, use_futility_detector=True)),
+     dict(use_persistent_store=True, use_agenda_controller=False,
+          use_futility_detector=True, require_claim_before_advance=True,
+          min_claims_per_subgoal=1)),
     ("OLS-fut-off",
-     dict(use_persistent_store=True, use_agenda_controller=True, use_futility_detector=False)),
+     dict(use_persistent_store=True, use_agenda_controller=True,
+          use_futility_detector=False, require_claim_before_advance=True,
+          min_claims_per_subgoal=1)),
     ("OLS-all-off",
-     dict(use_persistent_store=False, use_agenda_controller=False, use_futility_detector=False)),
+     dict(use_persistent_store=False, use_agenda_controller=False,
+          use_futility_detector=False, require_claim_before_advance=False)),
 ]
 
 # Mapping: persistent flag tells the curriculum loop whether to carry store

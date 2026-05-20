@@ -1,0 +1,56 @@
+
+=== OLS × DiscoveryBench-Real-train ===
+  inner=openai/gpt-4o-mini  judge=openai/gpt-4o  budget=12.0 actions/episode
+  tasks: 20 (stratified by file order); ablations: ['OLS-full', 'OLS-all-off']
+
+--- ablation: OLS-full ---
+  [1/40] train/evolution_freshwater_fish/metadata_0/q0                 HMS=0.20  n_act= 8  (19s)  submitted='BAMM_speciation and MBL_evol are the key variables to focus '
+  [2/40] train/evolution_freshwater_fish/metadata_0/q1                 HMS=1.00  n_act= 8  (16s)  submitted='MBL_evol is identified as the most influential factor in exp'
+  [3/40] train/evolution_freshwater_fish/metadata_0/q2                 HMS=0.90  n_act= 9  (22s)  submitted='There is a strong positive relationship between the rate of '
+  [4/40] train/evolution_freshwater_fish/metadata_1/q0                 HMS=0.40  n_act=11  (40s)  submitted='The rates of Maximum Body Length evolution (MBL_evol) and Bo'
+  [5/40] train/evolution_freshwater_fish/metadata_1/q1                 HMS=0.00  n_act= 9  (22s)  submitted='There is a strong negative relationship between speciation r'
+  [6/40] train/evolution_freshwater_fish/metadata_1/q2                 HMS=0.50  n_act= 5  (22s)  submitted='variables(BAMM_speciation, OGP_evol, RML_evol) are relevant '
+  [7/40] train/evolution_freshwater_fish/metadata_2/q0                 HMS=0.50  n_act= 9  (20s)  submitted='BAMM_speciation has no significant association with BEL_evol'
+  [8/40] train/evolution_freshwater_fish/metadata_2/q1                 HMS=0.50  n_act= 6  (22s)  submitted='BEL_evol and BAMM_speciation are the primary variables of in'
+  [9/40] train/evolution_freshwater_fish/metadata_3/q0                 HMS=0.00  n_act=11  (20s)  submitted='There is a weak but significant positive relationship betwee'
+  [10/40] train/evolution_freshwater_fish/metadata_3/q1                 HMS=0.25  n_act= 5  (17s)  submitted='BAMM_speciation and diversity are relevant variables for exp'
+  [11/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.75  n_act=13  (28s)  submitted='A unit increase in the ease or costs of offshoring (iv_offsh'
+  [12/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.00  n_act=11  (35s)  submitted="relevant_variables = {'iv_offshoring_1', 'share_immi_imputed"
+  [13/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.50  n_act=14  (34s)  submitted='Increased ease of immigration positively affects the local j'
+  [14/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.00  n_act= 5  (31s)  submitted='relevant_variables = {iv_offshoring_1, share_immi_imputed}'
+  [15/40] train/nls_bmi/metadata_0/q0                                   HMS=0.75  n_act= 7  (21s)  submitted='Higher BMI in 1989 is positively associated with dissaving b'
+  [16/40] train/nls_bmi/metadata_0/q1                                   HMS=0.32  n_act= 8  (22s)  submitted='BMI, INCOME, and DISSAVED are the key variables for explorin'
+  [17/40] train/nls_bmi/metadata_1/q0                                   HMS=0.25  n_act= 6  (20s)  submitted='BMI, DISSAVED, and GENDER are relevant variables for explori'
+  [18/40] train/nls_bmi/metadata_2/q0                                   HMS=0.75  n_act=11  (21s)  submitted='In Black women, a tendency towards dissaving is positively a'
+  [19/40] train/nls_bmi/metadata_3/q0                                   HMS=1.00  n_act= 8  (16s)  submitted='As age increases, the likelihood of withdrawing more money f'
+  [20/40] train/nls_bmi/metadata_3/q1                                   HMS=1.00  n_act= 7  (17s)  submitted='Younger individuals exhibit a higher tendency to withdraw fr'
+--- ablation: OLS-all-off ---
+  [21/40] train/evolution_freshwater_fish/metadata_0/q0                 HMS=0.95  n_act= 6  (14s)  submitted='Maximum body length evolution has a strong positive impact o'
+  [22/40] train/evolution_freshwater_fish/metadata_0/q1                 HMS=0.90  n_act= 4  (12s)  submitted='The rate of maximum body length evolution positively influen'
+  [23/40] train/evolution_freshwater_fish/metadata_0/q2                 HMS=0.20  n_act= 5  (16s)  submitted='BAMM_speciation, MBL_evol, and DR are relevant variables for'
+  [24/40] train/evolution_freshwater_fish/metadata_1/q0                 HMS=0.00  n_act=10  (20s)  submitted='corr(BAMM_speciation, MBL_evol) ≈ +0.88 and corr(BAMM_specia'
+  [25/40] train/evolution_freshwater_fish/metadata_1/q1                 HMS=1.00  n_act= 9  (29s)  submitted='There is a negative relationship between the rate of Relativ'
+  [26/40] train/evolution_freshwater_fish/metadata_1/q2                 HMS=0.20  n_act= 9  (27s)  submitted='BAMM_speciation, OGP_evol, and RML_evol are relevant variabl'
+  [27/40] train/evolution_freshwater_fish/metadata_2/q0                 HMS=0.05  n_act= 6  (26s)  submitted='BAMM_speciation, BAMM_extinction, BEL_evol, MBL_evol, OGP_ev'
+  [28/40] train/evolution_freshwater_fish/metadata_2/q1                 HMS=0.25  n_act= 6  (17s)  submitted='The rate of body elongation evolution is positively correlat'
+  [29/40] train/evolution_freshwater_fish/metadata_3/q0                 HMS=0.38  n_act=10  (22s)  submitted='There is a weak but significant positive relationship betwee'
+  [30/40] train/evolution_freshwater_fish/metadata_3/q1                 HMS=0.50  n_act= 5  (19s)  submitted='BAMM_speciation and diversity are key variables for explorin'
+  [31/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.75  n_act= 6  (12s)  submitted='An increase of 1 unit in iv_offshoring_1 reduces the share o'
+  [32/40] train/immigration_offshoring_effect_on_employment/metadata_0  HMS=0.00  n_act=14  (18s)  submitted='variables iv_offshoring_1 and share_immi_imputed are relevan'
+  [33/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.12  n_act=13  (18s)  submitted='iv_offshoring_1 and share_immi_imputed are key variables for'
+  [34/40] train/immigration_offshoring_effect_on_employment/metadata_1  HMS=0.00  n_act=17  (21s)  submitted="focus_variables = {'share_immi_imputed', 'iv_offshoring_1'}"
+  [35/40] train/nls_bmi/metadata_0/q0                                   HMS=0.75  n_act= 7  (43s)  submitted='In the 1989 data, individuals who dissaved exhibited a highe'
+  [36/40] train/nls_bmi/metadata_0/q1                                   HMS=1.00  n_act= 4  (15s)  submitted='In the 1989 NLSY79 data, higher time preference, as indicate'
+  [37/40] train/nls_bmi/metadata_1/q0                                   HMS=0.50  n_act= 9  (19s)  submitted='In Hispanic men, a time preference indicated by a 24.77% dis'
+  [38/40] train/nls_bmi/metadata_2/q0                                   HMS=0.20  n_act= 9  (23s)  submitted='variables(BMI, INCOME, DISSAVED, BLACK) are relevant for exp'
+  [39/40] train/nls_bmi/metadata_3/q0                                   HMS=0.20  n_act= 6  (18s)  submitted='AGE, DISSAVED, and INCOME are relevant variables for explori'
+  [40/40] train/nls_bmi/metadata_3/q1                                   HMS=0.25  n_act= 4  (14s)  submitted='AGE, DISSAVED, and SAMESAVE are relevant variables for explo'
+
+=== Summary (total wall 888s) ===
+  OLS-full        HMS.mean=0.479  HMS.sd=0.351  N=20
+  OLS-all-off     HMS.mean=0.410  HMS.sd=0.357  N=20
+
+  Paired Δ HMS (OLS-full − OLS-all-off) = +0.069 ± 0.222 (95% CI)
+  per-task wins/losses/ties (|Δ|>0.05): 10/6/4
+
+[written C:\Users\psgpe\Downloads\Long Horizon Research\lmw\ols_db_openai-gpt-4o-mini_20t.json]

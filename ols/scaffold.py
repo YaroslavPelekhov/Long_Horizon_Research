@@ -80,6 +80,14 @@ class OLSScaffold:
     max_inner_calls_per_subgoal: int = 6
     max_total_inner_calls: int = 48
     do_final_retest: bool = True
+    # v0.2 load-bearing gates: forces the inner agent to actually populate
+    # the overlay's machinery instead of bypassing it with a terminal action.
+    require_claim_before_advance: bool = False
+    # The inner agent may not call advance_subgoal=True until it has emitted
+    # at least N claims under the current sub-goal. The scaffold honors halt
+    # at any time (the agent can still terminate the whole episode); only the
+    # per-sub-goal advance is gated.
+    min_claims_per_subgoal: int = 1
     # for cross-episode reuse (Open-Ended LMW style continuity)
     carry_store: ClaimStore | None = None
     seed: int | None = None
@@ -215,9 +223,35 @@ class OLSScaffold:
                     ):
                         agenda.abandon(fg, adapter.budget_spent())
 
-                # 2f. Advance sub-goal if inner agent says so
+                # 2f. Advance sub-goal if inner agent says so — but gated by
+                #     require_claim_before_advance so the overlay's ClaimStore
+                #     is actually populated rather than bypassed by a terminal
+                #     submit_hypothesis action.
                 if response.advance_subgoal:
-                    agenda.mark_done(current_sg, adapter.budget_spent())
+                    claims_under_sg = agenda.items[current_sg].claims_added
+                    if (self.require_claim_before_advance
+                            and claims_under_sg < self.min_claims_per_subgoal):
+                        # Reject the advance; agent must emit a claim first.
+                        # Signal back via the history channel so the inner
+                        # agent sees the rejection on its next turn.
+                        per_sg_history[current_sg].append({
+                            "action": "(scaffold)",
+                            "args": {},
+                            "eid": -1,
+                            "summary": {"gated_advance": (
+                                f"Your advance_subgoal=true was REJECTED: "
+                                f"you must emit ≥{self.min_claims_per_subgoal} "
+                                f"claim(s) under sub-goal '{current_sg}' before "
+                                f"advancing. Emit a 'claims' delta on your next "
+                                f"turn, then advance."
+                            )},
+                        })
+                        if self.verbose:
+                            print(f"[OLS] gated advance on {current_sg}: "
+                                  f"claims_under_sg={claims_under_sg} < "
+                                  f"{self.min_claims_per_subgoal}")
+                    else:
+                        agenda.mark_done(current_sg, adapter.budget_spent())
 
                 # 2g. Halt
                 if response.halt:
@@ -225,8 +259,8 @@ class OLSScaffold:
 
                 # Soft cap on per-sub-goal inner calls (defense-in-depth)
                 if len([h for h in per_sg_history[current_sg]
-                        if "action" in h]) >= self.max_inner_calls_per_subgoal \
-                   and not response.advance_subgoal:
+                        if "action" in h]) >= self.max_inner_calls_per_subgoal:
+                    # mark done (even if gate not met) to prevent infinite loop
                     agenda.mark_done(current_sg, adapter.budget_spent())
 
                 history.append({

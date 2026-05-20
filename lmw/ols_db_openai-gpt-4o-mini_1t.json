@@ -1,0 +1,37 @@
+{
+ "inner_model": "openai/gpt-4o-mini",
+ "judge_model": "openai/gpt-4o",
+ "budget": 12.0,
+ "n_tasks": 1,
+ "ablations_run": [
+  "OLS-full"
+ ],
+ "per_task": {
+  "OLS-full": [
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_0/q0",
+    "domain": "biology",
+    "query_type": "variable",
+    "ablation": {
+     "use_persistent_store": true,
+     "use_agenda_controller": true,
+     "use_futility_detector": true,
+     "require_claim_before_advance": true,
+     "min_claims_per_subgoal": 1
+    },
+    "primary": 0.72,
+    "HMS": 0.72,
+    "submitted": "Maximum body length evolution (MBL_evol) is a significant factor influencing speciation rates (BAMM_speciation) in South American freshwater fishes, with a correlation coefficient of +0.88.",
+    "judge_explain": "The context is slightly narrower, focusing on South American freshwater fishes, but still relevant to the broader question of speciation rates. The variables are correctly identified as maximum body length evolution and speciation rates. The relationship is positive, but the magnitude differs slight",
+    "n_actions": 11,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_subgoals_done": 4,
+    "n_subgoals_abandoned": 0,
+    "axis1_ratio": 1.0,
+    "axis6_regret": 0.0,
+    "wall_time_s": 21.587125301361084
+   }
+  ]
+ }
+}

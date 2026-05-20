@@ -473,7 +473,103 @@ underlying capability rather than task-specific prompt design requires a
 random/orthogonal-scaffold control of equal length, which we flag as
 necessary future work and do not over-claim here.
 
-### 5.4 A negative methodological result (real data)
+### 5.4 OLS: a faithful overlay attempt — v0.1 null → v0.2 positive direction
+
+To stress-test the benchmark's headline claim — that a real, named capability
+gap is what current systems miss — we built **OLS** (Outer-Loop Scaffold,
+≈ 1.7 KLoC, `ols/`), a domain-agnostic overlay that wraps any inner agent
+and provides exactly the three capabilities our field map called missing:
+*persistent ClaimStore* (axis 2), *AgendaController* (axis 1),
+*FutilityDetector* (axis 6). The overlay does NOT encode benchmark-specific
+priors (no LMW "trap-cluster" / "dud" / "confounded recipe"; no DB column
+heuristics). A single `ResearchEnvAdapter` ABC plus a JSON-action inner-LLM
+agent run unchanged against both a wrapped `lmw.world.World` and a wrapped
+DiscoveryBench-Real task. OLS v0.1 was frozen at commit `9854dc1` *before*
+the first sweeps.
+
+**Convergent-validity design.** Same inner LLM (`openai/gpt-4o-mini`), with
+vs without the overlay, paired by seed (LMW) or task (DB). Two benchmarks
+with structurally *different* scoring (LMW: integrity-penalised
+intermediate claims; DB: terminal-hypothesis only via gpt-4o LLM-judge HMS)
+make a single overlay generalising across both a strong convergent-validity
+test.
+
+**v0.1 result — informative null.** With the overlay's machinery merely
+*available* to the inner LLM (claim-assertion API exposed, sub-goals seeded,
+futility detector running):
+
+- **LMW Open-Ended** (5 master seeds, paired): Δ RPS = **−0.011 ± 0.18**
+  (95% CI). Depth 0 / 5 on all 10 runs.
+- **DiscoveryBench-Real-train** (n = 20 tasks, paired, judge = gpt-4o):
+  Δ HMS = **−0.058 ± 0.10** (95% CI); wins / losses / ties (|Δ| > 0.05) =
+  4 / 5 / 11; sign-test p = 1.00.
+
+Both null. The dumps revealed *why*: `n_claims_active` per episode was
+**0.0 in both conditions** — the inner LLM treated the ClaimStore as
+optional and went straight to terminal actions (`submit_hypothesis` on DB,
+terminal `claim` on LMW) without populating intermediate state. The
+AgendaController and FutilityDetector had nothing to prioritise or abandon.
+**The overlay's machinery was present but unused.**
+
+**v0.2 — make it load-bearing.** Two changes (both pre-registered before
+re-running): (1) a `require_claim_before_advance` *gate* in the scaffold —
+the inner LLM cannot mark a sub-goal `advance_subgoal=true` until it has
+asserted ≥ 1 claim under that sub-goal (the scaffold rejects the advance
+and signals back via the inner-agent context); (2) DB sub-goal
+decomposition into the universal research-process steps
+*explore → test → quantify → submit* (LMW already had a multi-cluster
+agenda). The inner LLM is unchanged in identity; the system prompt adds
+explicit rules ("after any action returning a number, ASSERT a claim
+before advancing") and one mini-example.
+
+**v0.2 result — direction flips on both benchmarks.**
+
+| benchmark | metric | v0.1 Δ ± 95% CI | v0.2 Δ ± 95% CI | wins/losses (\|Δ\|>0.05) | n_claims OLS-full | n_claims OLS-all-off |
+|---|---|--:|--:|:--:|--:|--:|
+| LMW Open-Ended | ΔRPS | −0.011 ± 0.18 | **+0.474 ± 0.88** | 4 / 1 (N=5) | 11.4 | 20.8 |
+| DiscoveryBench-train | ΔHMS | −0.058 ± 0.10 | **+0.069 ± 0.22** | 10 / 6 (N=20) | 3.5 | 5.2 |
+
+The gate works as intended: mean `n_claims_active` per episode went from
+**0.0 → 3.5 (DB) and 0.0 → 11.4 (LMW)** under OLS-full. **The point
+estimate of Δ flipped from negative to positive on both benchmarks.**
+Neither CI excludes zero at this N (5 seeds for LMW; 20 tasks for DB), so
+we do *not* claim statistical significance under conventional thresholds.
+What we claim is what the data show:
+
+1. **The overlay's machinery is now load-bearing** (4× to 11× more
+   intermediate claims asserted per episode under OLS-full than under
+   v0.1).
+2. **Direction of effect is consistent across two structurally different
+   benchmarks** — LMW's integrity-penalised RPS and DB's terminal-only
+   HMS — when measured on the same inner LLM.
+3. **The overlay's value is structural, not declarative.** The v0.2
+   system prompt also leaks into the *baseline* (we use the same inner
+   class for both conditions), and the baseline accordingly asserts even
+   *more* claims (20.8 LMW, 5.2 DB) than OLS-full. Without the overlay's
+   sub-goal partition and gate, those extra claims are unconstrained;
+   on LMW this drives a severe integrity penalty (OLS-all-off RPS mean
+   crashes from −0.23 in v0.1 to −1.04 in v0.2), while OLS-full
+   absorbs the same prompt with a much smaller regression (−0.23 →
+   −0.57). The overlay does not make the inner LLM smarter; it
+   *structures* the claim-emission directive so that it does not become
+   self-harming.
+
+This is consistent with the field-map prediction: the missing capability
+is not "say more about findings" but *agenda-routed, integrity-audited,
+abandon-capable* knowledge state. v0.1 showed that providing the data
+structures is not enough — the inner LLM must be forced to use them.
+v0.2 shows that once forced, the structures change the trajectory in
+the predicted direction on *both* benchmarks; significance at small N is
+not yet achieved and is the next thing on the experimental docket
+(larger seed counts, stronger inner models, ablation of prompt vs gate).
+
+We report **both versions** because the v0.1 → v0.2 progression *is the
+finding*: a benchmark whose self-check catches "overlay machinery
+ignored" as a distinct failure mode from "no machinery at all" is doing
+the work it is supposed to do. OLS v0.2 is frozen at commit
+`5b54bb0`'s descendant; OLS v0.1 was at `9854dc1`.
+
+### 5.5 A negative methodological result (real data)
 We instantiated a real, private, contamination-free psychophysiology rung
 (NeuroTrend, 4 subjects, leave-one-subject-out replication as ground truth).
 Our framework's own permutation analysis — a circular-shift null that

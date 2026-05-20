@@ -1,0 +1,35 @@
+{
+ "model": "openai/gpt-4o-mini",
+ "seeds": [
+  1
+ ],
+ "ablations": [
+  "OLS-full"
+ ],
+ "OLS-full": [
+  {
+   "master_seed": 1,
+   "persistent": true,
+   "ablation": {
+    "use_persistent_store": true,
+    "use_agenda_controller": true,
+    "use_futility_detector": true
+   },
+   "reached": 0,
+   "total_rps": -0.244,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.244,
+     "axis1": 0.0,
+     "n_actions": 7,
+     "n_claims_active": 6,
+     "ols_axis1_ratio": 1.0,
+     "ols_axis6_regret": 0.0,
+     "n_subgoals_done": 3,
+     "n_subgoals_abandoned": 0
+    }
+   ]
+  }
+ ]
+}
