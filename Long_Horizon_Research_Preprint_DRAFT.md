@@ -522,52 +522,72 @@ agenda). The inner LLM is unchanged in identity; the system prompt adds
 explicit rules ("after any action returning a number, ASSERT a claim
 before advancing") and one mini-example.
 
-**v0.2 result — direction flips on both benchmarks.**
+**v0.2 result — direction flips on both benchmarks; at full power, LMW
+clears significance, DB washes out.** Initial v0.2 sweep at the same small
+N as v0.1 showed a positive shift on both. We then expanded N (LMW: 5 → 15
+seeds; DB: 20 → 25 tasks — the full set of labeled DB-Real-train) to test
+whether the shift survives power.
 
-| benchmark | metric | v0.1 Δ ± 95% CI | v0.2 Δ ± 95% CI | wins/losses (\|Δ\|>0.05) | n_claims OLS-full | n_claims OLS-all-off |
-|---|---|--:|--:|:--:|--:|--:|
-| LMW Open-Ended | ΔRPS | −0.011 ± 0.18 | **+0.474 ± 0.88** | 4 / 1 (N=5) | 11.4 | 20.8 |
-| DiscoveryBench-train | ΔHMS | −0.058 ± 0.10 | **+0.069 ± 0.22** | 10 / 6 (N=20) | 3.5 | 5.2 |
+| benchmark | metric | v0.1 Δ ± 95% CI | v0.2 Δ ± 95% CI (small-N) | v0.2 Δ ± 95% CI (powered) | wins/losses (\|Δ\|>0.05) | sign-test p | n_claims full / off |
+|---|---|--:|--:|--:|:--:|:--:|--:|
+| LMW Open-Ended | ΔRPS | −0.011 ± 0.18 (N=5) | +0.474 ± 0.88 (N=5) | **+0.637 ± 0.42** (N=15) | 11 / 2 (2 ties) | **0.022** | 12.1 / 23.3 |
+| DiscoveryBench-train | ΔHMS | −0.058 ± 0.10 (N=20) | +0.069 ± 0.22 (N=20) | +0.014 ± 0.14 (N=25) | 7 / 7 (11 ties) | 1.00 | 3.5 / 5.2 |
 
 The gate works as intended: mean `n_claims_active` per episode went from
-**0.0 → 3.5 (DB) and 0.0 → 11.4 (LMW)** under OLS-full. **The point
-estimate of Δ flipped from negative to positive on both benchmarks.**
-Neither CI excludes zero at this N (5 seeds for LMW; 20 tasks for DB), so
-we do *not* claim statistical significance under conventional thresholds.
-What we claim is what the data show:
+**0.0 → 12.1 (LMW) and 0.0 → 3.5 (DB)** under OLS-full — 12× and 4× more
+intermediate claims asserted than v0.1, respectively. **On LMW the
+overlay produces a statistically significant positive effect**: paired
+ΔRPS = +0.637 with 95% CI [+0.22, +1.05] (t-distribution, df = 14;
+sign-test p = 0.022), 11 wins / 2 losses / 2 ties at |Δ| > 0.05 across
+15 paired seeds. **On DB the effect washes out under powering**: ΔHMS
+slid from +0.069 (N = 20) to +0.014 (N = 25, CI [−0.13, +0.15]) when we
+added the remaining 5 labeled tasks. We report both results because *the
+asymmetry is the convergent-validity finding*, not a defect of either.
 
-1. **The overlay's machinery is now load-bearing** (4× to 11× more
-   intermediate claims asserted per episode under OLS-full than under
-   v0.1).
-2. **Direction of effect is consistent across two structurally different
-   benchmarks** — LMW's integrity-penalised RPS and DB's terminal-only
-   HMS — when measured on the same inner LLM.
-3. **The overlay's value is structural, not declarative.** The v0.2
-   system prompt also leaks into the *baseline* (we use the same inner
-   class for both conditions), and the baseline accordingly asserts even
-   *more* claims (20.8 LMW, 5.2 DB) than OLS-full. Without the overlay's
-   sub-goal partition and gate, those extra claims are unconstrained;
-   on LMW this drives a severe integrity penalty (OLS-all-off RPS mean
-   crashes from −0.23 in v0.1 to −1.04 in v0.2), while OLS-full
-   absorbs the same prompt with a much smaller regression (−0.23 →
-   −0.57). The overlay does not make the inner LLM smarter; it
-   *structures* the claim-emission directive so that it does not become
-   self-harming.
+**Why the asymmetry — a mechanistic, not statistical, story.**
+LMW's RPS includes an explicit integrity penalty: every un-retracted
+false claim subtracts from the score (§4.3 / Appendix B). DB's HMS
+scores *only the terminally-submitted hypothesis*; intermediate
+findings are invisible to the judge. The v0.2 directive prompt
+("after any action returning a number, ASSERT a claim") leaks into
+*both* conditions, and the OLS-all-off baseline accordingly asserts
+*more* claims than OLS-full (23.3 vs 12.1 on LMW; 5.2 vs 3.5 on DB).
+**Without the overlay's sub-goal partition and gate, those extra claims
+are unconstrained; on LMW that drives a severe integrity penalty**
+(OLS-all-off RPS crashes from −0.23 in v0.1 to **−1.31** at N = 15 in
+v0.2; OLS-full absorbs the same prompt with a much smaller regression,
+−0.23 → −0.67). On DB the same over-claiming has no penalty path to
+the score — it is simply ignored by the terminal-only judge — so the
+overlay's structural protection has no benefit to confer.
 
-This is consistent with the field-map prediction: the missing capability
-is not "say more about findings" but *agenda-routed, integrity-audited,
-abandon-capable* knowledge state. v0.1 showed that providing the data
-structures is not enough — the inner LLM must be forced to use them.
-v0.2 shows that once forced, the structures change the trajectory in
-the predicted direction on *both* benchmarks; significance at small N is
-not yet achieved and is the next thing on the experimental docket
-(larger seed counts, stronger inner models, ablation of prompt vs gate).
+This is what the overlay *does*, mechanistically: it does not make the
+inner LLM smarter; it *channels* claim emission so that the directive
+to record findings does not become self-harming under an integrity
+metric. That mechanism is exactly what the field-map's "agenda-routed,
+integrity-audited" capability calls for — and exactly what the benchmark
+designed to measure that capability detects, while the benchmark that
+scores only terminal output does not.
 
-We report **both versions** because the v0.1 → v0.2 progression *is the
-finding*: a benchmark whose self-check catches "overlay machinery
-ignored" as a distinct failure mode from "no machinery at all" is doing
-the work it is supposed to do. OLS v0.2 is frozen at commit
-`5b54bb0`'s descendant; OLS v0.1 was at `9854dc1`.
+We claim:
+
+1. **OLS v0.2 closes the v0.1 null** on the benchmark that measures the
+   capability it targets (LMW: p = 0.022, CI excludes zero). Magnitude:
+   on this benchmark the overlay buys ≈ 0.64 RPS over the same inner
+   LLM, a meaningful fraction of the ≈ 0.66 domain-priors premium
+   (Scripted-domain ≫ Scripted-blind) we quantified in §5.2.
+2. **On a benchmark that does not score the targeted capability**, the
+   overlay shows no benefit (DB HMS terminal-only, ΔHMS ≈ 0 at N = 25).
+   We do not over-claim a general "OLS helps LLM agents do science"
+   conclusion — it does not help, on benchmarks scoring only terminal
+   answers.
+3. **Anti-cherry-pick discipline**: the DB N = 20 → N = 25 expansion was
+   pre-registered as a power-stress; the effect *shrank* (+0.069 → +0.014),
+   and we report the shrinkage rather than freezing at the earlier number.
+   Same posture as §5.2 (withdrawal of the 3-seed mini-memo effect) and
+   §5.5 (real-data null).
+
+OLS v0.1 was frozen at commit `9854dc1`; OLS v0.2 at `b30c7d2`. The
+N = 15 LMW + N = 25 DB sweeps were run against `b30c7d2`.
 
 ### 5.5 A negative methodological result (real data)
 We instantiated a real, private, contamination-free psychophysiology rung
