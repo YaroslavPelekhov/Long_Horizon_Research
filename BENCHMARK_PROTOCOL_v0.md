@@ -301,8 +301,11 @@ To prevent the "designed both the benchmark and the winner" critique:
 ## 13. Versioning & changelog
 
 - **v0.1 (this document).** Protocol drafted from paper rev.2.
-- **Frozen code snapshot** (to be pinned): `lmw/` at commit hash
-  `<HASH>` (filled when the repo is tagged for the first protocol cut).
+- **Frozen code snapshot** (pinned): `lmw/` at commit
+  `daf85268c467e0e41680ed2b7f27e95046bfaa02` (git tag `v0.1`). Submissions
+  against protocol v0.1 are scored on this commit; any change to scorer /
+  generator / gate τ / budget formula bumps the protocol version and is
+  recorded in this changelog with a new hash.
 - **First leaderboard cut** (planned): scripted ladder + AutoDiscovery
   wrapped to `WorldSource`, against dev seeds `1..20` and hidden seeds
   `100..120`.
