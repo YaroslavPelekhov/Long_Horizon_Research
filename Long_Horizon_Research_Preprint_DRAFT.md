@@ -627,14 +627,69 @@ gpt-4o-mini scale, the model's reasoning bandwidth is the binding
 constraint, so the added structure is a *distractor* rather than a
 helper — every additional accumulated-claim list or agenda-status
 table eats context the model would otherwise spend on the current
-sub-goal. We predict (and do not test here) that the sign would
-flip with a stronger inner model whose context-bandwidth is not the
-bottleneck; we report the result as it is and refrain from claiming
-the v0.2 instantiation of axis-1 and axis-2 closes the gap. **The
-overlay's design hypothesis — that ClaimStore + Agenda + Futility
-jointly close the named gap — is partially refuted by its own
-ablation**, and the +0.637 RPS gain it produces on LMW is real but
-not attributable to the modules the design assigned.
+sub-goal. We predicted that the sign would flip with a stronger
+inner model whose context-bandwidth is not the bottleneck. **We
+tested this** (next paragraph). **The overlay's design hypothesis —
+that ClaimStore + Agenda + Futility jointly close the named gap —
+is partially refuted by its own ablation**, and the +0.637 RPS gain
+it produces on LMW with mini is real but not attributable to the
+modules the design assigned.
+
+**Stronger-inner-model test (LMW, gpt-4o, N = 10).** To check whether
+the module signs flip under a stronger inner LLM (or whether the
+overlay is wrong design irrespective of inner scale), we re-ran four
+ablations (OLS-full, OLS-mem-off, OLS-agn-off, OLS-all-off) with
+`openai/gpt-4o` swapped in for `gpt-4o-mini` everywhere else held
+fixed (same v0.2 code at `b30c7d2`, same paired seeds 1…10):
+
+| condition | mean RPS, mini (N=15) | mean RPS, gpt-4o (N=10) |
+|---|--:|--:|
+| OLS-full | −0.674 | −0.513 |
+| OLS-mem-off | −0.433 | −0.544 |
+| OLS-agn-off | −0.465 | −0.623 |
+| OLS-all-off | −1.311 | **−0.388** |
+
+| paired Δ vs OLS-full | mini (N=15) | gpt-4o (N=10) |
+|---|--:|--:|
+| OLS-mem-off | **+0.241** (p=0.035, mem HURTS mini) | −0.031 (NS) |
+| OLS-agn-off | **+0.210** (p=0.022, agn HURTS mini) | −0.110 (NS) |
+| OLS-all-off | **−0.637** (p=0.022, overlay HELPS mini) | **+0.125** (t-CI [+0.02, +0.23]) |
+
+The signs on the individual modules collapse to ≈ zero / weakly
+helpful with the stronger inner — consistent with the bandwidth
+hypothesis on the component level. But the *overall* overlay effect
+**inverts**: on gpt-4o, the overlay marginally *hurts* (OLS-all-off
+beats OLS-full by +0.125 RPS; t-CI excludes 0; sign-test p = 0.22
+with 4/10 ties, so we treat this as directionally clear / marginal
+significance, not strongly inferred at this N). Why? gpt-4o's
+no-overlay baseline (RPS = −0.388) is *already much higher than
+mini's overlay-on RPS* (−0.674); it does not catastrophically
+over-claim under the directive prompt the way mini does, so there
+is nothing for the overlay to *protect*. The overlay's contribution
+on mini was reducing self-inflicted integrity damage, not closing
+the outer-loop gap. The capability gap *to a stronger inner LLM* is
+larger (≈ 0.29 RPS, mini-OLS-full to gpt-4o-OLS-all-off) than what
+the overlay buys on mini (0.64 RPS *up to a still-lower ceiling*).
+
+**Honest synthesis of the OLS arc.** The overlay's value is **inner-
+model-dependent and bounded**: a weak inner LLM that crashes under
+a directive prompt benefits substantially from the overlay's
+structural channelling (+0.64 RPS, p = 0.022), but the same
+structures are dead weight or worse on a stronger inner LLM that
+does not crash. *Picking a better inner LLM outperforms applying the
+overlay* (gpt-4o-all-off −0.388 ≫ mini-OLS-full −0.674), and the
+overlay does not close the gap to either the gpt-4o ceiling or the
+domain-aware Scripted-domain reference (+0.459 in §5.2). Of the
+three field-map capabilities (axes 1, 2, 6) the overlay was
+designed to provide, only axis-6 (FutilityDetector) shows a
+directionally consistent positive effect across inner-LLM scales;
+axes 1 and 2, as instantiated in v0.2, hurt mini and have no
+detectable benefit on gpt-4o. **The gap remains unsolved.** A
+correct overlay design would have to provide axis-1 and axis-2
+capabilities *that do not consume the inner agent's context budget
+or distract its attention* — a substantially harder design problem
+than wrapping a claim store around the JSON-action protocol. We
+flag this as the v0.3 direction.
 
 This is our **third self-detected negative result** (after the
 withdrawn 3-seed memo effect in §5.2 and the demoted real-data rung
