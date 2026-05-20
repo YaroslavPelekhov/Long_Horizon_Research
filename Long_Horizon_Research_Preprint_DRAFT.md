@@ -232,14 +232,36 @@ ordering across all tested systems on Open-Ended LMW (5-seed mean total RPS):
 | 8 | Generic LLM / deepseek-chat | −0.158 |
 | 9 | Scripted, naive | −0.200 |
 | 10 | Generic LLM / llama-3.3-70b | −0.241 |
-| 11 | LLM gpt-4o (generic agent) | ≈ −0.28 |
-| 12 | AutoDisc-algo / deepseek-chat | −0.402 |
-| 13 | Scripted, abandon-ablated (−abandon) | −0.489 |
+| 11 | **Tree-Search-LLM-Judge / gpt-4o-mini** (adapter, ≈ AI Scientist v2 kernel) | **−0.243** |
+| 12 | LLM gpt-4o (generic agent) | ≈ −0.28 |
+| 13 | AutoDisc-algo / deepseek-chat | −0.402 |
+| 14 | Scripted, abandon-ablated (−abandon) | −0.489 |
 
-The **AutoDisc-algo adapter** is an algorithm-faithful re-implementation of
-AutoDiscovery (Agarwal et al., NeurIPS 2025: Bayesian surprise + MCTS + LLM
-belief elicitation) on the LMW `World` API — labelled as an adapter to not
-imply we benchmarked the original codebase (Appendix C, Appendix F).
+Two algorithm-faithful adapters anchor the leaderboard to published literature:
+
+- **AutoDisc-algo** — re-implementation of AutoDiscovery (Agarwal et al.,
+  NeurIPS 2025): Bayesian surprise + MCTS with progressive widening + LLM
+  belief elicitation, on LMW's `World` API.
+- **Tree-Search-LLM-Judge** — re-implementation of the *outer-loop kernel*
+  of AI Scientist v2 (Yamada et al., 2025): best-first tree search with
+  LLM-as-judge for node values, on LMW's `World` API. Their published
+  contribution is largely the ML-research scaffolding (experiment_designer
+  / code_writer / paper_writer); the search kernel is what transfers, and
+  is labelled as such.
+
+Both are labelled adapters; we do not imply we benchmarked the original
+codebases. The remaining top systems (CodeScientist, Robin, Asta, Google
+co-scientist, AI Scientist v1, Zochi) have core mechanisms that do not
+transfer to a synthetic interventional world without becoming something
+else (literature retrieval, paper+codeblock genetic search, ML-paper
+authoring, LLM-vs-LLM red-teaming); they are deferred to community
+submissions per protocol §8.
+
+A useful side-effect of having two adapters: the leaderboard now
+distinguishes *algorithmic families*. At the same model tier (gpt-4o-mini),
+AutoDisc-algo (Bayesian-surprise + MCTS, RPS −0.100) **outperforms**
+Tree-Search-LLM-Judge (best-first + LLM-judge, RPS −0.243). The metric is
+sensitive to the search/reward mechanism even within the LLM-driven class.
 
 **Model × cost sweep (Appendix C):** we tested both adapter agents
 (AutoDisc-algo, Generic LLM with strategy memo) across four model tiers —
@@ -507,6 +529,7 @@ setting with a positive agent result.
 | AutoDisc-algo | gpt-4o (T1) | −0.068 | +0.053 | −0.121 | 0.00 / **0.33** | \$0.118 |
 | AutoDisc-algo | llama-3.3-70b (T0) | −0.086 | −0.057 | −0.029 | 0.00 / 0.00 | \$0.005 |
 | AutoDisc-algo | gpt-4o-mini (T0) | −0.100 | −0.243 | +0.143 | 0.00 / 0.00 | \$0.005 |
+| Tree-Search-LLM-Judge | gpt-4o-mini (T0) | −0.243 | −0.257 | +0.014 | 0.00 / 0.00 | \$0.002 |
 | AutoDisc-algo | deepseek-chat (T0) | −0.402 | −0.373 | −0.029 | 0.00 / 0.00 | \$0.016 |
 | Generic LLM (w/ memo) | gpt-4o-mini (T0) | −0.060 | +0.011 | −0.071 | 0.00 / **0.20** | \$0.005 |
 | Generic LLM | deepseek-chat (T0) | −0.158 | −0.221 | +0.063 | 0.00 / 0.00 | \$0.011 |
