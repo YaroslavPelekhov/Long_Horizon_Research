@@ -289,7 +289,32 @@ masters a full curriculum on average; cross-horizon mastery remains the
 **posed open challenge** of this benchmark.
 
 The full model × system × seed sweep cost \$0.16 (≈3% of project total
-\$2.46) — the metric is cheap enough for community-wide sweeps.
+\$2.49) — the metric is cheap enough for community-wide sweeps.
+
+**Multi-metric view (post-hoc, no new API).** RPS is the metric of record,
+but the protocol also requires per-submission reporting of depth, integrity,
+axis-1/2/6 sub-scores, and cost. We compile a multi-metric leaderboard from
+the existing per-seed JSON dumps (N=23 entries across all systems × models ×
+conditions on Open-Ended LMW; `lmw/metrics_multi.py`).
+
+- **Pareto front on (RPS ↑, Cost ↓): {Scripted/Full}, single entry.** The
+  deterministic scripted reference (RPS +0.459, cost \$0) Pareto-dominates
+  the *entire* LLM-driven leaderboard. Every paid LLM entry is dominated by
+  the free reference — a clean measured statement that the outer loop is
+  currently unsolved by LLM-driven systems at any tier.
+- **ρ(RPS, Cost) = +0.24 across all 23 entries.** Throwing money at the
+  benchmark does not buy RPS; spend and quality are decoupled on the
+  measured leaderboard. The integrity property — "raw capability without
+  calibration does not score higher" — was claimed in §5.1 and is now a
+  measured rank-correlation.
+- **ρ(RPS, Depth) = +0.66, moderate.** The two milestones share signal but
+  are not redundant; reporting both is informative (consistent with the
+  validated-vs-posed split in §6b: continuous RPS is the metric of record,
+  depth is a posed mastery milestone with different sensitivity).
+- **Composite mean-rank** across (RPS, Depth, Cost) reproduces the headline
+  ranking — Scripted/Full ≫ Scripted/-mem ≫ LLM-tier entries — and surfaces
+  the AutoDisc/gpt-4o:−mem-seed-1 outlier (depth-1 single-seed result
+  promotes it on depth-rank but its CI ±0.86 on RPS is huge).
 
 The ordering is graded and tiered: a competent reference process ≫ a small
 LLM > a larger LLM (which over-claims under the integrity term) > degenerate
