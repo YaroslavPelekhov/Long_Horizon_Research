@@ -43,8 +43,9 @@ including zero** — it is not an artifact of a harsh penalty. In Open-Ended
 LMW the consistency invariant holds, and — because integer stage-mastery
 ("depth") floors for current LLMs — the **metric of record is the continuous
 Research Program Score**, which produces a graded, non-degenerate ranking
-across systems (competent reference ≫ gpt-4o-mini > gpt-4o > degenerate
-baselines); depth is reported as a secondary, currently-unreached milestone. We also report a negative methodological result: a naive
+across systems (domain-aware process oracle ≫ gpt-4o-mini > a schema-blind
+statistical baseline > gpt-4o > degenerate no-goal / no-abandon baselines);
+depth is reported as a secondary, currently-unreached milestone. We also report a negative methodological result: a naive
 real-data instantiation (private psychophysiology, N=4, leave-one-subject-out)
 fails our own framework's permutation-based validity check — the replication
 oracle is statistically indistinguishable from an autocorrelation-preserving
@@ -56,15 +57,109 @@ itself is near-free; the bulk is repeated frontier-model runs).
 
 ## 1. Introduction
 
-[Explosion of autonomous-science systems, 2024–2026; evaluated per-episode.
-The capability that separates a researcher from a one-shot pipeline — running
-a *program* over time — is unmeasured. Thesis: it is unmeasured because it is
-hard to measure, and that is precisely why it is unsolved. We make it
-measurable, contamination-immune, and ceiling-free, and show current agents
-are gated shallow by it.]
+Between late 2024 and early 2026 the field shipped a wave of autonomous-
+science systems — AutoDiscovery, AI Scientist v1/v2, Robin, CodeScientist,
+Genesys, Google's AI co-scientist, Asta, Zochi — and the published evaluation
+of each one is, at its core, a *single-episode artifact judgement*: "does the
+produced finding, paper, or codeblock look good?" The capability that
+separates a working researcher from a one-shot pipeline — running a
+*program* over time, with an evolving research agenda, a persistent revisable
+theory, and effort reallocated under delayed reward — sits in none of those
+evaluations. The field's own 2025 surveys independently flag this gap
+(typically as a memory or "long-horizon" failure mode), but flagging is not
+measuring: no benchmark we are aware of scores the outer loop, and the
+absence of a score is precisely why a system can be reported as "doing
+science" without ever being asked to *keep* doing science.
 
-Contributions (1)–(4) as in the abstract, plus the empirical arc and an
-explicit account of what our own validity checks ruled out.
+We argue the omission is not an oversight; it is structural. Scoring a
+research program needs ground truth over months, an attribution model that
+isolates the agent's autonomy from seed luck, and a target that grades a
+*trajectory* rather than a *paper*. Open-discovery has no answer key,
+month-scale latency cannot be a dev loop, and seed-luck swamps small-N
+contrasts. **The outer loop is unmeasured because it is hard to measure, and
+that is exactly why it remains unsolved.** Our project is to make it
+measurable.
+
+**This paper's claim is a measurement instrument and a measured ranking, not
+a new agent.** We instantiate four design devices — *surrogate time* (a
+"month" = a tightly budgeted experimental ledger), a *counterfactual
+ablation harness* (the value of a capability = `RPS(Full) − RPS(−capability)`
+on the same seed), the *Research Program Score* (RPS: continuous area of
+validated-retained-causally-grounded knowledge minus integrity penalty for
+un-retracted false claims), and an *Open-Ended* curriculum whose *truth is
+frozen and only the agent's horizon moves* — and submit the result to its
+own correctness battery (consistency self-test, held-out shapes,
+integrity-penalty robustness incl. weight 0, τ-robustness, 2×2 axis-1 / axis-6
+separability, and a permutation null that *demoted our own real-data rung*
+when it failed).
+
+Three findings frame the empirical contribution and we state them up front
+so the reader is not surprised by the structure of §5.
+
+**(a) Depth ≠ metric of record. Depth = posed milestone; continuous RPS
+ranks.** A frequent reading of "no LLM clears stage-1 depth at 5 seeds" is
+"the benchmark is unsolvable." That reading conflates two things the
+protocol keeps separate. *Depth* (the count of curriculum stages mastered)
+is a hard, integer, monotone-difficulty milestone — it currently floors at 0
+for every LLM we ran, which is the *posed open challenge of the benchmark,
+not its failure mode*. *RPS* (the continuous area-under-validated-knowledge
+score) is the **metric of record**, and it produces a graded, non-degenerate
+ranking on Open-Ended LMW across every system, model, and ablation we
+tested: a domain-aware process oracle ≫ gpt-4o-mini > a schema-blind
+statistical baseline > gpt-4o > degenerate (no-goal / no-abandon)
+baselines (§5.2). A benchmark whose continuous metric ranks but whose
+integer milestone floors is doing the work it is supposed to do — it
+discriminates *and* it leaves a falsifiable challenge on the table.
+
+**(b) Methodological discipline as result, not asterisk.** An early 3-seed
+pass on gpt-4o-mini suggested the cross-stage strategy memo gave +0.18 RPS
+("memory scaffold helps the small model"). We re-ran at 5 seeds; the effect
+**reversed in sign** and landed within seed noise (the per-seed contrast
+flipped from +0.18 to −0.07; Appendix C). We **withdraw the original claim**
+and report the withdrawal as a result: an outer-loop benchmark whose value
+is to catch small-N seed-luck artifacts in *other people's* agents must
+catch them in its own pilot first. Independently, our circular-shift
+permutation null on a private psychophysiology rung returned p ≈ 0.76
+expected-FDR, indistinguishable from an autocorrelation-preserving null at
+N = 4 — so we **demoted the real-data rung to a cautionary pilot** and make
+no agent claims from it (§5.4 / Appendix D). Both episodes are reported in
+the main text rather than hidden in supplementary, because the same
+discipline is what we ask submitters to apply.
+
+**(c) Algorithm > Model on the LLM side, measured.** Two algorithm-faithful
+adapters anchor the leaderboard to the published literature: *AutoDisc-algo*
+(Bayesian surprise + MCTS with progressive widening + LLM belief
+elicitation, after Agarwal et al., NeurIPS 2025) and *Tree-Search-LLM-Judge*
+(best-first tree search with LLM-as-judge for node values, the outer-loop
+kernel of AI Scientist v2; Yamada et al., 2025). Across a four-tier model
+sweep (`gpt-4o-mini`, `gpt-4o`, `llama-3.3-70b`, `deepseek-chat`),
+AutoDisc-algo with an open-weights llama at \$0.005 / run is
+Pareto-equivalent to AutoDisc-algo with gpt-4o at \$0.118 / run (~25×
+cheaper, marginal RPS difference); the generic LLM agent with gpt-4o is
+strictly worse than the same agent with gpt-4o-mini (over-claiming under the
+integrity term). The Spearman ρ(RPS, Cost) across the full 25-entry
+multi-metric table is +0.21 (§5.2): *the benchmark is not buyable*. The
+substantive scientific gap the benchmark exposes is not "the bigger
+model wins"; it is the ≈ 0.20 RPS gap from a generic schema-blind
+statistical baseline to the current LLM frontier, and the ≈ 0.66 RPS gap
+from there to a domain-aware human-written process — the latter is exactly
+the outer-loop competence current systems lack.
+
+**Contributions.** (1) A 7-axis decomposition of long-horizon research and
+a field map collapsing the gap to one cluster (autonomous agenda +
+persistent revisable theory + portfolio planning under delayed reward).
+(2) **LMW** (Latent Mechanism World): the construct-valid synthetic metric,
+its harness, and the Research Program Score. (3) A domain-agnostic
+`WorldSource` adapter boundary that lets the same scorer / harness / agent
+code run against any concrete world. (4) **Open-Ended LMW**: an infinite,
+deterministic, lazily-materialized, contamination-immune, ceiling-free
+extension with a built-in consistency self-test. (5) An *empirical arc*
+that includes — and reports — the validity checks that demoted parts of our
+own pilot (the 3-seed mini-memo effect, the N=4 real-data rung): the
+benchmark is shipped *together with the evidence of its own discipline*.
+(6) A measured, algorithm-anchored leaderboard with two re-implementations
+of published outer-loop kernels, showing **algorithm > model** at fixed
+compute and integrity-property robustness (ρ(RPS, Cost) ≈ +0.21).
 
 ## 2. The outer loop and the field gap
 
@@ -220,22 +315,61 @@ stage-mastery does floor for LLMs, but the continuous Research Program Score
 (cumulative validated-knowledge area) yields a graded, non-degenerate
 ordering across all tested systems on Open-Ended LMW (5-seed mean total RPS):
 
+Three reference rows must be read carefully (and we relabel them here to avoid
+a frequent reviewer misreading):
+
+- **Scripted-domain** ("/Full" etc.) = a hand-coded reference whose *strategy
+  code* encodes LMW invariants (it knows there is a confounded-trap cluster
+  with a latent, a dud cluster, and a true cause buried among decoys). It has
+  the same allowed surface as every other agent (`world.observe/intervene/
+  budget`, the cluster partition; no truth access), but its strategy is the
+  ceiling a domain-aware human would write. It is **not a fair-game
+  competitor** to a general-purpose agent — we report it as a *process
+  oracle*. The "−mem / −goal / −abandon" rows are capability ablations of
+  this same domain-aware scripted strategy.
+- **Scripted-blind** = a deterministic statistical baseline on the same
+  surface but with **no LMW priors**: correlate within clusters, intervene on
+  strong correlations, claim `causal()` iff the do-effect is significant.
+  No `no_effect` / `confounded` synthesis, no dud-cluster heuristics. This
+  is the fair-game scripted comparator for general-purpose agents.
+- **LLM rows** for the Generic LLM agent: "−mem" denotes ablation of the
+  *cross-stage strategy memo* (axis-2 ablation), not memory of intra-stage
+  sub-claims. We use the same Full / −mem column names as the scripted rows
+  to keep the protocol uniform, but the operation ablated differs across
+  agent classes; per-system documentation in `lmw/`.
+
 | rank | system | total RPS |
 |--:|---|--:|
-| 1 | Scripted reference (Full) | **+0.459** |
-| 2 | Scripted, memory-ablated (−mem) | +0.360 |
-| 3 | LLM gpt-4o-mini | ≈ −0.01 (−0.06…+0.01) |
-| 4 | Scripted, goal-ablated (−goal) | −0.003 |
+| 1 | **Scripted-domain/Full** (process oracle, domain-aware) | **+0.459** |
+| 2 | Scripted-domain/−mem | +0.360 |
+| 3 | LLM gpt-4o-mini (Generic, Full −0.06 / −mem +0.01) | ≈ 0.0 |
+| 4 | Scripted-domain/−goal | −0.003 |
 | 5 | **AutoDisc-algo / gpt-4o** (adapter) | **−0.068** |
 | 6 | **AutoDisc-algo / llama-3.3-70b** (adapter) | **−0.086** |
 | 7 | AutoDisc-algo / gpt-4o-mini (adapter) | −0.100 |
-| 8 | Generic LLM / deepseek-chat | −0.158 |
-| 9 | Scripted, naive | −0.200 |
-| 10 | Generic LLM / llama-3.3-70b | −0.241 |
-| 11 | **Tree-Search-LLM-Judge / gpt-4o-mini** (adapter, ≈ AI Scientist v2 kernel) | **−0.243** |
-| 12 | LLM gpt-4o (generic agent) | ≈ −0.28 |
-| 13 | AutoDisc-algo / deepseek-chat | −0.402 |
-| 14 | Scripted, abandon-ablated (−abandon) | −0.489 |
+| 8 | Generic LLM / deepseek-chat (Full −0.16 / −mem −0.22) | −0.158 |
+| 9 | Scripted-domain/naive | −0.200 |
+| 10 | **Scripted-blind** (schema-blind statistical baseline) | **−0.204** |
+| 11 | Generic LLM / llama-3.3-70b | −0.241 |
+| 12 | **Tree-Search-LLM-Judge / gpt-4o-mini** (adapter, ≈ AI Scientist v2 kernel) | **−0.243** |
+| 13 | LLM gpt-4o (generic agent) | ≈ −0.28 |
+| 14 | AutoDisc-algo / deepseek-chat | −0.402 |
+| 15 | Scripted-domain/−abandon | −0.489 |
+
+**Reading the gaps (the honest framing).** *Scripted-domain/Full ≫
+Scripted-blind* (≈ 0.66 RPS) **quantifies the domain-priors premium** — what
+a strategy author with LMW invariants in mind buys versus the same surface
+with only generic causal-discovery heuristics. The gap from *Scripted-blind*
+to the best LLM (gpt-4o-mini, ≈ 0.0) is only ≈ 0.20: current general-purpose
+LLMs at their best are within reach of a generic deterministic statistical
+baseline, **not** within reach of a domain-aware human-written process. So
+the Pareto-front observation (§5.2 / metrics) — that Scripted-domain/Full
+alone Pareto-dominates the rest — should be read as *"a process oracle with
+domain priors and zero cost beats every paid LLM-driven entry"*, not as
+*"the scripted family is a fair-game winner."* The substantive scientific
+gap that this benchmark exposes is the ≈ 0.20 from generic statistics to
+the LLM frontier and the ≈ 0.66 from there to a domain-aware ceiling — the
+latter is the outer-loop competence current systems lack.
 
 Two algorithm-faithful adapters anchor the leaderboard to published literature:
 
@@ -294,27 +428,33 @@ The full model × system × seed sweep cost \$0.16 (≈3% of project total
 **Multi-metric view (post-hoc, no new API).** RPS is the metric of record,
 but the protocol also requires per-submission reporting of depth, integrity,
 axis-1/2/6 sub-scores, and cost. We compile a multi-metric leaderboard from
-the existing per-seed JSON dumps (N=23 entries across all systems × models ×
-conditions on Open-Ended LMW; `lmw/metrics_multi.py`).
+the existing per-seed JSON dumps (N=25 entries — 23 from the LLM × adapter
+sweep plus 2 Scripted-blind conditions; `lmw/metrics_multi.py`).
 
-- **Pareto front on (RPS ↑, Cost ↓): {Scripted/Full}, single entry.** The
-  deterministic scripted reference (RPS +0.459, cost \$0) Pareto-dominates
-  the *entire* LLM-driven leaderboard. Every paid LLM entry is dominated by
-  the free reference — a clean measured statement that the outer loop is
-  currently unsolved by LLM-driven systems at any tier.
-- **ρ(RPS, Cost) = +0.24 across all 23 entries.** Throwing money at the
-  benchmark does not buy RPS; spend and quality are decoupled on the
-  measured leaderboard. The integrity property — "raw capability without
-  calibration does not score higher" — was claimed in §5.1 and is now a
-  measured rank-correlation.
-- **ρ(RPS, Depth) = +0.66, moderate.** The two milestones share signal but
-  are not redundant; reporting both is informative (consistent with the
-  validated-vs-posed split in §6b: continuous RPS is the metric of record,
-  depth is a posed mastery milestone with different sensitivity).
+- **Pareto front on (RPS ↑, Cost ↓): {Scripted-domain/Full}, single entry.**
+  The domain-aware process oracle (RPS +0.459, cost \$0) Pareto-dominates
+  every other row, including the schema-blind statistical baseline at the
+  same \$0 cost. The headline reads correctly only with the framing of the
+  paragraph above this one: *Scripted-domain has LMW invariants encoded in
+  its strategy code*; it is the domain-aware ceiling, not a fair-game
+  competitor to general-purpose agents. The fair-game scripted comparator
+  is Scripted-blind (RPS −0.204), and current LLMs at their best
+  (gpt-4o-mini-Generic-LLM, RPS ≈ 0.0) sit *above* Scripted-blind, not
+  below it.
+- **ρ(RPS, Cost) = +0.21 across all 25 entries** (weak). Throwing money at
+  the benchmark does not buy RPS; spend and quality are decoupled. The
+  integrity property — "raw capability without calibration does not score
+  higher" — is now a measured rank-correlation, not just a §5.1 verbal
+  claim.
+- **ρ(RPS, Depth) = +0.64** (moderate). The two milestones share signal but
+  are not redundant; reporting both is informative (consistent with §6b:
+  continuous RPS is the metric of record, depth is a posed mastery
+  milestone with different sensitivity).
 - **Composite mean-rank** across (RPS, Depth, Cost) reproduces the headline
-  ranking — Scripted/Full ≫ Scripted/-mem ≫ LLM-tier entries — and surfaces
-  the AutoDisc/gpt-4o:−mem-seed-1 outlier (depth-1 single-seed result
-  promotes it on depth-rank but its CI ±0.86 on RPS is huge).
+  ranking — Scripted-domain/Full ≫ Scripted-domain/−mem ≫ LLM-tier entries
+  ≈ Scripted-blind — and surfaces the AutoDisc/gpt-4o:−mem-seed-1 outlier
+  (depth-1 single-seed result promotes it on depth-rank but its CI ±0.86
+  on RPS is huge).
 
 The ordering is graded and tiered: a competent reference process ≫ a small
 LLM > a larger LLM (which over-claims under the integrity term) > degenerate
@@ -547,9 +687,23 @@ than mini's via over-claiming under the integrity term; the 3-seed memo
 benefit was a seed artifact.** The rung is a hard posed challenge, not a
 setting with a positive agent result.
 
-**Full model × system sweep on Open-Ended LMW (3 seeds for new entries):**
+**Full model × system sweep on Open-Ended LMW.** All rows below are
+*LLM-driven* adapter/agent entries; for every row in this table, the
+*Full* / *−mem* columns ablate the **cross-stage strategy memo only**
+(the axis-2 ablation specific to learning agents) — not the intra-stage
+sub-claim memory and not the scripted-agent capability ablations
+(`−mem`, `−goal`, `−abandon`) reported for the domain-aware reference
+in §5.2 / Appendix C above. N=5 master seeds for `gpt-4o-mini` and
+`gpt-4o` Generic-LLM rows (carried over from the powered axis-2 sweep
+above); **N=3 master seeds** for all newly-added adapter rows
+(AutoDisc-algo across all four tiers, Tree-Search-LLM-Judge,
+Generic-LLM-llama, Generic-LLM-deepseek) — these are descriptive
+ranking points, *not* powered effect estimates; the N=3 → N=5 powering
+lesson (the withdrawn mini-memo +0.18 effect that did not survive
+re-running, §5.2) applies to any single small-Δ contrast in this
+table.
 
-| system | model (tier) | RPS Full | RPS −mem | Δ memo | depth Full / −mem | cost/run |
+| system | model (tier) | RPS Full (with memo) | RPS −mem (memo ablated) | Δ memo | depth Full / −mem | cost/run |
 |---|---|--:|--:|--:|--:|--:|
 | AutoDisc-algo | gpt-4o (T1) | −0.068 | +0.053 | −0.121 | 0.00 / **0.33** | \$0.118 |
 | AutoDisc-algo | llama-3.3-70b (T0) | −0.086 | −0.057 | −0.029 | 0.00 / 0.00 | \$0.005 |
@@ -564,9 +718,12 @@ setting with a positive agent result.
 Compatibility note: `openai/o3-mini` and `openai/gpt-5.5` (reasoning models)
 return empty completions under the single-JSON-action protocol with our
 token cap; both excluded as integration failures, not cherry-picked.
-`anthropic/claude-3.5-sonnet` returned 404 on its v0-protocol model id; we
-do not guess revised ids to control spend (community submissions can add
-Anthropic entries per protocol §8). Total sweep API cost: \$0.16.
+`anthropic/claude-3.5-sonnet` returned 404 on its v0-protocol model id —
+2024-vintage Anthropic ids on OpenRouter have been rotated (revised ids of
+the form `anthropic/claude-sonnet-4-6` etc. exist at the time of writing
+but were not pinned at v0.1 freeze); we do not guess revised ids to control
+spend, and community submissions can add Anthropic entries against the
+current OpenRouter catalog per protocol §8. Total sweep API cost: \$0.16.
 
 **Axis-1 / axis-6 separability** (2×2 factorial, memory=True, L1 dev family,
 4 shapes × 3 struct × 2 noise; cell = mean RPS):

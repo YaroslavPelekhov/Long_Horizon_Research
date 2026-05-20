@@ -129,13 +129,18 @@ _add_dump("AutoDisc/deepseek-chat", "autodisc_deepseek-chat_3s.json",
 _add_dump("TreeSearch/gpt-4o-mini", "treesearch_gpt-4o-mini_3s.json",
           cost=0.002, tier="T0")
 
-# Scripted ladder (no per-seed RPS dump yet -> single-element list = mean only)
+# Scripted-blind statistical baseline (schema-blind, same World surface as LLMs)
+_add_dump("Scripted-blind", "statblind_5s.json", cost=0.0, tier="T0")
+
+# Scripted ladder (no per-seed RPS dump yet -> single-element list = mean only).
+# These are *domain-aware* (their strategy code encodes LMW invariants); they
+# are the process-oracle ceiling, not a fair-game competitor — see §5.2.
 for nm, rps_mean, dep_dist in [
-    ("Scripted/Full", 0.459, [0, 0, 0, 2, 4]),
-    ("Scripted/-mem", 0.360, [0, 0, 0, 2, 4]),
-    ("Scripted/-goal", -0.003, [0, 0, 0, 0, 0]),
-    ("Scripted/-abandon", -0.489, [0, 0, 0, 0, 0]),
-    ("Scripted/naive", -0.200, [0, 0, 0, 0, 0]),
+    ("Scripted-domain/Full", 0.459, [0, 0, 0, 2, 4]),
+    ("Scripted-domain/-mem", 0.360, [0, 0, 0, 2, 4]),
+    ("Scripted-domain/-goal", -0.003, [0, 0, 0, 0, 0]),
+    ("Scripted-domain/-abandon", -0.489, [0, 0, 0, 0, 0]),
+    ("Scripted-domain/naive", -0.200, [0, 0, 0, 0, 0]),
 ]:
     ENTRIES.append((nm, [rps_mean], dep_dist, 0.0, "T0"))
 
