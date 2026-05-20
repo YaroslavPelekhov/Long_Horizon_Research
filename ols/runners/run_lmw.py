@@ -153,6 +153,14 @@ ABLATIONS = [
      dict(use_persistent_store=True, use_agenda_controller=True,
           use_futility_detector=True, require_claim_before_advance=True,
           min_claims_per_subgoal=1)),
+    # Isolates the v0.2 directive-prompt contribution from the gate's
+    # structural enforcement. All three OLS modules ON; only the gate is OFF.
+    # If OLS-full-no-gate ≈ OLS-all-off → ALL the gain comes from the gate.
+    # If OLS-full-no-gate ≈ OLS-full → ALL the gain comes from the modules
+    # themselves (prompt + structure suffice without enforcement).
+    ("OLS-full-no-gate",
+     dict(use_persistent_store=True, use_agenda_controller=True,
+          use_futility_detector=True, require_claim_before_advance=False)),
     ("OLS-mem-off",
      dict(use_persistent_store=False, use_agenda_controller=True,
           use_futility_detector=True, require_claim_before_advance=True,

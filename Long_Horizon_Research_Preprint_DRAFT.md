@@ -586,8 +586,68 @@ We claim:
    Same posture as §5.2 (withdrawal of the 3-seed mini-memo effect) and
    §5.5 (real-data null).
 
-OLS v0.1 was frozen at commit `9854dc1`; OLS v0.2 at `b30c7d2`. The
-N = 15 LMW + N = 25 DB sweeps were run against `b30c7d2`.
+**Component decomposition (LMW, N = 15) — what's actually doing the
+work.** The +0.637 RPS gain on LMW is large and significant, but the
+field-map's named capabilities (axes 1, 2, 6) predict *which* of the
+overlay's three modules should be load-bearing. We ran four additional
+paired sweeps (15 seeds each) that turn off one module at a time, and
+one ("OLS-full-no-gate") that turns off only the v0.2 claim-gate while
+leaving the modules on. The result is sharp:
+
+| ablation (vs OLS-full) | paired Δ RPS | 95% CI | sign-p (w/l/t) | verdict |
+|---|--:|--:|:--:|---|
+| OLS-full-no-gate | +0.004 | [−0.22, +0.23] | 0.58 (8/5/2) | gate ≈ zero contribution |
+| OLS-mem-off (no theory-view) | **+0.241** | [+0.00, +0.49] | **0.035** (12/3/0) | **ClaimStore HURTS** |
+| OLS-agn-off (no priority queue) | **+0.210** | [+0.02, +0.40] | **0.022** (11/2/2) | **AgendaController HURTS** |
+| OLS-fut-off (no abandon policy) | −0.098 | [−0.30, +0.10] | 1.00 (6/7/2) | futility marginally helps |
+| OLS-all-off (anchor) | −0.637 | [−1.05, −0.22] | 0.022 (2/11/2) | known gap, sanity-check |
+
+Reading: ablating *axis-2* (the ClaimStore theory view shown to the
+inner LLM) **improves** RPS by +0.24; ablating *axis-1* (the
+AgendaController priority-queue + lifecycle) improves RPS by +0.21.
+Both significant at p < 0.05 (sign-test). The claim-gate, which we
+introduced in v0.2 specifically to make the overlay load-bearing, is
+not load-bearing in the result: ΔRPS ≈ 0. Only the FutilityDetector
+shows the predicted sign (axis-6 helps), and even there the effect is
+small and not significant.
+
+**Where the +0.637 RPS gain actually comes from** is therefore:
+(i) the v0.2 directive *system prompt* (R1–R5 + mini-example), which
+encourages claim emission and is shared by every condition;
+(ii) the *sub-goal decomposition* itself (the adapter-seeded
+explore/test/quantify/synthesise partition for DB, the per-cluster
+partition for LMW), which is present in every "*-off" condition and
+only removed when both agenda controller and persistent store are
+turned off; and (iii) a small futility-detection contribution that is
+consistent with axis-6 of the field map.
+
+**Honest mechanism hypothesis.** The overlay's theory-view and
+priority-queue add tokens to the inner LLM's context window. At the
+gpt-4o-mini scale, the model's reasoning bandwidth is the binding
+constraint, so the added structure is a *distractor* rather than a
+helper — every additional accumulated-claim list or agenda-status
+table eats context the model would otherwise spend on the current
+sub-goal. We predict (and do not test here) that the sign would
+flip with a stronger inner model whose context-bandwidth is not the
+bottleneck; we report the result as it is and refrain from claiming
+the v0.2 instantiation of axis-1 and axis-2 closes the gap. **The
+overlay's design hypothesis — that ClaimStore + Agenda + Futility
+jointly close the named gap — is partially refuted by its own
+ablation**, and the +0.637 RPS gain it produces on LMW is real but
+not attributable to the modules the design assigned.
+
+This is our **third self-detected negative result** (after the
+withdrawn 3-seed memo effect in §5.2 and the demoted real-data rung
+in §5.5): the benchmark catches a "wrong-modules" attribution error
+in the overlay. We report it in main text because the discipline we
+ask of submissions is the discipline we apply to ourselves; and
+because *this is the kind of finding the benchmark exists to make
+visible*.
+
+OLS v0.1 was frozen at commit `9854dc1`; OLS v0.2 at `b30c7d2`;
+v0.2-component-ablation sweep at the descendant containing this
+result. The N = 15 LMW + N = 25 DB + N = 15 component-ablation
+sweeps were all run against the v0.2 commit.
 
 ### 5.5 A negative methodological result (real data)
 We instantiated a real, private, contamination-free psychophysiology rung
