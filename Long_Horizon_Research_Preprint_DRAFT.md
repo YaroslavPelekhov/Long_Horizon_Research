@@ -226,26 +226,48 @@ ordering across all tested systems on Open-Ended LMW (5-seed mean total RPS):
 | 2 | Scripted, memory-ablated (−mem) | +0.360 |
 | 3 | LLM gpt-4o-mini | ≈ −0.01 (−0.06…+0.01) |
 | 4 | Scripted, goal-ablated (−goal) | −0.003 |
-| 5 | **AutoDisc-algo adapter (Full)** | **−0.100** |
-| 6 | AutoDisc-algo adapter (−mem) | −0.243 |
-| 7 | LLM gpt-4o | ≈ −0.28 |
-| 8 | Scripted, naive | −0.200 |
-| 9 | Scripted, abandon-ablated (−abandon) | −0.489 |
+| 5 | **AutoDisc-algo / gpt-4o** (adapter) | **−0.068** |
+| 6 | **AutoDisc-algo / llama-3.3-70b** (adapter) | **−0.086** |
+| 7 | AutoDisc-algo / gpt-4o-mini (adapter) | −0.100 |
+| 8 | Generic LLM / deepseek-chat | −0.158 |
+| 9 | Scripted, naive | −0.200 |
+| 10 | Generic LLM / llama-3.3-70b | −0.241 |
+| 11 | LLM gpt-4o (generic agent) | ≈ −0.28 |
+| 12 | AutoDisc-algo / deepseek-chat | −0.402 |
+| 13 | Scripted, abandon-ablated (−abandon) | −0.489 |
 
-The **AutoDisc-algo adapter** row is the first real published-algorithm entry on
-the leaderboard: an algorithm-faithful re-implementation of AutoDiscovery
-(Agarwal et al., NeurIPS 2025: Bayesian surprise + MCTS + LLM belief
-elicitation) on the LMW `World` API, labelled as an adapter to not imply we
-benchmarked the original codebase (Appendix F; cost \$0.005 for 3 seeds × 2
-conditions on gpt-4o-mini). It exhibits a clean **axis-2 effect across the
-curriculum** — carrying the persistent `ClaimStore` between namespaced
-stages is worth **+0.143 total RPS** vs the wiped variant (per-seed totals
-−0.086/0.000/−0.214 vs −0.129/−0.386/−0.214; N=3, descriptive). This is
-larger than the within-noise memo effect of the bare LLM agents (§5.3) — a
-first sign that an outer-loop *algorithm* uses persistent theory across the
-horizon more usefully than a single-shot memo does. No system, including this
-adapter, masters a full stage (depth = 0 everywhere): cross-horizon mastery
-remains the posed open challenge.
+The **AutoDisc-algo adapter** is an algorithm-faithful re-implementation of
+AutoDiscovery (Agarwal et al., NeurIPS 2025: Bayesian surprise + MCTS + LLM
+belief elicitation) on the LMW `World` API — labelled as an adapter to not
+imply we benchmarked the original codebase (Appendix C, Appendix F).
+
+**Model × cost sweep (Appendix C):** we tested both adapter agents
+(AutoDisc-algo, Generic LLM with strategy memo) across four model tiers —
+`openai/gpt-4o-mini`, `openai/gpt-4o`, `meta-llama/llama-3.3-70b-instruct`,
+`deepseek/deepseek-chat`. Three patterns survive the model sweep:
+
+1. **Reference ≫ every LLM-driven entry across every model tier** — a 0.5–0.7
+   RPS gap separates the scripted reference (top) from current LLM agents
+   (cluster in [−0.5, +0.05]). The benchmark robustly distinguishes a
+   competent outer-loop process from current LLMs regardless of model.
+2. **Algorithm > model on the LLM side.** AutoDisc-algo with a $0.005 open-
+   weights llama-3.3-70b (RPS −0.086) is Pareto-equivalent to AutoDisc-algo
+   with gpt-4o ($0.118, RPS −0.068) — ~25× cheaper for marginal RPS
+   difference. Generic LLM with gpt-4o is one of the worst entries (−0.28).
+3. **Cross-horizon axis-2 effects are within noise across models at N=3.**
+   The memo Δ ranges from −0.121 to +0.143 with signs flipping between
+   models for both adapter agents; the earlier mini-AutoDisc +0.143 was the
+   single most positive datapoint but does not generalise across model
+   tiers, so we report it as descriptive, not a robust positive effect.
+
+A single seed shows the first non-zero depth in the whole LLM sweep:
+AutoDisc-algo / gpt-4o / −mem variant, seed 1 reaches depth 1 with RPS
++0.389 (an isolated point at N=3; preserved in the per-seed log). No system
+masters a full curriculum on average; cross-horizon mastery remains the
+**posed open challenge** of this benchmark.
+
+The full model × system × seed sweep cost \$0.16 (≈3% of project total
+\$2.46) — the metric is cheap enough for community-wide sweeps.
 
 The ordering is graded and tiered: a competent reference process ≫ a small
 LLM > a larger LLM (which over-claims under the integrity term) > degenerate
@@ -477,6 +499,26 @@ The powered, honest statement: **no LLM we ran progresses on Open-Ended LMW
 than mini's via over-claiming under the integrity term; the 3-seed memo
 benefit was a seed artifact.** The rung is a hard posed challenge, not a
 setting with a positive agent result.
+
+**Full model × system sweep on Open-Ended LMW (3 seeds for new entries):**
+
+| system | model (tier) | RPS Full | RPS −mem | Δ memo | depth Full / −mem | cost/run |
+|---|---|--:|--:|--:|--:|--:|
+| AutoDisc-algo | gpt-4o (T1) | −0.068 | +0.053 | −0.121 | 0.00 / **0.33** | \$0.118 |
+| AutoDisc-algo | llama-3.3-70b (T0) | −0.086 | −0.057 | −0.029 | 0.00 / 0.00 | \$0.005 |
+| AutoDisc-algo | gpt-4o-mini (T0) | −0.100 | −0.243 | +0.143 | 0.00 / 0.00 | \$0.005 |
+| AutoDisc-algo | deepseek-chat (T0) | −0.402 | −0.373 | −0.029 | 0.00 / 0.00 | \$0.016 |
+| Generic LLM (w/ memo) | gpt-4o-mini (T0) | −0.060 | +0.011 | −0.071 | 0.00 / **0.20** | \$0.005 |
+| Generic LLM | deepseek-chat (T0) | −0.158 | −0.221 | +0.063 | 0.00 / 0.00 | \$0.011 |
+| Generic LLM | llama-3.3-70b (T0) | −0.241 | −0.192 | −0.049 | 0.00 / 0.00 | \$0.008 |
+| Generic LLM | gpt-4o (T1) | −0.271 | −0.293 | +0.022 | 0.00 / 0.00 | \$0.08 |
+
+Compatibility note: `openai/o3-mini` and `openai/gpt-5.5` (reasoning models)
+return empty completions under the single-JSON-action protocol with our
+token cap; both excluded as integration failures, not cherry-picked.
+`anthropic/claude-3.5-sonnet` returned 404 on its v0-protocol model id; we
+do not guess revised ids to control spend (community submissions can add
+Anthropic entries per protocol §8). Total sweep API cost: \$0.16.
 
 **Axis-1 / axis-6 separability** (2×2 factorial, memory=True, L1 dev family,
 4 shapes × 3 struct × 2 noise; cell = mean RPS):
