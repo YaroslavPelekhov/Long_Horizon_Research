@@ -32,8 +32,11 @@ project as `newtonbench_repo/`.
 from __future__ import annotations
 
 import importlib
+import io
 import os
 import sys
+import threading
+from contextlib import redirect_stdout
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -76,6 +79,80 @@ NB_LAW_VERSIONS = ["v0", "v1", "v2"]
 # system complexity (vanilla = direct law evaluation; simple/complex = motion-
 # simulation-based observation, which is harder)
 NB_SYSTEMS = ["vanilla_equation"]   # v0.1: stick to vanilla; complex later
+
+
+def _safe_python_exec(code: str, timeout_s: float = 8.0,
+                      max_output_chars: int = 2000) -> str:
+    """Execute Python code in a restricted namespace; return captured stdout.
+
+    Allowed: numpy, scipy, math, statistics, json, regex. Blocked: subprocess,
+    os, sys, eval, exec, import-statement of disallowed modules.
+
+    This is a controlled science-discovery sandbox, NOT a fully hardened
+    sandbox — assumes the inner LLM is non-adversarial. Worst-case bad code
+    just times out or returns an error string.
+    """
+    code = (code or "").strip()
+    if not code:
+        return "(empty code)"
+    # Lightweight blacklist
+    for bad in ("subprocess", "os.system", "os.popen", "os.remove",
+                "os.removedirs", "shutil", "__import__('os')",
+                "__import__('subprocess')", "open(", "eval(", "exec("):
+        if bad in code:
+            return f"ERROR: disallowed token: {bad}"
+
+    import numpy as np
+    import math
+    import statistics as st_stats
+    try:
+        from scipy import optimize as _sp_opt
+        from scipy import stats as _sp_stats
+        HAVE_SCIPY = True
+    except Exception:
+        HAVE_SCIPY = False
+
+    ns: dict[str, Any] = {
+        "np": np, "numpy": np, "math": math, "statistics": st_stats,
+        "abs": abs, "min": min, "max": max, "sum": sum, "round": round,
+        "len": len, "range": range, "list": list, "dict": dict, "set": set,
+        "tuple": tuple, "float": float, "int": int, "str": str, "bool": bool,
+        "zip": zip, "enumerate": enumerate, "sorted": sorted, "print": print,
+        "any": any, "all": all, "map": map, "filter": filter,
+    }
+    if HAVE_SCIPY:
+        ns["optimize"] = _sp_opt
+        ns["scipy_optimize"] = _sp_opt
+        ns["scipy_stats"] = _sp_stats
+
+    out_buf = io.StringIO()
+    out: dict[str, Any] = {}
+
+    def worker():
+        try:
+            with redirect_stdout(out_buf):
+                exec(code, {"__builtins__": ns}, ns)
+            out["ok"] = True
+        except Exception as e:
+            out["err"] = f"{type(e).__name__}: {e}"
+
+    t = threading.Thread(target=worker, daemon=True)
+    t.start()
+    t.join(timeout=timeout_s)
+    if t.is_alive():
+        return f"(timeout > {timeout_s}s)"
+    if "err" in out:
+        captured = out_buf.getvalue()
+        msg = f"ERROR: {out['err']}"
+        if captured:
+            msg += f"\n--- partial stdout ---\n{captured[:max_output_chars]}"
+        return msg
+    captured = out_buf.getvalue().strip()
+    if not captured:
+        return "(no stdout; remember to print() results)"
+    if len(captured) > max_output_chars:
+        captured = captured[:max_output_chars] + "...(truncated)"
+    return captured
 
 
 def _setup_nb_path() -> None:
@@ -153,6 +230,7 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         self._eid_next = 0
         self._submitted_law: str | None = None
         self._all_submitted_attempts: list[str] = []   # for fallback extraction
+        self._action_log: list[dict] = []              # for synthesis fallback
         self._judge_model = judge_model or os.environ.get(
             "MARS_NB_JUDGE_MODEL", "gpt41"
         )
@@ -176,10 +254,27 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             f"    {sig}\n"
             f"that, when evaluated on test inputs, reproduces the underlying "
             f"law as closely as possible.\n\n"
-            f"BUDGET: {int(self._budget_total)} experiment rounds. Per round you "
-            f"may EITHER run a batch of experiments (up to 20 input sets, "
-            f"`run_experiment`) OR submit the final law (`submit_law`, "
-            f"terminal).\n\n"
+            f"BUDGET: {int(self._budget_total)} rounds. Per round, ONE action: "
+            f"`run_experiment` (gather data), `python_exec` (analyze data), or "
+            f"`submit_law` (terminal, no cost). The available action set is "
+            f"listed below.\n\n"
+            f"**RECOMMENDED WORKFLOW** (this is a metaphysical-shift universe — "
+            f"DO NOT assume standard textbook physics!):\n"
+            f"  Rounds 1-3: `run_experiment` with input parameters varied by "
+            f"orders of magnitude (e.g. distance ∈ [0.1, 1, 10, 100, 1000]) — "
+            f"this lets you compute log-log slopes.\n"
+            f"  Round 4: `python_exec` — do log-log linear regression on the "
+            f"gathered data to find the scaling exponents. Example:\n"
+            f"      import numpy as np\n"
+            f"      r = np.array([...])  # distances you tried\n"
+            f"      F = np.array([...])  # forces measured\n"
+            f"      slope, intercept = np.polyfit(np.log(r), np.log(F), 1)\n"
+            f"      print('exponent on r:', slope, 'log-intercept:', intercept)\n"
+            f"  Rounds 5-7: more `run_experiment` to verify scaling on other "
+            f"variables (mass, charge, etc.) — vary one at a time.\n"
+            f"  Round 8: `python_exec` to fit the functional form against all "
+            f"data with scipy.optimize.curve_fit.\n"
+            f"  Round 9-10: `submit_law` with the discovered functional form.\n\n"
             f"**CRITICAL RULES**:\n"
             f"  1. You MUST eventually call `submit_law` — that is the ONLY "
             f"action that yields a score. Running experiments without "
@@ -219,6 +314,26 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
                     ),
                 ),
                 ActionSpec(
+                    name="python_exec",
+                    arg_schema={
+                        "code": (
+                            "str — arbitrary Python (numpy/scipy available as "
+                            "`np`, `numpy`, `optimize`, `scipy_stats`). Use "
+                            "print() to capture results. ~8s timeout."
+                        )
+                    },
+                    cost_estimate=1.0,
+                    description=(
+                        "Run Python locally to ANALYZE experimental data you "
+                        "already gathered. Strongly recommended for: log-log "
+                        "regression to find scaling exponents, curve fitting "
+                        "with scipy.optimize.curve_fit, computing slopes, "
+                        "comparing functional forms numerically. Costs 1 "
+                        "round (same as run_experiment). NO subprocess / os / "
+                        "shutil / file I/O / open()."
+                    ),
+                ),
+                ActionSpec(
                     name="submit_law",
                     arg_schema={
                         "code": (
@@ -253,6 +368,20 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         if self.budget_left() <= 0:
             raise BudgetExhausted("NewtonBench budget exhausted")
 
+        # Hard rule: when only 1 round left, only submit_law is allowed —
+        # force the agent off exploration so it actually submits.
+        if self.budget_left() <= 1.0 and action != "submit_law":
+            eid = self._next_eid()
+            return ExperimentResult(
+                eid=eid, action=action, args=args, cost=0.0, raw=None,
+                summary={
+                    "error": (
+                        "budget_left ≤ 1 — only `submit_law` is allowed now. "
+                        "Submit your best current hypothesis IMMEDIATELY."
+                    )
+                },
+            )
+
         eid = self._next_eid()
 
         if action == "run_experiment":
@@ -286,9 +415,35 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
                 "n_experiments": len(experiments),
                 "outputs": results,
             }
+            self._action_log.append({
+                "action": "run_experiment",
+                "inputs": experiments,
+                "outputs": results,
+            })
             return ExperimentResult(
                 eid=eid, action="run_experiment", args=args, cost=1.0,
                 raw=None, summary=summary,
+            )
+
+        if action == "python_exec":
+            code = str(args.get("code", "")).strip()
+            # Strip <python>...</python> wrappers if Generator copied
+            # NewtonBench's own tag style
+            import re as _re
+            m = _re.search(r"<python>(.*?)</python>", code,
+                           flags=_re.DOTALL | _re.IGNORECASE)
+            if m:
+                code = m.group(1).strip()
+            if code.startswith("```"):
+                code = code.strip("` \n")
+                if code.lower().startswith("python"):
+                    code = code[6:].lstrip("\n")
+            stdout = _safe_python_exec(code)
+            self._budget_spent += 1.0
+            return ExperimentResult(
+                eid=eid, action="python_exec", args={"code_len": len(code)},
+                cost=1.0, raw=None,
+                summary={"code_preview": code[:300], "stdout": stdout},
             )
 
         if action == "submit_law":
@@ -330,7 +485,60 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
 
     # -- scoring ----
 
+    def _synthesize_final_law(self) -> str:
+        """Last-resort LLM call: given the action log, emit a Python law."""
+        try:
+            from openai import OpenAI
+            key = os.environ.get("OPENAI_API_KEY", "")
+            base_url = os.environ.get("OPENAI_BASE_URL")
+            if not base_url and key.startswith("sk-or-"):
+                base_url = "https://openrouter.ai/api/v1"
+            client = (OpenAI(base_url=base_url, api_key=key)
+                      if base_url else OpenAI())
+            model = os.environ.get("MARS_GENERATOR_MODEL", "openai/gpt-4o-mini")
+            sig = self._module.FUNCTION_SIGNATURE
+            # compact log
+            import json as _json
+            log_lines = []
+            for a in self._action_log[-12:]:
+                if a["action"] == "run_experiment":
+                    pairs = list(zip(a["inputs"][:6], a["outputs"][:6]))
+                    log_lines.append(f"experiments: {_json.dumps(pairs)[:400]}")
+            log_block = "\n".join(log_lines) or "(no experiments)"
+            sys_p = (
+                "You are a scientific-discovery assistant. The user gathered "
+                "experimental data but did not submit a final law. Given the "
+                "experimental log, return EXACTLY one Python function with "
+                f"the signature `{sig}` that best fits the data. Reply with "
+                "ONLY the function code, no markdown, no explanation."
+            )
+            usr = f"Experimental log:\n{log_block}\n\nReturn the function now."
+            r = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "system", "content": sys_p},
+                          {"role": "user", "content": usr}],
+                temperature=0.1, max_tokens=400,
+            )
+            txt = (r.choices[0].message.content or "").strip()
+            if txt.startswith("```"):
+                txt = txt.strip("` \n")
+                if txt.lower().startswith("python"):
+                    txt = txt[6:].lstrip("\n")
+            # heuristic: keep from first 'def discovered_law' to end of indented block
+            import re as _re
+            m = _re.search(r"(def discovered_law\b.*)", txt, flags=_re.DOTALL)
+            if m:
+                txt = m.group(1)
+            return txt.strip()
+        except Exception:
+            return ""
+
     def score_episode(self, claim_store_active, final_artifact=None) -> dict:
+        # Fallback: if agent never submitted, synthesize a final law from the
+        # action log via one extra LLM call. Mirrors NewtonBench's own
+        # "force final submission" fallback.
+        if not self._submitted_law and self._action_log:
+            self._submitted_law = self._synthesize_final_law()
         if not self._submitted_law:
             return {
                 "primary": 0.0, "SA": 0.0, "rmsle": float("nan"),

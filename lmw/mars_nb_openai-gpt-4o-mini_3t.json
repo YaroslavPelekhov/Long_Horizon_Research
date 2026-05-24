@@ -2,19 +2,18 @@
  "generator_model": "openai/gpt-4o-mini",
  "reflector_model": "openai/gpt-4o-mini",
  "judge_model": "gpt41",
- "budget": 10.0,
+ "budget": 14.0,
  "n_tasks": 3,
  "ablations_run": [
-  "MARS-full",
-  "MARS-all-off"
+  "MARS-full"
  ],
  "modules": [
-  "m0_gravity",
-  "m1_coulomb_force",
-  "m4_snell_law"
+  "m0_gravity"
  ],
  "difficulties": [
-  "easy"
+  "easy",
+  "medium",
+  "hard"
  ],
  "per_task": {
   "MARS-full": [
@@ -32,14 +31,45 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 6.937851699552559,
+    "rmsle": 0.4505152685744547,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(mass1, mass2, distance):\n    G = 6.674e-11  # gravitational constant\n    return G * (mass1 * mass2) / (distance ** 2)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 9,
+    "n_actions": 14,
+    "n_claims_active": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 59.44225072860718
+   },
+   {
+    "task_label": "m0_gravity/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m0_gravity",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 3.2217326318715505,
     "symbolic_equivalent": false,
     "submitted_preview": "def discovered_law(mass1, mass2, distance):\n   C = 6.674\n   return (C * mass1 * mass2) / (distance ** 2)",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 5,
-    "n_actions": 9,
+    "n_turns": 8,
+    "n_actions": 14,
     "n_claims_active": 0,
-    "n_generator_calls": 5,
+    "n_generator_calls": 8,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -47,125 +77,30 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 79.08427500724792
+    "wall_time_s": 54.573710203170776
    },
    {
-    "task_label": "m1_coulomb_force/easy/v0/vanilla_equation/n=0.0/t0",
-    "module": "m1_coulomb_force",
-    "difficulty": "easy",
-    "law_version": "v0",
-    "system": "vanilla_equation",
-    "noise_level": 0.0,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.0,
-    "SA": 0.0,
-    "rmsle": 1.2948186367399213,
-    "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(q1, q2, distance):\n   return (q1 * q2) / (distance ** 2)",
-    "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 4,
-    "n_actions": 7,
-    "n_claims_active": 0,
-    "n_generator_calls": 4,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 53.53479790687561
-   },
-   {
-    "task_label": "m4_snell_law/easy/v0/vanilla_equation/n=0.0/t0",
-    "module": "m4_snell_law",
-    "difficulty": "easy",
-    "law_version": "v0",
-    "system": "vanilla_equation",
-    "noise_level": 0.0,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.0,
-    "SA": 0.0,
-    "rmsle": 1.4084301737406006,
-    "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    try:\n        return math.degrees(math.asin((n1/n2) * math.sin(math.radians(angle1))))\n    except ValueError:\n        return float('nan')",
-    "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 7,
-    "n_actions": 9,
-    "n_claims_active": 0,
-    "n_generator_calls": 7,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 98.85850477218628
-   }
-  ],
-  "MARS-all-off": [
-   {
-    "task_label": "m0_gravity/easy/v0/vanilla_equation/n=0.0/t0",
+    "task_label": "m0_gravity/hard/v0/vanilla_equation/n=0.0/t0",
     "module": "m0_gravity",
-    "difficulty": "easy",
+    "difficulty": "hard",
     "law_version": "v0",
     "system": "vanilla_equation",
     "noise_level": 0.0,
     "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": NaN,
+    "rmsle": 4.533021117027893,
     "symbolic_equivalent": false,
-    "submitted_preview": "",
-    "judge_explain": "(no law submitted)",
-    "n_turns": 5,
-    "n_actions": 8,
-    "n_claims_active": 0,
-    "n_generator_calls": 5,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 24.7223162651062
-   },
-   {
-    "task_label": "m1_coulomb_force/easy/v0/vanilla_equation/n=0.0/t0",
-    "module": "m1_coulomb_force",
-    "difficulty": "easy",
-    "law_version": "v0",
-    "system": "vanilla_equation",
-    "noise_level": 0.0,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.0,
-    "SA": 0.0,
-    "rmsle": 9.993989801473617,
-    "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(q1, q2, distance):\n   C = 2e5\n   return (C * q1 * q2) / (distance ** 2)",
+    "submitted_preview": "def discovered_law(mass1, mass2, distance):\n    return (mass1 * mass2) / (distance ** 2)",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 5,
-    "n_actions": 9,
+    "n_turns": 8,
+    "n_actions": 14,
     "n_claims_active": 0,
-    "n_generator_calls": 5,
+    "n_generator_calls": 8,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -173,41 +108,8 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 29.414336681365967
-   },
-   {
-    "task_label": "m4_snell_law/easy/v0/vanilla_equation/n=0.0/t0",
-    "module": "m4_snell_law",
-    "difficulty": "easy",
-    "law_version": "v0",
-    "system": "vanilla_equation",
-    "noise_level": 0.0,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.0,
-    "SA": 0.0,
-    "rmsle": 1.388212765247175,
-    "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    if n1 == n2:\n        return angle1\n    try:\n        return math.degrees(math.asin((n1 / n2) * math.sin(math.radians(angle1))))\n    except ValueError:\n        return float('nan')",
-    "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 6,
-    "n_actions": 9,
-    "n_claims_active": 0,
-    "n_generator_calls": 6,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 44.91445279121399
+    "wall_time_s": 81.83036541938782
    }
   ]
- },
- "paired_delta_SA_mean": 0.0,
- "paired_delta_SA_ci95z": 0.0
+ }
 }
