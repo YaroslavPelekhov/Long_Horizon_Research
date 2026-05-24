@@ -1,0 +1,204 @@
+{
+ "generator_model": "openai/gpt-4o-mini",
+ "reflector_model": "openai/gpt-4o-mini",
+ "seeds": [
+  1,
+  2,
+  3
+ ],
+ "max_stages": 1,
+ "ablations": [
+  "MARS-full",
+  "MARS-all-off"
+ ],
+ "MARS-full": [
+  {
+   "master_seed": 1,
+   "ablation": {
+    "use_reflector": true,
+    "use_memory_selector": true,
+    "use_futility_detector": true
+   },
+   "reached": 0,
+   "total_rps": -0.595,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.595,
+     "n_turns": 10,
+     "n_actions": 12,
+     "n_claims_active": 5,
+     "n_claims_retracted": 1,
+     "n_subgoals_done": 2,
+     "n_subgoals_abandoned": 0,
+     "n_generator_calls": 10,
+     "n_reflector_calls": 2,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 1,
+      "retract": 1,
+      "revise": 0
+     },
+     "wall_time_s": 44.3
+    }
+   ]
+  },
+  {
+   "master_seed": 2,
+   "ablation": {
+    "use_reflector": true,
+    "use_memory_selector": true,
+    "use_futility_detector": true
+   },
+   "reached": 0,
+   "total_rps": -0.071,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.071,
+     "n_turns": 7,
+     "n_actions": 10,
+     "n_claims_active": 0,
+     "n_claims_retracted": 0,
+     "n_subgoals_done": 0,
+     "n_subgoals_abandoned": 2,
+     "n_generator_calls": 7,
+     "n_reflector_calls": 0,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 0,
+      "retract": 0,
+      "revise": 0
+     },
+     "wall_time_s": 26.5
+    }
+   ]
+  },
+  {
+   "master_seed": 3,
+   "ablation": {
+    "use_reflector": true,
+    "use_memory_selector": true,
+    "use_futility_detector": true
+   },
+   "reached": 0,
+   "total_rps": -0.226,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.226,
+     "n_turns": 10,
+     "n_actions": 11,
+     "n_claims_active": 5,
+     "n_claims_retracted": 0,
+     "n_subgoals_done": 2,
+     "n_subgoals_abandoned": 1,
+     "n_generator_calls": 10,
+     "n_reflector_calls": 2,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 2,
+      "retract": 0,
+      "revise": 0
+     },
+     "wall_time_s": 41.6
+    }
+   ]
+  }
+ ],
+ "MARS-all-off": [
+  {
+   "master_seed": 1,
+   "ablation": {
+    "use_reflector": false,
+    "use_memory_selector": false,
+    "use_futility_detector": false
+   },
+   "reached": 0,
+   "total_rps": -0.323,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.323,
+     "n_turns": 9,
+     "n_actions": 9,
+     "n_claims_active": 5,
+     "n_claims_retracted": 0,
+     "n_subgoals_done": 2,
+     "n_subgoals_abandoned": 0,
+     "n_generator_calls": 9,
+     "n_reflector_calls": 0,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 0,
+      "retract": 0,
+      "revise": 0
+     },
+     "wall_time_s": 30.5
+    }
+   ]
+  },
+  {
+   "master_seed": 2,
+   "ablation": {
+    "use_reflector": false,
+    "use_memory_selector": false,
+    "use_futility_detector": false
+   },
+   "reached": 0,
+   "total_rps": -0.376,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.376,
+     "n_turns": 9,
+     "n_actions": 12,
+     "n_claims_active": 5,
+     "n_claims_retracted": 0,
+     "n_subgoals_done": 2,
+     "n_subgoals_abandoned": 0,
+     "n_generator_calls": 9,
+     "n_reflector_calls": 0,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 0,
+      "retract": 0,
+      "revise": 0
+     },
+     "wall_time_s": 42.7
+    }
+   ]
+  },
+  {
+   "master_seed": 3,
+   "ablation": {
+    "use_reflector": false,
+    "use_memory_selector": false,
+    "use_futility_detector": false
+   },
+   "reached": 0,
+   "total_rps": -0.446,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.446,
+     "n_turns": 9,
+     "n_actions": 12,
+     "n_claims_active": 5,
+     "n_claims_retracted": 0,
+     "n_subgoals_done": 2,
+     "n_subgoals_abandoned": 0,
+     "n_generator_calls": 9,
+     "n_reflector_calls": 0,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 0,
+      "retract": 0,
+      "revise": 0
+     },
+     "wall_time_s": 32.7
+    }
+   ]
+  }
+ ]
+}

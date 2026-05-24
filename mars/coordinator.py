@@ -128,6 +128,7 @@ class Coordinator:
 
                 turns_on_sg = 0
                 pending_feedback: Optional[str] = None
+                consecutive_req_evidence = 0   # cap Reflector loop pressure
 
                 while turns_on_sg < self.max_turns_per_subgoal:
                     total_turns += 1
@@ -203,8 +204,11 @@ class Coordinator:
                     agenda.record_spend(cur_sg,
                                         max(0.0, adapter.budget_spent() - cost_before))
 
-                    # 5. Reflector
-                    if self.use_reflector and (g_resp.actions or g_resp.claims):
+                    # 5. Reflector — fire ONLY when Generator emitted a claim
+                    # (Reflector's purpose is to critique claim assertions,
+                    # not action exploration; observe-only turns pass through
+                    # so Generator can accumulate evidence before claiming).
+                    if self.use_reflector and g_resp.claims:
                         r_ctx = ReflectorContext(
                             sub_goal=cur_sg,
                             sub_goal_question=cur_q,
@@ -231,11 +235,24 @@ class Coordinator:
                                 f"{r_resp.reason}. Re-emit a sharper version."
                             )
                         elif r_resp.verdict == ReflectorVerdict.REQUIRE_EVIDENCE:
-                            pending_feedback = (
-                                f"Reflector REQUIRE_EVIDENCE: {r_resp.reason}. "
-                                "Run one verifying action before advancing."
-                            )
+                            consecutive_req_evidence += 1
+                            if consecutive_req_evidence >= 2:
+                                # 2-й подряд → force ACCEPT to break loops.
+                                # Convert verdict for the log, drop feedback.
+                                verdict_counts[ReflectorVerdict.REQUIRE_EVIDENCE.value] -= 1
+                                verdict_counts[ReflectorVerdict.ACCEPT.value] = (
+                                    verdict_counts.get(ReflectorVerdict.ACCEPT.value, 0) + 1
+                                )
+                                r_resp.verdict = ReflectorVerdict.ACCEPT
+                                pending_feedback = None
+                            else:
+                                pending_feedback = (
+                                    f"Reflector REQUIRE_EVIDENCE: {r_resp.reason}. "
+                                    "Run one verifying action before advancing."
+                                )
                         # ACCEPT → no feedback; continue
+                        if r_resp.verdict != ReflectorVerdict.REQUIRE_EVIDENCE:
+                            consecutive_req_evidence = 0
                     else:
                         r_resp = None
 
