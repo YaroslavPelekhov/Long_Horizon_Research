@@ -65,9 +65,11 @@ ABLATIONS = [
 
 
 def _episode(task: NBTask, ablation: dict, gen_model: str, ref_model: str,
-             judge_model: str, budget: float = 10.0) -> dict:
+             judge_model: str, budget: float = 10.0,
+             auto_fit_in_results: bool = True) -> dict:
     adapter = NewtonBenchAdapter(task=task, budget=budget,
-                                 judge_model=judge_model)
+                                 judge_model=judge_model,
+                                 auto_fit_in_results=auto_fit_in_results)
     gen = Generator(model=gen_model, max_tokens=1600)
     ref = Reflector(model=ref_model, max_tokens=300)
     sel = MemorySelector(k=4)
@@ -136,6 +138,7 @@ def main():
     judge_model = os.environ.get("MARS_NB_JUDGE_MODEL", "gpt41")
     ablations_env = os.environ.get("MARS_ABLATIONS", "MARS-full,MARS-all-off")
     chosen = [a for a in ABLATIONS if a[0] in {x.strip() for x in ablations_env.split(",")}]
+    auto_fit = os.environ.get("MARS_NB_AUTOFIT", "1") not in ("0", "false", "False", "no")
 
     tasks = enumerate_nb_tasks(
         modules=modules,
@@ -163,7 +166,8 @@ def main():
         for t in tasks:
             done += 1
             try:
-                r = _episode(t, abl, gen_model, ref_model, judge_model, budget)
+                r = _episode(t, abl, gen_model, ref_model, judge_model, budget,
+                             auto_fit_in_results=auto_fit)
             except Exception as e:
                 r = {"task_label": t.label(), "module": t.module_name,
                      "error": str(e)[:200], "SA": 0.0}
@@ -208,7 +212,8 @@ def main():
             summary["paired_delta_SA_mean"] = m_d
             summary["paired_delta_SA_ci95z"] = 1.96 * se_d
 
-    out = _PROJ / "lmw" / f"mars_nb_{gen_model.replace('/','-')}_{len(tasks)}t.json"
+    suffix = f"_noautofit" if not auto_fit else ""
+    out = _PROJ / "lmw" / f"mars_nb_{gen_model.replace('/','-')}_{len(tasks)}t{suffix}.json"
     with open(out, "w") as f:
         json.dump(summary, f, indent=1, default=str)
     print(f"\n[written {out}]")

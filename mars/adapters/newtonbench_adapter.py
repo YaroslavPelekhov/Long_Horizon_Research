@@ -557,6 +557,8 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         task: NBTask,
         budget: float = 10.0,
         judge_model: str | None = None,
+        auto_fit_in_results: bool = True,    # toggle: surface auto-fit
+                                              # candidates in every batch
     ):
         _setup_nb_path()
         # The judge_model name MUST be a key in NewtonBench's
@@ -577,6 +579,7 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         # Accumulated experimental data — used by auto-fit on every batch
         self._all_inputs: list[dict[str, float]] = []
         self._all_outputs: list[float] = []
+        self._auto_fit_in_results = bool(auto_fit_in_results)
 
     # -- handle ----
 
@@ -799,19 +802,19 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
                     self._all_outputs.append(y)
                 except (TypeError, ValueError):
                     continue
-            auto_fit = self._auto_fit_summary()
             summary = {
                 "n_experiments": len(experiments),
                 "outputs": results,
-                "auto_discovery_top_candidates": auto_fit,
-                "_hint": (
+            }
+            if self._auto_fit_in_results:
+                summary["auto_discovery_top_candidates"] = self._auto_fit_summary()
+                summary["_hint"] = (
                     "auto_discovery_top_candidates was computed across ALL "
                     "experiments accumulated so far. If the top candidate has "
                     "R^2 > 0.99, copy its 'python_body' verbatim into "
                     "submit_law. DO NOT substitute textbook Newton — the "
                     "ground-truth law in this universe is non-standard."
-                ),
-            }
+                )
             self._action_log.append({
                 "action": "run_experiment",
                 "inputs": experiments,
