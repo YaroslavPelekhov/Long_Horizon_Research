@@ -1,0 +1,75 @@
+{
+ "generator_model": "openai/gpt-4o-mini",
+ "reflector_model": "openai/gpt-4o-mini",
+ "judge_model": "openai/gpt-4o",
+ "n_tasks": 1,
+ "ablations_run": [
+  "MARS-full",
+  "MARS-all-off"
+ ],
+ "per_task": {
+  "MARS-full": [
+   {
+    "instance_id": 1,
+    "domain": "Computational Chemistry",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "score": 1.0,
+    "n_submissions": 2,
+    "submitted_preview": "import deepchem as dc\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\n# Load the dataset\ntrain_df = pd.read_csv('clintox/clintox_train.csv')\ntest_df = pd.read_csv('clintox/clintox_test.csv')\n\n# Featurization using ECFP\nfeaturizer = dc.feat.CircularFingerprint(size=2048)\nX_t",
+    "judge_explain": "The program correctly loads the dataset using pandas, applies a reasonable method by using DeepChem's MultitaskClassifier for multitask learning, and saves the predictions in the specified format to the correct output file. All necessary imports are ",
+    "n_turns": 5,
+    "n_actions": 2,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 5,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 29.801063537597656
+   }
+  ],
+  "MARS-all-off": [
+   {
+    "instance_id": 1,
+    "domain": "Computational Chemistry",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 1.0,
+    "score": 1.0,
+    "n_submissions": 2,
+    "submitted_preview": "import deepchem as dc\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\n\n# Load the dataset\nclintox_train = pd.read_csv('clintox/clintox_train.csv')\nclintox_test = pd.read_csv('clintox/clintox_test.csv')\n\n# Featurization using ECFP\nfeaturizer = dc.feat.CircularFingerprint(size",
+    "judge_explain": "The program correctly loads the dataset using pandas, applies a reasonable method by using a multitask classifier from DeepChem, and saves the predictions to the specified output file in the expected format. All necessary imports are included, making",
+    "n_turns": 2,
+    "n_actions": 2,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 2,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 37.06881308555603
+   }
+  ]
+ },
+ "paired_delta_score_mean": 0.0,
+ "paired_delta_score_ci95z": 0.0,
+ "paired_wins": 0,
+ "paired_losses": 0,
+ "paired_ties": 1
+}
