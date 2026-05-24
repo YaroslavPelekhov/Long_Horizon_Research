@@ -37,20 +37,39 @@
 | **MLRC-Bench** (Apr 2025) | После клонирования: **построен поверх MLAgentBench**, launch.sh принимает `${GPU_ID}`, задачи (llm-merging Llama-3-8B, machine_unlearning torchvision, weather_forecast и т.д.) → CUDA-12.1 environments, GPU необходим. **DROP** |
 | **Scientist-Bench** (часть AI-Researcher) | Код в [HKUDS/AI-Researcher](https://github.com/HKUDS/AI-Researcher) — но это framework вместе с бенчем; нужно изолировать только бенч-часть |
 
-## 🎯 Окончательная картина API-only viable бенчей
+## 🎯 Окончательная картина API-only viable бенчей (CERTIFIED)
 
-Из всех ~15 проверенных, **API-only viable** только те, где задача — это **анализ данных / hypothesis generation / code-gen на маленьких датасетах**, а не реальное model training:
+После строгой проверки всех ~20 кандидатов на компьют-требования. **API-only
+viable** = inference только через LLM-API + лёгкие numpy/pandas вычисления, БЕЗ
+model training, БЕЗ GPU:
 
-| Бенч | Тип | Adapter status |
-|---|---|---|
-| **ScienceAgentBench** | code-gen, eval через docker/LLM-judge | ✅ MARS adapter v0.1 готов (LLM-judge proxy) |
-| **DiscoveryBench** | hypothesis-from-data | ✅ адаптер из OLS-времён, нужно расширить |
-| **HypoSpace** | set-valued hypothesis gen | ⚠️ нужен adapter |
-| **IdeaBench** | biomedical idea generation | ⚠️ нужен adapter |
-| **HeurekaBench** | AI co-scientist (biology) | ⚠️ нужен adapter |
+| Бенч | Тип | Размер | Опубликованные baselines | API-only confirm | Adapter |
+|---|---|--:|---|---|---|
+| **NewtonBench** (HKUST, Oct 2025) | interactive law discovery (12 physics domains, 3 difficulty tiers) | 324 | **GPT-5 75.9%, o4-mini 47.8%, DeepSeek-R1 43.4%, Gemini-2.5-pro 65.4%** avg SA | ✅ explicit «All LLM evals via public APIs (OpenRouter + OpenAI-API)» | ⚠️ нужен (плагин MARS в их task surface) |
+| **ScienceAgentBench** (OSU, ICLR'25) | code-gen, eval через docker (или LLM-judge proxy) | 102 | OpenAI o1, GPT-4o ~30% | ✅ Agent API-only; full eval нужен docker | ✅ v0.1 готов (LLM-judge) |
+| **DiscoveryBench** (AI2, NeurIPS'24) | hypothesis-from-data, pandas analysis | 264 (25 train labeled) | best ~25% HMS | ✅ pandas-only, no training | ✅ из OLS, sweep N=25 в фоне |
+| **HeurekaBench** (EPFL, Jan 2026) | AI co-scientist eval, biology Q&A + open-ended | TBD | Claude 4 / Sonnet 4.5 / GPT-4 tested | ✅ explicit «inference-only benchmarking» | ⚠️ нужен |
+| **LLM-SRBench** (ICML'25 Oral) | symbolic equation discovery | 239 | в paper | ✅ candidate equations as text, numeric scoring, no training | ⚠️ нужен |
+| **LiveIdeaBench** (Nat. Comm.) | idea generation, minimal context | n/a | OpenRouter/Gemini configs | ✅ idea text → LLM-judge | ⚠️ нужен; multiple APIs |
+| **PhysGym** (Jul 2025) | interactive physics discovery с контролируемыми priors | TBD | в paper | ⚠️ HTML 404, нужна доп. проверка | ⚠️ |
+| **HypoSpace** (Oct 2025) | set-valued hypothesis generation | TBD | в paper | ⚠️ validators TBD | ⚠️ |
+| **ResearchBench** (Liu, Mar 2025) | hypothesis composition + ranking, 12 disciplines | 2024 papers | в paper | ✅ inspiration retrieval + ranking | ⚠️ |
+| **IdeaBench** (KDD'25) | biomedical idea generation, GPT-4o ranking | n/a | в paper | ✅ pure LLM | ⚠️ |
 
-**Все «ML research engineering»-бенчи (MLAgentBench / MLRC / MLE / AIRS) дроп для API-only.**
-Если будет доступ к GPU — можно вернуться к ним отдельной фазой.
+**Все «ML research engineering»-бенчи (MLAgentBench / MLRC / MLE / AIRS) и
+Auto-Bench (нет кода) DROP для API-only.** Если будет GPU — возврат к ним
+отдельной фазой.
+
+### 🎯 Рекомендуемый портфель MARS-paper'а (~$300-400 в $500 budget)
+
+| Tier | Бенч | N задач | Cost | Что покажет |
+|---|---|--:|--:|---|
+| 1 | **NewtonBench** subset (hard tier) | 30-50 | $80-150 | побить o4-mini 52.8% / DeepSeek-R1 36.8% на hard — paper-grade headline |
+| 1 | **ScienceAgentBench** subset | 30-50 | $100-150 | широкое покрытие 4 дисциплин, ICLR'25 престиж |
+| 2 | **DiscoveryBench** | 25 (full train) | $30 | convergent validity vs OLS-v0.2 null (уже в фоне) |
+| 2 | **HeurekaBench** или **LLM-SRBench** | 30 | $50 | вторая независимая ось (биология / уравнения) |
+
+**Итого: ~$260-380** в обещанном $500 budget. Все API-only, ноль GPU.
 
 ## 📚 Связанные / косвенно релевантные
 
