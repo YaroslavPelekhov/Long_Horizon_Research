@@ -2,6 +2,7 @@
 autodiscovery/
 discoverybench_repo/
 mlagentbench_repo/
+mlrcbench_repo/
 scienceagentbench_repo/
 smell/
 _ARCHIVED_nonsmell/

@@ -31,9 +31,26 @@
 | Бенч | Проблема |
 |---|---|
 | **Auto-Bench** (Chen et al., Feb 2025) | **Код не выпущен.** Ни на сайтах соавторов (Vedant Shah / Goyal), ни в репо Mila / NUS. Только paper. Re-implementation = weakened claim. **DROP** |
-| **AIRS-Bench** (Meta, Feb 2026) | Код есть [facebookresearch/airs-bench](https://github.com/facebookresearch/airs-bench), но **24h H-200 GPU × 10 сидов × 20 задач** — ~$10-20k compute. Можно делать subset (6-8 LLM-only задач), но это уже не "побить весь AIRS-Bench" |
+| **AIRS-Bench** (Meta, Feb 2026) | Код есть [facebookresearch/airs-bench](https://github.com/facebookresearch/airs-bench), но **24h H-200 GPU × 10 сидов × 20 задач** — ~$10-20k compute. **DROP** для API-only бюджета |
 | **MLE-bench** (OpenAI, Oct 2024) | Код [openai/mle-bench](https://github.com/openai/mle-bench) есть, но требует **36 vCPU + 440GB RAM + 24GB A10 GPU**, 158GB-3.3TB данных. SoTA Famou-Agent 2.0 = 64.44%. **Не API-only** |
+| **MLAgentBench** (Stanford 2023) | После клонирования: 13 задач — CIFAR-10, ogbn-arxiv, babylm, fathomnet и т.д. → **реально тренируют модели**, GPU необходим (Claude 3 Opus 37.5% — на GPU-setup). **DROP** для API-only |
+| **MLRC-Bench** (Apr 2025) | После клонирования: **построен поверх MLAgentBench**, launch.sh принимает `${GPU_ID}`, задачи (llm-merging Llama-3-8B, machine_unlearning torchvision, weather_forecast и т.д.) → CUDA-12.1 environments, GPU необходим. **DROP** |
 | **Scientist-Bench** (часть AI-Researcher) | Код в [HKUDS/AI-Researcher](https://github.com/HKUDS/AI-Researcher) — но это framework вместе с бенчем; нужно изолировать только бенч-часть |
+
+## 🎯 Окончательная картина API-only viable бенчей
+
+Из всех ~15 проверенных, **API-only viable** только те, где задача — это **анализ данных / hypothesis generation / code-gen на маленьких датасетах**, а не реальное model training:
+
+| Бенч | Тип | Adapter status |
+|---|---|---|
+| **ScienceAgentBench** | code-gen, eval через docker/LLM-judge | ✅ MARS adapter v0.1 готов (LLM-judge proxy) |
+| **DiscoveryBench** | hypothesis-from-data | ✅ адаптер из OLS-времён, нужно расширить |
+| **HypoSpace** | set-valued hypothesis gen | ⚠️ нужен adapter |
+| **IdeaBench** | biomedical idea generation | ⚠️ нужен adapter |
+| **HeurekaBench** | AI co-scientist (biology) | ⚠️ нужен adapter |
+
+**Все «ML research engineering»-бенчи (MLAgentBench / MLRC / MLE / AIRS) дроп для API-only.**
+Если будет доступ к GPU — можно вернуться к ним отдельной фазой.
 
 ## 📚 Связанные / косвенно релевантные
 
