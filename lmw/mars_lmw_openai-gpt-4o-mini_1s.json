@@ -1,0 +1,78 @@
+{
+ "generator_model": "openai/gpt-4o-mini",
+ "reflector_model": "openai/gpt-4o-mini",
+ "seeds": [
+  1
+ ],
+ "max_stages": 1,
+ "ablations": [
+  "MARS-full",
+  "MARS-all-off"
+ ],
+ "MARS-full": [
+  {
+   "master_seed": 1,
+   "ablation": {
+    "use_reflector": true,
+    "use_memory_selector": true,
+    "use_futility_detector": true
+   },
+   "reached": 0,
+   "total_rps": -0.071,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.071,
+     "n_turns": 8,
+     "n_actions": 11,
+     "n_claims_active": 0,
+     "n_claims_retracted": 0,
+     "n_subgoals_done": 0,
+     "n_subgoals_abandoned": 2,
+     "n_generator_calls": 8,
+     "n_reflector_calls": 7,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 7,
+      "retract": 0,
+      "revise": 0
+     },
+     "wall_time_s": 43.8
+    }
+   ]
+  }
+ ],
+ "MARS-all-off": [
+  {
+   "master_seed": 1,
+   "ablation": {
+    "use_reflector": false,
+    "use_memory_selector": false,
+    "use_futility_detector": false
+   },
+   "reached": 0,
+   "total_rps": -0.236,
+   "per_stage": [
+    {
+     "k": 0,
+     "RPS": -0.236,
+     "n_turns": 8,
+     "n_actions": 10,
+     "n_claims_active": 3,
+     "n_claims_retracted": 0,
+     "n_subgoals_done": 2,
+     "n_subgoals_abandoned": 0,
+     "n_generator_calls": 8,
+     "n_reflector_calls": 0,
+     "verdict_counts": {
+      "accept": 0,
+      "require_evidence": 0,
+      "retract": 0,
+      "revise": 0
+     },
+     "wall_time_s": 29.9
+    }
+   ]
+  }
+ ]
+}

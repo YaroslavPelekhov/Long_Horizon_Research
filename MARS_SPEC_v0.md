@@ -157,69 +157,72 @@ while adapter.budget_left() > 0 and not done:
 
 ---
 
-## 5. Adapters
+## 5. Adapters (revised after benchmarks-landscape recon)
 
-### 5.1 `mars/adapters/lmw_adapter.py`
-Re-use `ols.adapters.lmw_adapter` for cheap dev loop. Used **только**
-для smoke-tests и быстрых regressions. **Не публикуется как результат.**
+**Решение после landscape recon** (`BENCHMARKS_LANDSCAPE.md`):
+Auto-Bench (нет public code → re-implementation = слабее claim) и AIRS-Bench
+(нужен ~$10-20k GPU compute) **дропнуты**. Новый портфель — 4 бенча с public
+code, все API-tractable в $500 budget.
 
-### 5.2 `mars/adapters/autobench_adapter.py`
-**Реимплементация Auto-Bench spec** (репо отсутствует). Из статьи (Chen et
-al. 2025, arXiv 2502.15224):
+### 5.1 `mars/adapters/lmw_adapter.py` — dev-loop (бесплатный)
+Re-use `ols.adapters.lmw_adapter`. **Не публикуется как результат**, только
+для smoke-tests и regression-checks.
 
-Chemistry tier:
-- Граф = DAG с N узлов (3/3/10), каждый узел — молекула с состоянием S (3/5/5).
-- Интервенция `do(node_i, state=v)` → downstream-узлы получают случайные новые состояния.
-- Observable: state-change matrix G ∈ {0,…,S}^(M × N).
-- Hidden: adjacency H ∈ {0,1}^(N × N).
-- Success: предложенная adjacency-матрица совпадает с истинной в пределах 2N итераций.
+### 5.2 `mars/adapters/mlagentbench_adapter.py` — **Tier-1**
+Wrap [snap-stanford/MLAgentBench](https://github.com/snap-stanford/MLAgentBench)
+harness. 13 ML-experimentation задач (CIFAR-10 → BabyLM). Baseline для
+побития: **Claude 3 Opus 37.5%** average success rate (Huang et al. 2023).
+Bug бюджет: ~$100-200.
 
-Social tier:
-- Undirected граф N persons (3/5/10).
-- Интервенция → +1 у целевого лица, +1 у всех соседей.
-- Symmetric adjacency.
+### 5.3 `mars/adapters/scienceagentbench_adapter.py` — **Tier-1**
+Wrap [OSU-NLP-Group/ScienceAgentBench](https://github.com/OSU-NLP-Group/ScienceAgentBench).
+ICLR'25, 102 задачи из 44 peer-reviewed папир в 4 дисциплинах (биоинф/хим/гео/др).
+Containerized harness — 30 минут на 8 потоках для всех 102 задач.
+Baseline для побития: GPT-4o ~30%+ (точная цифра в статье).
+Бюджет: ~$100-150. Стартуем с subset 30 задач, расширяем по результатам.
 
-**actions:** `intervene(node)`, `submit_adjacency(matrix)`.
-**metric:** success rate (binary per episode), average iterations to convergence.
+### 5.4 `mars/adapters/discoverybench_adapter.py` — **Tier-2 / convergent-validity**
+Re-use наш existing OLS-DiscoveryBench adapter из `ols/adapters/discoverybench_adapter.py`,
+расширяем с 25 train-задач до полного labeled set. Convergent-validity control:
+если MARS улучшает там же, где OLS дал null — внутренняя консистентность.
+Бюджет: ~$30.
 
-Baseline target: побить GPT-4o **30%** на social-10, **15%** на chemistry-10.
+### 5.5 `mars/adapters/mlrcbench_adapter.py` — **Tier-2 / easy-win**
+Wrap [MLRC-Bench HF space](https://huggingface.co/spaces/launch/MLRC_Bench).
+7 ML-research-competition задач. Текущий SoTA — `gemini-exp-1206` всего **9.3% gap
+closure**. Низкая планка → быстрая «headline» победа в paper.
+Бюджет: ~$50-100.
 
-### 5.3 `mars/adapters/airsbench_text_adapter.py`
-LLM-tractable subset из AIRS-Bench. Отобрать 6-8 задач:
-
-Candidates (no GPU training required):
-1. CodeGenerationAPPSPassAt5 — LLM-only
-2. CodeRetrievalCodeXGlueMRR — retrieval + LLM
-3. MathQuestionAnsweringSVAMPAccuracy — LLM-only
-4. QuestionAnsweringDuoRCAccuracy — LLM-only
-5. QuestionAnsweringEli5Rouge1 — LLM-only
-6. QuestionAnsweringFinqaAccuracy — LLM-only
-7. ReadingComprehensionSquadExactMatch — LLM-only
-8. SentimentAnalysisYelpReviewFullAccuracy — LLM-only
-
-Drop: все molecule (нужно обучать GNN), все time-series MAE/MASE
-(нужно forecasting model), graph regression.
-
-Adapter wrapping uses facebookresearch/airs-bench harness.
+**Optional v0.2 additions:** HeurekaBench (биология, Jan 2026), LMR-Bench
+(NLP-research reproduction, нужен sandbox), CORE-Bench (Princeton, paper-repro).
 
 ---
 
-## 6. Pre-registered hypotheses
+## 6. Pre-registered hypotheses (revised for new bench portfolio)
 
-H1 (**Auto-Bench primary**): MARS-full на gpt-4o-mini обгонит GPT-4o
-(один inner вызов на ход) на **social-10** ≥ 50% (vs опубликованных 30%) с
-95% CI excluding 30%, при N ≥ 30 эпизодов.
+**H1 (MLAgentBench primary):** MARS / gpt-4o обгонит published Claude 3 Opus
+baseline 37.5% average success rate на 13 MLAgentBench задачах, с 95% CI
+excluding 37.5%, при N ≥ 3 сидов на задачу.
 
-H2 (**Auto-Bench scaling**): MARS-full сохраняет positive Δ vs raw inner
-LLM при том же inner-LLM (gpt-4o-mini → gpt-4o), unlike OLS v0.2 на LMW.
+**H2 (ScienceAgentBench coverage):** MARS / gpt-4o-mini улучшает успех на
+ScienceAgentBench относительно published GPT-4o ReAct baseline на subset из
+30+ задач (стартовая выборка), с paired sign-test p < 0.05.
 
-H3 (**Component**): Reflector — наиболее load-bearing компонент (>50% gain);
-MemorySelector — secondary; FutilityDetector — marginal.
+**H3 (Component):** Reflector — наиболее load-bearing компонент (>50% gain);
+MemorySelector — secondary; FutilityDetector — marginal. Проверяется ablation:
+MARS-full vs MARS-no-reflect vs MARS-no-mem-select vs MARS-no-futility.
 
-H4 (**AIRS subset**): MARS улучшает >=1 из 8 LLM-tractable задач против
-ReAct scaffold (опубликованный в AIRS статью).
+**H4 (MLRC-Bench easy-win / sanity):** MARS gap-closure > 9.3% (текущий SoTA
+gemini-exp-1206) на ≥4 из 7 задач MLRC-Bench. Это «sanity check» — если
+не побьём такой низкий baseline, вся архитектура под вопросом.
 
-Все H1-H4 **могут опровергнуться** — это и есть pre-registration.
+**H5 (DiscoveryBench convergent validity):** MARS показывает позитивный Δ
+HMS относительно нашего OLS-v0.2 null на тех же DB-Real-train задачах
+(N=25), на тех же inner-LLM (gpt-4o-mini). Это внутренняя проверка: если
+новая архитектура реально улучшает то, где OLS дал null, мы воспроизвели
+своё собственное негативное-в-позитивное.
+
+Все H1-H5 могут опровергнуться — это и есть pre-registration.
 
 ---
 
