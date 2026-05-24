@@ -1,0 +1,67 @@
+
+=== MARS × DiscoveryBench-Real-train (convergent validity vs OLS-v0.2) ===
+  gen=openai/gpt-4o-mini  ref=openai/gpt-4o-mini  judge=openai/gpt-4o  budget=12.0
+  N=25 tasks; ablations: ['MARS-full', 'MARS-all-off']
+
+--- ablation: MARS-full ---
+  [1/50] train/evolution_freshwater_fish/metadata_0/q0            HMS=0.12  turns=10 claims=1+1r  (72s)
+  [2/50] train/evolution_freshwater_fish/metadata_0/q1            HMS=1.00  turns=8 claims=2+0r  (49s)
+  [3/50] train/evolution_freshwater_fish/metadata_0/q2            HMS=0.20  turns=8 claims=2+0r  (45s)
+  [4/50] train/evolution_freshwater_fish/metadata_1/q0            HMS=0.20  turns=7 claims=2+1r  (52s)
+  [5/50] train/evolution_freshwater_fish/metadata_1/q1            HMS=0.36  turns=8 claims=3+1r  (56s)
+  [6/50] train/evolution_freshwater_fish/metadata_1/q2            HMS=0.50  turns=9 claims=3+0r  (68s)
+  [7/50] train/evolution_freshwater_fish/metadata_2/q0            HMS=0.24  turns=8 claims=3+2r  (63s)
+  [8/50] train/evolution_freshwater_fish/metadata_2/q1            HMS=0.40  turns=10 claims=2+0r  (61s)
+  [9/50] train/evolution_freshwater_fish/metadata_3/q0            HMS=0.25  turns=9 claims=2+0r  (64s)
+  [10/50] train/evolution_freshwater_fish/metadata_3/q1            HMS=0.50  turns=8 claims=2+1r  (96s)
+  [11/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.00  turns=12 claims=0+0r  (40s)
+  [12/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.00  turns=14 claims=0+0r  (62s)
+  [13/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.08  turns=13 claims=1+0r  (60s)
+  [14/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.00  turns=12 claims=1+0r  (62s)
+  [15/50] train/nls_bmi/metadata_0/q0                              HMS=0.25  turns=8 claims=1+0r  (41s)
+  [16/50] train/nls_bmi/metadata_0/q1                              HMS=0.75  turns=8 claims=2+0r  (74s)
+  [17/50] train/nls_bmi/metadata_1/q0                              HMS=0.25  turns=10 claims=3+0r  (68s)
+  [18/50] train/nls_bmi/metadata_2/q0                              HMS=0.50  turns=12 claims=4+0r  (82s)
+  [19/50] train/nls_bmi/metadata_3/q0                              HMS=0.50  turns=10 claims=4+0r  (61s)
+  [20/50] train/nls_bmi/metadata_3/q1                              HMS=0.25  turns=8 claims=3+0r  (45s)
+  [21/50] train/nls_bmi/metadata_4/q0                              HMS=0.50  turns=9 claims=2+2r  (78s)
+<string>:1: FutureWarning: Series.__getitem__ treating keys as positions is deprecated. In a future version, integer keys will always be treated as labels (consistent with DataFrame behavior). To access a value by position, use `ser.iloc[pos]`
+<string>:1: FutureWarning: Series.__getitem__ treating keys as positions is deprecated. In a future version, integer keys will always be treated as labels (consistent with DataFrame behavior). To access a value by position, use `ser.iloc[pos]`
+  [22/50] train/nls_bmi/metadata_5/q0                              HMS=0.75  turns=11 claims=5+0r  (114s)
+  [23/50] train/nls_bmi/metadata_5/q1                              HMS=0.75  turns=12 claims=3+0r  (92s)
+  [24/50] train/nls_bmi_raw/metadata_0/q0                          HMS=0.00  turns=6 claims=1+1r  (45s)
+  [25/50] train/nls_bmi_raw/metadata_1/q0                          HMS=0.00  turns=8 claims=2+0r  (41s)
+--- ablation: MARS-all-off ---
+  [26/50] train/evolution_freshwater_fish/metadata_0/q0            HMS=0.75  turns=9 claims=2+0r  (40s)
+  [27/50] train/evolution_freshwater_fish/metadata_0/q1            HMS=0.72  turns=7 claims=1+0r  (43s)
+  [28/50] train/evolution_freshwater_fish/metadata_0/q2            HMS=1.00  turns=8 claims=2+0r  (38s)
+  [29/50] train/evolution_freshwater_fish/metadata_1/q0            HMS=0.40  turns=7 claims=2+0r  (38s)
+  [30/50] train/evolution_freshwater_fish/metadata_1/q1            HMS=0.19  turns=8 claims=6+0r  (45s)
+  [31/50] train/evolution_freshwater_fish/metadata_1/q2            HMS=0.00  turns=9 claims=3+0r  (46s)
+  [32/50] train/evolution_freshwater_fish/metadata_2/q0            HMS=0.05  turns=8 claims=4+0r  (45s)
+  [33/50] train/evolution_freshwater_fish/metadata_2/q1            HMS=0.40  turns=7 claims=2+0r  (34s)
+  [34/50] train/evolution_freshwater_fish/metadata_3/q0            HMS=0.25  turns=7 claims=3+0r  (33s)
+  [35/50] train/evolution_freshwater_fish/metadata_3/q1            HMS=0.50  turns=8 claims=4+0r  (34s)
+  [36/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.00  turns=12 claims=0+0r  (50s)
+  [37/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.00  turns=12 claims=0+0r  (46s)
+  [38/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.00  turns=13 claims=0+0r  (53s)
+  [39/50] train/immigration_offshoring_effect_on_employment/metad  HMS=0.00  turns=13 claims=0+0r  (55s)
+  [40/50] train/nls_bmi/metadata_0/q0                              HMS=0.25  turns=8 claims=2+0r  (27s)
+  [41/50] train/nls_bmi/metadata_0/q1                              HMS=0.75  turns=11 claims=4+0r  (50s)
+  [42/50] train/nls_bmi/metadata_1/q0                              HMS=0.25  turns=10 claims=7+0r  (55s)
+  [43/50] train/nls_bmi/metadata_2/q0                              HMS=1.00  turns=9 claims=3+0r  (51s)
+  [44/50] train/nls_bmi/metadata_3/q0                              HMS=1.00  turns=11 claims=4+0r  (46s)
+  [45/50] train/nls_bmi/metadata_3/q1                              HMS=0.50  turns=9 claims=6+0r  (42s)
+  [46/50] train/nls_bmi/metadata_4/q0                              HMS=0.75  turns=9 claims=2+0r  (38s)
+  [47/50] train/nls_bmi/metadata_5/q0                              HMS=0.25  turns=11 claims=5+0r  (55s)
+  [48/50] train/nls_bmi/metadata_5/q1                              HMS=0.20  turns=10 claims=4+0r  (50s)
+  [49/50] train/nls_bmi_raw/metadata_0/q0                          HMS=0.00  turns=8 claims=1+0r  (37s)
+  [50/50] train/nls_bmi_raw/metadata_1/q0                          HMS=1.00  turns=10 claims=5+0r  (67s)
+
+=== Summary (wall 2812s) ===
+  MARS-full       HMS.mean=0.334  sd=0.277  N=25
+  MARS-all-off    HMS.mean=0.408  sd=0.364  N=25
+
+  Paired ΔHMS (MARS-full − MARS-all-off) = -0.074 ± 0.150 (95% CI z)  w/l/t=7/8/10
+
+[written C:\Users\psgpe\Downloads\Long Horizon Research\lmw\mars_db_openai-gpt-4o-mini_25t.json]

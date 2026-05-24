@@ -1,0 +1,1369 @@
+{
+ "generator_model": "openai/gpt-4o-mini",
+ "reflector_model": "openai/gpt-4o-mini",
+ "judge_model": "openai/gpt-4o",
+ "budget": 12.0,
+ "n_tasks": 25,
+ "ablations_run": [
+  "MARS-full",
+  "MARS-all-off"
+ ],
+ "per_task": {
+  "MARS-full": [
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_0/q0",
+    "domain": "biology",
+    "query_type": "variable",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.125,
+    "HMS": 0.125,
+    "submitted_preview": "MBL_evol and BAMM_speciation are key variables to explore for their correlation",
+    "judge_explain": "The context is partially addressed as the submission mentions relevant variables but lacks focus on the specific scope of maximum body length evolution's impact on speciation rates. The variables are partially correct; MBL_evol (maximum body length e",
+    "n_turns": 10,
+    "n_actions": 11,
+    "n_claims_active": 1,
+    "n_claims_retracted": 1,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 3,
+     "require_evidence": 1,
+     "retract": 1,
+     "revise": 0
+    },
+    "wall_time_s": 71.9063572883606
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_0/q1",
+    "domain": "biology",
+    "query_type": "variable",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "HMS": 1.0,
+    "submitted_preview": "corr(MBL_evol, BAMM_speciation) \u2248 +0.82",
+    "judge_explain": "The submitted hypothesis correctly addresses the context of spatial variation in speciation rates, identifies the correct predictor (MBL_evol) and outcome (BAMM_speciation) variables, and accurately describes the positive relationship with a coeffici",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 4,
+    "verdict_counts": {
+     "accept": 3,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 48.52421832084656
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_0/q2",
+    "domain": "biology",
+    "query_type": "relationhsip",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.2,
+    "HMS": 0.2,
+    "submitted_preview": "focus_variables(MBL_evol, BAMM_speciation)",
+    "judge_explain": "The context is partially addressed as the submission mentions variables related to body length evolution and speciation, but lacks detail on the dataset or scope. The variables are partially correct as MBL_evol could relate to maximum body length evo",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 4,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 44.548250675201416
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_1/q0",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.2,
+    "HMS": 0.2,
+    "submitted_preview": "variables(BAMM_speciation, BEL_evol, MBL_evol, OGP_evol, RES_evol, RML_evol) are relevant to the discovery query",
+    "judge_explain": "The context is partially correct as the submitted hypothesis mentions variables that could be related to evolutionary traits and speciation rates, but it does not explicitly address the negative relationship or the specific coefficients. The variable",
+    "n_turns": 7,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 1,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 4,
+     "require_evidence": 0,
+     "retract": 1,
+     "revise": 0
+    },
+    "wall_time_s": 51.60204362869263
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_1/q1",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.36,
+    "HMS": 0.36,
+    "submitted_preview": "BAMM_extinction, BEL_evol, MBL_evol, bio1, and bio12 are relevant variables to explore for their negative relationships with speciation rates.",
+    "judge_explain": "The context is somewhat aligned as the submission addresses factors related to speciation rates, but it introduces additional variables not mentioned in the GOLD hypothesis. The variables identified in the submission do not match the specific evoluti",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 3,
+    "n_claims_retracted": 1,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 2,
+     "retract": 1,
+     "revise": 0
+    },
+    "wall_time_s": 56.20833992958069
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_1/q2",
+    "domain": "biology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.5,
+    "HMS": 0.5,
+    "submitted_preview": "The evolutionary rates of oral gape position (OGP_evol) positively correlate with speciation rates (BAMM_speciation) at approximately +0.59, whereas the rates of relative maxillary length (RML_evol) negatively correlate with speciation rates at approximately -0.13.",
+    "judge_explain": "The context and variables are correctly identified, addressing the evolutionary rates of oral gape position and relative maxillary length in relation to speciation rates. However, the relationship is incorrect: the submitted hypothesis states a posit",
+    "n_turns": 9,
+    "n_actions": 9,
+    "n_claims_active": 3,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 7,
+    "verdict_counts": {
+     "accept": 5,
+     "require_evidence": 2,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 67.78009271621704
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_2/q0",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.24,
+    "HMS": 0.24,
+    "submitted_preview": "focus_variables = [BAMM_speciation, MBL_evol, BEL_evol, BAMM_extinction, BAMM_NetDiv]",
+    "judge_explain": "The context is somewhat addressed as the submission includes evolutionary biology aspects, but it is broader than the specific scope of body elongation and speciation rates. The variables include speciation (BAMM_speciation) but also other unrelated ",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 3,
+    "n_claims_retracted": 2,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 1,
+     "retract": 2,
+     "revise": 0
+    },
+    "wall_time_s": 62.90548872947693
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_2/q1",
+    "domain": "biology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.4,
+    "HMS": 0.4,
+    "submitted_preview": "There is a moderate positive relationship between the rate of body elongation evolution and speciation rates in South American freshwater fishes, with a correlation coefficient of approximately +0.42.",
+    "judge_explain": "The context is slightly off because the submitted hypothesis specifies South American freshwater fishes, which may not be the intended scope of the original query. The variables are correctly identified as body elongation evolution rate and speciatio",
+    "n_turns": 10,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 3,
+     "require_evidence": 2,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 61.1815505027771
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_3/q0",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "variables(BAMM_speciation, BAMM_NetDiv, bio1, bio12) are relevant for exploring relationships with a coefficient of 0.00003018",
+    "judge_explain": "The submitted hypothesis mentions variables that could be relevant but does not clearly identify the predictor and outcome variables as in the GOLD hypothesis. The context is partially addressed as it mentions exploring relationships with the given c",
+    "n_turns": 9,
+    "n_actions": 11,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 4,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 2,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 64.49917268753052
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_3/q1",
+    "domain": "biology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.5,
+    "HMS": 0.5,
+    "submitted_preview": "BAMM_speciation and diversity are the primary variables of interest for exploring the relationship between speciation rates and species diversity.",
+    "judge_explain": "The context is correct as it addresses the relationship between speciation rates and species diversity. The variables are correctly identified as speciation rates and species diversity. However, the relationship type is not specified in the submitted",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 1,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 7,
+    "verdict_counts": {
+     "accept": 5,
+     "require_evidence": 1,
+     "retract": 1,
+     "revise": 0
+    },
+    "wall_time_s": 96.08114409446716
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_0/q0",
+    "domain": "economics",
+    "query_type": "variable",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "",
+    "judge_explain": "No hypothesis was submitted, so all facets score 0. Context is not addressed, variables are not identified, and no relationship is proposed.",
+    "n_turns": 12,
+    "n_actions": 24,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 12,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 40.05060410499573
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_0/q1",
+    "domain": "economics",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "",
+    "judge_explain": "No hypothesis was submitted, so all facets score 0.",
+    "n_turns": 14,
+    "n_actions": 23,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 14,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 62.28132724761963
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_1/q0",
+    "domain": "economics",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.08,
+    "HMS": 0.08,
+    "submitted_preview": "focus_variables = {share_immi_imputed, iv_offshoring_1}",
+    "judge_explain": "The context is somewhat aligned as it involves immigration, but the focus is not directly on native workers' employment. The variables identified do not match the GOLD hypothesis, which focuses on native employment rather than offshoring or imputed i",
+    "n_turns": 13,
+    "n_actions": 23,
+    "n_claims_active": 1,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 13,
+    "n_reflector_calls": 1,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 60.041412353515625
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_1/q1",
+    "domain": "economics",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "focus_variables = {share_immi_imputed, iv_offshoring_1}",
+    "judge_explain": "The context is partially addressed as the submission mentions immigration, but it introduces offshoring, which is not relevant to the query. The variables are incorrect; the focus should be on ease of immigration and native employment share. The rela",
+    "n_turns": 12,
+    "n_actions": 24,
+    "n_claims_active": 1,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 12,
+    "n_reflector_calls": 3,
+    "verdict_counts": {
+     "accept": 1,
+     "require_evidence": 2,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 61.50483417510986
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_0/q0",
+    "domain": "sociology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "focus_vars(INCOME, DISSAVED, SAMESAVE, BMI, AGE, GENDER)",
+    "judge_explain": "The context is correct as it addresses the 1989 data and factors related to time preference and BMI. However, the submitted hypothesis does not clearly identify the predictor and outcome variables related to time preference and BMI. It lists multiple",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 1,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 3,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 41.06926941871643
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_0/q1",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.75,
+    "HMS": 0.75,
+    "submitted_preview": "DISSAVED and SAMESAVE are relevant proxies for time preference in relation to BMI.",
+    "judge_explain": "The context is correct as it addresses the 1989 data and the relationship between time preference and BMI. The variables are correctly identified with DISSAVED and SAMESAVE as proxies for time preference in relation to BMI. However, the relationship ",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 4,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 74.4473807811737
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_1/q0",
+    "domain": "sociology",
+    "query_type": "context",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "focus_vars(INCOME, DISSAVED, SAMESAVE, BMI) for Hispanic men",
+    "judge_explain": "The context is correct as it focuses on Hispanic men. However, the submitted hypothesis does not clearly identify 'time preference' as the predictor variable, instead mentioning 'INCOME', 'DISSAVED', and 'SAMESAVE'. The outcome variable 'BMI' is corr",
+    "n_turns": 10,
+    "n_actions": 12,
+    "n_claims_active": 3,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 4,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 67.9620132446289
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_2/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.5,
+    "HMS": 0.5,
+    "submitted_preview": "In Black women, time preference, as indicated by savings behavior, shows a minimal association with Body Mass Index (BMI), with correlation coefficients of approximately 0.025 for DISSAVED and 0.022 for SAMESAVE.",
+    "judge_explain": "The context and variables are correctly identified, focusing on time preference, savings behavior, and BMI in Black women. However, the relationship is incorrectly described as minimal, whereas the GOLD hypothesis indicates a positive association.",
+    "n_turns": 12,
+    "n_actions": 11,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 12,
+    "n_reflector_calls": 3,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 81.9113929271698
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_3/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.5,
+    "HMS": 0.5,
+    "submitted_preview": "AGE and DISSAVED are key variables for analyzing the influence of age on savings behavior.",
+    "judge_explain": "The submitted hypothesis correctly addresses the context and identifies the relevant variables (AGE and DISSAVED). However, it does not specify the relationship type or direction between age and the likelihood of withdrawing more money from savings, ",
+    "n_turns": 10,
+    "n_actions": 12,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 6,
+    "verdict_counts": {
+     "accept": 4,
+     "require_evidence": 2,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 60.812304735183716
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_3/q1",
+    "domain": "sociology",
+    "query_type": "context",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "AGE, DISSAVED, and SAMESAVE are relevant variables for exploring savings behavior related to age.",
+    "judge_explain": "The context is correct as it addresses savings behavior in relation to age. However, the variables are not clearly identified as predictor and outcome; 'AGE' is a predictor, but 'DISSAVED' and 'SAMESAVE' are not clearly defined in terms of their role",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 3,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 5,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 3,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 45.36045241355896
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_4/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.5,
+    "HMS": 0.5,
+    "submitted_preview": "focus_variables(INCOME, DISSAVED, SAMESAVE)",
+    "judge_explain": "The context is correct as it addresses the impact of income on savings behavior. However, the submitted hypothesis identifies 'DISSAVED' and 'SAMESAVE' as variables, which may not directly correspond to the likelihood of maintaining the same level of",
+    "n_turns": 9,
+    "n_actions": 11,
+    "n_claims_active": 2,
+    "n_claims_retracted": 2,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 4,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 2,
+     "retract": 2,
+     "revise": 0
+    },
+    "wall_time_s": 78.15837836265564
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_5/q0",
+    "domain": "sociology",
+    "query_type": "context",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.75,
+    "HMS": 0.75,
+    "submitted_preview": "Higher time preference, as indicated by DISSAVED, shows a negligible positive correlation with BMI (corr(DISSAVED, BMI) \u2248 +0.0088), with males having a higher average BMI (25.739) compared to females (25.022) when DISSAVED=1.",
+    "judge_explain": "The context is correct as it addresses the relationship between time preference and BMI across genders. The variables are correctly identified, focusing on time preference and BMI. However, the relationship is partially correct; while the submission ",
+    "n_turns": 11,
+    "n_actions": 12,
+    "n_claims_active": 5,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 11,
+    "n_reflector_calls": 6,
+    "verdict_counts": {
+     "accept": 3,
+     "require_evidence": 3,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 113.94202876091003
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_5/q1",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.75,
+    "HMS": 0.75,
+    "submitted_preview": "Higher time preference, as indicated by dissaving behavior, is linked to higher BMI among men, with average BMI for men who dissaved being greater than for those who did not dissave, and a correlation of approximately +0.027.",
+    "judge_explain": "The context is correct as it addresses the relationship between time preference and BMI among men. The variables are correctly identified, focusing on time preference (dissaving behavior) and BMI. However, the relationship is partially correct; while",
+    "n_turns": 12,
+    "n_actions": 12,
+    "n_claims_active": 3,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 12,
+    "n_reflector_calls": 4,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 2,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 91.53929471969604
+   },
+   {
+    "task_id": "train/nls_bmi_raw/metadata_0/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "relevant_variables = {'Weight of respondent, 1981', 'Weight of respondent, 1989', 'ASVAB scores'}",
+    "judge_explain": "The context is partially correct as it includes 1989 data, but also includes 1981 data and ASVAB scores, which are not relevant to the hypothesis. The variables are incorrect because 'Weight of respondent' is not the same as BMI, and 'ASVAB scores' a",
+    "n_turns": 6,
+    "n_actions": 12,
+    "n_claims_active": 1,
+    "n_claims_retracted": 1,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 3,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 0,
+     "retract": 1,
+     "revise": 0
+    },
+    "wall_time_s": 45.17707180976868
+   },
+   {
+    "task_id": "train/nls_bmi_raw/metadata_1/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "relevant_variables = {weight: 'Weight of respondent, 1989', ethnicity: 'Racial/ethnic cohort, 1979', education: 'Highest grade completed, 1979'}",
+    "judge_explain": "The submitted hypothesis does not address the correct context, as it does not mention time preference or obesity, nor does it specify black men. The variables listed do not include time preference or obesity, and the relationship type is not addresse",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 3,
+    "verdict_counts": {
+     "accept": 3,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 41.184953689575195
+   }
+  ],
+  "MARS-all-off": [
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_0/q0",
+    "domain": "biology",
+    "query_type": "variable",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.75,
+    "HMS": 0.75,
+    "submitted_preview": "corr(MBL_evol, BAMM_speciation) is relevant to explore",
+    "judge_explain": "The context is correct as it addresses the scope of body length evolution and speciation rates. The variables are correctly identified as maximum body length evolution and speciation rates. However, the relationship type is not fully specified; it me",
+    "n_turns": 9,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 40.15285038948059
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_0/q1",
+    "domain": "biology",
+    "query_type": "variable",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.72,
+    "HMS": 0.72,
+    "submitted_preview": "The spatial variation in speciation rates in South American freshwater fishes is significantly explained by the rate of maximum body length evolution, with a positive relationship coefficient of approximately 0.88.",
+    "judge_explain": "The context is slightly narrower in the submitted hypothesis, focusing on South American freshwater fishes, which may not fully align with the broader context of the discovery query. The variables are correctly identified, with the rate of maximum bo",
+    "n_turns": 7,
+    "n_actions": 7,
+    "n_claims_active": 1,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 42.631995677948
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_0/q2",
+    "domain": "biology",
+    "query_type": "relationhsip",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 1.0,
+    "HMS": 1.0,
+    "submitted_preview": "There is a strong positive relationship between the rate of maximum body length evolution and spatial variation in speciation rates, with a linear coefficient of approximately +0.88.",
+    "judge_explain": "The submitted hypothesis correctly addresses the context of the relationship between body length evolution and speciation rates, identifies the correct variables, and describes the relationship as positive with a linear coefficient, which aligns with",
+    "n_turns": 8,
+    "n_actions": 11,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 37.687450647354126
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_1/q0",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.4,
+    "HMS": 0.4,
+    "submitted_preview": "BAMM_speciation, BEL_evol, MBL_evol, OGP_evol, RES_evol, and RML_evol are relevant variables to explore for negative relationships with speciation rates.",
+    "judge_explain": "The context is partially correct as it addresses evolutionary traits and speciation rates, but it lacks specificity. The variables are partially correct; the submission lists multiple variables without specifying which ones have the negative relation",
+    "n_turns": 7,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 37.54844856262207
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_1/q1",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.1875,
+    "HMS": 0.1875,
+    "submitted_preview": "BAMM_speciation, BAMM_extinction, bio1, and bio12 are relevant variables for exploring negative relationships with speciation rates.",
+    "judge_explain": "The context is partially correct as it addresses speciation rates but includes variables not mentioned in the GOLD hypothesis. The variables are mostly incorrect; the submission includes BAMM_speciation, BAMM_extinction, bio1, and bio12, which do not",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 6,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 44.626672983169556
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_1/q2",
+    "domain": "biology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "The evolutionary rates of oral gape position (OGP_evol) and relative maxillary length (RML_evol) have distinct relationships with speciation rates (BAMM_speciation). OGP_evol shows a positive correlation with speciation rates (correlation coefficient \u2248 +0.587), while RML_evol exhibits a negative cor",
+    "judge_explain": "The context and variables are correctly identified, addressing the evolutionary rates of oral gape position and relative maxillary length in relation to speciation rates. However, the relationship type is incorrect; the submitted hypothesis states a ",
+    "n_turns": 9,
+    "n_actions": 11,
+    "n_claims_active": 3,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 46.198718786239624
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_2/q0",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.05,
+    "HMS": 0.05,
+    "submitted_preview": "focus_vars = {BAMM_speciation, BAMM_extinction, BAMM_NetDiv, BEL_evol, MBL_evol, OGP_evol, RES_evol, RML_evol}",
+    "judge_explain": "The context is partially addressed as the submission mentions evolutionary biology aspects but does not specify the exact scope of body elongation and speciation rates. The variables are not clearly identified; the submission lists several variables ",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 45.11707592010498
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_2/q1",
+    "domain": "biology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.4,
+    "HMS": 0.4,
+    "submitted_preview": "There is a moderate positive relationship between the rate of body elongation evolution and speciation rates in South American freshwater fishes, with a correlation coefficient of approximately +0.42.",
+    "judge_explain": "The context is slightly narrower than the GOLD hypothesis, focusing on South American freshwater fishes, but it still addresses the general scope of body elongation evolution and speciation rates. The variables are correctly identified as body elonga",
+    "n_turns": 7,
+    "n_actions": 7,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 33.56064486503601
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_3/q0",
+    "domain": "biology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "focus_vars = ['BAMM_speciation', 'BAMM_NetDiv', 'bio1', 'diversity']",
+    "judge_explain": "The context is partially correct as it includes speciation and diversity, but also includes unrelated variables like 'bio1'. The variables are partially correct because 'BAMM_speciation' and 'diversity' are relevant, but 'BAMM_NetDiv' and 'bio1' are ",
+    "n_turns": 7,
+    "n_actions": 12,
+    "n_claims_active": 3,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 33.21407175064087
+   },
+   {
+    "task_id": "train/evolution_freshwater_fish/metadata_3/q1",
+    "domain": "biology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.5,
+    "HMS": 0.5,
+    "submitted_preview": "BAMM_speciation and diversity are the primary variables of interest for exploring the relationship between speciation rates and species diversity.",
+    "judge_explain": "The submitted hypothesis correctly addresses the context by focusing on speciation rates and species diversity, and it identifies the correct variables. However, it does not specify the type or magnitude of the relationship, which is crucial for a co",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 33.741498947143555
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_0/q0",
+    "domain": "economics",
+    "query_type": "variable",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "",
+    "judge_explain": "No hypothesis was submitted, so all facets score 0. Context is not addressed, variables are not identified, and no relationship is proposed.",
+    "n_turns": 12,
+    "n_actions": 24,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 12,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 49.774043560028076
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_0/q1",
+    "domain": "economics",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "",
+    "judge_explain": "No hypothesis was submitted, so all facets score 0.",
+    "n_turns": 12,
+    "n_actions": 24,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 12,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 45.68414330482483
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_1/q0",
+    "domain": "economics",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "",
+    "judge_explain": "No hypothesis was submitted, so all facets score 0.",
+    "n_turns": 13,
+    "n_actions": 23,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 13,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 52.89001750946045
+   },
+   {
+    "task_id": "train/immigration_offshoring_effect_on_employment/metadata_1/q1",
+    "domain": "economics",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "",
+    "judge_explain": "No hypothesis was submitted, so all facets score 0.",
+    "n_turns": 13,
+    "n_actions": 23,
+    "n_claims_active": 0,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 13,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 55.14237689971924
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_0/q0",
+    "domain": "sociology",
+    "query_type": "variables",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "focus_variables(INCOME, DISSAVED, SAMESAVE, BMI)",
+    "judge_explain": "The context is correct as it addresses the 1989 data and factors related to time preference associated with BMI. However, the variables are not fully aligned; while DISSAVED and SAMESAVE are relevant, INCOME is not mentioned in the GOLD hypothesis. T",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 27.460360050201416
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_0/q1",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.75,
+    "HMS": 0.75,
+    "submitted_preview": "focus_vars(BMI, DISSAVED, SAMESAVE)",
+    "judge_explain": "The context is correct as it addresses the 1989 data and the scope of the query. The variables identified (BMI, DISSAVED, SAMESAVE) match the GOLD hypothesis. However, the relationship type is not explicitly stated in the SUBMITTED hypothesis, leadin",
+    "n_turns": 11,
+    "n_actions": 11,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 11,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 50.093324422836304
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_1/q0",
+    "domain": "sociology",
+    "query_type": "context",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "relevant_variables(INCOME, DISSAVED, SAMESAVE, BMI) for exploring time_preference_BMI_Hispanic_men",
+    "judge_explain": "The context is correct as it addresses the impact of time preference on BMI in Hispanic men. However, the submitted hypothesis does not clearly identify the predictor variable 'time preference' and the outcome variable 'BMI'. Instead, it lists variab",
+    "n_turns": 10,
+    "n_actions": 12,
+    "n_claims_active": 7,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 55.174530267715454
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_2/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 1.0,
+    "HMS": 1.0,
+    "submitted_preview": "In Black women, higher time preference, as indicated by a positive correlation with savings behavior (DISSAVED: corr \u2248 +0.025, SAMESAVE: corr \u2248 +0.022), is associated with an increase in Body Mass Index (BMI).",
+    "judge_explain": "The submitted hypothesis correctly addresses the context of Black women and the association between time preference and BMI, using savings behavior as a variable. The predictor (time preference) and outcome (BMI) variables are correctly identified, a",
+    "n_turns": 9,
+    "n_actions": 11,
+    "n_claims_active": 3,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 50.744921922683716
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_3/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 1.0,
+    "HMS": 1.0,
+    "submitted_preview": "As age increases, the likelihood of withdrawing more money from savings than putting in decreases, with a correlation of approximately -0.041, and individuals aged 24 are more likely to dissaving compared to those aged 30.",
+    "judge_explain": "The submitted hypothesis correctly addresses the context of age influencing savings behavior, identifies the correct predictor (age) and outcome (likelihood of withdrawing more than depositing), and accurately describes the negative relationship betw",
+    "n_turns": 11,
+    "n_actions": 10,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 11,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 46.112528800964355
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_3/q1",
+    "domain": "sociology",
+    "query_type": "context",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.5,
+    "HMS": 0.5,
+    "submitted_preview": "AGE, DISSAVED, and SAMESAVE are relevant variables for exploring savings behavior in relation to age.",
+    "judge_explain": "The context is correct as the submission addresses savings behavior in relation to age. However, the variables are not fully aligned; while AGE is correct, DISSAVED and SAMESAVE are not clearly defined as predictors or outcomes in the context of the ",
+    "n_turns": 9,
+    "n_actions": 12,
+    "n_claims_active": 6,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 41.81291079521179
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_4/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.75,
+    "HMS": 0.75,
+    "submitted_preview": "As income increases, the likelihood of maintaining the same level of savings decreases, with a correlation coefficient of approximately -0.096.",
+    "judge_explain": "The context is correct as both hypotheses address the impact of income on savings. The variables are correctly identified as income and likelihood of maintaining savings. However, the relationship is partially correct: both indicate a negative relati",
+    "n_turns": 9,
+    "n_actions": 9,
+    "n_claims_active": 2,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 9,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 38.11424970626831
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_5/q0",
+    "domain": "sociology",
+    "query_type": "context",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.25,
+    "HMS": 0.25,
+    "submitted_preview": "relevant_variables(INCOME, DISSAVED, SAMESAVE, BMI)",
+    "judge_explain": "The context is correct as it addresses the scope of time preference and BMI across genders. However, the submitted hypothesis identifies INCOME, DISSAVED, and SAMESAVE as relevant variables, which partially aligns with the GOLD hypothesis's focus on ",
+    "n_turns": 11,
+    "n_actions": 12,
+    "n_claims_active": 5,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 11,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 54.83016538619995
+   },
+   {
+    "task_id": "train/nls_bmi/metadata_5/q1",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.2,
+    "HMS": 0.2,
+    "submitted_preview": "Variables of interest include BMI, INCOME, DISSAVED, and GENDER.",
+    "judge_explain": "The context is partially correct as it addresses BMI and gender, but includes unrelated variables like INCOME. The variables are partially correct as BMI and gender are relevant, but the focus should be on time preference rather than income. The rela",
+    "n_turns": 10,
+    "n_actions": 12,
+    "n_claims_active": 4,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 49.91556096076965
+   },
+   {
+    "task_id": "train/nls_bmi_raw/metadata_0/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.0,
+    "HMS": 0.0,
+    "submitted_preview": "variables('Highest grade completed', 'Family net wealth') are relevant for exploring time preference and BMI",
+    "judge_explain": "The submitted hypothesis does not directly address the scope of the discovery query, which is about the relationship between time preference and BMI. Instead, it mentions 'Highest grade completed' and 'Family net wealth', which are not the variables ",
+    "n_turns": 8,
+    "n_actions": 12,
+    "n_claims_active": 1,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 37.22291159629822
+   },
+   {
+    "task_id": "train/nls_bmi_raw/metadata_1/q0",
+    "domain": "sociology",
+    "query_type": "relationship",
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 1.0,
+    "HMS": 1.0,
+    "submitted_preview": "There is a positive association between time preference and obesity in black men, evidenced by a correlation of approximately +0.64 between weights measured in 1981 and 1989, with a mean weight of 159.12 in 1989.",
+    "judge_explain": "The submitted hypothesis addresses the correct context (black men), identifies the correct variables (time preference and obesity), and specifies the correct relationship (positive association). The additional details about correlation and mean weigh",
+    "n_turns": 10,
+    "n_actions": 12,
+    "n_claims_active": 5,
+    "n_claims_retracted": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 67.23648047447205
+   }
+  ]
+ },
+ "paired_delta_HMS_mean": -0.0741,
+ "paired_delta_HMS_ci95z": 0.14994343743336463
+}
