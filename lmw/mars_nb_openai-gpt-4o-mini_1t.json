@@ -1,0 +1,51 @@
+{
+ "generator_model": "openai/gpt-4o-mini",
+ "reflector_model": "openai/gpt-4o-mini",
+ "judge_model": "gpt41",
+ "budget": 10.0,
+ "n_tasks": 1,
+ "ablations_run": [
+  "MARS-full"
+ ],
+ "modules": [
+  "m0_gravity"
+ ],
+ "difficulties": [
+  "hard"
+ ],
+ "per_task": {
+  "MARS-full": [
+   {
+    "task_label": "m0_gravity/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m0_gravity",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": NaN,
+    "symbolic_equivalent": false,
+    "submitted_preview": "<final_law>\ndef discovered_law(mass1, mass2, distance):\n   C = 8e-8\n   return (C * mass1 * mass2) / (distance ** 2)\n</final_law>",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 5,
+    "n_actions": 9,
+    "n_claims_active": 0,
+    "n_generator_calls": 5,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 55.59141302108765
+   }
+  ]
+ }
+}
