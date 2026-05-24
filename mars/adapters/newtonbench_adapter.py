@@ -125,6 +125,215 @@ def _safe_python_exec(code: str, timeout_s: float = 8.0,
         ns["scipy_optimize"] = _sp_opt
         ns["scipy_stats"] = _sp_stats
 
+    # ---- Symbolic-regression helpers (Angle 1: tool > scaffold) ----
+    # These functions implement what gpt-4o-mini struggles to do by reasoning
+    # alone: log-log regression to find power-law exponents from data.
+
+    def log_log_fit(x_array, y_array):
+        """Fit log(y) = a*log(x) + b. Returns dict with slope, intercept, r2.
+        For F = C * x^a, slope=a, exp(intercept)=C. If r2 > ~0.98 → x is a
+        single power-law contributor; lower r2 → non-trivial functional form."""
+        x = np.asarray(x_array, dtype=float)
+        y = np.asarray(y_array, dtype=float)
+        mask = (x > 0) & (y > 0) & np.isfinite(x) & np.isfinite(y)
+        if mask.sum() < 2:
+            return {"error": "need >=2 positive finite points",
+                    "n_used": int(mask.sum())}
+        lx = np.log(x[mask]); ly = np.log(y[mask])
+        a, b = np.polyfit(lx, ly, 1)
+        pred = a * lx + b
+        ss_res = float(((ly - pred) ** 2).sum())
+        ss_tot = float(((ly - ly.mean()) ** 2).sum())
+        r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+        return {"slope_exponent": float(a), "intercept_log": float(b),
+                "constant_C": float(np.exp(b)), "r2": float(r2),
+                "n_used": int(mask.sum())}
+
+    def fit_separable_powerlaw(data_dict, target_key):
+        """Multi-variate log-log linear regression.
+            log(target) = c0 + sum_i a_i * log(var_i)
+        Best when the true law is F = C * prod_i var_i^a_i.
+        Returns dict with exponents per variable, constant C, and R^2.
+
+        data_dict: {var_name: array_like}, including the target.
+        target_key: name of dependent var (e.g. 'force').
+        """
+        target = np.asarray(data_dict[target_key], dtype=float)
+        feat_names = [k for k in data_dict if k != target_key]
+        if not feat_names:
+            return {"error": "no feature columns"}
+        # mask out non-positive
+        mask = (target > 0) & np.isfinite(target)
+        feats = []
+        for name in feat_names:
+            arr = np.asarray(data_dict[name], dtype=float)
+            mask = mask & (arr > 0) & np.isfinite(arr)
+            feats.append(arr)
+        if mask.sum() < len(feat_names) + 1:
+            return {"error": f"need >={len(feat_names)+1} pos points, have {int(mask.sum())}"}
+        log_t = np.log(target[mask])
+        log_f = np.stack([np.log(f[mask]) for f in feats], axis=1)
+        # design matrix [log_f | 1]
+        X = np.hstack([log_f, np.ones((mask.sum(), 1))])
+        coef, residuals, rank, sv = np.linalg.lstsq(X, log_t, rcond=None)
+        a_vec = coef[:-1]
+        c0 = coef[-1]
+        pred = X @ coef
+        ss_res = float(((log_t - pred) ** 2).sum())
+        ss_tot = float(((log_t - log_t.mean()) ** 2).sum())
+        r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+        return {
+            "exponents": {name: float(a_vec[i]) for i, name in enumerate(feat_names)},
+            "constant_C": float(np.exp(c0)),
+            "r2": float(r2),
+            "n_used": int(mask.sum()),
+            "interpretation": (
+                "F = " + f"{np.exp(c0):.6g}" + " * "
+                + " * ".join(
+                    f"{name}^{a_vec[i]:.4f}" for i, name in enumerate(feat_names)
+                )
+            ),
+        }
+
+    def fit_with_sum_basis(x1_array, x2_array, y_array,
+                           operations=("sum", "product", "sum_squared", "product_squared")):
+        """Try several feature constructions for binary input (e.g. m1, m2),
+        do log-log fit of y vs each basis. Returns ranked list by R^2.
+
+        Useful when the law might be of form F ~ (m1+m2)^k, (m1*m2)^k, etc.
+        """
+        x1 = np.asarray(x1_array, dtype=float)
+        x2 = np.asarray(x2_array, dtype=float)
+        y = np.asarray(y_array, dtype=float)
+        bases = {
+            "sum": x1 + x2,
+            "product": x1 * x2,
+            "sum_squared": (x1 + x2) ** 2,
+            "product_squared": (x1 * x2) ** 2,
+            "sq_sum": x1 ** 2 + x2 ** 2,
+            "sq_product": (x1 ** 2) * (x2 ** 2),
+            "max": np.maximum(x1, x2),
+            "min": np.minimum(x1, x2),
+        }
+        results = []
+        for name, basis in bases.items():
+            if name not in operations and not any(name.startswith(op) for op in operations):
+                continue
+            fit = log_log_fit(basis, y)
+            fit["basis"] = name
+            results.append(fit)
+        results.sort(key=lambda d: d.get("r2", -1), reverse=True)
+        return results
+
+    def discover_law_auto(data_dict, target_key, variable_names=None):
+        """All-in-one law discovery: try every plausible basis and return
+        a ranked list of candidate functional forms by R^2 in log space.
+
+        data_dict: {var: array}, including target_key
+        target_key: name of dependent variable (e.g. 'force')
+        variable_names: list of input var names (default: all keys except target)
+
+        Returns: sorted list of dicts, each with:
+          - form: human-readable formula string
+          - r2: goodness-of-fit in log space
+          - python_body: a `return ...` Python expression you can paste into
+                         the submit_law function body (uses the variable names)
+        Pick the top entry if its R^2 is close to 1.0. If multiple forms tie,
+        prefer the simpler one (lower complexity).
+        """
+        candidates = []
+        target = np.asarray(data_dict[target_key], dtype=float)
+        if variable_names is None:
+            variable_names = [k for k in data_dict if k != target_key]
+
+        # --- Candidate A: full separable power-law ---
+        sp = fit_separable_powerlaw(data_dict, target_key)
+        if "exponents" in sp:
+            exps = sp["exponents"]
+            form_parts = [f"{name}^{exps[name]:.4f}" for name in variable_names]
+            form = f"{sp['constant_C']:.6g} * " + " * ".join(form_parts)
+            body = f"return {sp['constant_C']:.6g}" + "".join(
+                f" * {n}**{exps[n]:.6f}" for n in variable_names
+            )
+            candidates.append({"form": form, "r2": sp.get("r2", -1),
+                               "python_body": body, "kind": "separable"})
+
+        # --- Candidate B+: sum-based for binary inputs (m1, m2 style) ---
+        # Try first two non-target variables as the candidate "binary" inputs.
+        non_target = variable_names
+        if len(non_target) >= 2:
+            v1, v2 = non_target[0], non_target[1]
+            extra = non_target[2:]
+            x1 = np.asarray(data_dict[v1], dtype=float)
+            x2 = np.asarray(data_dict[v2], dtype=float)
+            bases = {
+                "sum":          x1 + x2,
+                "sum_squared":  (x1 + x2) ** 2,
+                "sq_sum":       x1 ** 2 + x2 ** 2,
+                "product":      x1 * x2,
+                "product_squared": (x1 * x2) ** 2,
+                "sq_product":   (x1 ** 2) * (x2 ** 2),
+            }
+            for basis_name, basis_arr in bases.items():
+                if not np.all((basis_arr > 0) & np.isfinite(basis_arr)):
+                    continue
+                # if there are extra vars (e.g. distance), regress against
+                # log(basis) and log(extra_i)
+                stacked = [np.log(basis_arr)]
+                for e in extra:
+                    stacked.append(np.log(np.maximum(
+                        np.asarray(data_dict[e], dtype=float), 1e-30)))
+                stacked.append(np.ones_like(basis_arr))
+                X = np.stack(stacked, axis=1)
+                mask = (target > 0) & np.isfinite(target) & np.all(np.isfinite(X), axis=1)
+                if mask.sum() < X.shape[1] + 1:
+                    continue
+                coef, *_ = np.linalg.lstsq(X[mask], np.log(target[mask]), rcond=None)
+                pred = X[mask] @ coef
+                lt = np.log(target[mask])
+                ss_res = float(((lt - pred) ** 2).sum())
+                ss_tot = float(((lt - lt.mean()) ** 2).sum())
+                r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+                exp_basis = float(coef[0])
+                extra_exps = [float(c) for c in coef[1:-1]]
+                C = float(np.exp(coef[-1]))
+                form_parts = [f"({_render_basis(v1, v2, basis_name)})^{exp_basis:.4f}"]
+                form_parts += [f"{e}^{extra_exps[i]:.4f}" for i, e in enumerate(extra)]
+                form = f"{C:.6g} * " + " * ".join(form_parts)
+                py_basis = _render_basis_py(v1, v2, basis_name)
+                body = f"return {C:.6g} * ({py_basis})**{exp_basis:.6f}"
+                for i, e in enumerate(extra):
+                    body += f" * {e}**{extra_exps[i]:.6f}"
+                candidates.append({"form": form, "r2": r2,
+                                   "python_body": body,
+                                   "kind": f"basis:{basis_name}"})
+
+        candidates.sort(key=lambda d: d.get("r2", -1), reverse=True)
+        return candidates[:8]
+
+    def _render_basis(v1, v2, basis_name):
+        if basis_name == "sum":           return f"{v1}+{v2}"
+        if basis_name == "sum_squared":   return f"({v1}+{v2})^2"
+        if basis_name == "sq_sum":        return f"{v1}^2+{v2}^2"
+        if basis_name == "product":       return f"{v1}*{v2}"
+        if basis_name == "product_squared": return f"({v1}*{v2})^2"
+        if basis_name == "sq_product":    return f"{v1}^2*{v2}^2"
+        return basis_name
+
+    def _render_basis_py(v1, v2, basis_name):
+        if basis_name == "sum":           return f"({v1}+{v2})"
+        if basis_name == "sum_squared":   return f"({v1}+{v2})**2"
+        if basis_name == "sq_sum":        return f"({v1}**2+{v2}**2)"
+        if basis_name == "product":       return f"({v1}*{v2})"
+        if basis_name == "product_squared": return f"({v1}*{v2})**2"
+        if basis_name == "sq_product":    return f"({v1}**2 * {v2}**2)"
+        return basis_name
+
+    ns["log_log_fit"] = log_log_fit
+    ns["fit_separable_powerlaw"] = fit_separable_powerlaw
+    ns["fit_with_sum_basis"] = fit_with_sum_basis
+    ns["discover_law_auto"] = discover_law_auto
+
     out_buf = io.StringIO()
     out: dict[str, Any] = {}
 
@@ -153,6 +362,135 @@ def _safe_python_exec(code: str, timeout_s: float = 8.0,
     if len(captured) > max_output_chars:
         captured = captured[:max_output_chars] + "...(truncated)"
     return captured
+
+
+# ===== Module-level SR helpers (also exposed inside _safe_python_exec) =====
+# Duplicated as standalone module-level functions so the adapter can call them
+# directly (the inner versions live inside _safe_python_exec's namespace).
+
+def _log_log_fit(x_array, y_array) -> dict:
+    import numpy as np
+    x = np.asarray(x_array, dtype=float)
+    y = np.asarray(y_array, dtype=float)
+    mask = (x > 0) & (y > 0) & np.isfinite(x) & np.isfinite(y)
+    if mask.sum() < 2:
+        return {"error": "need >=2 positive finite points", "n_used": int(mask.sum())}
+    lx = np.log(x[mask]); ly = np.log(y[mask])
+    a, b = np.polyfit(lx, ly, 1)
+    pred = a * lx + b
+    ss_res = float(((ly - pred) ** 2).sum())
+    ss_tot = float(((ly - ly.mean()) ** 2).sum())
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+    return {"slope_exponent": float(a), "constant_C": float(np.exp(b)),
+            "r2": float(r2), "n_used": int(mask.sum())}
+
+
+def _fit_separable_powerlaw(data_dict, target_key) -> dict:
+    import numpy as np
+    target = np.asarray(data_dict[target_key], dtype=float)
+    feat_names = [k for k in data_dict if k != target_key]
+    if not feat_names:
+        return {"error": "no feature columns"}
+    mask = (target > 0) & np.isfinite(target)
+    feats = []
+    for name in feat_names:
+        arr = np.asarray(data_dict[name], dtype=float)
+        mask = mask & (arr > 0) & np.isfinite(arr)
+        feats.append(arr)
+    if mask.sum() < len(feat_names) + 1:
+        return {"error": f"need >={len(feat_names)+1} pos points",
+                "n_used": int(mask.sum())}
+    log_t = np.log(target[mask])
+    log_f = np.stack([np.log(f[mask]) for f in feats], axis=1)
+    X = np.hstack([log_f, np.ones((mask.sum(), 1))])
+    coef, *_ = np.linalg.lstsq(X, log_t, rcond=None)
+    a_vec = coef[:-1]; c0 = coef[-1]
+    pred = X @ coef
+    ss_res = float(((log_t - pred) ** 2).sum())
+    ss_tot = float(((log_t - log_t.mean()) ** 2).sum())
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+    return {"exponents": {name: float(a_vec[i]) for i, name in enumerate(feat_names)},
+            "constant_C": float(np.exp(c0)), "r2": float(r2),
+            "n_used": int(mask.sum())}
+
+
+def _render_basis_py_mod(v1, v2, basis_name):
+    if basis_name == "sum":             return f"({v1}+{v2})"
+    if basis_name == "sum_squared":     return f"({v1}+{v2})**2"
+    if basis_name == "sq_sum":          return f"({v1}**2+{v2}**2)"
+    if basis_name == "product":         return f"({v1}*{v2})"
+    if basis_name == "product_squared": return f"({v1}*{v2})**2"
+    if basis_name == "sq_product":      return f"({v1}**2 * {v2}**2)"
+    return basis_name
+
+
+def _discover_law_auto(data_dict, target_key="force", variable_names=None) -> list[dict]:
+    """Try multiple bases; return ranked candidates by R^2."""
+    import numpy as np
+    if variable_names is None:
+        variable_names = [k for k in data_dict if k != target_key]
+    target = np.asarray(data_dict[target_key], dtype=float)
+    out: list[dict] = []
+
+    # Candidate A: separable power-law
+    sp = _fit_separable_powerlaw(data_dict, target_key)
+    if "exponents" in sp:
+        exps = sp["exponents"]
+        body = f"return {sp['constant_C']:.6g}" + "".join(
+            f" * {n}**{exps[n]:.6f}" for n in variable_names
+        )
+        form = f"{sp['constant_C']:.6g}" + "".join(
+            f" * {n}^{exps[n]:.4f}" for n in variable_names
+        )
+        out.append({"kind": "separable", "form": form, "r2": sp["r2"],
+                    "python_body": body})
+
+    # Candidates B+: binary-input bases (first 2 vars as m1, m2)
+    non_target = variable_names
+    if len(non_target) >= 2:
+        v1, v2 = non_target[0], non_target[1]
+        extras = non_target[2:]
+        x1 = np.asarray(data_dict[v1], dtype=float)
+        x2 = np.asarray(data_dict[v2], dtype=float)
+        bases = {
+            "sum": x1 + x2, "sum_squared": (x1 + x2) ** 2,
+            "sq_sum": x1 ** 2 + x2 ** 2,
+            "product": x1 * x2, "product_squared": (x1 * x2) ** 2,
+            "sq_product": (x1 ** 2) * (x2 ** 2),
+        }
+        for bname, barr in bases.items():
+            valid = (barr > 0) & np.isfinite(barr)
+            if not valid.all():
+                continue
+            stacked = [np.log(barr)]
+            for e in extras:
+                stacked.append(np.log(np.maximum(
+                    np.asarray(data_dict[e], dtype=float), 1e-30)))
+            stacked.append(np.ones_like(barr))
+            X = np.stack(stacked, axis=1)
+            mask = (target > 0) & np.isfinite(target) & np.all(np.isfinite(X), axis=1)
+            if mask.sum() < X.shape[1] + 1:
+                continue
+            coef, *_ = np.linalg.lstsq(X[mask], np.log(target[mask]), rcond=None)
+            pred = X[mask] @ coef
+            lt = np.log(target[mask])
+            ss_res = float(((lt - pred) ** 2).sum())
+            ss_tot = float(((lt - lt.mean()) ** 2).sum())
+            r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+            exp_basis = float(coef[0])
+            extra_exps = [float(c) for c in coef[1:-1]]
+            C = float(np.exp(coef[-1]))
+            py_basis = _render_basis_py_mod(v1, v2, bname)
+            body = f"return {C:.6g} * ({py_basis})**{exp_basis:.6f}"
+            form = f"{C:.6g} * ({v1} {bname} {v2})^{exp_basis:.4f}"
+            for i, e in enumerate(extras):
+                body += f" * {e}**{extra_exps[i]:.6f}"
+                form += f" * {e}^{extra_exps[i]:.4f}"
+            out.append({"kind": f"basis:{bname}", "form": form,
+                        "r2": r2, "python_body": body})
+
+    out.sort(key=lambda d: d.get("r2", -1), reverse=True)
+    return out
 
 
 def _setup_nb_path() -> None:
@@ -236,6 +574,9 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         )
         # lazy-import the physics module on demand
         self._module = importlib.import_module(f"modules.{task.module_name}")
+        # Accumulated experimental data — used by auto-fit on every batch
+        self._all_inputs: list[dict[str, float]] = []
+        self._all_outputs: list[float] = []
 
     # -- handle ----
 
@@ -258,23 +599,56 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             f"`run_experiment` (gather data), `python_exec` (analyze data), or "
             f"`submit_law` (terminal, no cost). The available action set is "
             f"listed below.\n\n"
-            f"**RECOMMENDED WORKFLOW** (this is a metaphysical-shift universe — "
-            f"DO NOT assume standard textbook physics!):\n"
-            f"  Rounds 1-3: `run_experiment` with input parameters varied by "
+            f"**RECOMMENDED WORKFLOW — DO NOT GUESS STANDARD NEWTON'S LAW!**\n"
+            f"The universe has metaphysical-shifted physics. Newton's "
+            f"`F = G*m1*m2/r^2` will be WRONG. Use the symbolic-regression "
+            f"tool to FIND the actual law from data. The fastest path:\n\n"
+            f"  Rounds 1-3: `run_experiment` to collect ~15-25 data points "
+            f"spanning orders of magnitude for each input variable.\n"
+            f"  Round 4: ONE `python_exec` call:\n\n"
+            f"      data = {{\n"
+            f"          'mass1':   [...],   # from your experiments\n"
+            f"          'mass2':   [...],\n"
+            f"          'distance':[...],\n"
+            f"          'force':   [...],\n"
+            f"      }}\n"
+            f"      candidates = discover_law_auto(data, target_key='force')\n"
+            f"      for c in candidates[:5]:\n"
+            f"          print(f\"R2={{c['r2']:.4f}} {{c['kind']}}: F = {{c['form']}}\")\n"
+            f"          print(f\"  body: {{c['python_body']}}\")\n\n"
+            f"  Round 5+: `submit_law` using the python_body of the BEST candidate "
+            f"(highest R^2, ideally > 0.999). Just paste the body into:\n\n"
+            f"      def discovered_law(mass1, mass2, distance):\n"
+            f"          <PASTE python_body HERE>\n\n"
+            f"  If multiple candidates have R^2 > 0.99, prefer the SIMPLER one "
+            f"(e.g. prefer 'sum_squared' over 'separable' if both fit).\n"
+            f"  Note: numpy is preloaded as `np` — DO NOT `import numpy`.\n\n"
+            f"  Rounds 1-3: `run_experiment` to sweep each input variable across "
             f"orders of magnitude (e.g. distance ∈ [0.1, 1, 10, 100, 1000]) — "
-            f"this lets you compute log-log slopes.\n"
-            f"  Round 4: `python_exec` — do log-log linear regression on the "
-            f"gathered data to find the scaling exponents. Example:\n"
-            f"      import numpy as np\n"
-            f"      r = np.array([...])  # distances you tried\n"
-            f"      F = np.array([...])  # forces measured\n"
-            f"      slope, intercept = np.polyfit(np.log(r), np.log(F), 1)\n"
-            f"      print('exponent on r:', slope, 'log-intercept:', intercept)\n"
-            f"  Rounds 5-7: more `run_experiment` to verify scaling on other "
-            f"variables (mass, charge, etc.) — vary one at a time.\n"
-            f"  Round 8: `python_exec` to fit the functional form against all "
-            f"data with scipy.optimize.curve_fit.\n"
-            f"  Round 9-10: `submit_law` with the discovered functional form.\n\n"
+            f"vary ONE variable at a time, keep others fixed.\n"
+            f"  Round 4: `python_exec` — call the BUILT-IN symbolic-regression "
+            f"helpers to extract scaling exponents from your data. You DON'T need "
+            f"to write polyfit yourself, just use these:\n\n"
+            f"      # log-log fit of single variable (returns slope=exponent, R^2)\n"
+            f"      r = [0.1, 1.0, 10.0, 100.0]\n"
+            f"      F = [F1, F2, F3, F4]  # measured forces\n"
+            f"      print(log_log_fit(r, F))\n"
+            f"      #  → {{'slope_exponent': -1.5, 'constant_C': 6.67e-5, 'r2': 0.99}}\n\n"
+            f"      # multi-variate power-law fit (best when F = C * v1^a * v2^b * v3^c)\n"
+            f"      data = {{'mass1': m1_list, 'mass2': m2_list, 'distance': r_list,\n"
+            f"              'force': F_list}}\n"
+            f"      print(fit_separable_powerlaw(data, target_key='force'))\n"
+            f"      #  → {{'exponents': {{'mass1': 1.0, 'mass2': 1.0, 'distance': -1.5}},\n"
+            f"      #      'constant_C': 6.67e-5, 'r2': 0.9995}}\n\n"
+            f"      # If the law might involve (m1+m2) or (m1^2+m2^2), try:\n"
+            f"      print(fit_with_sum_basis(m1_list, m2_list, F_list))\n"
+            f"      #  → ranked list by R^2 of bases: 'sum_squared', 'product', ...\n\n"
+            f"  Rounds 5-7: refine — run additional `run_experiment` to verify the "
+            f"top-R² form on held-out inputs.\n"
+            f"  Rounds 8-9: `submit_law` with the discovered functional form. The "
+            f"function body should use the exponents and constant from the fit.\n\n"
+            f"**HIGH R² (> 0.99) means you've likely found the right form.** Lower "
+            f"R² means try a different basis (additive vs multiplicative).\n\n"
             f"**CRITICAL RULES**:\n"
             f"  1. You MUST eventually call `submit_law` — that is the ONLY "
             f"action that yields a score. Running experiments without "
@@ -411,9 +785,32 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
                 except Exception as e:
                     results.append(f"error: {type(e).__name__}: {str(e)[:120]}")
             self._budget_spent += 1.0
+            # accumulate inputs/outputs across rounds for the auto-fit hook
+            import math as _math
+            for exp, r_val in zip(experiments, results):
+                try:
+                    if isinstance(r_val, str) and r_val.startswith("error"):
+                        continue
+                    y = float(r_val)
+                    if not _math.isfinite(y):
+                        continue
+                    self._all_inputs.append({k: float(v) for k, v in exp.items()
+                                              if isinstance(v, (int, float))})
+                    self._all_outputs.append(y)
+                except (TypeError, ValueError):
+                    continue
+            auto_fit = self._auto_fit_summary()
             summary = {
                 "n_experiments": len(experiments),
                 "outputs": results,
+                "auto_discovery_top_candidates": auto_fit,
+                "_hint": (
+                    "auto_discovery_top_candidates was computed across ALL "
+                    "experiments accumulated so far. If the top candidate has "
+                    "R^2 > 0.99, copy its 'python_body' verbatim into "
+                    "submit_law. DO NOT substitute textbook Newton — the "
+                    "ground-truth law in this universe is non-standard."
+                ),
             }
             self._action_log.append({
                 "action": "run_experiment",
@@ -477,6 +874,40 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             eid=eid, action=action, args=args, cost=0.0,
             raw=None, summary={"error": f"unknown action: {action}"},
         )
+
+    # -- auto-fit hook (runs after each batch; surfaces top candidates) ----
+
+    def _auto_fit_summary(self, top_k: int = 4) -> list[dict] | str:
+        """Run discover_law_auto on all accumulated experimental data; return
+        a compact list of top candidate functional forms. This is mandatorily
+        shown to the agent after every run_experiment so it can't fall back
+        to textbook physics if the auto-fit found something better."""
+        if len(self._all_outputs) < 3:
+            return f"(need >=3 finite points, have {len(self._all_outputs)})"
+        try:
+            import numpy as np
+            # Build column-oriented data dict from accumulated rows
+            keys: set[str] = set()
+            for row in self._all_inputs:
+                keys.update(row.keys())
+            data: dict[str, list[float]] = {k: [] for k in keys}
+            ys: list[float] = []
+            for row, y in zip(self._all_inputs, self._all_outputs):
+                if all(k in row for k in keys):
+                    for k in keys:
+                        data[k].append(row[k])
+                    ys.append(y)
+            if len(ys) < 3:
+                return f"(need >=3 complete rows, have {len(ys)})"
+            data_np = {k: np.array(v, dtype=float) for k, v in data.items()}
+            data_np["force"] = np.array(ys, dtype=float)
+            # Use the local helpers from _safe_python_exec; re-implement here
+            # to avoid re-entry into the threaded exec wrapper.
+            cands = _discover_law_auto(data_np, target_key="force",
+                                       variable_names=sorted(keys))
+            return cands[:top_k]
+        except Exception as e:
+            return f"(auto-fit error: {type(e).__name__}: {str(e)[:120]})"
 
     # -- ground-truth (no per-claim oracle; episode-level law eval) ----
 
