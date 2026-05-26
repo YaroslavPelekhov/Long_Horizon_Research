@@ -424,6 +424,100 @@ def _render_basis_py_mod(v1, v2, basis_name):
     return basis_name
 
 
+def _angle_like(arr) -> bool:
+    """Heuristic: variable looks like an angle (range fits inside [0, 2π],
+    mostly positive, doesn't span many orders of magnitude). Used to decide
+    whether to try sin/cos basis on it."""
+    import numpy as np
+    a = np.asarray(arr, dtype=float)
+    a = a[np.isfinite(a)]
+    if len(a) < 3:
+        return False
+    mn, mx = float(a.min()), float(a.max())
+    return (mn >= -0.01) and (mx <= 6.5) and (mx - mn >= 0.05)
+
+
+def _fit_alt_basis(data_dict, target_key, variable_names, alt_var, alt_kind):
+    """Fit log(y) = a*g(alt_var) + sum_other a_i*log(other_var_i) + c, where
+    g is one of:
+      - 'exp':  use raw alt_var (so y = C * exp(a*alt_var) * prod ...)
+      - 'sin':  use log(sin(alt_var))
+      - 'cos':  use log(cos(alt_var))
+      - 'sin2': use log(sin(alt_var)^2)
+      - 'cos2': use log(cos(alt_var)^2)
+    Returns dict with form, r2, python_body, or None on failure."""
+    import numpy as np
+    target = np.asarray(data_dict[target_key], dtype=float)
+    others = [v for v in variable_names if v != alt_var]
+    alt = np.asarray(data_dict[alt_var], dtype=float)
+
+    # Build alt feature
+    if alt_kind == "exp":
+        alt_feat = alt   # linear, NOT log
+    elif alt_kind in ("sin", "sin2"):
+        s = np.sin(alt)
+        mask_pos = s > 1e-12
+        with np.errstate(invalid="ignore", divide="ignore"):
+            alt_feat = np.where(mask_pos, np.log(s), np.nan)
+        if alt_kind == "sin2":
+            alt_feat = 2.0 * alt_feat   # log(sin^2) = 2*log|sin|
+    elif alt_kind in ("cos", "cos2"):
+        c = np.cos(alt)
+        mask_pos = c > 1e-12
+        with np.errstate(invalid="ignore", divide="ignore"):
+            alt_feat = np.where(mask_pos, np.log(c), np.nan)
+        if alt_kind == "cos2":
+            alt_feat = 2.0 * alt_feat
+    else:
+        return None
+
+    stacked = [alt_feat]
+    for v in others:
+        stacked.append(np.log(np.maximum(
+            np.asarray(data_dict[v], dtype=float), 1e-30)))
+    stacked.append(np.ones_like(alt_feat))
+    X = np.stack(stacked, axis=1)
+    mask = (target > 0) & np.isfinite(target) & np.all(np.isfinite(X), axis=1)
+    if mask.sum() < X.shape[1] + 1:
+        return None
+    log_t = np.log(target[mask])
+    coef, *_ = np.linalg.lstsq(X[mask], log_t, rcond=None)
+    pred = X[mask] @ coef
+    ss_res = float(((log_t - pred) ** 2).sum())
+    ss_tot = float(((log_t - log_t.mean()) ** 2).sum())
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-12 else 1.0
+    a_alt = float(coef[0])
+    other_exps = [float(c) for c in coef[1:-1]]
+    C = float(np.exp(coef[-1]))
+
+    # Render python body
+    if alt_kind == "exp":
+        body = f"return {C:.6g} * (2.718281828)**({a_alt:.6f}*{alt_var})"
+        form = f"{C:.6g} * exp({a_alt:.4f}*{alt_var})"
+    elif alt_kind == "sin":
+        # y = C * sin(alt)^a_alt
+        body = f"return {C:.6g} * (__import__('math').sin({alt_var}))**({a_alt:.6f})"
+        # Use math.sin via avoid __import__ — instead expose math in eval env
+        body = f"return {C:.6g} * abs(math.sin({alt_var}))**({a_alt:.6f})"
+        form = f"{C:.6g} * sin({alt_var})^{a_alt:.4f}"
+    elif alt_kind == "sin2":
+        # log(sin^2) → already 2*log(sin); a_alt here = exponent on (sin^2).
+        # So y = C * (sin(alt))^(2*a_alt). To produce equivalent code:
+        body = f"return {C:.6g} * (math.sin({alt_var}))**({2*a_alt:.6f})"
+        form = f"{C:.6g} * sin({alt_var})^{2*a_alt:.4f}"
+    elif alt_kind == "cos":
+        body = f"return {C:.6g} * abs(math.cos({alt_var}))**({a_alt:.6f})"
+        form = f"{C:.6g} * cos({alt_var})^{a_alt:.4f}"
+    elif alt_kind == "cos2":
+        body = f"return {C:.6g} * (math.cos({alt_var}))**({2*a_alt:.6f})"
+        form = f"{C:.6g} * cos({alt_var})^{2*a_alt:.4f}"
+    for i, v in enumerate(others):
+        body += f" * {v}**{other_exps[i]:.6f}"
+        form += f" * {v}^{other_exps[i]:.4f}"
+    return {"kind": f"{alt_kind}_on_{alt_var}", "form": form, "r2": r2,
+            "python_body": body}
+
+
 def _discover_law_auto(data_dict, target_key="force", variable_names=None) -> list[dict]:
     """Try multiple bases; return ranked candidates by R^2."""
     import numpy as np
@@ -488,6 +582,21 @@ def _discover_law_auto(data_dict, target_key="force", variable_names=None) -> li
                 form += f" * {e}^{extra_exps[i]:.4f}"
             out.append({"kind": f"basis:{bname}", "form": form,
                         "r2": r2, "python_body": body})
+
+    # Candidates C+: alternative bases (exp/sin/cos/sin²/cos²) per variable
+    # — for laws like Snell, Malus, radioactive decay, Boltzmann distribution.
+    for v in variable_names:
+        arr = np.asarray(data_dict[v], dtype=float)
+        # Always try exp (works for time/dose variables)
+        c = _fit_alt_basis(data_dict, target_key, variable_names, v, "exp")
+        if c is not None:
+            out.append(c)
+        # Try trig only if variable looks like an angle
+        if _angle_like(arr):
+            for kind in ("sin", "cos", "sin2", "cos2"):
+                c = _fit_alt_basis(data_dict, target_key, variable_names, v, kind)
+                if c is not None:
+                    out.append(c)
 
     out.sort(key=lambda d: d.get("r2", -1), reverse=True)
     return out
@@ -918,9 +1027,11 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
 
             def _real_rmsle(body: str) -> float:
                 code = f"def __c({', '.join(params)}):\n    {body}"
+                import math as _math
                 ns: dict = {"__builtins__": {"abs": abs, "min": min,
                                               "max": max, "sum": sum,
-                                              "round": round, "pow": pow}}
+                                              "round": round, "pow": pow},
+                            "math": _math}
                 try:
                     exec(code, ns)
                     fn = ns["__c"]
@@ -959,9 +1070,11 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             # Compute agent's RMSLE on the same accumulated data
             agent_rmsle = float("inf")
             if self._submitted_law:
+                import math as _math
                 agent_ns: dict = {"__builtins__": {"abs": abs, "min": min,
                                                     "max": max, "sum": sum,
-                                                    "round": round, "pow": pow}}
+                                                    "round": round, "pow": pow},
+                                  "math": _math}
                 try:
                     exec(self._submitted_law, agent_ns)
                     agent_fn = agent_ns.get("discovered_law")

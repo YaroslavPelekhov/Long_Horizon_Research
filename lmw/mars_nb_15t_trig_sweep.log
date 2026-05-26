@@ -1,0 +1,27 @@
+
+=== MARS × NewtonBench (vanilla_equation; SA via authors' judge) ===
+  gen=openai/gpt-4o-mini  ref=openai/gpt-4o-mini  judge=gpt41
+  N=15 tasks (modules=['m4_snell_law', 'm5_radioactive_decay', 'm6_underdamped_harmonic', 'm7_malus_law', 'm10_be_distribution'], difficulties=['easy', 'medium', 'hard'], law_versions=['v0'], noise=[0.0], trials=1)
+  ablations: ['MARS-full']
+
+--- ablation: MARS-full ---
+  [1/15] m4_snell_law/easy/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=0.5672...  turns=9  (207s)
+  [2/15] m4_snell_law/medium/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=nan...  turns=7  (162s)
+  [3/15] m4_snell_law/hard/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=3.5480...  turns=8  (62s)
+  [4/15] m5_radioactive_decay/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=16.599...  turns=6  (131s)
+  [5/15] m5_radioactive_decay/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=279.50...  turns=6  (101s)
+  [6/15] m5_radioactive_decay/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.5344...  turns=7  (132s)
+  [7/15] m6_underdamped_harmonic/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.1102...  turns=7  (150s)
+  [8/15] m6_underdamped_harmonic/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.1202...  turns=2  (32s)
+  [9/15] m6_underdamped_harmonic/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.0768...  turns=6  (76s)
+  [10/15] m7_malus_law/easy/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=0.1865...  turns=6  (87s)
+  [11/15] m7_malus_law/medium/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=0.2431...  turns=7  (53s)
+  [12/15] m7_malus_law/hard/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=0.2349...  turns=6  (45s)
+  [13/15] m10_be_distribution/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=1.8246...  turns=6  (57s)
+  [14/15] m10_be_distribution/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=2.4409...  turns=7  (51s)
+  [15/15] m10_be_distribution/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.2867...  turns=6  (50s)
+
+=== Summary (wall 1421s) ===
+  MARS-full       SA.mean=0.000  sd=0.000  symbolic_match=0/15
+
+[written C:\Users\psgpe\Downloads\Long Horizon Research\lmw\mars_nb_openai-gpt-4o-mini_15t.json]
