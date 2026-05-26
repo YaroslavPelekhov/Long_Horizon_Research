@@ -1,0 +1,21 @@
+
+=== MARS × NewtonBench (vanilla_equation; SA via authors' judge) ===
+  gen=openai/gpt-4o-mini  ref=openai/gpt-4o-mini  judge=gpt41
+  N=9 tasks (modules=['m9_hooke_law', 'm10_be_distribution', 'm11_heat_transfer'], difficulties=['easy', 'medium', 'hard'], law_versions=['v0'], noise=[0.0], trials=1)
+  ablations: ['MARS-full']
+
+--- ablation: MARS-full ---
+  [1/9] m9_hooke_law/easy/v0/vanilla_equation/n=0.0/t0      SA=1.00  rmsle=0.0...  turns=2  (19s)
+  [2/9] m9_hooke_law/medium/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=1.2864...  turns=7  (101s)
+  [3/9] m9_hooke_law/hard/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=35.780...  turns=6  (83s)
+  [4/9] m10_be_distribution/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=1.9035...  turns=7  (61s)
+  [5/9] m10_be_distribution/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.4007...  turns=6  (41s)
+  [6/9] m10_be_distribution/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.4030...  turns=7  (57s)
+  [7/9] m11_heat_transfer/easy/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=3.8755...  turns=5  (95s)
+  [8/9] m11_heat_transfer/medium/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=9.4889...  turns=5  (100s)
+  [9/9] m11_heat_transfer/hard/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=4.8333...  turns=5  (88s)
+
+=== Summary (wall 657s) ===
+  MARS-full       SA.mean=0.444  sd=0.527  symbolic_match=4/9
+
+[written C:\Users\psgpe\Downloads\Long Horizon Research\lmw\mars_nb_openai-gpt-4o-mini_9t.json]
