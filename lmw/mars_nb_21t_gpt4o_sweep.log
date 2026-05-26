@@ -1,0 +1,33 @@
+
+=== MARS × NewtonBench (vanilla_equation; SA via authors' judge) ===
+  gen=openai/gpt-4o  ref=openai/gpt-4o  judge=gpt41
+  N=21 tasks (modules=['m0_gravity', 'm1_coulomb_force', 'm2_magnetic_force', 'm3_fourier_law', 'm8_sound_speed', 'm9_hooke_law', 'm11_heat_transfer'], difficulties=['easy', 'medium', 'hard'], law_versions=['v0'], noise=[0.0], trials=1)
+  ablations: ['MARS-full']
+
+--- ablation: MARS-full ---
+  [1/21] m0_gravity/easy/v0/vanilla_equation/n=0.0/t0        SA=1.00  rmsle=3.8926...  turns=3  (25s)
+  [2/21] m0_gravity/medium/v0/vanilla_equation/n=0.0/t0      SA=1.00  rmsle=2.6660...  turns=5  (27s)
+  [3/21] m0_gravity/hard/v0/vanilla_equation/n=0.0/t0        SA=0.00  rmsle=1.2593...  turns=8  (48s)
+  [4/21] m1_coulomb_force/easy/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=1.3926...  turns=5  (20s)
+  [5/21] m1_coulomb_force/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=1.6214...  turns=6  (28s)
+  [6/21] m1_coulomb_force/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=1.4270...  turns=5  (25s)
+  [7/21] m2_magnetic_force/easy/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=1.5093...  turns=4  (18s)
+  [8/21] m2_magnetic_force/medium/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=1.2491...  turns=7  (36s)
+  [9/21] m2_magnetic_force/hard/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=2.3108...  turns=5  (23s)
+  [10/21] m3_fourier_law/easy/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=1.0599...  turns=4  (36s)
+  [11/21] m3_fourier_law/medium/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=2.8751...  turns=8  (39s)
+  [12/21] m3_fourier_law/hard/v0/vanilla_equation/n=0.0/t0    SA=1.00  rmsle=3.3138...  turns=5  (35s)
+  [13/21] m8_sound_speed/easy/v0/vanilla_equation/n=0.0/t0    SA=1.00  rmsle=1.4219...  turns=4  (25s)
+  [14/21] m8_sound_speed/medium/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=1.4220...  turns=5  (32s)
+  [15/21] m8_sound_speed/hard/v0/vanilla_equation/n=0.0/t0    SA=1.00  rmsle=1.4220...  turns=6  (34s)
+  [16/21] m9_hooke_law/easy/v0/vanilla_equation/n=0.0/t0      SA=1.00  rmsle=0.0...  turns=5  (23s)
+  [17/21] m9_hooke_law/medium/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=0.8353...  turns=9  (66s)
+  [18/21] m9_hooke_law/hard/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=2.2989...  turns=9  (65s)
+  [19/21] m11_heat_transfer/easy/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=4.0429...  turns=6  (25s)
+  [20/21] m11_heat_transfer/medium/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=9.0562...  turns=4  (18s)
+  [21/21] m11_heat_transfer/hard/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=4.7889...  turns=7  (35s)
+
+=== Summary (wall 718s) ===
+  MARS-full       SA.mean=0.714  sd=0.463  symbolic_match=15/21
+
+[written C:\Users\psgpe\Downloads\Long Horizon Research\lmw\mars_nb_openai-gpt-4o_21t.json]
