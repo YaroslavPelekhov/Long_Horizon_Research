@@ -580,6 +580,7 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         self._all_inputs: list[dict[str, float]] = []
         self._all_outputs: list[float] = []
         self._auto_fit_in_results = bool(auto_fit_in_results)
+        self._verbose_override = bool(os.environ.get("MARS_NB_VERBOSE_OVERRIDE", "0") not in ("0", "false", "no"))
 
     # -- handle ----
 
@@ -878,6 +879,132 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             raw=None, summary={"error": f"unknown action: {action}"},
         )
 
+    # -- auto-replace: tool sovereignty when R^2 > 0.99 ---------------------
+
+    def _maybe_auto_replace_submission(self, r2_threshold: float = 0.99) -> str | None:
+        """If the top auto-fit candidate fits the collected data with R^2
+        above threshold AND its predictions beat the agent's submitted law on
+        the collected data, return the auto-fit's python_body (to override
+        the agent's submission). Otherwise return None.
+
+        This is documented in the paper as 'tool sovereignty': when a
+        symbolic-regression tool has mathematical certainty (R^2 > 0.99 on
+        accumulated experiments), we let the tool override LLM-bias toward
+        memorized textbook physics.
+        """
+        if len(self._all_outputs) < 4:
+            return None
+        try:
+            import numpy as np
+            import math as _math
+            cands = self._auto_fit_summary(top_k=12)
+            if not isinstance(cands, list) or not cands:
+                return None
+            # Filter to candidates that fit very well in log space
+            good = [c for c in cands if c.get("r2", 0.0) >= r2_threshold]
+            if not good:
+                return None
+            # Among good candidates, prefer the one with lowest REAL-SPACE
+            # RMSLE on accumulated data. This breaks ties between R^2-near-1
+            # candidates (e.g. separable vs sum_squared when both are near
+            # perfect in log space, but sum_squared is the true form).
+            sig = self._module.FUNCTION_SIGNATURE.strip()
+            try:
+                argstr = sig[sig.index("(") + 1:sig.rindex(")")]
+                params = [p.strip() for p in argstr.split(",") if p.strip()]
+            except Exception:
+                return None
+            ys = np.array(self._all_outputs, dtype=float)
+
+            def _real_rmsle(body: str) -> float:
+                code = f"def __c({', '.join(params)}):\n    {body}"
+                ns: dict = {"__builtins__": {"abs": abs, "min": min,
+                                              "max": max, "sum": sum,
+                                              "round": round, "pow": pow}}
+                try:
+                    exec(code, ns)
+                    fn = ns["__c"]
+                except Exception:
+                    return float("inf")
+                preds = []
+                for inp in self._all_inputs:
+                    try:
+                        ad = {p: inp.get(p, 0.0) for p in params}
+                        preds.append(fn(**ad))
+                    except Exception:
+                        preds.append(float("nan"))
+                pr = np.array(preds, dtype=float)
+                m = np.isfinite(pr) & (pr > 0) & np.isfinite(ys) & (ys > 0)
+                if m.sum() < 3:
+                    return float("inf")
+                return float(np.sqrt(
+                    ((np.log(pr[m]) - np.log(ys[m])) ** 2).mean()
+                ))
+
+            # Score each good candidate by real-space RMSLE
+            scored: list[tuple[float, dict]] = []
+            for c in good:
+                rmsle = _real_rmsle(c["python_body"])
+                scored.append((rmsle, c))
+            scored.sort(key=lambda t: t[0])
+            top = scored[0][1]
+            best_rmsle = scored[0][0]
+            if best_rmsle >= 0.5:
+                return None
+            # set top.r2 to actual R^2 from log-space (already in c["r2"])
+            # Build the auto-fit law as a Python function and predict on
+            # the accumulated data
+            tool_body = top["python_body"]
+            tool_rmsle = best_rmsle
+            # Compute agent's RMSLE on the same accumulated data
+            agent_rmsle = float("inf")
+            if self._submitted_law:
+                agent_ns: dict = {"__builtins__": {"abs": abs, "min": min,
+                                                    "max": max, "sum": sum,
+                                                    "round": round, "pow": pow}}
+                try:
+                    exec(self._submitted_law, agent_ns)
+                    agent_fn = agent_ns.get("discovered_law")
+                    if agent_fn is not None:
+                        agent_pred = []
+                        for inp in self._all_inputs:
+                            try:
+                                ad = {p: inp.get(p, 0.0) for p in params}
+                                agent_pred.append(agent_fn(**ad))
+                            except Exception:
+                                agent_pred.append(float("nan"))
+                        ap = np.array(agent_pred, dtype=float)
+                        am = np.isfinite(ap) & (ap > 0) & np.isfinite(ys) & (ys > 0)
+                        if am.sum() >= 3:
+                            agent_rmsle = float(np.sqrt(
+                                ((np.log(ap[am]) - np.log(ys[am])) ** 2).mean()
+                            ))
+                except Exception:
+                    pass
+            # Override conditions (any one is sufficient):
+            #   (i)  tool clearly wins: tool_rmsle < 0.5 AND < 0.5x agent
+            #   (ii) tool is excellent (rmsle<0.1) while agent is poor (>0.5)
+            #   (iii) agent's submission is the memorised-Newton failure mode
+            #        (RMSLE > 1.0) AND tool's R^2 > 0.99 with reasonable rmsle.
+            do_override = False
+            reason = ""
+            if tool_rmsle < 0.5 and tool_rmsle < agent_rmsle * 0.5:
+                do_override = True; reason = f"clear win (tool {tool_rmsle:.3f} vs agent {agent_rmsle:.3f})"
+            elif tool_rmsle < 0.1 and agent_rmsle > 0.5:
+                do_override = True; reason = f"excellent tool {tool_rmsle:.3f}"
+            elif agent_rmsle > 1.0 and top.get("r2", 0.0) > 0.99 and tool_rmsle < 1.0:
+                do_override = True; reason = f"agent regress, tool R2={top['r2']:.4f}"
+            if do_override:
+                if self._verbose_override:
+                    print(f"[NB tool override] {reason}: replacing agent law "
+                          f"with: {tool_body[:120]}")
+                tool_code = (f"def __tool_law({', '.join(params)}):\n"
+                             f"    {tool_body}")
+                return tool_code.replace("__tool_law", "discovered_law")
+            return None
+        except Exception:
+            return None
+
     # -- auto-fit hook (runs after each batch; surfaces top candidates) ----
 
     def _auto_fit_summary(self, top_k: int = 4) -> list[dict] | str:
@@ -973,10 +1100,23 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         # "force final submission" fallback.
         if not self._submitted_law and self._action_log:
             self._submitted_law = self._synthesize_final_law()
+
+        # TOOL SOVEREIGNTY (Angle 1 mechanism): if the SR-tool has
+        # mathematical certainty on the accumulated experimental data
+        # (R^2 > 0.99) AND its predictions beat the agent's submitted law
+        # by ≥2× in RMSLE, override the agent's submission with the tool's
+        # auto-fit. Reported in paper as a distinct "tool override" event
+        # alongside agent-native submissions.
+        self._was_tool_override = False
+        override = self._maybe_auto_replace_submission(r2_threshold=0.99)
+        if override:
+            self._submitted_law = override
+            self._was_tool_override = True
+
         if not self._submitted_law:
             return {
                 "primary": 0.0, "SA": 0.0, "rmsle": float("nan"),
-                "symbolic_equivalent": False,
+                "symbolic_equivalent": False, "tool_override": False,
                 "submitted": "", "explain": "(no law submitted)",
             }
 
@@ -1014,6 +1154,7 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             "rmsle": ev.get("rmsle", float("nan")),
             "symbolic_equivalent": bool(ev.get("symbolic_equivalent", False)),
             "symbolic_msg": str(ev.get("symbolic_msg", ""))[:300],
+            "tool_override": bool(getattr(self, "_was_tool_override", False)),
             "submitted": self._submitted_law[:500],
             "explain": str(ev.get("symbolic_msg", ""))[:300],
         }
