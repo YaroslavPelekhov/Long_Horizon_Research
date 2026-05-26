@@ -1,0 +1,924 @@
+{
+ "generator_model": "openai/gpt-4o-mini",
+ "reflector_model": "openai/gpt-4o-mini",
+ "judge_model": "gpt41",
+ "budget": 10.0,
+ "n_tasks": 36,
+ "ablations_run": [
+  "MARS-full"
+ ],
+ "modules": [
+  "m0_gravity",
+  "m1_coulomb_force",
+  "m2_magnetic_force",
+  "m3_fourier_law",
+  "m4_snell_law",
+  "m5_radioactive_decay",
+  "m6_underdamped_harmonic",
+  "m7_malus_law",
+  "m8_sound_speed",
+  "m9_kepler_third_law",
+  "m10_kinetic_friction",
+  "m11_centripetal_force"
+ ],
+ "difficulties": [
+  "easy",
+  "medium",
+  "hard"
+ ],
+ "per_task": {
+  "MARS-full": [
+   {
+    "task_label": "m0_gravity/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m0_gravity",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 4.1183784348787996e-17,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(mass1, mass2, distance):\n    return 6.674e-05 * distance**-1.500000 * mass1**1.000000 * mass2**1.000000",
+    "judge_explain": "None",
+    "n_turns": 7,
+    "n_actions": 9,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 99.22245669364929
+   },
+   {
+    "task_label": "m0_gravity/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m0_gravity",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 2.8453623118283355e-16,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(mass1, mass2, distance):\n   return 6.674e-05 * distance**-1.500000 * mass1**2.000000 * mass2**2.000000",
+    "judge_explain": "None",
+    "n_turns": 6,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 65.66096520423889
+   },
+   {
+    "task_label": "m0_gravity/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m0_gravity",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 1.271048796406765,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(mass1, mass2, distance):\n    G = 6.67430e-11  # gravitational constant\n    return G * (mass1 * mass2) / (distance ** 2)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 7,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 56.30139660835266
+   },
+   {
+    "task_label": "m1_coulomb_force/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m1_coulomb_force",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 1.714626885113742e-16,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(q1, q2, distance):\n    return 2 * distance**-3.000000 * q1**1.000000 * q2**1.000000",
+    "judge_explain": "None",
+    "n_turns": 5,
+    "n_actions": 7,
+    "n_claims_active": 0,
+    "n_generator_calls": 5,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 125.04854846000671
+   },
+   {
+    "task_label": "m1_coulomb_force/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m1_coulomb_force",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.36162013252242076,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(q1, q2, distance):\n    return 4.25768 * distance**-2.000000 * q1**1.495739 * q2**1.495739",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 8,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 249.33708906173706
+   },
+   {
+    "task_label": "m1_coulomb_force/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m1_coulomb_force",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 2.0167542651819055,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(q1, q2, distance):\n    return (q1 * q2) / (distance ** 2)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 7,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 103.19022917747498
+   },
+   {
+    "task_label": "m2_magnetic_force/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m2_magnetic_force",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 0.0,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(current1, current2, distance):\n   C = 0.0478\n   return C * current1 * current2 / (distance ** 3)",
+    "judge_explain": "None",
+    "n_turns": 6,
+    "n_actions": 9,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 69.37993907928467
+   },
+   {
+    "task_label": "m2_magnetic_force/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m2_magnetic_force",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 1.2869096763920777e-16,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(current1, current2, distance):\n    return 0.0478 * current1**1.500000 * current2**1.500000 * distance**-3.000000",
+    "judge_explain": "None",
+    "n_turns": 5,
+    "n_actions": 8,
+    "n_claims_active": 0,
+    "n_generator_calls": 5,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 104.34508061408997
+   },
+   {
+    "task_label": "m2_magnetic_force/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m2_magnetic_force",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 0.0,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(current1, current2, distance):\n    C = 0.0478\n    return C * (current1 + current2)**1.5 / (distance**3)",
+    "judge_explain": "None",
+    "n_turns": 7,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 132.95376253128052
+   },
+   {
+    "task_label": "m3_fourier_law/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m3_fourier_law",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 2.0548585063892973e-16,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(k, A, delta_T, d):\n    return 1 * A**1.000000 * d**-2.000000 * delta_T**1.000000 * k**1.000000",
+    "judge_explain": "None",
+    "n_turns": 2,
+    "n_actions": 2,
+    "n_claims_active": 0,
+    "n_generator_calls": 2,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 23.630465745925903
+   },
+   {
+    "task_label": "m3_fourier_law/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m3_fourier_law",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 3.041134458887582e-16,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(k, A, delta_T, d):\n    return 1 * A**0.500000 * d**-2.000000 * delta_T**1.000000 * k**1.000000",
+    "judge_explain": "None",
+    "n_turns": 4,
+    "n_actions": 7,
+    "n_claims_active": 0,
+    "n_generator_calls": 4,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 69.22464036941528
+   },
+   {
+    "task_label": "m3_fourier_law/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m3_fourier_law",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 3.2853276067072236e-16,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(k, A, delta_T, d):\n    return 1 * A**0.500000 * d**-2.000000 * delta_T**1.300000 * k**1.000000",
+    "judge_explain": "None",
+    "n_turns": 3,
+    "n_actions": 3,
+    "n_claims_active": 0,
+    "n_generator_calls": 3,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 26.943701028823853
+   },
+   {
+    "task_label": "m4_snell_law/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m4_snell_law",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": NaN,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return 314.702 * incidence_angle**-0.632 * n1**-0.5105 * n2**1.7092",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 6,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 125.09997606277466
+   },
+   {
+    "task_label": "m4_snell_law/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m4_snell_law",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 1.7512504633596966,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return (n1 * n2 * angle1) / (n1 + n2) * 10",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 7,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 65.75495767593384
+   },
+   {
+    "task_label": "m4_snell_law/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m4_snell_law",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 3.3669947367042137,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return (n1 * math.sin(math.radians(angle1)) / n2)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 8,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 73.1324462890625
+   },
+   {
+    "task_label": "m5_radioactive_decay/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m5_radioactive_decay",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.10010283436616126,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    import numpy as np\n    return N0 * np.exp(-lambda_constant * t)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 7,
+    "n_actions": 11,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 107.06974864006042
+   },
+   {
+    "task_label": "m5_radioactive_decay/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m5_radioactive_decay",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.49864897025942,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    import numpy as np\n    return N0 * np.exp(-lambda_constant * t)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 7,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 103.06126308441162
+   },
+   {
+    "task_label": "m5_radioactive_decay/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m5_radioactive_decay",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 6.423394657456378,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    return N0 * (lambda_constant ** -1) * (t ** -1.4272)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 6,
+    "n_actions": 11,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 91.84519100189209
+   },
+   {
+    "task_label": "m6_underdamped_harmonic/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m6_underdamped_harmonic",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 2.3180060130602054,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(k, m, b):\n    return 0.707107 * b**0.250000 * k**0.250000 * m**-0.500000",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 6,
+    "n_actions": 9,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 45.2291419506073
+   },
+   {
+    "task_label": "m6_underdamped_harmonic/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m6_underdamped_harmonic",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.08399034058862194,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(k, m, b):\n    return 0.796311 * b**-0.028054 * k**0.532693 * m**-0.487770",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 6,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 90.01072883605957
+   },
+   {
+    "task_label": "m6_underdamped_harmonic/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m6_underdamped_harmonic",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.13406741906610947,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(k, m, b):\n    return 0.627942 * b**-0.026131 * k**1.5484 * m**-1.4339",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 8,
+    "n_actions": 11,
+    "n_claims_active": 0,
+    "n_generator_calls": 8,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 61.17531991004944
+   },
+   {
+    "task_label": "m7_malus_law/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m7_malus_law",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.3108364089030249,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(I_0, theta):\n    return 2.18687 * I_0**1.0000 * theta**0.2679",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 6,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 114.4045774936676
+   },
+   {
+    "task_label": "m7_malus_law/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m7_malus_law",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.17090222085377932,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(I_0, theta):\n    return 3.81327 * I_0**1.003500 * theta**0.333266",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 6,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 171.45387196540833
+   },
+   {
+    "task_label": "m7_malus_law/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m7_malus_law",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 0.24596457689029702,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(I_0, theta):\n    return 6.72649 * I_0**0.997237 * theta**0.393464",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 6,
+    "n_actions": 10,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 113.42043614387512
+   },
+   {
+    "task_label": "m8_sound_speed/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m8_sound_speed",
+    "difficulty": "easy",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "SA": 1.0,
+    "rmsle": 1.42190655226659e-09,
+    "symbolic_equivalent": true,
+    "submitted_preview": "def discovered_law(gamma, T, M):\n    return 18.751 * gamma**0.500000 * M**-0.500000 * T**1.000000",
+    "judge_explain": "None",
+    "n_turns": 6,
+    "n_actions": 9,
+    "n_claims_active": 0,
+    "n_generator_calls": 6,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 114.23617219924927
+   },
+   {
+    "task_label": "m8_sound_speed/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m8_sound_speed",
+    "difficulty": "medium",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 6.415453819523878,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(gamma, T, M):\n    C = 1.0\n    return (C * gamma * T / M) ** 0.5",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 7,
+    "n_actions": 12,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 128.65987300872803
+   },
+   {
+    "task_label": "m8_sound_speed/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m8_sound_speed",
+    "difficulty": "hard",
+    "law_version": "v0",
+    "system": "vanilla_equation",
+    "noise_level": 0.0,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.0,
+    "SA": 0.0,
+    "rmsle": 3.5410754673005704,
+    "symbolic_equivalent": false,
+    "submitted_preview": "def discovered_law(gamma, T, M):\n    C = 30.3089\n    return (C * (gamma ** 0.66) * (T ** 0.5)) / (M ** 0.5)",
+    "judge_explain": "LLM judge determined formulas are not equivalent.",
+    "n_turns": 7,
+    "n_actions": 12,
+    "n_claims_active": 0,
+    "n_generator_calls": 7,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 224.58193135261536
+   },
+   {
+    "task_label": "m9_kepler_third_law/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m9_kepler_third_law",
+    "error": "No module named 'modules.m9_kepler_third_law'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m9_kepler_third_law/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m9_kepler_third_law",
+    "error": "No module named 'modules.m9_kepler_third_law'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m9_kepler_third_law/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m9_kepler_third_law",
+    "error": "No module named 'modules.m9_kepler_third_law'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m10_kinetic_friction/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m10_kinetic_friction",
+    "error": "No module named 'modules.m10_kinetic_friction'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m10_kinetic_friction/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m10_kinetic_friction",
+    "error": "No module named 'modules.m10_kinetic_friction'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m10_kinetic_friction/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m10_kinetic_friction",
+    "error": "No module named 'modules.m10_kinetic_friction'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m11_centripetal_force/easy/v0/vanilla_equation/n=0.0/t0",
+    "module": "m11_centripetal_force",
+    "error": "No module named 'modules.m11_centripetal_force'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m11_centripetal_force/medium/v0/vanilla_equation/n=0.0/t0",
+    "module": "m11_centripetal_force",
+    "error": "No module named 'modules.m11_centripetal_force'",
+    "SA": 0.0
+   },
+   {
+    "task_label": "m11_centripetal_force/hard/v0/vanilla_equation/n=0.0/t0",
+    "module": "m11_centripetal_force",
+    "error": "No module named 'modules.m11_centripetal_force'",
+    "SA": 0.0
+   }
+  ]
+ }
+}

@@ -54,7 +54,7 @@ from ols.core.types import (
 )
 
 
-# 12 physics modules in NewtonBench
+# 12 physics modules in NewtonBench (actual folder names)
 NB_MODULES = [
     "m0_gravity",
     "m1_coulomb_force",
@@ -65,9 +65,9 @@ NB_MODULES = [
     "m6_underdamped_harmonic",
     "m7_malus_law",
     "m8_sound_speed",
-    "m9_kepler_third_law",
-    "m10_kinetic_friction",
-    "m11_centripetal_force",
+    "m9_hooke_law",
+    "m10_be_distribution",
+    "m11_heat_transfer",
 ]
 
 # difficulty tiers

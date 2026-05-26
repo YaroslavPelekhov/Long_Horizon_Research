@@ -1,0 +1,50 @@
+
+=== MARS × NewtonBench (vanilla_equation; SA via authors' judge) ===
+  gen=openai/gpt-4o-mini  ref=openai/gpt-4o-mini  judge=gpt41
+  N=36 tasks (modules=['m0_gravity', 'm1_coulomb_force', 'm2_magnetic_force', 'm3_fourier_law', 'm4_snell_law', 'm5_radioactive_decay', 'm6_underdamped_harmonic', 'm7_malus_law', 'm8_sound_speed', 'm9_kepler_third_law', 'm10_kinetic_friction', 'm11_centripetal_force'], difficulties=['easy', 'medium', 'hard'], law_versions=['v0'], noise=[0.0], trials=1)
+  ablations: ['MARS-full']
+
+--- ablation: MARS-full ---
+  [1/36] m0_gravity/easy/v0/vanilla_equation/n=0.0/t0        SA=1.00  rmsle=4.1183...  turns=7  (99s)
+  [2/36] m0_gravity/medium/v0/vanilla_equation/n=0.0/t0      SA=1.00  rmsle=2.8453...  turns=6  (66s)
+  [3/36] m0_gravity/hard/v0/vanilla_equation/n=0.0/t0        SA=0.00  rmsle=1.2710...  turns=7  (56s)
+  [4/36] m1_coulomb_force/easy/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=1.7146...  turns=5  (125s)
+  [5/36] m1_coulomb_force/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.3616...  turns=8  (249s)
+  [6/36] m1_coulomb_force/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=2.0167...  turns=7  (103s)
+  [7/36] m2_magnetic_force/easy/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=0.0...  turns=6  (69s)
+  [8/36] m2_magnetic_force/medium/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=1.2869...  turns=5  (104s)
+  [9/36] m2_magnetic_force/hard/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=0.0...  turns=7  (133s)
+  [10/36] m3_fourier_law/easy/v0/vanilla_equation/n=0.0/t0    SA=1.00  rmsle=2.0548...  turns=2  (24s)
+  [11/36] m3_fourier_law/medium/v0/vanilla_equation/n=0.0/t0  SA=1.00  rmsle=3.0411...  turns=4  (69s)
+  [12/36] m3_fourier_law/hard/v0/vanilla_equation/n=0.0/t0    SA=1.00  rmsle=3.2853...  turns=3  (27s)
+  [13/36] m4_snell_law/easy/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=nan...  turns=6  (125s)
+  [14/36] m4_snell_law/medium/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=1.7512...  turns=7  (66s)
+  [15/36] m4_snell_law/hard/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=3.3669...  turns=8  (73s)
+  [16/36] m5_radioactive_decay/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.1001...  turns=7  (107s)
+  [17/36] m5_radioactive_decay/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.4986...  turns=7  (103s)
+  [18/36] m5_radioactive_decay/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=6.4233...  turns=6  (92s)
+  [19/36] m6_underdamped_harmonic/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=2.3180...  turns=6  (45s)
+  [20/36] m6_underdamped_harmonic/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.0839...  turns=6  (90s)
+  [21/36] m6_underdamped_harmonic/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=0.1340...  turns=8  (61s)
+  [22/36] m7_malus_law/easy/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=0.3108...  turns=6  (114s)
+  [23/36] m7_malus_law/medium/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=0.1709...  turns=6  (171s)
+  [24/36] m7_malus_law/hard/v0/vanilla_equation/n=0.0/t0      SA=0.00  rmsle=0.2459...  turns=6  (113s)
+  [25/36] m8_sound_speed/easy/v0/vanilla_equation/n=0.0/t0    SA=1.00  rmsle=1.4219...  turns=6  (114s)
+  [26/36] m8_sound_speed/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=6.4154...  turns=7  (129s)
+C:\Users\psgpe\Downloads\Long Horizon Research\mars\adapters\newtonbench_adapter.py:482: RuntimeWarning: overflow encountered in exp
+  C = float(np.exp(coef[-1]))
+  [27/36] m8_sound_speed/hard/v0/vanilla_equation/n=0.0/t0    SA=0.00  rmsle=3.5410...  turns=7  (225s)
+  [28/36] m9_kepler_third_law/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [29/36] m9_kepler_third_law/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [30/36] m9_kepler_third_law/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [31/36] m10_kinetic_friction/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [32/36] m10_kinetic_friction/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [33/36] m10_kinetic_friction/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [34/36] m11_centripetal_force/easy/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [35/36] m11_centripetal_force/medium/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+  [36/36] m11_centripetal_force/hard/v0/vanilla_equation/n=0.0/t0  SA=0.00  rmsle=nan...  turns=0  (0s)
+
+=== Summary (wall 2785s) ===
+  MARS-full       SA.mean=0.278  sd=0.454  symbolic_match=10/36
+
+[written C:\Users\psgpe\Downloads\Long Horizon Research\lmw\mars_nb_openai-gpt-4o-mini_36t.json]
