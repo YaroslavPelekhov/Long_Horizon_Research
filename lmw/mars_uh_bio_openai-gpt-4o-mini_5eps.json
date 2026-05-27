@@ -1,8 +1,8 @@
 {
  "generator_model": "openai/gpt-4o-mini",
  "reflector_model": "openai/gpt-4o-mini",
- "judge_model": "openai/gpt-4o-mini",
- "budget": 15,
+ "judge_model": "openai/gpt-4o",
+ "budget": 20,
  "n_episodes": 5,
  "seeds": [
   42,
@@ -18,224 +18,42 @@
  "per_episode": {
   "MARS-full": [
    {
-    "task_label": "uh_bio_seed42_b15",
+    "task_label": "uh_bio_seed42_b20",
     "seed": 42,
-    "budget": 15,
+    "budget": 20,
     "ablation": {
      "use_reflector": true,
      "use_memory_selector": true,
      "use_futility_detector": true
     },
-    "primary": 0.7,
-    "final_score": 70.0,
+    "primary": 0.5,
+    "final_score": 50.0,
     "judge_result": {
-     "final_score": 70,
+     "final_score": 50,
      "score_breakdown": [
       {
        "criterion": "Triploidy recognition",
        "max_score": 15,
        "awarded_score": 15,
-       "comment": "Correctly identified as triploid."
+       "comment": "Correctly identified organisms as triploid (3n)."
       },
       {
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Did not mention 1n and 2n gametes."
+       "comment": "Did not mention gametes being 1n and 2n due to unequal segregation."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Did not mention viability constraints."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated body size follows additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "Identified alleles but did not specify they are distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Values provided are incorrect and do not match the expected range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Incorrect dominance order; did not follow the specified hierarchy."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Did not mention complete dominance."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Partially correct; mentioned cyclic dominance but incomplete."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Did not specify lethal combinations clearly."
-      }
-     ]
-    },
-    "n_crosses": 14,
-    "submitted_preview": "The inheritance rules discovered are as follows: Ploidy level is triploid. Meiosis mechanism is standard with variations due to triploidy. Body size follows a quantitative rule with alleles S1 (score 451.25), S2 (score 298.65), and S3 (score 30.14). Color dominance order is red (C1) > white (C3) > o",
-    "n_turns": 9,
-    "n_actions": 16,
-    "n_claims_active": 0,
-    "n_generator_calls": 9,
-    "n_reflector_calls": 2,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 2,
-     "revise": 0
-    },
-    "wall_time_s": 69.73245191574097
-   },
-   {
-    "task_label": "uh_bio_seed43_b15",
-    "seed": 43,
-    "budget": 15,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.55,
-    "final_score": 55.0,
-    "judge_result": {
-     "final_score": 55,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified as triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Meiosis mechanism is unknown; no mention of 1n and 2n gametes."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints for other ploidy levels."
+       "comment": "Did not mention that only triploid zygotes survive."
       },
       {
        "criterion": "Body size: dosage effect",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "No mention of additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "Only provided size scores without identifying distinct alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Values provided are not within the acceptable range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Incorrect dominance order; should be Red > Blue > White."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of complete dominance."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Cyclic dominance mentioned but not in correct order."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "No mention of lethal combinations."
-      }
-     ]
-    },
-    "n_crosses": 13,
-    "submitted_preview": "Ploidy level: Triploid. Meiosis mechanism: Unknown. Body-size rule: S1 (size_score 297.86), S2 (size_score 445.85), S3 (size_score 30.1). Color dominance order: Blue > Red > White. Shell cyclic dominance with lethal combinations observed.",
-    "n_turns": 8,
-    "n_actions": 14,
-    "n_claims_active": 0,
-    "n_generator_calls": 8,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 61.40618586540222
-   },
-   {
-    "task_label": "uh_bio_seed44_b15",
-    "seed": 44,
-    "budget": 15,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.55,
-    "final_score": 55.0,
-    "judge_result": {
-     "final_score": 55,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified as triploid (3n)."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Did not mention 1n and 2n gametes or unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints for other ploidy levels."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated body size follows additive dosage effect."
+       "comment": "Did not mention body size following an additive dosage effect."
       },
       {
        "criterion": "Body size: allele identification",
@@ -247,40 +65,40 @@
        "criterion": "Body size: quantitative values",
        "max_score": 20,
        "awarded_score": 0,
-       "comment": "Values provided do not match the expected approximate values."
+       "comment": "Provided specific size scores but did not match the expected approximate values or mention the \u00b120% range."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated dominance hierarchy."
+       "awarded_score": 3,
+       "comment": "Mentioned red being dominant over blue but did not include white in the hierarchy."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Did not mention complete dominance."
+       "comment": "Did not mention phenotype determined solely by the dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Correctly described cyclic dominance."
+       "comment": "Correctly identified cyclic dominance in shell shape."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
        "awarded_score": 0,
-       "comment": "Did not specify lethal combinations."
+       "comment": "Did not mention the lethal combination of H1+H2+H3."
       }
      ]
     },
-    "n_crosses": 13,
-    "submitted_preview": "This report outlines the genetic inheritance rules observed in the alien triploid organisms studied. The ploidy level is triploid (3n). The meiosis mechanism appears to be standard, with normal segregation of alleles. For body size, the observed values indicate that the extra_large phenotype has a s",
-    "n_turns": 10,
-    "n_actions": 15,
-    "n_claims_active": 5,
-    "n_generator_calls": 10,
+    "n_crosses": 19,
+    "submitted_preview": "This report summarizes the genetic inheritance rules observed in the alien triploid organisms studied. The organisms are triploid (3n), indicating three sets of chromosomes. The meiosis mechanism appears to involve standard processes with some unique adaptations for triploidy. For body size, the cro",
+    "n_turns": 12,
+    "n_actions": 22,
+    "n_claims_active": 2,
+    "n_generator_calls": 12,
     "n_reflector_calls": 2,
     "verdict_counts": {
      "accept": 1,
@@ -288,484 +106,27 @@
      "retract": 1,
      "revise": 0
     },
-    "wall_time_s": 87.6973819732666
+    "wall_time_s": 63.32240533828735
    },
    {
-    "task_label": "uh_bio_seed45_b15",
-    "seed": 45,
-    "budget": 15,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.55,
-    "final_score": 55.0,
-    "judge_result": {
-     "final_score": 55,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified as triploid with a ploidy level of 3."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Did not mention the 1n and 2n gametes or unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints related to ploidy."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Described body size as showing a quantitative inheritance pattern."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "Did not identify three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Values provided do not match the expected approximate values."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described the dominance order."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Did not mention complete dominance."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Partially described cyclic dominance but did not include all elements."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Did not mention lethal combinations."
-      }
-     ]
-    },
-    "n_crosses": 12,
-    "submitted_preview": "This report summarizes the findings on the genetic inheritance rules of alien triploid organisms. The organisms are triploid, with a ploidy level of 3. The meiosis mechanism observed is standard, with alleles segregating during gamete formation. The body-size trait shows that the size scores range f",
-    "n_turns": 8,
-    "n_actions": 14,
-    "n_claims_active": 0,
-    "n_generator_calls": 8,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 61.03175973892212
-   },
-   {
-    "task_label": "uh_bio_seed46_b15",
-    "seed": 46,
-    "budget": 15,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.55,
-    "final_score": 55.0,
-    "judge_result": {
-     "final_score": 55,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified as triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Meiosis mechanism not addressed."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Viability constraint not mentioned."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated that body size is influenced by alleles."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "Did not identify three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Quantitative values not provided."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated dominance order."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Complete dominance not addressed."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Partially addressed cyclic dominance."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Lethal combinations not determined."
-      }
-     ]
-    },
-    "n_crosses": 14,
-    "submitted_preview": "Ploidy level: Triploid. Meiosis mechanism: Unknown. Body-size rule: Body size is influenced by alleles with quantitative values observed from crosses. Color dominance order: Red > Blue > White observed from phenotypes. Shell cyclic dominance: Spiky > Smooth observed, with lethal combinations not yet",
-    "n_turns": 9,
-    "n_actions": 16,
-    "n_claims_active": 0,
-    "n_generator_calls": 9,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 84.47256827354431
-   }
-  ],
-  "MARS-all-off": [
-   {
-    "task_label": "uh_bio_seed42_b15",
-    "seed": 42,
-    "budget": 15,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.55,
-    "final_score": 55.0,
-    "judge_result": {
-     "final_score": 55,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identifies the organism as triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Does not mention the 1n and 2n gametes due to unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Does not state that only triploid zygotes survive."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Mentions body size follows an additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "Does not identify three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Quantitative values provided do not match the expected approximate values."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Incorrect dominance hierarchy; states blue > red > white instead of the correct order."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Does not mention complete dominance."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Mentions cyclic dominance but does not specify the correct order."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Does not mention the lethal combination of H1+H2+H3."
-      }
-     ]
-    },
-    "n_crosses": 13,
-    "submitted_preview": "This report summarizes the genetic inheritance rules discovered in the study of alien triploid organisms. The organisms are triploid, indicating three sets of alleles for each trait. The meiosis mechanism appears to involve standard triploid segregation. For body size, the observed sizes range from ",
-    "n_turns": 8,
-    "n_actions": 14,
-    "n_claims_active": 0,
-    "n_generator_calls": 8,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 59.91197443008423
-   },
-   {
-    "task_label": "uh_bio_seed43_b15",
+    "task_label": "uh_bio_seed43_b20",
     "seed": 43,
-    "budget": 15,
+    "budget": 20,
     "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
     },
-    "primary": 0.55,
-    "final_score": 55.0,
+    "primary": 0.4,
+    "final_score": 40.0,
     "judge_result": {
-     "final_score": 55,
+     "final_score": 40,
      "score_breakdown": [
       {
        "criterion": "Triploidy recognition",
        "max_score": 15,
        "awarded_score": 15,
-       "comment": "Correctly identifies the organism as triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Does not mention the gamete ploidy or unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints for other ploidy levels."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly states that body size follows an additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Identifies three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Values provided do not match the required approximate values."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Incorrect dominance order; should be Red > Blue > White."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Does not mention complete dominance."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Mentions cyclic dominance but lacks clarity on the order."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "No mention of lethal combinations."
-      }
-     ]
-    },
-    "n_crosses": 12,
-    "submitted_preview": "The report details the genetic inheritance rules of the alien triploid organisms. The ploidy level is triploid. The meiosis mechanism is a unique triploid process. For body size, the alleles are S1 (size score 297.86), S2 (size score 445.85), and S3 (size score 30.1) with S1 and S2 being dominant. T",
-    "n_turns": 7,
-    "n_actions": 13,
-    "n_claims_active": 0,
-    "n_generator_calls": 7,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 60.33142852783203
-   },
-   {
-    "task_label": "uh_bio_seed44_b15",
-    "seed": 44,
-    "budget": 15,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.75,
-    "final_score": 75.0,
-    "judge_result": {
-     "final_score": 75,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Clearly identifies the organism as triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of gamete ploidy or unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints related to ploidy."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly states body size follows an additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Identifies three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Quantitative values provided are outside the acceptable range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly states the dominance hierarchy."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Indicates phenotype determined by dominant allele."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Mentions cyclic dominance but lacks specific order."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "No mention of lethal combinations."
-      }
-     ]
-    },
-    "n_crosses": 12,
-    "submitted_preview": "This report outlines the genetic inheritance rules discovered through the study of alien triploid organisms. The organisms exhibit a ploidy level of triploidy, with a unique meiosis mechanism adapted for this configuration. The body size is governed by alleles with quantitative values observed: S1 (",
-    "n_turns": 7,
-    "n_actions": 12,
-    "n_claims_active": 0,
-    "n_generator_calls": 7,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 82.65028357505798
-   },
-   {
-    "task_label": "uh_bio_seed45_b15",
-    "seed": 45,
-    "budget": 15,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.55,
-    "final_score": 55.0,
-    "judge_result": {
-     "final_score": 55,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified as triploid (3n) with three sets of alleles."
+       "comment": "Correctly identified organisms as triploid."
       },
       {
        "criterion": "Meiosis process (1n/2n gametes)",
@@ -777,13 +138,286 @@
        "criterion": "Viability constraint (only triploid survives)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "No mention of viability constraint; other ploidy levels being lethal was not addressed."
+       "comment": "No mention of viability constraint for triploid zygotes."
       },
       {
        "criterion": "Body size: dosage effect",
        "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of body size following additive dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
        "awarded_score": 5,
-       "comment": "Described body size as a quantitative trait, indicating an additive effect."
+       "comment": "Identified three alleles but did not specify distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Provided values are outside the expected range and lack precision."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly identified color dominance hierarchy."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described phenotype determined by dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 5,
+       "comment": "Mentioned cyclic dominance but lacked specific details."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 5,
+       "comment": "Mentioned lethal combinations but lacked specificity."
+      }
+     ]
+    },
+    "n_crosses": 18,
+    "submitted_preview": "This report summarizes the genetic inheritance rules of alien triploid organisms. The organisms exhibit a triploid ploidy level with a unique meiosis mechanism. Body size is influenced by three alleles (S1, S2, S3) with corresponding size scores ranging from 30.1 (tiny) to 445.85 (extra_large). Colo",
+    "n_turns": 10,
+    "n_actions": 19,
+    "n_claims_active": 2,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 2,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 70.76834273338318
+   },
+   {
+    "task_label": "uh_bio_seed44_b20",
+    "seed": 44,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.4,
+    "final_score": 40.0,
+    "judge_result": {
+     "final_score": 40,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified the organism as triploid."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of gametes being 1n and 2n due to unequal segregation."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of viability constraint regarding ploidy."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of body size following additive dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "Incorrect identification of alleles; three distinct size alleles not mentioned."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Quantitative values provided do not match expected values and are not within \u00b120% range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Incorrect dominance order; should be Red > Blue > White."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 0,
+       "awarded_score": 0,
+       "comment": "No mention of phenotype determined solely by dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 5,
+       "comment": "Mentioned cyclic dominance but did not specify the correct order."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "Correctly identified lethal combination involving shell traits."
+      }
+     ]
+    },
+    "n_crosses": 18,
+    "submitted_preview": "The ploidy level of the organisms is triploid. The meiosis mechanism is standard, with variations in allele expression. The body-size inheritance rule shows that body size is influenced by alleles with quantitative values: S1 (size score 302.17), S2 (size score 449.18), and S3 (size score 29.84). Th",
+    "n_turns": 11,
+    "n_actions": 22,
+    "n_claims_active": 0,
+    "n_generator_calls": 11,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 66.98225688934326
+   },
+   {
+    "task_label": "uh_bio_seed45_b20",
+    "seed": 45,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.5,
+    "final_score": 50.0,
+    "judge_result": {
+     "final_score": 50,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organism as triploid."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Meiosis mechanism not described."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of viability constraint for triploid zygotes."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of additive dosage effect for body size."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Identified three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 10,
+       "comment": "Provided quantitative values, but not within the specified range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly identified color dominance hierarchy."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described complete dominance for color trait."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 5,
+       "comment": "Partially described cyclic dominance, missing Ridged > Spiky."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Lethal combination not determined."
+      }
+     ]
+    },
+    "n_crosses": 19,
+    "submitted_preview": "Ploidy level: triploid. Meiosis mechanism: unknown. Body-size rule: S1\u00d73 results in extra_large (size_score 447.95), S1\u00d7S2\u00d7S2 results in extra_large (size_score 297.49), S3\u00d73 results in tiny (size_score 29.74). Color dominance order: red > blue > white (observed intensity). Shell cyclic dominance: s",
+    "n_turns": 13,
+    "n_actions": 24,
+    "n_claims_active": 0,
+    "n_generator_calls": 13,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 57.71681785583496
+   },
+   {
+    "task_label": "uh_bio_seed46_b20",
+    "seed": 46,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.3,
+    "final_score": 30.0,
+    "judge_result": {
+     "final_score": 30,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified the organism as triploid."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention gametes being 1n and 2n due to unequal segregation."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention that only triploid zygotes survive."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention body size following an additive dosage effect."
       },
       {
        "criterion": "Body size: allele identification",
@@ -795,40 +429,133 @@
        "criterion": "Body size: quantitative values",
        "max_score": 20,
        "awarded_score": 0,
-       "comment": "Quantitative values provided were not within the expected range."
+       "comment": "Provided incorrect quantitative values for size alleles."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Did not provide the strict dominance order as required."
+       "comment": "Incorrect dominance order; stated blue > white > red instead of red > blue > white."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Did not confirm that phenotype is determined solely by the dominant allele."
+       "comment": "Did not mention phenotype determined solely by dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Mentioned cyclic dominance but did not specify the complete hierarchy."
+       "awarded_score": 10,
+       "comment": "Mentioned cyclic dominance in shell shape."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
        "awarded_score": 0,
-       "comment": "Did not mention the lethal combination of H1, H2, and H3."
+       "comment": "Did not specify that H1+H2+H3 combination is lethal."
       }
      ]
     },
-    "n_crosses": 12,
-    "submitted_preview": "This report details the genetic inheritance rules discovered through the study of alien triploid organisms. The ploidy level is triploid (3n), indicating three sets of alleles for each trait. The meiosis mechanism appears to involve a unique process adapted for triploidy, allowing for the combinatio",
-    "n_turns": 7,
-    "n_actions": 12,
+    "n_crosses": 18,
+    "submitted_preview": "The triploid organisms exhibit a ploidy level of 3, with a complex meiosis mechanism. The body size trait follows a quantitative inheritance pattern with size scores approximately 300.53 (S1), 453.49 (S2), and 29.84 (S3). The color trait shows a dominance order with blue being dominant over white an",
+    "n_turns": 10,
+    "n_actions": 19,
+    "n_claims_active": 1,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 1,
+    "verdict_counts": {
+     "accept": 1,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 46.09698295593262
+   }
+  ],
+  "MARS-all-off": [
+   {
+    "task_label": "uh_bio_seed42_b20",
+    "seed": 42,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.25,
+    "final_score": 25.0,
+    "judge_result": {
+     "final_score": 25,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organisms as triploid."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of gametes being 1n and 2n due to unequal segregation."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of viability constraint where only triploid zygotes survive."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Incorrectly described body size as dominance rather than additive dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "Did not identify three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Did not provide approximate quantitative values for body size alleles."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Incorrect dominance order; stated blue > white > red instead of red > blue > white."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention phenotype determined solely by dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "Incorrect cyclic dominance order; stated smooth > ridged > spiky instead of spiky > smooth > ridged > spiky."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Did not identify the lethal combination of H1+H2+H3."
+      }
+     ]
+    },
+    "n_crosses": 18,
+    "submitted_preview": "This report summarizes the genetic inheritance rules discovered through the study of alien triploid organisms. The organisms exhibit a ploidy level of triploidy and utilize a unique meiosis mechanism. The body size trait shows a dominance of the extra_large phenotype with an allele value of 298.65, ",
+    "n_turns": 10,
+    "n_actions": 18,
     "n_claims_active": 0,
-    "n_generator_calls": 7,
+    "n_generator_calls": 10,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -836,12 +563,103 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 52.43443179130554
+    "wall_time_s": 60.03916311264038
    },
    {
-    "task_label": "uh_bio_seed46_b15",
-    "seed": 46,
-    "budget": 15,
+    "task_label": "uh_bio_seed43_b20",
+    "seed": 43,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.45,
+    "final_score": 45.0,
+    "judge_result": {
+     "final_score": 45,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organism as triploid with 3 sets of alleles."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention gametes being 1n and 2n due to unequal segregation."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention that only triploid zygotes survive and other ploidies are lethal."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not clearly describe body size following an additive dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "Did not identify three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Did not provide approximate quantitative values for size alleles."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly identified the dominance hierarchy as Red > Blue > White."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not explicitly state that phenotype is determined solely by the dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 5,
+       "comment": "Mentioned cyclic dominance with spiky > smooth, but incomplete description."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Did not specify that H1+H2+H3 combination is lethal."
+      }
+     ]
+    },
+    "n_crosses": 18,
+    "submitted_preview": "Ploidy Level: Triploid (3 sets of alleles). Meiosis Mechanism: Standard meiotic processes with variations in allele expression. Body-size Rule: Body size is influenced by the size scores of the alleles, with extra_large being dominant (size_score: 445.85 for Line A, size_score: 297.86 for Line B). C",
+    "n_turns": 10,
+    "n_actions": 20,
+    "n_claims_active": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 49.21630144119263
+   },
+   {
+    "task_label": "uh_bio_seed44_b20",
+    "seed": 44,
+    "budget": 20,
     "ablation": {
      "use_reflector": false,
      "use_memory_selector": false,
@@ -856,70 +674,70 @@
        "criterion": "Triploidy recognition",
        "max_score": 15,
        "awarded_score": 15,
-       "comment": "Clearly identifies the organism as triploid with three alleles per trait."
+       "comment": "Correctly identified organisms as triploid."
       },
       {
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Does not mention the 1n and 2n gametes due to unequal segregation."
+       "comment": "Did not mention gametes being 1n and 2n due to unequal segregation."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "No mention of viability constraints related to ploidy."
+       "comment": "Did not specify that only triploid zygotes survive."
       },
       {
        "criterion": "Body size: dosage effect",
        "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Describes dominance hierarchy instead of additive dosage effect."
+       "awarded_score": 5,
+       "comment": "Mentioned a quantitative relationship with alleles, implying dosage effect."
       },
       {
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 0,
-       "comment": "Mentions size scores but does not identify three distinct size alleles."
+       "comment": "Did not identify three distinct size alleles."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Values provided do not match the approximate values required."
+       "awarded_score": 10,
+       "comment": "Provided quantitative values, but they do not match the expected approximate values."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly identifies the dominance order of color traits."
+       "comment": "Correctly described the dominance hierarchy for color."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "States that phenotype is determined by dominant allele."
+       "comment": "Correctly stated phenotype determined by dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
-       "awarded_score": 5,
-       "comment": "Mentions cyclic dominance but does not provide the correct order."
+       "awarded_score": 10,
+       "comment": "Correctly described cyclic dominance in shell trait."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Does not specify the lethal combination of alleles."
+       "awarded_score": 15,
+       "comment": "Mentioned lethal combinations but did not specify H1+H2+H3."
       }
      ]
     },
-    "n_crosses": 12,
-    "submitted_preview": "This report outlines the genetic inheritance rules of the alien triploid organisms studied in this laboratory. The organisms exhibit a ploidy level of triploidy, with a unique meiosis mechanism that allows for the combination of three alleles per trait. The body size trait shows a dominance hierarch",
-    "n_turns": 7,
-    "n_actions": 12,
+    "n_crosses": 18,
+    "submitted_preview": "This report summarizes the genetic inheritance rules discovered from the study of alien triploid organisms. The ploidy level of the organisms is triploid (3n). The meiosis mechanism observed is a modified form of meiosis that accommodates the triploid state. The body-size trait demonstrates a quanti",
+    "n_turns": 10,
+    "n_actions": 18,
     "n_claims_active": 0,
-    "n_generator_calls": 7,
+    "n_generator_calls": 10,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -927,10 +745,192 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 71.35567283630371
+    "wall_time_s": 46.80067729949951
+   },
+   {
+    "task_label": "uh_bio_seed45_b20",
+    "seed": 45,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.55,
+    "final_score": 55.0,
+    "judge_result": {
+     "final_score": 55,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organism as triploid."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Meiosis mechanism was marked as unknown."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of viability constraint for triploid zygotes."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of additive dosage effect for body size."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Identified three distinct size alleles: S1, S2, S3."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 10,
+       "comment": "Quantitative values observed but not specified."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correct dominance order: Red > Blue > White."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Implied complete dominance by stating dominance order."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "Incorrect cyclic dominance order provided."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 10,
+       "comment": "Lethal combinations noted but not specified as H1+H2+H3."
+      }
+     ]
+    },
+    "n_crosses": 18,
+    "submitted_preview": "Ploidy level: Triploid. Meiosis mechanism: Unknown. Body size rule: S1, S2, S3 with quantitative values observed. Color dominance order: Red > Blue > White. Shell cyclic dominance: Smooth > Spiky > Ridged with lethal combinations noted.",
+    "n_turns": 10,
+    "n_actions": 18,
+    "n_claims_active": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 47.231109380722046
+   },
+   {
+    "task_label": "uh_bio_seed46_b20",
+    "seed": 46,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.45,
+    "final_score": 45.0,
+    "judge_result": {
+     "final_score": 45,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organism as triploid (3N)."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of gametes being 1n and 2n due to unequal segregation."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of viability constraint where only triploid zygotes survive."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of body size following an additive dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Identified three distinct size alleles (S1, S2, S3)."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "Quantitative values provided do not match the expected approximate values."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Incorrect dominance order; should be Red > Blue > White."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of phenotype being determined solely by the dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "Incorrect cyclic dominance order; should be Spiky > Smooth > Ridged > Spiky."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "No specific mention of H1+H2+H3 being lethal."
+      }
+     ]
+    },
+    "n_crosses": 18,
+    "submitted_preview": "The report details the ploidy level as triploid (3N), with a meiosis mechanism consistent with triploid organisms. For body size, the alleles are S1, S2, and S3 with quantitative values of 453.49 (extra_large), 300.53 (large), and 29.84 (tiny). The color dominance order is blue > red > white. The sh",
+    "n_turns": 10,
+    "n_actions": 18,
+    "n_claims_active": 0,
+    "n_generator_calls": 10,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 64.32213020324707
    }
   ]
  },
- "paired_delta_score_mean": -3.0,
- "paired_delta_score_ci95z": 11.42866571389679
+ "paired_delta_score_mean": -5.0,
+ "paired_delta_score_ci95z": 16.398536520067882
 }

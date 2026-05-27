@@ -1280,7 +1280,7 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             proj = Path(__file__).resolve().parent.parent.parent
             env_path = proj / "autodiscovery" / ".env.local"
             if env_path.exists():
-                load_dotenv(env_path, override=False)
+                load_dotenv(env_path, override=True)
         except Exception:
             pass
 

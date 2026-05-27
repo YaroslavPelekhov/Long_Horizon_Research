@@ -40,6 +40,15 @@ _UH_REPO = _PROJ / "ultrahorizon_repo"
 if str(_UH_REPO) not in sys.path:
     sys.path.insert(0, str(_UH_REPO))
 
+# Load API keys from project .env.local (same pattern as newtonbench_adapter)
+try:
+    from dotenv import load_dotenv
+    _env_path = _PROJ / "autodiscovery" / ".env.local"
+    if _env_path.exists():
+        load_dotenv(_env_path, override=True)
+except ImportError:
+    pass
+
 from ols.adapters.base import BudgetExhausted, EnvHandle, ResearchEnvAdapter
 from ols.core.types import ActionSpec, Claim, ExperimentResult
 
