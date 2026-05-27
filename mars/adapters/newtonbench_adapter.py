@@ -424,45 +424,71 @@ def _render_basis_py_mod(v1, v2, basis_name):
     return basis_name
 
 
-def _angle_like(arr) -> bool:
-    """Heuristic: variable looks like an angle (range fits inside [0, 2π],
-    mostly positive, doesn't span many orders of magnitude). Used to decide
-    whether to try sin/cos basis on it."""
+def _angle_like(arr) -> str | None:
+    """Heuristic: variable looks like an angle. Returns its likely UNIT:
+       'rad'  if range fits inside [0, 2π]
+       'deg'  if range fits inside [-360, 360] but exceeds π (i.e. larger
+              than a radian interpretation could plausibly justify)
+       None   otherwise.
+    """
     import numpy as np
     a = np.asarray(arr, dtype=float)
     a = a[np.isfinite(a)]
     if len(a) < 3:
-        return False
+        return None
     mn, mx = float(a.min()), float(a.max())
-    return (mn >= -0.01) and (mx <= 6.5) and (mx - mn >= 0.05)
+    span = mx - mn
+    if span < 0.05:
+        return None
+    # Radians range: ≤ 2π
+    if (mn >= -0.01) and (mx <= 6.5):
+        return "rad"
+    # Degrees range: typical angles 0..180 (Snell, Malus) or up to 360
+    if (mn >= -360.0) and (mx <= 360.0) and (mx > 4.0):
+        return "deg"
+    return None
 
 
-def _fit_alt_basis(data_dict, target_key, variable_names, alt_var, alt_kind):
+def _fit_alt_basis(data_dict, target_key, variable_names, alt_var, alt_kind,
+                   angle_unit="rad"):
     """Fit log(y) = a*g(alt_var) + sum_other a_i*log(other_var_i) + c, where
     g is one of:
       - 'exp':  use raw alt_var (so y = C * exp(a*alt_var) * prod ...)
-      - 'sin':  use log(sin(alt_var))
+      - 'sin':  use log(sin(alt_var))     # alt_var assumed in `angle_unit`
       - 'cos':  use log(cos(alt_var))
       - 'sin2': use log(sin(alt_var)^2)
       - 'cos2': use log(cos(alt_var)^2)
+    `angle_unit` ∈ {'rad', 'deg'} — for trig kinds; converts input via
+    np.radians if 'deg'. Each call produces a python_body that ALSO bakes
+    in the unit conversion explicitly so the resulting law runs correctly
+    against the oracle's native unit.
     Returns dict with form, r2, python_body, or None on failure."""
     import numpy as np
     target = np.asarray(data_dict[target_key], dtype=float)
     others = [v for v in variable_names if v != alt_var]
     alt = np.asarray(data_dict[alt_var], dtype=float)
 
+    # Apply unit-aware angle conversion for trig kinds
+    if alt_kind in ("sin", "cos", "sin2", "cos2"):
+        if angle_unit == "deg":
+            alt_calc = np.radians(alt)
+        else:
+            alt_calc = alt
+    else:
+        alt_calc = alt
+
     # Build alt feature
     if alt_kind == "exp":
-        alt_feat = alt   # linear, NOT log
+        alt_feat = alt_calc
     elif alt_kind in ("sin", "sin2"):
-        s = np.sin(alt)
+        s = np.sin(alt_calc)
         mask_pos = s > 1e-12
         with np.errstate(invalid="ignore", divide="ignore"):
             alt_feat = np.where(mask_pos, np.log(s), np.nan)
         if alt_kind == "sin2":
-            alt_feat = 2.0 * alt_feat   # log(sin^2) = 2*log|sin|
+            alt_feat = 2.0 * alt_feat
     elif alt_kind in ("cos", "cos2"):
-        c = np.cos(alt)
+        c = np.cos(alt_calc)
         mask_pos = c > 1e-12
         with np.errstate(invalid="ignore", divide="ignore"):
             alt_feat = np.where(mask_pos, np.log(c), np.nan)
@@ -490,31 +516,28 @@ def _fit_alt_basis(data_dict, target_key, variable_names, alt_var, alt_kind):
     other_exps = [float(c) for c in coef[1:-1]]
     C = float(np.exp(coef[-1]))
 
-    # Render python body
+    # Render python body — bake in the unit conversion explicitly when needed
+    var_expr = alt_var if angle_unit == "rad" else f"math.radians({alt_var})"
     if alt_kind == "exp":
         body = f"return {C:.6g} * (2.718281828)**({a_alt:.6f}*{alt_var})"
         form = f"{C:.6g} * exp({a_alt:.4f}*{alt_var})"
     elif alt_kind == "sin":
-        # y = C * sin(alt)^a_alt
-        body = f"return {C:.6g} * (__import__('math').sin({alt_var}))**({a_alt:.6f})"
-        # Use math.sin via avoid __import__ — instead expose math in eval env
-        body = f"return {C:.6g} * abs(math.sin({alt_var}))**({a_alt:.6f})"
-        form = f"{C:.6g} * sin({alt_var})^{a_alt:.4f}"
+        body = f"return {C:.6g} * abs(math.sin({var_expr}))**({a_alt:.6f})"
+        form = f"{C:.6g} * sin({alt_var}[{angle_unit}])^{a_alt:.4f}"
     elif alt_kind == "sin2":
-        # log(sin^2) → already 2*log(sin); a_alt here = exponent on (sin^2).
-        # So y = C * (sin(alt))^(2*a_alt). To produce equivalent code:
-        body = f"return {C:.6g} * (math.sin({alt_var}))**({2*a_alt:.6f})"
-        form = f"{C:.6g} * sin({alt_var})^{2*a_alt:.4f}"
+        body = f"return {C:.6g} * (math.sin({var_expr}))**({2*a_alt:.6f})"
+        form = f"{C:.6g} * sin({alt_var}[{angle_unit}])^{2*a_alt:.4f}"
     elif alt_kind == "cos":
-        body = f"return {C:.6g} * abs(math.cos({alt_var}))**({a_alt:.6f})"
-        form = f"{C:.6g} * cos({alt_var})^{a_alt:.4f}"
+        body = f"return {C:.6g} * abs(math.cos({var_expr}))**({a_alt:.6f})"
+        form = f"{C:.6g} * cos({alt_var}[{angle_unit}])^{a_alt:.4f}"
     elif alt_kind == "cos2":
-        body = f"return {C:.6g} * (math.cos({alt_var}))**({2*a_alt:.6f})"
-        form = f"{C:.6g} * cos({alt_var})^{2*a_alt:.4f}"
+        body = f"return {C:.6g} * (math.cos({var_expr}))**({2*a_alt:.6f})"
+        form = f"{C:.6g} * cos({alt_var}[{angle_unit}])^{2*a_alt:.4f}"
     for i, v in enumerate(others):
         body += f" * {v}**{other_exps[i]:.6f}"
         form += f" * {v}^{other_exps[i]:.4f}"
-    return {"kind": f"{alt_kind}_on_{alt_var}", "form": form, "r2": r2,
+    suffix = "" if angle_unit == "rad" else "_deg"
+    return {"kind": f"{alt_kind}_on_{alt_var}{suffix}", "form": form, "r2": r2,
             "python_body": body}
 
 
@@ -585,6 +608,8 @@ def _discover_law_auto(data_dict, target_key="force", variable_names=None) -> li
 
     # Candidates C+: alternative bases (exp/sin/cos/sin²/cos²) per variable
     # — for laws like Snell, Malus, radioactive decay, Boltzmann distribution.
+    # For trig: try BOTH unit interpretations (rad / deg) when the variable's
+    # range is ambiguous; pick the one with higher R^2 implicitly by ranking.
     for v in variable_names:
         arr = np.asarray(data_dict[v], dtype=float)
         # Always try exp (works for time/dose variables)
@@ -592,11 +617,27 @@ def _discover_law_auto(data_dict, target_key="force", variable_names=None) -> li
         if c is not None:
             out.append(c)
         # Try trig only if variable looks like an angle
-        if _angle_like(arr):
+        unit = _angle_like(arr)
+        if unit is not None:
             for kind in ("sin", "cos", "sin2", "cos2"):
-                c = _fit_alt_basis(data_dict, target_key, variable_names, v, kind)
+                # Always try the inferred unit first
+                c = _fit_alt_basis(data_dict, target_key, variable_names,
+                                   v, kind, angle_unit=unit)
                 if c is not None:
                     out.append(c)
+                # If the inferred unit was rad but range allows it, also
+                # try deg interpretation (sometimes a small radians-range
+                # value is actually degrees). Conversely if inferred deg,
+                # also try rad. The right one wins on R^2.
+                other_unit = "deg" if unit == "rad" else "rad"
+                # Skip the other unit only if it would produce out-of-domain
+                # values (radians > 2π or degrees < 0)
+                if (other_unit == "deg" and float(arr[np.isfinite(arr)].max()) > 0.05) \
+                   or (other_unit == "rad" and float(arr[np.isfinite(arr)].max()) <= 6.5):
+                    c = _fit_alt_basis(data_dict, target_key, variable_names,
+                                       v, kind, angle_unit=other_unit)
+                    if c is not None:
+                        out.append(c)
 
     out.sort(key=lambda d: d.get("r2", -1), reverse=True)
     return out

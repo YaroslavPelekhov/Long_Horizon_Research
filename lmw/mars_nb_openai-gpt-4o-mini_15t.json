@@ -35,14 +35,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.5672969122579491,
+    "rmsle": 2.0977371944925367,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return (n1 * n2 * math.cos(math.radians(angle1))) / (n1 + n2) * 100",
+    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return (n1 * n2 * 100) / (math.sin(math.radians(angle1)))",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 9,
-    "n_actions": 11,
+    "n_turns": 7,
+    "n_actions": 10,
     "n_claims_active": 0,
-    "n_generator_calls": 9,
+    "n_generator_calls": 7,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -50,7 +50,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 207.2311794757843
+    "wall_time_s": 160.69658422470093
    },
    {
     "task_label": "m4_snell_law/medium/v0/vanilla_equation/n=0.0/t0",
@@ -66,12 +66,12 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": NaN,
+    "rmsle": 2.827626044919915,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return math.degrees(math.asin((n1/n2) * math.sin(math.radians(angle1))))",
+    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return (n1 + n2) * angle1 * 0.5 * 1.5 * 10",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
     "n_turns": 7,
-    "n_actions": 11,
+    "n_actions": 10,
     "n_claims_active": 0,
     "n_generator_calls": 7,
     "n_reflector_calls": 0,
@@ -81,7 +81,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 162.242915391922
+    "wall_time_s": 122.17258501052856
    },
    {
     "task_label": "m4_snell_law/hard/v0/vanilla_equation/n=0.0/t0",
@@ -97,14 +97,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 3.548037474633449,
+    "rmsle": 0.3635467621084868,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    angle1_rad = math.radians(angle1)\n    return (n1 * n2 * math.sin(angle1_rad)) / (n1 + n2)",
+    "submitted_preview": "def discovered_law(n1, n2, angle1):\n    import math\n    return 11.3209 * (2.718281828)**(0.03067 * angle1) * n1**-3.5803 * n2**1.3790",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 8,
+    "n_turns": 6,
     "n_actions": 10,
     "n_claims_active": 0,
-    "n_generator_calls": 8,
+    "n_generator_calls": 6,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -112,7 +112,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 62.0979642868042
+    "wall_time_s": 109.61708450317383
    },
    {
     "task_label": "m5_radioactive_decay/easy/v0/vanilla_equation/n=0.0/t0",
@@ -128,12 +128,12 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 16.59927318874141,
+    "rmsle": 0.10293933169695856,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    return 92481.4 * (2.718281828)**(-445.0002 * lambda_constant) * N0**1.7688 * t**-5.3461",
+    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    import math\n    return N0 * math.exp(-lambda_constant * t)",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
     "n_turns": 6,
-    "n_actions": 11,
+    "n_actions": 10,
     "n_claims_active": 0,
     "n_generator_calls": 6,
     "n_reflector_calls": 0,
@@ -143,7 +143,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 130.89112043380737
+    "wall_time_s": 80.86103749275208
    },
    {
     "task_label": "m5_radioactive_decay/medium/v0/vanilla_equation/n=0.0/t0",
@@ -159,12 +159,12 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 279.5040249319348,
+    "rmsle": 0.49997093844513485,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    return N0 * (2.718281828)**(-0.7577*N0) * lambda_constant**-42.3319 * t**-58.5450",
+    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    import numpy as np\n    return N0 * np.exp(-lambda_constant * t)",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
     "n_turns": 6,
-    "n_actions": 11,
+    "n_actions": 10,
     "n_claims_active": 0,
     "n_generator_calls": 6,
     "n_reflector_calls": 0,
@@ -174,7 +174,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 101.08936142921448
+    "wall_time_s": 105.16485929489136
    },
    {
     "task_label": "m5_radioactive_decay/hard/v0/vanilla_equation/n=0.0/t0",
@@ -190,14 +190,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.5344909150320581,
+    "rmsle": 0.5424618938817847,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    return N0 * (1 - lambda_constant) ** t if lambda_constant < 1 else 0.0",
+    "submitted_preview": "def discovered_law(N0, lambda_constant, t):\n    return N0 * (1 - lambda_constant * t) if lambda_constant * t < 1 else 0",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 7,
+    "n_turns": 6,
     "n_actions": 10,
     "n_claims_active": 0,
-    "n_generator_calls": 7,
+    "n_generator_calls": 6,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -205,7 +205,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 131.70818829536438
+    "wall_time_s": 119.19875645637512
    },
    {
     "task_label": "m6_underdamped_harmonic/easy/v0/vanilla_equation/n=0.0/t0",
@@ -221,12 +221,12 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.11025723346855401,
+    "rmsle": 2.927013991928603,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(k, m, b):\n    return 0.785052 * b**-0.034544 * k**0.536452 * m**-0.492348",
+    "submitted_preview": "def discovered_law(k, m, b):\n    import math\n    if b == 0:\n        return float('nan')\n    return math.sqrt(k * m) / b",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
     "n_turns": 7,
-    "n_actions": 11,
+    "n_actions": 10,
     "n_claims_active": 0,
     "n_generator_calls": 7,
     "n_reflector_calls": 0,
@@ -236,7 +236,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 149.88582754135132
+    "wall_time_s": 136.2436740398407
    },
    {
     "task_label": "m6_underdamped_harmonic/medium/v0/vanilla_equation/n=0.0/t0",
@@ -252,14 +252,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.12023221468207423,
+    "rmsle": 0.05107883412177148,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(k, m, b):\n    return 0.745775 * b**-0.013524 * k**0.521232 * m**-0.472987",
+    "submitted_preview": "def discovered_law(k, m, b):\n    return 0.839193 * b**-0.008886 * k**0.516343 * m**-0.483804",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 2,
-    "n_actions": 3,
+    "n_turns": 5,
+    "n_actions": 9,
     "n_claims_active": 0,
-    "n_generator_calls": 2,
+    "n_generator_calls": 5,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -267,7 +267,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 31.670042276382446
+    "wall_time_s": 165.43294382095337
    },
    {
     "task_label": "m6_underdamped_harmonic/hard/v0/vanilla_equation/n=0.0/t0",
@@ -283,12 +283,12 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.07689738972144962,
+    "rmsle": 10.037739471122174,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(k, m, b):\n    return 0.748541 * b**-0.021160 * k**1.541151 * m**-1.5057",
+    "submitted_preview": "def discovered_law(k, m, b):\n    return 1 - (1 / (k * m * b + 1))",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
     "n_turns": 6,
-    "n_actions": 10,
+    "n_actions": 8,
     "n_claims_active": 0,
     "n_generator_calls": 6,
     "n_reflector_calls": 0,
@@ -298,7 +298,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 76.01047348976135
+    "wall_time_s": 156.4767198562622
    },
    {
     "task_label": "m7_malus_law/easy/v0/vanilla_equation/n=0.0/t0",
@@ -314,9 +314,9 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.18650640067362553,
+    "rmsle": 0.2566662338336048,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(I_0, theta):\n   import math\n   return 1.78842 * abs(math.cos(theta))**(0.155706) * I_0**1.002865",
+    "submitted_preview": "def discovered_law(I_0, theta):\n    return 2.1772 * abs(math.sin(theta))**(0.260551) * I_0**0.999857",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
     "n_turns": 6,
     "n_actions": 10,
@@ -329,7 +329,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 86.98703503608704
+    "wall_time_s": 69.856365442276
    },
    {
     "task_label": "m7_malus_law/medium/v0/vanilla_equation/n=0.0/t0",
@@ -345,9 +345,9 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.24313324179095247,
+    "rmsle": 0.203310492901493,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(I_0, theta):\n   return 5.00047 * I_0**1.0003 * theta**0.5742",
+    "submitted_preview": "def discovered_law(I_0, theta):\n    return 5.37863 * abs(math.sin(theta))**(0.613341) * I_0**0.998591",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
     "n_turns": 7,
     "n_actions": 10,
@@ -360,7 +360,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 53.25232720375061
+    "wall_time_s": 194.2946150302887
    },
    {
     "task_label": "m7_malus_law/hard/v0/vanilla_equation/n=0.0/t0",
@@ -376,14 +376,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.23493460846467182,
+    "rmsle": 0.22118563355177662,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(I_0, theta):\n   return 6.51031 * I_0**1.0000 * theta**0.3675",
+    "submitted_preview": "def discovered_law(I_0, theta):\n    return 6.44078 * I_0**1.000493 * theta**0.359604",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 6,
-    "n_actions": 10,
+    "n_turns": 11,
+    "n_actions": 8,
     "n_claims_active": 0,
-    "n_generator_calls": 6,
+    "n_generator_calls": 11,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -391,7 +391,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 44.637346267700195
+    "wall_time_s": 275.16156482696533
    },
    {
     "task_label": "m10_be_distribution/easy/v0/vanilla_equation/n=0.0/t0",
@@ -407,14 +407,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 1.8246484858707037e-07,
+    "rmsle": NaN,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(omega, T):\n    return 0.5 + 0.5 * (1 - 1 / (1 + (T / 100000000000000.0)))",
-    "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 6,
-    "n_actions": 10,
+    "submitted_preview": "",
+    "judge_explain": "(no law submitted)",
+    "n_turns": 11,
+    "n_actions": 0,
     "n_claims_active": 0,
-    "n_generator_calls": 6,
+    "n_generator_calls": 11,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -422,7 +422,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 56.9338538646698
+    "wall_time_s": 182.8938455581665
    },
    {
     "task_label": "m10_be_distribution/medium/v0/vanilla_equation/n=0.0/t0",
@@ -438,14 +438,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 2.440968660519937,
+    "rmsle": NaN,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(omega, T):\n\treturn 8.56373e+54 * omega**-7.995746 * T**5.477147",
-    "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 7,
-    "n_actions": 12,
+    "submitted_preview": "",
+    "judge_explain": "(no law submitted)",
+    "n_turns": 11,
+    "n_actions": 0,
     "n_claims_active": 0,
-    "n_generator_calls": 7,
+    "n_generator_calls": 11,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -453,7 +453,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 51.00278401374817
+    "wall_time_s": 163.34492826461792
    },
    {
     "task_label": "m10_be_distribution/hard/v0/vanilla_equation/n=0.0/t0",
@@ -469,14 +469,14 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": 0.2867828798012807,
+    "rmsle": NaN,
     "symbolic_equivalent": false,
-    "submitted_preview": "def discovered_law(omega, T):\n    if T < 100:\n        return 0.5 * (1 - (1 / (1 + omega / 1e10)))\n    else:\n        return 0.5 * (1 - (1 / (1 + omega / 1e9)))",
-    "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 6,
-    "n_actions": 10,
+    "submitted_preview": "",
+    "judge_explain": "(no law submitted)",
+    "n_turns": 11,
+    "n_actions": 0,
     "n_claims_active": 0,
-    "n_generator_calls": 6,
+    "n_generator_calls": 11,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -484,7 +484,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 49.677958250045776
+    "wall_time_s": 163.09063339233398
    }
   ]
  }
