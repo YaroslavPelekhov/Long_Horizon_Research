@@ -60,20 +60,20 @@ def _parse_csv(env_name: str, default: str) -> list[str]:
 def _episode(task: UHBioTask, ablation: dict,
              gen_model: str, ref_model: str) -> dict:
     adapter = UltraHorizonBioAdapter(task=task)
-    gen = Generator(model=gen_model, max_tokens=1800)
-    ref = Reflector(model=ref_model, max_tokens=400)
-    sel = MemorySelector(k=4)
-    # Genetics tasks need many experiments before committing.
-    # Disable futility detector or use very high threshold so the agent
-    # isn't abandoned mid-exploration.
+    gen = Generator(model=gen_model, max_tokens=2000)
+    ref = Reflector(model=ref_model, max_tokens=500)
+    sel = MemorySelector(k=6)
+    # 4 explicit research phases (A–D) in handle().subdomains.
+    # Give each phase up to 9 generator turns; 40 total provides a buffer.
+    # Futility detector disabled — genetics requires patient accumulation.
     coord = Coordinator(
         adapter=adapter,
         generator=gen,
         reflector=ref,
         memory_selector=sel,
         futility=FutilityDetector(theta_futile=2.0, min_absolute_spend=1e9),
-        max_turns_per_subgoal=int(task.budget) + 1,
-        max_total_turns=int(task.budget) + 2,
+        max_turns_per_subgoal=9,
+        max_total_turns=40,
         verbose=False,
         **ablation,
     )
@@ -176,7 +176,7 @@ def main():
             summary["paired_delta_score_mean"] = m_d
             summary["paired_delta_score_ci95z"] = 1.96 * se_d
 
-    out = _PROJ / "lmw" / f"mars_uh_bio_{gen_model.replace('/', '-')}_{len(tasks)}eps.json"
+    out = _PROJ / "lmw" / f"mars_uh_bio_v2_{gen_model.replace('/', '-')}_{len(tasks)}eps.json"
     out.parent.mkdir(exist_ok=True)
     with open(out, "w") as f:
         json.dump(summary, f, indent=1, default=str)

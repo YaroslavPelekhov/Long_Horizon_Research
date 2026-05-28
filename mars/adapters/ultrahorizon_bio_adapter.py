@@ -219,24 +219,59 @@ class UltraHorizonBioAdapter(ResearchEnvAdapter):
     # ── ResearchEnvAdapter interface ──────────────────────────────────────
 
     def handle(self) -> EnvHandle:
+        budget = int(self._budget_total)
         return EnvHandle(
             description=(
-                "ALIEN GENETICS LABORATORY\n"
-                "You are a researcher studying alien triploid organisms. "
-                "Each organism has 3 traits (body_size, color, shell_shape), "
-                "each controlled by 3 alleles. "
-                "Your goal is to design crosses, observe offspring phenotypes, "
-                "and discover the hidden inheritance rules governing each trait. "
-                "Initial organisms:\n"
-                "  ID 1 (Line A): body_size S1×3, color C1×3, shell H1×3\n"
+                "ALIEN GENETICS LABORATORY — SYSTEMATIC RESEARCH PROTOCOL\n\n"
+                "You study alien organisms with 3 heritable traits: body_size, color, shell_shape.\n"
+                "Starting organisms:\n"
+                "  ID 1 (Line A): body_size S1×3,     color C1×3, shell H1×3\n"
                 "  ID 2 (Line B): body_size S1×S2×S2, color C2×3, shell H2×3\n"
-                "  ID 3 (Line C): body_size S3×3, color C3×3, shell H3×3\n"
-                "Submit your full formal report with submit_report when ready."
+                "  ID 3 (Line C): body_size S3×3,     color C3×3, shell H3×3\n\n"
+                "Work through the four research phases below IN ORDER.\n"
+                "Each phase has targeted experiments — run them explicitly.\n\n"
+                "━━ PHASE A: FUNDAMENTAL GENETICS (25 pts) ━━\n"
+                "  1. Count alleles per trait → confirm triploidy (3 copies per organism).\n"
+                "  2. Gamete ploidy: cross known parents, inspect offspring ploidy.\n"
+                "     Gametes are either 1n (haploid) or 2n (diploid) — determine which.\n"
+                "  3. Viability: do only triploid offspring survive?\n\n"
+                "━━ PHASE B: BODY SIZE — additive dosage (35 pts) ━━\n"
+                "  Body size is ADDITIVE: each allele copy contributes independently.\n"
+                "  4. Identify distinct size alleles (S1, S2, S3).\n"
+                "  5. Quantify each allele's contribution by crossing organisms with\n"
+                "     known allele compositions and measuring offspring body sizes.\n"
+                "     Hint: compare S1×3 (450?) vs S3×3 (30?) to estimate per-allele values.\n\n"
+                "━━ PHASE C: COLOR — dominance hierarchy (10 pts) ━━\n"
+                "  6. Cross C1×3 with C2×3 → which color appears in offspring?\n"
+                "  7. Cross C2×3 with C3×3, and C1×3 with C3×3.\n"
+                "  8. Establish full order: Red(C1) vs Blue(C2) vs White(C3).\n\n"
+                "━━ PHASE D: SHELL — cyclic dominance + LETHAL COMBINATION (30 pts) ━━\n"
+                "  9. Cross H1×3 with H2×3 → pairwise dominance.\n"
+                " 10. Cross H2×3 with H3×3, and H3×3 with H1×3.\n"
+                " 11. !! CRITICAL EXPERIMENT !! Cross to produce offspring carrying\n"
+                "     H1+H2+H3 (all three shell alleles). Check if these offspring\n"
+                "     are NON-VIABLE (lethal). This is worth 20 points.\n"
+                "     Tip: cross a H1/H2 offspring with a H3×3 parent.\n\n"
+                f"Budget: {budget} crosses total. Call submit_report when all 4 phases are done."
             ),
             subdomains=[
-                ("discover_inheritance_rules",
-                 "Discover all genetic inheritance rules: ploidy, meiosis mechanism, "
-                 "body-size (alleles + values), color (dominance), shell (cyclic + lethal).")
+                ("A_fundamental_genetics",
+                 "Determine ploidy (triploid = 3 alleles/organism), gamete mechanism "
+                 "(1n haploid or 2n diploid gametes?), and viability (only triploid offspring survive?). "
+                 "Use crosses of Lines A×B, A×C, B×C and inspect offspring ploidy counts."),
+                ("B_body_size_quantification",
+                 "Identify all body-size alleles and measure each one's ADDITIVE size contribution. "
+                 "Cross organisms with known allele compositions to isolate each allele's effect. "
+                 "Target: approximate values for S1 (~200 units?), S2 (~50?), S3 (~10?)."),
+                ("C_color_dominance",
+                 "Establish the complete dominance hierarchy among C1, C2, C3. "
+                 "Run pairwise crosses: C1×3 × C2×3, C2×3 × C3×3, C1×3 × C3×3. "
+                 "Determine if dominance is complete (one allele fully masks others)."),
+                ("D_shell_cyclic_and_lethal",
+                 "Map pairwise shell dominance (H1 vs H2 vs H3). "
+                 "PRIORITY: produce offspring with ALL THREE shell alleles (H1+H2+H3) "
+                 "to test if this combination is lethal (non-viable offspring). "
+                 "Cross H1/H2 offspring × H3 parent to generate H1+H2+H3 zygotes."),
             ],
             actions=_ACTIONS,
             budget_total=self._budget_total,

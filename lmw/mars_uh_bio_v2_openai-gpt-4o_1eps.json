@@ -1,0 +1,108 @@
+{
+ "generator_model": "openai/gpt-4o",
+ "reflector_model": "openai/gpt-4o",
+ "judge_model": "openai/gpt-4o",
+ "budget": 20,
+ "n_episodes": 1,
+ "seeds": [
+  42
+ ],
+ "ablations_run": [
+  "MARS-full"
+ ],
+ "per_episode": {
+  "MARS-full": [
+   {
+    "task_label": "uh_bio_seed42_b20",
+    "seed": 42,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.75,
+    "final_score": 75.0,
+    "judge_result": {
+     "final_score": 75,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organism as triploid."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention gametes being 1n and 2n due to unequal segregation."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Did not mention that only triploid zygotes survive."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described body size as additive."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Identified three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 10,
+       "comment": "Provided approximate values for S2 and S3, but S1 value is outside the acceptable range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described the dominance hierarchy for color."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described phenotype determined by dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Correctly described cyclic dominance for shell trait."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 15,
+       "comment": "Correctly identified lethal combination but did not elaborate on the cyclic interaction."
+      }
+     ]
+    },
+    "n_crosses": 19,
+    "submitted_preview": "The ploidy level is triploid, and gametes are haploid. Body size is additive with S1 contributing approximately 150 units, S2 contributing approximately 50 units, and S3 contributing approximately 10 units. The color dominance order is Red (C1) > Blue (C2) > White (C3). Shell shape exhibits cyclic d",
+    "n_turns": 19,
+    "n_actions": 28,
+    "n_claims_active": 3,
+    "n_generator_calls": 19,
+    "n_reflector_calls": 2,
+    "verdict_counts": {
+     "accept": 1,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 64.03501224517822
+   }
+  ]
+ }
+}
