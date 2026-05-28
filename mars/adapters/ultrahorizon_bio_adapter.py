@@ -29,6 +29,8 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import contextlib
+import io
 import json
 import sys
 from dataclasses import dataclass
@@ -205,12 +207,15 @@ class UltraHorizonBioAdapter(ResearchEnvAdapter):
             "model": "dummy", "base_url": "http://dummy", "api_key": "dummy"
         }
 
-        self._env = GeneticsLabEnvironment(
-            seed=task.seed,
-            required_steps=task.budget,
-            difficulty=Difficulty.HARD,
-            free=True,          # no minimum-step requirement; MARS manages budget
-        )
+        # Suppress env's verbose stdout on __init__ (prints the full env_prompt
+        # for every episode, flooding the output buffer on multi-episode sweeps).
+        with contextlib.redirect_stdout(io.StringIO()):
+            self._env = GeneticsLabEnvironment(
+                seed=task.seed,
+                required_steps=task.budget,
+                difficulty=Difficulty.HARD,
+                free=True,      # no minimum-step requirement; MARS manages budget
+            )
         self._task = task
         self._budget_total = float(task.budget)
         self._submission: str | None = None
