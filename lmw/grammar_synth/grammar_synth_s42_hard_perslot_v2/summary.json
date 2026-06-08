@@ -1,0 +1,879 @@
+{
+  "run_id": "grammar_synth_s42_hard_perslot_v2",
+  "score_type": "grammar-synthesis-experiment",
+  "seed": 42,
+  "difficulty": "hard",
+  "n_steps": 7,
+  "n_init_for_synthesis": 3,
+  "synth_model": "openai/gpt-4o",
+  "n_proposals_requested": 12,
+  "synthesized_grammar_rules_exact": 5,
+  "hand_seeded_grammar_rules_exact": 5,
+  "synthesized_grammar_proposed": 60,
+  "synthesized_grammar_valid": 55,
+  "run_A_synthesized": {
+    "rule_1": {
+      "winner": "step_parity_interleave",
+      "description": "Interleave based on step parity; main first on odd, vice first on even.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "step_parity_interleave",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.2571428571428571,
+          "exact": false
+        },
+        {
+          "name": "alternate_main_vice",
+          "loss_mean": 0.2571428571428571,
+          "exact": false
+        }
+      ]
+    },
+    "rule_2": {
+      "winner": "reverse_double_shift",
+      "description": "Reverse input, shift by step, concatenate with shifted original.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "reverse_double_shift",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "shift_by_step_number",
+          "loss_mean": 0.5,
+          "exact": false
+        },
+        {
+          "name": "additive_step_character_shift",
+          "loss_mean": 0.5,
+          "exact": false
+        }
+      ]
+    },
+    "rule_3": {
+      "winner": "append_from_position",
+      "description": "Append character from specific position based on step_number.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "append_from_position",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "reverse_and_append",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "append_step_based_chars",
+          "loss_mean": 0.07452547452547453,
+          "exact": false
+        }
+      ]
+    },
+    "rule_4": {
+      "winner": "add_mod26_with_prev",
+      "description": "Add first 5 chars of current to previous_main mod 26.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "add_mod26_with_prev",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "main_vice_frequency_replace",
+          "loss_mean": 0.11859855925073316,
+          "exact": false
+        },
+        {
+          "name": "mirror_based_on_previous_main",
+          "loss_mean": 0.1471209627731367,
+          "exact": false
+        }
+      ]
+    },
+    "rule_5": {
+      "winner": "replace_most_frequent",
+      "description": "Replace most frequent char on prime steps with next in alphabet.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.04,
+      "exact": true,
+      "top3": [
+        {
+          "name": "replace_most_frequent",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "prime_step_frequency_shift",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "main_vice_frequency_replace",
+          "loss_mean": 0.16935274065708847,
+          "exact": false
+        }
+      ]
+    }
+  },
+  "run_B_hand_seeded": {
+    "rule_1": {
+      "winner": "interleave_step_parity",
+      "description": "Interweave main and vice; odd experiment steps lead with main, even steps lead with vice.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_2": {
+      "winner": "reverse_shift_concat",
+      "description": "Reverse current, shift all letters forward by the experiment step number modulo 26, then concatenate shifted_reverse + shifted_current.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_3": {
+      "winner": "append_step_char_copy",
+      "description": "Let a = step_number mod 10, using 10 when the remainder is 0; append current[a-1] repeated a times when available.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_4": {
+      "winner": "previous_main_sum_prefix",
+      "description": "Use the previous experiment's main sequence: add alphabet indices of the first five current chars and previous_main position-wise modulo 26, then append the unchanged remainder.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_5": {
+      "winner": "prime_frequency_replace",
+      "description": "On prime-numbered experiment steps, replace every occurrence of the most frequent current letter with its next alphabet letter; otherwise leave current unchanged.",
+      "loss_mean": 0.0,
+      "exact": true
+    }
+  },
+  "synthesis": {
+    "proposed": 60,
+    "valid": 55,
+    "model": "openai/gpt-4o",
+    "wall_time_s": 48.56755185127258,
+    "errors": [],
+    "primitives": [
+      {
+        "name": "interleave_main_vice",
+        "description": "Interleaves characters from main and vice starting with main.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "interleave_vice_main",
+        "description": "Interleaves characters from vice and main starting with vice.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "step_parity_interleave",
+        "description": "Interleave based on step parity; main first on odd, vice first on even.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "history_influence",
+        "description": "Incorporates history by interleaving with previous_main.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "previous_main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "modular_shift_main",
+        "description": "Shift main by the modulo of step number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "reverse_sort_main_vice",
+        "description": "Sorts combined sequence of main and vice in reverse order.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "alternate_steps",
+        "description": "Alternate characters from main and vice by step number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "lexicographic_combination",
+        "description": "Lexicographically combines main and vice.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "double_previous_main",
+        "description": "Doubles characters in previous_main and interleaves with main.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "previous_main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "main_vice_alternate_reverse",
+        "description": "Alternate main and vice in reverse order.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "step_based_shift",
+        "description": "Shifts the main sequence by step number amount.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_1"
+        ]
+      },
+      {
+        "name": "reverse_double_shift",
+        "description": "Reverse input, shift by step, concatenate with shifted original.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "interleave_step_shift",
+        "description": "Interleave original and reversed input, both shifted by step.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "double_reverse_identity",
+        "description": "Double the reversed input without shifting.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "shift_based_on_vice",
+        "description": "Shift input by positions in vice.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "concat_previous_shift",
+        "description": "Concatenate input with shifted previous_main.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "previous_main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "sorted_double_original",
+        "description": "Double the input and sort alphabetically.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "mirror_main_vice",
+        "description": "Mirror main and vice around current.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "alternate_main_vice",
+        "description": "Alternate characters from main and vice, then append current.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "step_modulus_transform",
+        "description": "Transform input based on step number modulus.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "reverse_and_main_shift",
+        "description": "Reverse input and shift by main's first character index.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "vice_based_reversal",
+        "description": "Reverse input if vice starts with vowel, else return original.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_2"
+        ]
+      },
+      {
+        "name": "repeat_last_char",
+        "description": "Repeat the last character of 'current' based on step_number.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "append_from_position",
+        "description": "Append character from specific position based on step_number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "reverse_and_append",
+        "description": "Reverse 'current' and append a character based on step_number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "interleave_with_vice",
+        "description": "Interleave 'current' with 'vice' from context.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "modular_shift_chars",
+        "description": "Shift characters using modular arithmetic based on step_number.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "sort_and_append",
+        "description": "Sort 'current' and append step_number times first character.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "append_step_based_chars",
+        "description": "Append step_number specific characters to 'current'.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "frequency_based_append",
+        "description": "Append the most frequent char in 'current', repeated step_number times.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "previous_main_interleaving",
+        "description": "Interleave 'current' with 'previous_main'.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "previous_main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "append_main_char",
+        "description": "Append a character from 'main' based on step_number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "vice_influence_append",
+        "description": "Append influenced by 'vice' positions.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "lexicographic_rotation",
+        "description": "Rotate 'current' based on step_number and append from main.",
+        "complexity": 5.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_3"
+        ]
+      },
+      {
+        "name": "add_mod26_with_prev",
+        "description": "Add first 5 chars of current to previous_main mod 26.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current",
+          "previous_main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "replace_most_frequent",
+        "description": "Replace most frequent char on prime steps with next in alphabet.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "step_number",
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "lexicographic_sort_current",
+        "description": "Sort the current string lexicographically.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "alternate_char_shift",
+        "description": "Shift alternate characters in current by 1.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "main_vice_frequency_replace",
+        "description": "Replace main's most frequent char with vice's least frequent.",
+        "complexity": 5.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "reverse_current_on_even_step",
+        "description": "Reverse the current string if step number is even.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "shift_by_step_number",
+        "description": "Shift each character in current by step_number positions.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "main_vice_concat",
+        "description": "Concatenate main and vice to the current string.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "swap_main_vice",
+        "description": "Swap main and vice if step number is a multiple of 3.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "shift_by_main_sum",
+        "description": "Shift each character by the sum of positions of main's characters.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_4"
+        ]
+      },
+      {
+        "name": "prime_step_frequency_shift",
+        "description": "Shift most frequent character on prime steps.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "step_number",
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "alternate_character_replacement",
+        "description": "Replace every other character based on step number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "mirror_based_on_previous_main",
+        "description": "Mirror characters based on previous_main length.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "previous_main",
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "sorted_replacement",
+        "description": "Sort characters and replace based on step.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "cyclic_character_shift",
+        "description": "Shift each character by step number modulo 5.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "vice_influence_replacement",
+        "description": "Replace based on vice length influence.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "vice",
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "character_frequency_sort",
+        "description": "Sort characters by frequency in descending order.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "additive_step_character_shift",
+        "description": "Shift characters by a constant step based on step_number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "length_based_mirroring",
+        "description": "Mirror string if even length, else rotate.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "step_based_swap",
+        "description": "Swap adjacent characters on odd steps.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      },
+      {
+        "name": "alphabet_modular_rotator",
+        "description": "Rotate through alphabet using step_number modulus.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized",
+          "slot_5"
+        ]
+      }
+    ]
+  },
+  "refinement_pass": false,
+  "refinement": null,
+  "collect_time_s": 0.0023088455200195312,
+  "wall_time_s": 48.5698606967926
+}

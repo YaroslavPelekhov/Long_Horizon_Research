@@ -59,6 +59,11 @@ except ImportError:
 
 from mars.induction.cpi import rank_hypotheses  # noqa: E402
 from mars.induction.grammar_synthesizer import _UH_SEQ_INTERFACE, synthesize_grammar  # noqa: E402
+from mars.induction.grammar_refiner import (  # noqa: E402
+    explain_signals,
+    extract_slot_signals,
+    synthesize_per_slot,
+)
 from mars.induction.uh_seq_inductor import UHSeqProgramInductor  # noqa: E402
 
 
@@ -157,7 +162,55 @@ def run_experiment(args: argparse.Namespace) -> dict[str, Any]:
         print(f"  errors ({len(synthesis.errors)}): {synthesis.errors[:5]}")
 
     # ------------------------------------------------------------------ #
-    # 4. CPI with synthesized grammar (Run A)                             #
+    # 4a. Per-slot synthesis (hard mode)                                  #
+    #     Each slot gets its own signal-enriched interface description.   #
+    # ------------------------------------------------------------------ #
+    per_slot_syntheses: dict[int, Any] = {}
+    per_slot_synth_total_valid = 0
+    if args.per_slot:
+        print("\n[grammar_synth] per-slot synthesis mode")
+        for slot in range(1, 6):
+            slot_traces = all_traces_by_slot[slot]
+            init_slot_traces = slot_traces[:n_init]
+            signals = extract_slot_signals(slot, init_slot_traces)
+            print(f"  slot {slot}: {explain_signals(signals)}")
+            slot_synth = synthesize_per_slot(
+                slot,
+                init_slot_traces,
+                model=args.synth_model,
+                n_proposals=args.n_proposals,
+                temperature=0.75,
+            )
+            per_slot_syntheses[slot] = slot_synth
+            per_slot_synth_total_valid += slot_synth.valid
+            print(f"    proposed={slot_synth.proposed} valid={slot_synth.valid}")
+            for h in slot_synth.hypotheses[:3]:
+                print(f"    + {h.name}: {h.description[:55]}")
+
+        # Merge all per-slot hypotheses into one universal library
+        all_per_slot_hypotheses = []
+        for slot_synth in per_slot_syntheses.values():
+            all_per_slot_hypotheses.extend(slot_synth.hypotheses)
+        # Deduplicate by name
+        seen_names: set[str] = set()
+        merged: list[Any] = []
+        for h in all_per_slot_hypotheses:
+            if h.name not in seen_names:
+                seen_names.add(h.name)
+                merged.append(h)
+        synthesis = type(synthesis)(
+            proposed=sum(s.proposed for s in per_slot_syntheses.values()),
+            valid=len(merged),
+            hypotheses=merged,
+            raw_proposals=[],
+            errors=[],
+            model=args.synth_model,
+            wall_time_s=sum(s.wall_time_s for s in per_slot_syntheses.values()),
+        )
+        print(f"\n[grammar_synth] per-slot merged: {len(merged)} unique hypotheses")
+
+    # ------------------------------------------------------------------ #
+    # 4b. CPI with synthesized grammar (Run A)                            #
     # ------------------------------------------------------------------ #
     synth_per_slot: dict[str, Any] = {}
     synth_exact = 0
@@ -339,6 +392,8 @@ def main() -> None:
     parser.add_argument("--n_proposals", type=int, default=16)
     parser.add_argument("--refinement_pass", action="store_true",
                         help="After initial synthesis, do a targeted pass for unsolved rule slots")
+    parser.add_argument("--per_slot", action="store_true",
+                        help="Synthesize per rule slot with signal-extracted interface (for hard rules)")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
 
