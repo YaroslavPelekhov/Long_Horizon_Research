@@ -1,0 +1,1187 @@
+{
+  "run_id": "ablation_easy_10seeds",
+  "score_type": "selection-ablation",
+  "difficulty": "easy",
+  "n_seeds": 10,
+  "max_steps": 5,
+  "modes": {
+    "disagreement": {
+      "frac_5_of_5": 1.0,
+      "mean_final_exact": 5.0,
+      "mean_steps_to_5": 1.0,
+      "step_means": [
+        5.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0
+      ]
+    },
+    "random": {
+      "frac_5_of_5": 1.0,
+      "mean_final_exact": 5.0,
+      "mean_steps_to_5": 1.0,
+      "step_means": [
+        5.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0
+      ]
+    },
+    "defaults": {
+      "frac_5_of_5": 1.0,
+      "mean_final_exact": 5.0,
+      "mean_steps_to_5": 1.0,
+      "step_means": [
+        5.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0
+      ]
+    }
+  },
+  "runs": [
+    {
+      "seed": 1,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.78404974937439
+    },
+    {
+      "seed": 2,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.304970979690552
+    },
+    {
+      "seed": 3,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.247686862945557
+    },
+    {
+      "seed": 4,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.355838060379028
+    },
+    {
+      "seed": 5,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.401386976242065
+    },
+    {
+      "seed": 6,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.344536066055298
+    },
+    {
+      "seed": 7,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.206334829330444
+    },
+    {
+      "seed": 8,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.261749982833862
+    },
+    {
+      "seed": 9,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.303816080093384
+    },
+    {
+      "seed": 10,
+      "difficulty": "easy",
+      "mode": "disagreement",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "AAAEC",
+          "AABCD"
+        ],
+        [
+          "AABBB",
+          "AABCB"
+        ],
+        [
+          "AABCD",
+          "AAAEC"
+        ],
+        [
+          "AABCC",
+          "AAAED"
+        ]
+      ],
+      "wall_time_s": 7.223098278045654
+    },
+    {
+      "seed": 1,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "AABCB"
+        ],
+        [
+          "AAAAB",
+          "ABAED"
+        ],
+        [
+          "AAAAB",
+          "ABCEE"
+        ],
+        [
+          "AAAAB",
+          "AAADD"
+        ],
+        [
+          "AAAAB",
+          "AACDE"
+        ]
+      ],
+      "wall_time_s": 0.12853503227233887
+    },
+    {
+      "seed": 2,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "AAADB"
+        ],
+        [
+          "AAAAB",
+          "AABAB"
+        ],
+        [
+          "AAAAB",
+          "AAAEE"
+        ],
+        [
+          "AAAAB",
+          "AADEC"
+        ],
+        [
+          "AAAAB",
+          "AABED"
+        ]
+      ],
+      "wall_time_s": 0.11391401290893555
+    },
+    {
+      "seed": 3,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "AACCC"
+        ],
+        [
+          "AAAAB",
+          "ABBAE"
+        ],
+        [
+          "AAAAB",
+          "ABADC"
+        ],
+        [
+          "AAAAB",
+          "AABCA"
+        ],
+        [
+          "AAAAB",
+          "AADED"
+        ]
+      ],
+      "wall_time_s": 0.11319708824157715
+    },
+    {
+      "seed": 4,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "AACCC"
+        ],
+        [
+          "AAAAB",
+          "AADBA"
+        ],
+        [
+          "AAAAB",
+          "AABAD"
+        ],
+        [
+          "AAAAB",
+          "ABCCE"
+        ],
+        [
+          "AAAAB",
+          "AAEBB"
+        ]
+      ],
+      "wall_time_s": 0.11313891410827637
+    },
+    {
+      "seed": 5,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "ABBCB"
+        ],
+        [
+          "AAAAB",
+          "AACDC"
+        ],
+        [
+          "AAAAB",
+          "ABCDD"
+        ],
+        [
+          "AAAAB",
+          "AADDE"
+        ],
+        [
+          "AAAAB",
+          "ABCBB"
+        ]
+      ],
+      "wall_time_s": 0.11414694786071777
+    },
+    {
+      "seed": 6,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "ABAED"
+        ],
+        [
+          "AAAAB",
+          "AAAEC"
+        ],
+        [
+          "AAAAB",
+          "ABAAC"
+        ],
+        [
+          "AAAAB",
+          "ABDAA"
+        ],
+        [
+          "AAAAB",
+          "AACDE"
+        ]
+      ],
+      "wall_time_s": 0.1147150993347168
+    },
+    {
+      "seed": 7,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "AADBE"
+        ],
+        [
+          "AAAAB",
+          "AABDA"
+        ],
+        [
+          "AAAAB",
+          "AAEBA"
+        ],
+        [
+          "AAAAB",
+          "ABBEB"
+        ],
+        [
+          "AAAAB",
+          "AAACE"
+        ]
+      ],
+      "wall_time_s": 0.11467289924621582
+    },
+    {
+      "seed": 8,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "AACCA"
+        ],
+        [
+          "AAAAB",
+          "AADEC"
+        ],
+        [
+          "AAAAB",
+          "AAEAA"
+        ],
+        [
+          "AAAAB",
+          "AABBE"
+        ],
+        [
+          "AAAAB",
+          "AACAC"
+        ]
+      ],
+      "wall_time_s": 0.11708283424377441
+    },
+    {
+      "seed": 9,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "AAEEA"
+        ],
+        [
+          "AAAAB",
+          "ABBBE"
+        ],
+        [
+          "AAAAB",
+          "AADEC"
+        ],
+        [
+          "AAAAB",
+          "AACEA"
+        ],
+        [
+          "AAAAB",
+          "AABCC"
+        ]
+      ],
+      "wall_time_s": 0.11490082740783691
+    },
+    {
+      "seed": 10,
+      "difficulty": "easy",
+      "mode": "random",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "AAAAB",
+          "ABAED"
+        ],
+        [
+          "AAAAB",
+          "AAACA"
+        ],
+        [
+          "AAAAB",
+          "AAECC"
+        ],
+        [
+          "AAAAB",
+          "ABAAC"
+        ],
+        [
+          "AAAAB",
+          "ABBAD"
+        ]
+      ],
+      "wall_time_s": 0.11521506309509277
+    },
+    {
+      "seed": 1,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.003898143768310547
+    },
+    {
+      "seed": 2,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.003077983856201172
+    },
+    {
+      "seed": 3,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.0034470558166503906
+    },
+    {
+      "seed": 4,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.0032739639282226562
+    },
+    {
+      "seed": 5,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.003260374069213867
+    },
+    {
+      "seed": 6,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.0032978057861328125
+    },
+    {
+      "seed": 7,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.0030012130737304688
+    },
+    {
+      "seed": 8,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.003349781036376953
+    },
+    {
+      "seed": 9,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.0034008026123046875
+    },
+    {
+      "seed": 10,
+      "difficulty": "easy",
+      "mode": "defaults",
+      "max_steps": 5,
+      "curve": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "final_exact": 5,
+      "steps_to_5": 1,
+      "pairs_used": [
+        [
+          "ABCDE",
+          "EDCBA"
+        ],
+        [
+          "EDCBA",
+          "ABCDE"
+        ],
+        [
+          "AABCE",
+          "DDEAC"
+        ],
+        [
+          "BAEDC",
+          "CEBAD"
+        ],
+        [
+          "AACDE",
+          "EABCD"
+        ]
+      ],
+      "wall_time_s": 0.0034360885620117188
+    }
+  ]
+}

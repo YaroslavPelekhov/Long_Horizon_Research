@@ -1,0 +1,91 @@
+{
+  "run_id": "db_zeroshot_arch1_v1",
+  "score_type": "db-zero-shot-vs-hand-cpi",
+  "task_dir": "discoverybench_repo/discoverybench/real/test/archaeology",
+  "metadata_file": "metadata_1.json",
+  "question": "In which century did the number of daggers began to increase in importance for the first time?",
+  "dataset": "pollen_openness_score_Belau_Woserin_Feeser_et_al_2019.csv",
+  "synth_model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "n_proposals": 10,
+  "zero_shot": {
+    "proposed": 10,
+    "valid": 8,
+    "evidence_pieces": 8,
+    "hypothesis": "The number of daggers began to increase in importance for the first time in the -4600 century, as indicated by the analysis of dagger trends. This increase coincides with a period of declining economic capital, suggesting a potential shift in symbolic capital priorities during this time.",
+    "hms_100": 0.0,
+    "scores": {
+      "hms_0_1": 0.0,
+      "hms_100": 0.0,
+      "context_match": 0.0,
+      "variable_match": 0.0,
+      "relation_correct": 0.0,
+      "reasoning": "The hypothesis incorrectly identifies the -4600 century, which is not a valid historical timeframe. The context of dagger importance is not accurately placed in any known historical period. Additionally, the variables of 'dagger trends' and 'economic capital' are not correctly matched to any known historical data or analysis. The relationship between dagger importance and economic capital is speculative and lacks historical evidence. Therefore, the hypothesis does not meet any of the criteria for a valid scientific discovery hypothesis."
+    },
+    "synthesis": {
+      "proposed": 10,
+      "valid": 8,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 13.345088005065918,
+      "errors": [
+        "analyze_correlation_symbolic_social: RuntimeError: could not convert string to float: '7,1843132308958'",
+        "analyze_effect_size_cultural_vs_social: RuntimeError: could not convert string to float: '5,92027169716326'"
+      ],
+      "operators": [
+        {
+          "name": "analyze_dagger_trend",
+          "description": "Identify the first century with an increasing trend in daggers.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_trend_cultural_capital",
+          "description": "Analyze the trend of cultural capital over centuries.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_temporal_pattern_economic_capital",
+          "description": "Evaluate temporal pattern in economic capital.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_regression_symbolic_vs_economic",
+          "description": "Regression analysis between symbolic and economic capital.",
+          "complexity": 5.0
+        },
+        {
+          "name": "analyze_frequency_human_impact",
+          "description": "Determine frequency of significant human impact.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_categorical_breakdown_economic",
+          "description": "Breakdown economic capital by century categories.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_group_comparison_monument",
+          "description": "Compare monument size across different centuries.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_trend_analysis_pollen",
+          "description": "Perform trend analysis on pollen data.",
+          "complexity": 3.0
+        }
+      ]
+    }
+  },
+  "hand_cpi": {
+    "hypothesis": "hand_cpi not available",
+    "hms_100": 0.0,
+    "scores": {
+      "hms_0_1": 0.0,
+      "hms_100": 0.0,
+      "context_match": 0.0,
+      "variable_match": 0.0,
+      "relation_correct": 0.0,
+      "reasoning": "The generated hypothesis 'hand_cpi not available' does not provide any relevant information or context related to the historical importance of daggers. It fails to identify any variables or relationships pertinent to the question about the increase in importance of daggers in a specific century. The hypothesis appears to be a placeholder or an error message rather than a meaningful scientific statement."
+    }
+  },
+  "wall_time_s": 19.565671920776367
+}

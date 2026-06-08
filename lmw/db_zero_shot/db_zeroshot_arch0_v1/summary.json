@@ -1,0 +1,95 @@
+{
+  "run_id": "db_zeroshot_arch0_v1",
+  "score_type": "db-zero-shot-vs-hand-cpi",
+  "task_dir": "discoverybench_repo/discoverybench/real/test/archaeology",
+  "metadata_file": "metadata_0.json",
+  "question": "In which century did the axes become quantitatively most frequent?",
+  "dataset": "time_series_data.csv",
+  "synth_model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "n_proposals": 10,
+  "zero_shot": {
+    "proposed": 10,
+    "valid": 9,
+    "evidence_pieces": 9,
+    "hypothesis": "Based on the evidence, the 4th century had the highest frequency of axes, suggesting that axes became quantitatively most frequent during this period. Despite the 31st century having the highest average frequency and temporal peaks, the overall record count in the 40th century indicates a broader distribution rather than a peak frequency. Therefore, the 4th century is hypothesized to be the century when axes were most quantitatively frequent.",
+    "hms_100": 0.0,
+    "scores": {
+      "hms_0_1": 0.0,
+      "hms_100": 0.0,
+      "context_match": 0.0,
+      "variable_match": 0.0,
+      "relation_correct": 0.0,
+      "reasoning": "The hypothesis does not correctly identify the relevant context or domain, as it discusses centuries and axes without providing any historical or archaeological evidence to support the claim. The variables mentioned, such as 'frequency of axes' and 'centuries,' are not clearly defined or supported by data. Additionally, the relationship stated in the hypothesis is speculative and lacks empirical evidence or logical reasoning to substantiate the claim that the 4th century had the highest frequency of axes. The mention of the 31st and 40th centuries further confuses the context, as these are not relevant to historical discussions of axes."
+    },
+    "synthesis": {
+      "proposed": 10,
+      "valid": 9,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 11.871608972549438,
+      "errors": [
+        "analyze_axes_regression: RuntimeError: __import__ not found"
+      ],
+      "operators": [
+        {
+          "name": "analyze_century_frequency",
+          "description": "Determine which century had the most frequent occurrence of axes.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_axes_trend",
+          "description": "Analyze the trend of axes frequency over time.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_correlation",
+          "description": "Check correlation between axes and cultural capital factors.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_century_group_comparison",
+          "description": "Compare axes frequency between centuries.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_axes_temporal_patterns",
+          "description": "Identify temporal patterns in axes frequency.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_frequency_counts",
+          "description": "Count the frequency of axes across different centuries.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_axes_categorical_breakdown",
+          "description": "Break down axes frequency by social capital groups.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_effect_size",
+          "description": "Calculate effect size of axes across centuries.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_axes_temporal_trends",
+          "description": "Explore temporal trends of axes and other economic indicators.",
+          "complexity": 4.0
+        }
+      ]
+    }
+  },
+  "hand_cpi": {
+    "hypothesis": "Hypothesis: Axes became quantitatively most frequent during the century corresponding to the highest mean values of the 'Axes & Celts' variable in the dataset, which can be identified by analyzing the 'CE' or 'calBP' columns to determine the specific time period.",
+    "hms_100": 33.33333333333333,
+    "scores": {
+      "hms_0_1": 0.3333333333333333,
+      "hms_100": 33.33333333333333,
+      "context_match": 0.5,
+      "variable_match": 0.5,
+      "relation_correct": 0.0,
+      "reasoning": "The hypothesis attempts to identify the century with the most frequent axes by analyzing a dataset, which is a relevant approach in archaeology or historical studies. However, it does not specify the dataset or its source, making it unclear if the context is fully matched. The hypothesis mentions 'Axes & Celts' and 'CE' or 'calBP' columns, which could be relevant variables, but without specific dataset information, it's uncertain if these are the correct variables. The relationship is not correct because the hypothesis does not provide a clear method for determining the century based on mean values, nor does it explain how these values correlate with frequency. Additionally, the hypothesis lacks clarity on how the analysis would be conducted or validated."
+    }
+  },
+  "wall_time_s": 20.715822219848633
+}

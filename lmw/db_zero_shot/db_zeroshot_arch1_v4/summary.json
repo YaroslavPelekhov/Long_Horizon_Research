@@ -1,0 +1,91 @@
+{
+  "run_id": "db_zeroshot_arch1_v4",
+  "score_type": "db-zero-shot-vs-hand-cpi",
+  "task_dir": "discoverybench_repo/discoverybench/real/test/archaeology",
+  "metadata_file": "metadata_1.json",
+  "question": "In which century did the number of daggers began to increase in importance for the first time?",
+  "dataset": "time_series_data.csv",
+  "synth_model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "n_proposals": 10,
+  "zero_shot": {
+    "proposed": 10,
+    "valid": 8,
+    "evidence_pieces": 8,
+    "hypothesis": "The number of daggers began to increase in importance for the first time in the -2400 century, as evidenced by a shift in dagger importance from a consistent value of -0.58 in preceding centuries to a positive value of 0.1031. This increase is most correlated with HouseSize_inter, a component of symbolic capital, suggesting a potential link between dagger importance and changes in house size during this period.",
+    "hms_100": 0.0,
+    "scores": {
+      "hms_0_1": 0.0,
+      "hms_100": 0.0,
+      "context_match": 0.0,
+      "variable_match": 0.0,
+      "relation_correct": 0.0,
+      "reasoning": "The hypothesis is fundamentally flawed as it refers to a '-2400 century,' which is not a valid historical timeframe. Additionally, the concept of 'dagger importance' and its correlation with 'HouseSize_inter' lacks historical and archaeological basis. The variables and relationships mentioned do not align with any known historical or archaeological data, making the hypothesis invalid in terms of context, variable identification, and relationship correctness."
+    },
+    "synthesis": {
+      "proposed": 10,
+      "valid": 8,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 11.196321964263916,
+      "errors": [
+        "analyze_dagger_temporal_patterns: RuntimeError: __import__ not found",
+        "analyze_dagger_regression: RuntimeError: __import__ not found"
+      ],
+      "operators": [
+        {
+          "name": "analyze_dagger_trend",
+          "description": "Identify the century with the first significant increase in dagger importance.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_correlation",
+          "description": "Assess correlation between dagger importance and other symbolic capital elements.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_vs_other_capitals",
+          "description": "Compare dagger importance with other symbolic capital components.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_frequency_count",
+          "description": "Count how often dagger importance exceeds a certain threshold.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_dagger_categorical_breakdown",
+          "description": "Break down dagger importance by century categories.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_effect_size",
+          "description": "Calculate effect size of dagger importance change over centuries.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_dagger_growth_rate",
+          "description": "Calculate the growth rate of dagger importance over time.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_vs_pollen_openness",
+          "description": "Investigate relationship between dagger importance and landscape openness.",
+          "complexity": 4.0
+        }
+      ]
+    }
+  },
+  "hand_cpi": {
+    "hypothesis": "Hypothesis: The number of daggers began to increase in importance during the 3rd millennium BCE, as indicated by a positive trend in the 'kde_all_detrend' values for this period, suggesting an increase in symbolic capital associated with daggers relative to other forms of symbolic capital such as hatchets and swords.",
+    "hms_100": 33.33333333333333,
+    "scores": {
+      "hms_0_1": 0.3333333333333333,
+      "hms_100": 33.33333333333333,
+      "context_match": 0.5,
+      "variable_match": 0.3,
+      "relation_correct": 0.2,
+      "reasoning": "The hypothesis partially identifies the relevant context by discussing the historical significance of daggers, which is relevant to the question. However, it incorrectly specifies the time period as the 3rd millennium BCE, which does not align with the concept of centuries. The hypothesis mentions 'kde_all_detrend' values, which are not standard variables in historical analysis of weapon importance, leading to a low score for variable_match. The relationship between the increase in symbolic capital and the specific time period is not well-supported or clearly defined, resulting in a low score for relation_correct."
+    }
+  },
+  "wall_time_s": 19.072077989578247
+}

@@ -1,0 +1,83 @@
+{
+  "run_id": "db_zeroshot_arch1_v3",
+  "score_type": "db-zero-shot-vs-hand-cpi",
+  "task_dir": "discoverybench_repo/discoverybench/real/test/archaeology",
+  "metadata_file": "metadata_1.json",
+  "question": "In which century did the number of daggers began to increase in importance for the first time?",
+  "dataset": "time_series_data.csv",
+  "synth_model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "n_proposals": 10,
+  "zero_shot": {
+    "proposed": 10,
+    "valid": 6,
+    "evidence_pieces": 6,
+    "hypothesis": "The number of daggers began to increase in importance for the first time in the 10th century, as indicated by the highest frequency of dagger importance during this period. This increase is primarily associated with symbolic capital, evidenced by a strong correlation of 0.51 with symbolic elements like house size, compared to negligible correlations with economic and monetary capital.",
+    "hms_100": 20.0,
+    "scores": {
+      "hms_0_1": 0.19999999999999998,
+      "hms_100": 20.0,
+      "context_match": 0.2,
+      "variable_match": 0.3,
+      "relation_correct": 0.1,
+      "reasoning": "The hypothesis attempts to address the historical importance of daggers, which is a relevant context. However, the 10th century is not widely recognized as a period of increased importance for daggers; this typically occurred in earlier centuries, such as during the Bronze Age. The variables mentioned, such as symbolic capital and house size, are not commonly associated with the historical significance of daggers, which were more related to warfare and personal defense. The correlation values provided lack historical evidence and context, making the stated relationship questionable."
+    },
+    "synthesis": {
+      "proposed": 10,
+      "valid": 6,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 13.463867902755737,
+      "errors": [
+        "analyze_dagger_trend: RuntimeError: __import__ not found",
+        "analyze_dagger_regression: RuntimeError: __import__ not found",
+        "analyze_dagger_categorical_breakdown: RuntimeError: 'group'",
+        "analyze_dagger_trend_significance: RuntimeError: __import__ not found"
+      ],
+      "operators": [
+        {
+          "name": "analyze_dagger_correlation",
+          "description": "Calculate correlation between dagger importance and house size.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_dagger_frequency",
+          "description": "Count the frequency of dagger importance per century.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_dagger_vs_monetary",
+          "description": "Compare dagger importance with monetary capitals.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_temporal_pattern",
+          "description": "Analyze temporal pattern of dagger importance over time.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_dagger_group_comparison",
+          "description": "Compare dagger importance across symbolic and economic capitals.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_effect_size",
+          "description": "Determine effect size of dagger importance on overall capital score.",
+          "complexity": 4.0
+        }
+      ]
+    }
+  },
+  "hand_cpi": {
+    "hypothesis": "Hypothesis: The importance of daggers began to increase for the first time during the 3rd century BCE, as indicated by a positive trend in the 'kde_all_detrend' variable associated with daggers, reflecting a shift in symbolic capital within the dataset. This period is characterized by a notable increase in the mean values of 'kde_all_mean' and 'g_all_mean', suggesting a growing significance of daggers in the cultural and social context.",
+    "hms_100": 33.33333333333333,
+    "scores": {
+      "hms_0_1": 0.3333333333333333,
+      "hms_100": 33.33333333333333,
+      "context_match": 0.5,
+      "variable_match": 0.3,
+      "relation_correct": 0.2,
+      "reasoning": "The hypothesis partially matches the context by identifying a historical period (3rd century BCE) where daggers could have gained importance. However, it lacks specific historical evidence or references to support this claim. The variable 'kde_all_detrend' is not a standard historical or archaeological measure, making the variable match weak. The relationship between the variables and the increase in importance of daggers is speculative and not well-supported by historical data, leading to a low score for relation correctness."
+    }
+  },
+  "wall_time_s": 20.654130935668945
+}

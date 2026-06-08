@@ -1,0 +1,98 @@
+{
+  "run_id": "db_zeroshot_arch1_v2",
+  "score_type": "db-zero-shot-vs-hand-cpi",
+  "task_dir": "discoverybench_repo/discoverybench/real/test/archaeology",
+  "metadata_file": "metadata_1.json",
+  "question": "In which century did the number of daggers began to increase in importance for the first time?",
+  "dataset": "pollen_openness_score_Belau_Woserin_Feeser_et_al_2019.csv",
+  "synth_model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "n_proposals": 10,
+  "zero_shot": {
+    "proposed": 10,
+    "valid": 10,
+    "evidence_pieces": 10,
+    "hypothesis": "The number of daggers began to increase in importance for the first time in the 7th century BCE (-700 CE), as indicated by the initial rise in dagger importance during this period. Despite the high correlation with pottery diversity (0.92) and metal importance (0.82), the overall growth rate of dagger importance is negative (-138.07%), suggesting that while daggers became more symbolically significant, their overall prevalence did not consistently increase over time.",
+    "hms_100": 33.33333333333333,
+    "scores": {
+      "hms_0_1": 0.3333333333333333,
+      "hms_100": 33.33333333333333,
+      "context_match": 0.5,
+      "variable_match": 0.3,
+      "relation_correct": 0.2,
+      "reasoning": "The hypothesis partially identifies the relevant context by discussing the historical significance of daggers, but it lacks specificity about the cultural or archaeological context. The variables mentioned, such as pottery diversity and metal importance, are somewhat relevant but not directly linked to the importance of daggers. The relationship described is unclear and contradictory, as it mentions both an increase in importance and a negative growth rate, which undermines the validity of the hypothesis."
+    },
+    "synthesis": {
+      "proposed": 10,
+      "valid": 10,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 35.48211598396301,
+      "errors": [],
+      "operators": [
+        {
+          "name": "analyze_dagger_trend",
+          "description": "Detects the first century where daggers' importance increased.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_correlation_daggers_pottery",
+          "description": "Analyzes correlation between daggers and pottery diversity.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_importance_growth",
+          "description": "Calculates the growth rate of dagger importance over time.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_dagger_frequency",
+          "description": "Counts the frequency of dagger mentions per century.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_dagger_importance_trend",
+          "description": "Analyzes the trend of dagger importance over time.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_importance_vs_metal",
+          "description": "Compares dagger importance with copper and gold.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_dagger_importance_regression",
+          "description": "Performs regression analysis on dagger importance over time.",
+          "complexity": 5.0
+        },
+        {
+          "name": "analyze_dagger_importance_effect_size",
+          "description": "Calculates the effect size of daggers over centuries.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_dagger_importance_temporal_pattern",
+          "description": "Examines temporal patterns in dagger importance.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_dagger_importance_categorical_breakdown",
+          "description": "Breaks down dagger importance by categorical century.",
+          "complexity": 2.0
+        }
+      ]
+    }
+  },
+  "hand_cpi": {
+    "hypothesis": "Hypothesis: The number of daggers began to increase in importance during the transition from the 7th to the 6th century BCE, as evidenced by a notable rise in the 'Belau_PC1' and 'Woserin_PC1' values, which are indicative of symbolic capital shifts, around this period in the dataset.",
+    "hms_100": 16.666666666666664,
+    "scores": {
+      "hms_0_1": 0.16666666666666666,
+      "hms_100": 16.666666666666664,
+      "context_match": 0.5,
+      "variable_match": 0.0,
+      "relation_correct": 0.0,
+      "reasoning": "The hypothesis attempts to address the historical context of the importance of daggers, which is relevant to the question. However, it introduces variables 'Belau_PC1' and 'Woserin_PC1' without providing any established connection to the historical significance of daggers, making the variable match incorrect. Additionally, the relationship between these variables and the increase in importance of daggers is not substantiated or recognized in historical or archaeological literature, leading to an incorrect relation assessment."
+    }
+  },
+  "wall_time_s": 43.26167893409729
+}

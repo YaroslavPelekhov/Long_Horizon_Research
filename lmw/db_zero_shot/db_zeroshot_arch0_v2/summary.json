@@ -1,0 +1,95 @@
+{
+  "run_id": "db_zeroshot_arch0_v2",
+  "score_type": "db-zero-shot-vs-hand-cpi",
+  "task_dir": "discoverybench_repo/discoverybench/real/test/archaeology",
+  "metadata_file": "metadata_0.json",
+  "question": "In which century did the axes become quantitatively most frequent?",
+  "dataset": "time_series_data.csv",
+  "synth_model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "n_proposals": 10,
+  "zero_shot": {
+    "proposed": 10,
+    "valid": 9,
+    "evidence_pieces": 9,
+    "hypothesis": "The axes became quantitatively most frequent in the -40th century, as indicated by the highest frequency of occurrences during this period. Despite a general decreasing trend in axes occurrences over time and a negative growth rate of -2.63%, the -40th century stands out as the peak period for axes, suggesting a significant role in economic capital during this time.",
+    "hms_100": 0.0,
+    "scores": {
+      "hms_0_1": 0.0,
+      "hms_100": 0.0,
+      "context_match": 0.0,
+      "variable_match": 0.0,
+      "relation_correct": 0.0,
+      "reasoning": "The hypothesis is fundamentally flawed as it refers to a '-40th century,' which does not exist in any historical or archaeological context. Additionally, the concept of axes being quantitatively most frequent in such a non-existent time period is nonsensical. The variables and relationships mentioned do not align with any known historical data or trends regarding the use of axes. Therefore, the hypothesis fails on all criteria."
+    },
+    "synthesis": {
+      "proposed": 10,
+      "valid": 9,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 10.519465923309326,
+      "errors": [
+        "analyze_axes_regression_coefficients: RuntimeError: __import__ not found"
+      ],
+      "operators": [
+        {
+          "name": "analyze_century_frequency",
+          "description": "Identify the century with the highest frequency of axes occurrences.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_axes_trend",
+          "description": "Analyze the trend of axes occurrences over time.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_correlation",
+          "description": "Find correlation between axes occurrences and Monument Size.",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_axes_temporal_pattern",
+          "description": "Determine temporal pattern of axes occurrences.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_variance",
+          "description": "Compare axes variance across centuries.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_growth_rate",
+          "description": "Calculate growth rate of axes occurrences over time.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_axes_categorical_breakdown",
+          "description": "Breakdown axes occurrences by cultural capital categories.",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_effect_size",
+          "description": "Calculate effect size of axes on economic capital.",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_axes_group_comparisons",
+          "description": "Compare axes occurrences between different social capital categories.",
+          "complexity": 3.0
+        }
+      ]
+    }
+  },
+  "hand_cpi": {
+    "hypothesis": "Hypothesis: Axes became quantitatively most frequent during the 2nd millennium BCE, as indicated by a peak in the 'kde_all_mean' values for the 'Axes & Celts' category within the Economic Capital domain, suggesting increased production or usage during this period.",
+    "hms_100": 33.33333333333333,
+    "scores": {
+      "hms_0_1": 0.3333333333333333,
+      "hms_100": 33.33333333333333,
+      "context_match": 0.5,
+      "variable_match": 0.3,
+      "relation_correct": 0.2,
+      "reasoning": "The hypothesis partially identifies the relevant context by focusing on the historical frequency of axes, which is related to archaeological and historical studies. However, it does not specify the exact dataset or study from which 'kde_all_mean' values are derived, leading to a partial match. The variable 'kde_all_mean' is mentioned, but without clear definition or source, making the variable match weak. The relationship between 'kde_all_mean' values and the frequency of axes is assumed but not substantiated with evidence or a clear explanation of how these values directly correlate with production or usage, resulting in a low score for relation correctness."
+    }
+  },
+  "wall_time_s": 20.0497829914093
+}
