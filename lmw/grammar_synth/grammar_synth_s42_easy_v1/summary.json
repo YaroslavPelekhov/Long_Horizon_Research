@@ -1,0 +1,330 @@
+{
+  "run_id": "grammar_synth_s42_easy_v1",
+  "score_type": "grammar-synthesis-experiment",
+  "seed": 42,
+  "difficulty": "easy",
+  "n_steps": 5,
+  "n_init_for_synthesis": 2,
+  "synth_model": "openai/gpt-4o-mini",
+  "n_proposals_requested": 16,
+  "synthesized_grammar_rules_exact": 1,
+  "hand_seeded_grammar_rules_exact": 5,
+  "synthesized_grammar_proposed": 15,
+  "synthesized_grammar_valid": 14,
+  "run_A_synthesized": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Interleave characters from main and vice sequences.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "step_based_sequence",
+          "loss_mean": 0.6199999999999999,
+          "exact": false
+        },
+        {
+          "name": "mirror_sequence",
+          "loss_mean": 1.0,
+          "exact": false
+        }
+      ]
+    },
+    "rule_2": {
+      "winner": "step_based_sequence",
+      "description": "Generate a new sequence based on the step number.",
+      "loss_mean": 0.72,
+      "exact_rate": 0.0,
+      "mdl_score": 0.75,
+      "exact": false,
+      "top3": [
+        {
+          "name": "step_based_sequence",
+          "loss_mean": 0.72,
+          "exact": false
+        },
+        {
+          "name": "modular_shift",
+          "loss_mean": 0.74,
+          "exact": false
+        },
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.76,
+          "exact": false
+        }
+      ]
+    },
+    "rule_3": {
+      "winner": "interleave_main_vice",
+      "description": "Interleave characters from main and vice sequences.",
+      "loss_mean": 0.5,
+      "exact_rate": 0.0,
+      "mdl_score": 0.53,
+      "exact": false,
+      "top3": [
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.5,
+          "exact": false
+        },
+        {
+          "name": "step_based_sequence",
+          "loss_mean": 0.5599999999999999,
+          "exact": false
+        },
+        {
+          "name": "lexicographic_reverse",
+          "loss_mean": 0.64,
+          "exact": false
+        }
+      ]
+    },
+    "rule_4": {
+      "winner": "mirror_sequence",
+      "description": "Mirror the current string.",
+      "loss_mean": 0.4,
+      "exact_rate": 0.4,
+      "mdl_score": 0.41000000000000003,
+      "exact": false,
+      "top3": [
+        {
+          "name": "mirror_sequence",
+          "loss_mean": 0.4,
+          "exact": false
+        },
+        {
+          "name": "modular_shift",
+          "loss_mean": 0.4,
+          "exact": false
+        },
+        {
+          "name": "circular_shift",
+          "loss_mean": 0.44000000000000006,
+          "exact": false
+        }
+      ]
+    },
+    "rule_5": {
+      "winner": "duplicate_characters",
+      "description": "Duplicate characters in the current string.",
+      "loss_mean": 0.54,
+      "exact_rate": 0.0,
+      "mdl_score": 0.56,
+      "exact": false,
+      "top3": [
+        {
+          "name": "duplicate_characters",
+          "loss_mean": 0.54,
+          "exact": false
+        },
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.5599999999999999,
+          "exact": false
+        },
+        {
+          "name": "step_based_sequence",
+          "loss_mean": 0.6599999999999999,
+          "exact": false
+        }
+      ]
+    }
+  },
+  "run_B_hand_seeded": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Alternate characters from main and vice: main[i] then vice[i], truncated to ten characters.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_2": {
+      "winner": "add_main_vice",
+      "description": "Add alphabet indices position-wise, A=0, returning chr(A + main[i] + vice[i]).",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_3": {
+      "winner": "poswise_max",
+      "description": "Take the lexicographically larger character at each main/vice position.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_4": {
+      "winner": "poswise_max_rule4",
+      "description": "For each position, take main[i] if main[i] >= vice[i], otherwise take vice[i].",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_5": {
+      "winner": "sort_main_vice",
+      "description": "Combine main and vice, then sort all characters alphabetically.",
+      "loss_mean": 0.0,
+      "exact": true
+    }
+  },
+  "synthesis": {
+    "proposed": 15,
+    "valid": 14,
+    "model": "openai/gpt-4o-mini",
+    "wall_time_s": 16.34697127342224,
+    "errors": [
+      "previous_main_usage: RuntimeError: integer division or modulo by zero"
+    ],
+    "primitives": [
+      {
+        "name": "interleave_main_vice",
+        "description": "Interleave characters from main and vice sequences.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "modular_shift",
+        "description": "Shift characters in current by the position of main's first letter.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "lexicographic_reverse",
+        "description": "Return current as sorted reversed string.",
+        "complexity": 2.0,
+        "causal_anchors": [],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "step_based_sequence",
+        "description": "Generate a new sequence based on the step number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "frequency_based_replacement",
+        "description": "Replace each character based on frequency in current.",
+        "complexity": 4.0,
+        "causal_anchors": [],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "sorting_with_main",
+        "description": "Sort current based on main's character order.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "circular_shift",
+        "description": "Circularly shift current based on the index from main.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "duplicate_characters",
+        "description": "Duplicate characters in the current string.",
+        "complexity": 2.0,
+        "causal_anchors": [],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "replace_with_next_in_main",
+        "description": "Replace each character with the next in main.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "average_character",
+        "description": "Compute average character based on current string.",
+        "complexity": 4.0,
+        "causal_anchors": [],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "mirror_sequence",
+        "description": "Mirror the current string.",
+        "complexity": 1.0,
+        "causal_anchors": [],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "complementary_sequence",
+        "description": "Create complementary sequence based on main and vice.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "symmetric_replacement",
+        "description": "Replace characters symmetrically based on their position.",
+        "complexity": 5.0,
+        "causal_anchors": [],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "character_multiplication",
+        "description": "Multiply character values based on their index position.",
+        "complexity": 5.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      }
+    ]
+  },
+  "collect_time_s": 0.0015742778778076172,
+  "wall_time_s": 16.34854555130005
+}

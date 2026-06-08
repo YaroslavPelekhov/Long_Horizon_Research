@@ -1,0 +1,360 @@
+{
+  "run_id": "grammar_synth_s42_easy_gpt4o_v1",
+  "score_type": "grammar-synthesis-experiment",
+  "seed": 42,
+  "difficulty": "easy",
+  "n_steps": 5,
+  "n_init_for_synthesis": 2,
+  "synth_model": "openai/gpt-4o",
+  "n_proposals_requested": 16,
+  "synthesized_grammar_rules_exact": 3,
+  "hand_seeded_grammar_rules_exact": 5,
+  "synthesized_grammar_proposed": 16,
+  "synthesized_grammar_valid": 15,
+  "run_A_synthesized": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Interleave characters from main and vice sequences.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.02,
+      "exact": true,
+      "top3": [
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "step_based_identity",
+          "loss_mean": 0.5,
+          "exact": false
+        },
+        {
+          "name": "alternating_characters",
+          "loss_mean": 0.5,
+          "exact": false
+        }
+      ]
+    },
+    "rule_2": {
+      "winner": "modular_addition",
+      "description": "Perform modular addition on main and vice.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "modular_addition",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "constant_e",
+          "loss_mean": 0.52,
+          "exact": false
+        },
+        {
+          "name": "vice_selection",
+          "loss_mean": 0.72,
+          "exact": false
+        }
+      ]
+    },
+    "rule_3": {
+      "winner": "step_based_identity",
+      "description": "Return main or vice based on step number.",
+      "loss_mean": 0.4,
+      "exact_rate": 0.0,
+      "mdl_score": 0.42000000000000004,
+      "exact": false,
+      "top3": [
+        {
+          "name": "step_based_identity",
+          "loss_mean": 0.4,
+          "exact": false
+        },
+        {
+          "name": "vice_selection",
+          "loss_mean": 0.4,
+          "exact": false
+        },
+        {
+          "name": "alternating_characters",
+          "loss_mean": 0.48,
+          "exact": false
+        }
+      ]
+    },
+    "rule_4": {
+      "winner": "step_based_identity",
+      "description": "Return main or vice based on step number.",
+      "loss_mean": 0.4,
+      "exact_rate": 0.0,
+      "mdl_score": 0.42000000000000004,
+      "exact": false,
+      "top3": [
+        {
+          "name": "step_based_identity",
+          "loss_mean": 0.4,
+          "exact": false
+        },
+        {
+          "name": "vice_selection",
+          "loss_mean": 0.4,
+          "exact": false
+        },
+        {
+          "name": "alternating_characters",
+          "loss_mean": 0.48,
+          "exact": false
+        }
+      ]
+    },
+    "rule_5": {
+      "winner": "lexicographic_sort",
+      "description": "Return sorted characters from main and vice.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.02,
+      "exact": true,
+      "top3": [
+        {
+          "name": "lexicographic_sort",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "concatenated_sorted",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.5599999999999999,
+          "exact": false
+        }
+      ]
+    }
+  },
+  "run_B_hand_seeded": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Alternate characters from main and vice: main[i] then vice[i], truncated to ten characters.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_2": {
+      "winner": "add_main_vice",
+      "description": "Add alphabet indices position-wise, A=0, returning chr(A + main[i] + vice[i]).",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_3": {
+      "winner": "poswise_max",
+      "description": "Take the lexicographically larger character at each main/vice position.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_4": {
+      "winner": "poswise_max_rule4",
+      "description": "For each position, take main[i] if main[i] >= vice[i], otherwise take vice[i].",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_5": {
+      "winner": "sort_main_vice",
+      "description": "Combine main and vice, then sort all characters alphabetically.",
+      "loss_mean": 0.0,
+      "exact": true
+    }
+  },
+  "synthesis": {
+    "proposed": 16,
+    "valid": 15,
+    "model": "openai/gpt-4o",
+    "wall_time_s": 9.588204145431519,
+    "errors": [
+      "frequency_count: import not allowed"
+    ],
+    "primitives": [
+      {
+        "name": "interleave_main_vice",
+        "description": "Interleave characters from main and vice sequences.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "reverse_concat",
+        "description": "Concatenate main and reversed vice.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "step_based_identity",
+        "description": "Return main or vice based on step number.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "modular_addition",
+        "description": "Perform modular addition on main and vice.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "lexicographic_sort",
+        "description": "Return sorted characters from main and vice.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "use_previous_main",
+        "description": "Return previous_main if it exists, else main.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "previous_main",
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "duplicated_main",
+        "description": "Return main sequence duplicated.",
+        "complexity": 1.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "reverse_main_vice",
+        "description": "Reverse and concatenate main and vice.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "constant_e",
+        "description": "Return constant sequence of 'E's.",
+        "complexity": 1.0,
+        "causal_anchors": [],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "mirror_main",
+        "description": "Mirror the main sequence.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "vice_selection",
+        "description": "Select vice if its first char is greater than main's.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "alternating_characters",
+        "description": "Output characters from main and vice alternately.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "shifted_main",
+        "description": "Shift main characters by index value.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "concatenated_sorted",
+        "description": "Concatenate and sort main and vice.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "main_descending",
+        "description": "Return main characters sorted in descending order.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      }
+    ]
+  },
+  "collect_time_s": 0.0013539791107177734,
+  "wall_time_s": 9.589558124542236
+}

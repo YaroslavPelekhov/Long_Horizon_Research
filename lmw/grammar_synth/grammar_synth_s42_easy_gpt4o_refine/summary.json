@@ -1,0 +1,364 @@
+{
+  "run_id": "grammar_synth_s42_easy_gpt4o_refine",
+  "score_type": "grammar-synthesis-experiment",
+  "seed": 42,
+  "difficulty": "easy",
+  "n_steps": 5,
+  "n_init_for_synthesis": 2,
+  "synth_model": "openai/gpt-4o",
+  "n_proposals_requested": 16,
+  "synthesized_grammar_rules_exact": 5,
+  "hand_seeded_grammar_rules_exact": 5,
+  "synthesized_grammar_proposed": 16,
+  "synthesized_grammar_valid": 15,
+  "run_A_synthesized": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Interleave characters from main and vice",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.02,
+      "exact": true,
+      "top3": [
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "interleave_and_reverse",
+          "loss_mean": 0.44000000000000006,
+          "exact": false
+        },
+        {
+          "name": "max_of_main_vice",
+          "loss_mean": 0.5,
+          "exact": false
+        }
+      ]
+    },
+    "rule_2": {
+      "winner": "sum_mod_arithmetic",
+      "description": "Add positions of main and vice characters mod 26",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "sum_mod_arithmetic",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "max_of_main_vice",
+          "loss_mean": 0.5599999999999999,
+          "exact": false
+        },
+        {
+          "name": "prime_step_logic",
+          "loss_mean": 0.72,
+          "exact": false
+        }
+      ]
+    },
+    "rule_3": {
+      "winner": "max_of_main_vice",
+      "description": "Take the max character at each position from main and vice",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.02,
+      "exact": true,
+      "top3": [
+        {
+          "name": "max_of_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "prime_step_logic",
+          "loss_mean": 0.44000000000000006,
+          "exact": false
+        },
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.5,
+          "exact": false
+        }
+      ]
+    },
+    "rule_4": {
+      "winner": "max_of_main_vice",
+      "description": "Take the max character at each position from main and vice",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.02,
+      "exact": true,
+      "top3": [
+        {
+          "name": "max_of_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "all_A_result",
+          "loss_mean": 0.16,
+          "exact": false
+        },
+        {
+          "name": "reverse_current",
+          "loss_mean": 0.4,
+          "exact": false
+        }
+      ]
+    },
+    "rule_5": {
+      "winner": "sort_main_vice",
+      "description": "Sort combined main and vice characters",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "sort_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "sort_current",
+          "loss_mean": 0.5,
+          "exact": false
+        },
+        {
+          "name": "duplicate_each_character",
+          "loss_mean": 0.54,
+          "exact": false
+        }
+      ]
+    }
+  },
+  "run_B_hand_seeded": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Alternate characters from main and vice: main[i] then vice[i], truncated to ten characters.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_2": {
+      "winner": "add_main_vice",
+      "description": "Add alphabet indices position-wise, A=0, returning chr(A + main[i] + vice[i]).",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_3": {
+      "winner": "poswise_max",
+      "description": "Take the lexicographically larger character at each main/vice position.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_4": {
+      "winner": "poswise_max_rule4",
+      "description": "For each position, take main[i] if main[i] >= vice[i], otherwise take vice[i].",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_5": {
+      "winner": "sort_main_vice",
+      "description": "Combine main and vice, then sort all characters alphabetically.",
+      "loss_mean": 0.0,
+      "exact": true
+    }
+  },
+  "synthesis": {
+    "proposed": 16,
+    "valid": 15,
+    "model": "openai/gpt-4o",
+    "wall_time_s": 11.473842144012451,
+    "errors": [
+      "step_based_branching_odd_even: RuntimeError: name 'reversed' is not defined"
+    ],
+    "primitives": [
+      {
+        "name": "interleave_main_vice",
+        "description": "Interleave characters from main and vice",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "max_of_main_vice",
+        "description": "Take the max character at each position from main and vice",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "sum_mod_arithmetic",
+        "description": "Add positions of main and vice characters mod 26",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "sort_main_vice",
+        "description": "Sort combined main and vice characters",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "use_previous_main",
+        "description": "Combine previous_main with current",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "previous_main",
+          "current"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "reverse_current",
+        "description": "Reverse the current string",
+        "complexity": 1.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "shift_current_characters",
+        "description": "Shift each character in current by step number positions",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "frequency_based_replacement",
+        "description": "Replace most frequent character in current with 'A'",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "interleave_and_reverse",
+        "description": "Interleave main and vice, then reverse the result",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "subtract_mod_arithmetic",
+        "description": "Subtract vice positions from main positions mod 26",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "min_of_main_vice",
+        "description": "Take the min character at each position from main and vice",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "sort_current",
+        "description": "Sort the characters in the current sequence",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "prime_step_logic",
+        "description": "Different operation if step_number is prime",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "step_number",
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "all_A_result",
+        "description": "Replace entire string with 'A's if certain condition",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "duplicate_each_character",
+        "description": "Duplicate each character in the current sequence",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "current"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      }
+    ]
+  },
+  "refinement_pass": true,
+  "refinement": null,
+  "collect_time_s": 0.0019288063049316406,
+  "wall_time_s": 11.475770950317383
+}

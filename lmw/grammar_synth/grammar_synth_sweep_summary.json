@@ -1,0 +1,162 @@
+{
+  "score_type": "grammar-synthesis-sweep",
+  "benchmark": "UltraHorizon-Seq",
+  "claim": "Automated grammar synthesis from observable interface + 2 observations achieves same CPI accuracy as hand-seeded grammar on easy difficulty",
+  "n_runs": 12,
+  "results": [
+    {
+      "run_id": "grammar_synth_easy_mini_s1",
+      "seed": 1,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o-mini",
+      "n_init": 2,
+      "proposed": 15,
+      "valid": 12,
+      "synthesized_exact": 5,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 15.002376317977905
+    },
+    {
+      "run_id": "grammar_synth_easy_mini_s2",
+      "seed": 2,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o-mini",
+      "n_init": 2,
+      "proposed": 15,
+      "valid": 15,
+      "synthesized_exact": 5,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 18.77650785446167
+    },
+    {
+      "run_id": "grammar_synth_easy_mini_s3",
+      "seed": 3,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o-mini",
+      "n_init": 2,
+      "proposed": 15,
+      "valid": 15,
+      "synthesized_exact": 5,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 14.32118010520935
+    },
+    {
+      "run_id": "grammar_synth_easy_mini_s4",
+      "seed": 4,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o-mini",
+      "n_init": 2,
+      "proposed": 15,
+      "valid": 14,
+      "synthesized_exact": 5,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 13.655993700027466
+    },
+    {
+      "run_id": "grammar_synth_easy_mini_s5",
+      "seed": 5,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o-mini",
+      "n_init": 2,
+      "proposed": 15,
+      "valid": 15,
+      "synthesized_exact": 5,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 13.991960048675537
+    },
+    {
+      "run_id": "grammar_synth_s42_easy_gpt4o_3obs",
+      "seed": 42,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o",
+      "n_init": 3,
+      "proposed": 18,
+      "valid": 17,
+      "synthesized_exact": 3,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 11.327971696853638
+    },
+    {
+      "run_id": "grammar_synth_s42_easy_gpt4o_refine",
+      "seed": 42,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o",
+      "n_init": 2,
+      "proposed": 16,
+      "valid": 15,
+      "synthesized_exact": 5,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 11.475770950317383
+    },
+    {
+      "run_id": "grammar_synth_s42_easy_gpt4o_v1",
+      "seed": 42,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o",
+      "n_init": 2,
+      "proposed": 16,
+      "valid": 15,
+      "synthesized_exact": 3,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 9.589558124542236
+    },
+    {
+      "run_id": "grammar_synth_s42_easy_mini_v2",
+      "seed": 42,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o-mini",
+      "n_init": 2,
+      "proposed": 16,
+      "valid": 14,
+      "synthesized_exact": 5,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 15.857194900512695
+    },
+    {
+      "run_id": "grammar_synth_s42_easy_v1",
+      "seed": 42,
+      "difficulty": "easy",
+      "synth_model": "openai/gpt-4o-mini",
+      "n_init": 2,
+      "proposed": 15,
+      "valid": 14,
+      "synthesized_exact": 1,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 16.34854555130005
+    },
+    {
+      "run_id": "grammar_synth_s42_hard_gpt4o",
+      "seed": 42,
+      "difficulty": "hard",
+      "synth_model": "openai/gpt-4o",
+      "n_init": 2,
+      "proposed": 21,
+      "valid": 19,
+      "synthesized_exact": 0,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 27.923036575317383
+    },
+    {
+      "run_id": "grammar_synth_s42_hard_gpt4o_4obs",
+      "seed": 42,
+      "difficulty": "hard",
+      "synth_model": "openai/gpt-4o",
+      "n_init": 4,
+      "proposed": 20,
+      "valid": 19,
+      "synthesized_exact": 0,
+      "hand_seeded_exact": 5,
+      "wall_time_s": 26.579542875289917
+    }
+  ],
+  "easy_summary": {
+    "n": 10,
+    "mean_synthesized_exact": 4.2,
+    "mean_hand_exact": 5.0,
+    "all_5_of_5": false
+  },
+  "hard_summary": {
+    "n": 2,
+    "mean_synthesized_exact": 0.0
+  }
+}

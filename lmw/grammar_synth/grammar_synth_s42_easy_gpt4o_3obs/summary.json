@@ -1,0 +1,383 @@
+{
+  "run_id": "grammar_synth_s42_easy_gpt4o_3obs",
+  "score_type": "grammar-synthesis-experiment",
+  "seed": 42,
+  "difficulty": "easy",
+  "n_steps": 5,
+  "n_init_for_synthesis": 3,
+  "synth_model": "openai/gpt-4o",
+  "n_proposals_requested": 18,
+  "synthesized_grammar_rules_exact": 3,
+  "hand_seeded_grammar_rules_exact": 5,
+  "synthesized_grammar_proposed": 18,
+  "synthesized_grammar_valid": 17,
+  "run_A_synthesized": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Interleave 'main' and 'vice' sequences.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.02,
+      "exact": true,
+      "top3": [
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "interleave_reverse_main_vice",
+          "loss_mean": 0.4,
+          "exact": false
+        },
+        {
+          "name": "double_alternate_chars",
+          "loss_mean": 0.42000000000000004,
+          "exact": false
+        }
+      ]
+    },
+    "rule_2": {
+      "winner": "sum_char_positions",
+      "description": "Sum positions of corresponding characters in 'main' and 'vice'.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.04,
+      "exact": true,
+      "top3": [
+        {
+          "name": "sum_char_positions",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "max_char_main",
+          "loss_mean": 0.52,
+          "exact": false
+        },
+        {
+          "name": "step_modulo_pattern",
+          "loss_mean": 0.66,
+          "exact": false
+        }
+      ]
+    },
+    "rule_3": {
+      "winner": "alternating_main_vice",
+      "description": "Alternate characters from 'main' and 'vice'.",
+      "loss_mean": 0.48,
+      "exact_rate": 0.0,
+      "mdl_score": 0.51,
+      "exact": false,
+      "top3": [
+        {
+          "name": "alternating_main_vice",
+          "loss_mean": 0.48,
+          "exact": false
+        },
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.5,
+          "exact": false
+        },
+        {
+          "name": "sum_char_positions",
+          "loss_mean": 0.5599999999999999,
+          "exact": false
+        }
+      ]
+    },
+    "rule_4": {
+      "winner": "alternating_main_vice",
+      "description": "Alternate characters from 'main' and 'vice'.",
+      "loss_mean": 0.48,
+      "exact_rate": 0.0,
+      "mdl_score": 0.51,
+      "exact": false,
+      "top3": [
+        {
+          "name": "alternating_main_vice",
+          "loss_mean": 0.48,
+          "exact": false
+        },
+        {
+          "name": "interleave_main_vice",
+          "loss_mean": 0.5,
+          "exact": false
+        },
+        {
+          "name": "sum_char_positions",
+          "loss_mean": 0.5599999999999999,
+          "exact": false
+        }
+      ]
+    },
+    "rule_5": {
+      "winner": "sorted_main_vice",
+      "description": "Concatenate and sort 'main' and 'vice'.",
+      "loss_mean": 0.0,
+      "exact_rate": 1.0,
+      "mdl_score": 0.03,
+      "exact": true,
+      "top3": [
+        {
+          "name": "sorted_main_vice",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "concat_main_vice_sorted",
+          "loss_mean": 0.0,
+          "exact": true
+        },
+        {
+          "name": "double_alternate_chars",
+          "loss_mean": 0.44000000000000006,
+          "exact": false
+        }
+      ]
+    }
+  },
+  "run_B_hand_seeded": {
+    "rule_1": {
+      "winner": "interleave_main_vice",
+      "description": "Alternate characters from main and vice: main[i] then vice[i], truncated to ten characters.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_2": {
+      "winner": "add_main_vice",
+      "description": "Add alphabet indices position-wise, A=0, returning chr(A + main[i] + vice[i]).",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_3": {
+      "winner": "poswise_max",
+      "description": "Take the lexicographically larger character at each main/vice position.",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_4": {
+      "winner": "poswise_max_rule4",
+      "description": "For each position, take main[i] if main[i] >= vice[i], otherwise take vice[i].",
+      "loss_mean": 0.0,
+      "exact": true
+    },
+    "rule_5": {
+      "winner": "sort_main_vice",
+      "description": "Combine main and vice, then sort all characters alphabetically.",
+      "loss_mean": 0.0,
+      "exact": true
+    }
+  },
+  "synthesis": {
+    "proposed": 18,
+    "valid": 17,
+    "model": "openai/gpt-4o",
+    "wall_time_s": 11.326859712600708,
+    "errors": [
+      "count_char_frequency: import not allowed"
+    ],
+    "primitives": [
+      {
+        "name": "interleave_main_vice",
+        "description": "Interleave 'main' and 'vice' sequences.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "repeat_main_vice",
+        "description": "Repeat 'main' and 'vice' together twice.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "sorted_main_vice",
+        "description": "Concatenate and sort 'main' and 'vice'.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "step_modulo_pattern",
+        "description": "Use step number to select from a repeating pattern.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "step_number"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "interleave_reverse_main_vice",
+        "description": "Interleave 'main' and reversed 'vice'.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "max_char_main",
+        "description": "Repeat maximum character from 'main'.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "reverse_previous_main",
+        "description": "Reverse the 'previous_main' sequence.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "previous_main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "double_alternate_chars",
+        "description": "Double each alternate character from 'main'.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "alphabet_modulo_shift",
+        "description": "Shift each character in 'main' by its position modulo 26.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "alternating_main_vice",
+        "description": "Alternate characters from 'main' and 'vice'.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "sum_char_positions",
+        "description": "Sum positions of corresponding characters in 'main' and 'vice'.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "reverse_main",
+        "description": "Reverse the 'main' sequence.",
+        "complexity": 2.0,
+        "causal_anchors": [
+          "main"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "increment_chars_vice",
+        "description": "Increment each character in 'vice' by 1.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "concat_main_vice_sorted",
+        "description": "Concatenate 'main' and 'vice', then sort.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "replicate_main_step",
+        "description": "Replicate 'main' step_number times.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "vice_main_interleave_double",
+        "description": "Interleave 'vice' and 'main', then double.",
+        "complexity": 4.0,
+        "causal_anchors": [
+          "main",
+          "vice"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      },
+      {
+        "name": "circular_shift_main",
+        "description": "Circularly shift 'main' by step_number.",
+        "complexity": 3.0,
+        "causal_anchors": [
+          "main",
+          "step_number"
+        ],
+        "tags": [
+          "synthesized"
+        ]
+      }
+    ]
+  },
+  "collect_time_s": 0.0011119842529296875,
+  "wall_time_s": 11.327971696853638
+}

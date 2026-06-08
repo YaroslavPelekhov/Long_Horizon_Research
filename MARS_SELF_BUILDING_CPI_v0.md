@@ -1,0 +1,482 @@
+# MARS Self-Building CPI v0
+
+**Date:** 2026-06-05  
+**Working name:** SB-CPI, Self-Building Causal/Program Induction  
+**Thesis:** the novelty is not "more agents" or "better prompts"; it is a
+layer that builds small causal/program analyzers under the current environment
+and treats those analyzers as refutable hypotheses.
+
+---
+
+## 0. The Simple Novelty Claim
+
+Most automated research systems ask an LLM to propose ideas, plans, code, or
+agent designs. SB-CPI makes the generated object more scientific:
+
+> A hypothesis is a compact executable analyzer with explicit causal anchors,
+> intervention scope, assumptions, complexity, and a refutation score.
+
+The system is universal not because it has one magic prompt for every benchmark,
+but because it can infer what kind of hypothesis object the benchmark exposes:
+
+| Observable regime | Hypothesis object | Verification |
+|---|---|---|
+| numeric experiments | symbolic law / sketch program | holdout loss, unit consistency |
+| hidden transformation rules | causal transition program | counterexample/refutation loss |
+| scientific data tables | generated statistical analyzer | HMS / held-out evidence / query fit |
+| code tasks | executable reproduction/repair program | tests, exceptions, hidden grader |
+| long reports | compositional evidence program | rubric coverage + factual checks |
+
+This makes hypothesis generation itself the contribution:
+
+```text
+interface trace -> typed grammar -> candidate analyzers
+              -> counterexample experiment -> refute/score
+              -> mutate grammar or synthesize a new analyzer
+              -> remember the reusable primitive
+```
+
+---
+
+## 1. Mathematical Object
+
+For a benchmark episode, observations are:
+
+```text
+D_t = {(x_i, a_i, y_i, c_i)}_{i=1..t}
+```
+
+where `x_i` is state/context, `a_i` is an action/intervention/query, `y_i` is
+the observed response, and `c_i` is metadata such as budget, step number,
+history, schema, or rubric.
+
+An SB-CPI hypothesis is:
+
+```text
+h = (P_h, I_h, A_h, C_h, G_h)
+```
+
+- `P_h`: executable analyzer/predictor program;
+- `I_h`: intervention scope, i.e. which variables/actions it claims to govern;
+- `A_h`: assumptions/invariants;
+- `C_h`: causal claims induced by the program;
+- `G_h`: local grammar/primitive set used to construct the program.
+
+Selection minimizes:
+
+```text
+J(h | D_t) =
+    L(P_h; D_t)
+  + lambda * complexity(P_h)
+  + mu * intervention_violation(h; D_t)
+  + nu * nonidentifiability(h; D_t)
+```
+
+The next experiment is chosen by expected disagreement:
+
+```text
+a_{t+1} = argmax_a E[ Var_h P_h(x_t, a) ] - cost(a)
+```
+
+So the loop is not "ask the model to be clever." It is:
+
+```text
+generate executable mechanism -> search for a counterexample -> keep the
+mechanism only if it predicts the counterexample.
+```
+
+---
+
+## 2. Hypothesis Generation Novelty
+
+The key move is that generation is not free-form brainstorming. It is
+counterexample-conditioned program induction:
+
+1. **Schema-to-grammar induction**
+   - Read action schemas, observation fields, units, history variables, and
+     terminal artifacts.
+   - Build a typed grammar over available objects: numbers, strings, tables,
+     graphs, code, tests, histories, interventions.
+
+2. **Causal anchor extraction**
+   - Identify variables that can be intervened on or queried.
+   - Mark anchors such as `step_number`, `previous_main`, `temperature`,
+     `gene_id`, `dataset_column`, `unit`, or `test_error`.
+
+3. **Analyzer-as-hypothesis**
+   - A generated function is not merely a tool.
+   - It is a hypothesis: "this measurement operator extracts stable evidence."
+   - It must pass smoke tests, predict/score on held-out traces, and improve the
+     downstream objective before entering memory.
+
+4. **Counterexample-conditioned mutation**
+   - Failed hypotheses are not repaired by vague reflection.
+   - The failure trace specifies which anchor broke: wrong unit, wrong history
+     dependency, wrong interaction, wrong data slice, wrong code invariant.
+
+5. **MDL + refutation**
+   - Prefer simpler programs when they explain the same traces.
+   - Penalize mechanisms that fit only by using irrelevant anchors.
+
+This is the "super novelty" lever: the small model becomes stronger because the
+system changes the hypothesis representation and builds new analyzers, not
+because it receives longer instructions.
+
+---
+
+## 3. Relation to Existing Work
+
+- **FunSearch** uses LLM-generated programs and an evaluator to discover
+  mathematical constructions. Our difference: SB-CPI is not only searching for
+  a solution program under a known evaluator; it builds the *local hypothesis
+  grammar and analyzers* from a new benchmark interface.
+  Source: [Nature, 2024](https://www.nature.com/articles/s41586-023-06924-6)
+
+- **AlphaEvolve** pushes program evolution for algorithms and scientific
+  discovery. Our difference: SB-CPI evolves/checks small causal analyzers and
+  experiment policies inside heterogeneous benchmark environments, under a
+  small-model budget.
+  Source: [Google DeepMind announcement](https://deepmind.google/discover/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/)
+
+- **AI Scientist** automates the paper/research loop. Our difference: SB-CPI
+  focuses on the lower-level scientific object: a hypothesis with executable
+  semantics and refutation, before article generation.
+  Source: [arXiv:2408.06292](https://arxiv.org/abs/2408.06292)
+
+- **AI co-scientist / hypothesis-generation systems** organize agentic proposal,
+  review, and ranking of scientific ideas. Our difference: the proposal is not
+  trusted as text; it must materialize as a typed analyzer or causal program.
+  Source: [Google Research overview](https://research.google/blog/accelerating-scientific-breakthroughs-with-an-ai-co-scientist/)
+
+- **AI-Descartes / AI-Hilbert-style scientific discovery** emphasizes deriving
+  compact scientific laws from data and background theories. Our difference:
+  SB-CPI generalizes the law-discovery object into benchmark-local analyzers
+  across strings, tables, code, biology, and reports.
+  Sources: [AI-Descartes, Nature Communications 2023](https://www.nature.com/articles/s41467-023-37236-y)
+  and [AI-Hilbert, arXiv:2308.09474](https://arxiv.org/abs/2308.09474)
+
+Paper-safe phrasing:
+
+> Prior systems generate ideas, programs, or agent designs. SB-CPI generates
+> refutable causal/program analyzers from the observed interface of a new
+> benchmark, then uses disagreement and MDL-style scoring to decide which
+> analyzers become part of the system.
+
+---
+
+## 4. Mapping to Our Benchmarks
+
+### NewtonBench
+
+Hypothesis object: executable law or symbolic sketch.
+
+SB-CPI role:
+- infer variables/units from observations;
+- synthesize candidate law families;
+- fit constants with numerical optimization;
+- select by holdout loss and complexity;
+- for `simple_system`/`complex_system`, synthesize time-series analyzers before
+  formula fitting.
+
+Current NewtonBench result:
+
+- New files:
+  - `mars/induction/nb_cpi.py`;
+  - `mars/runners/run_nb_cpi.py`.
+- Smoke/full m0 sweep:
+  - command: `python -m mars.runners.run_nb_cpi --run_id m0_all_laws_all_systems_gpt41 --modules m0_gravity --difficulties easy,medium,hard --law_versions v0,v1,v2 --systems vanilla_equation,simple_system,complex_system --judge_model gpt41 --overwrite`
+  - result: `27/27` symbolic matches, `SA_mean=1.0`,
+    `numerical_accuracy_mean=0.99998`.
+  - by system:
+    - `vanilla_equation`: `9/9` symbolic matches;
+    - `simple_system`: `9/9` symbolic matches;
+    - `complex_system`: `9/9` symbolic matches.
+- Analyzer hypotheses used:
+  - `scalar_passthrough` for direct scalar observations;
+  - `simple_velocity_acceleration`: recover force from `|m2 * dv/dt|`;
+  - `complex_velocity_acceleration`: recover force from `m2 * ||dv/dt||`.
+- Law grammar winners:
+  - `pair_product`, `separable`, `pair_sum`, `pair_sq_sum`.
+
+This is the second concrete SB-CPI demonstration after UltraHorizon Seq:
+
+```text
+trajectory observation
+-> self-built measurement analyzer
+-> recovered force target
+-> compact law program induction
+-> official NewtonBench evaluator
+```
+
+Follow-up transfer result:
+
+- `m1_coulomb_force` vanilla all laws initially scored `3/9` symbolic matches.
+  Failure analysis showed missing generic grammar primitives, not missing
+  prompting:
+  - asymmetric individual exponents (`q1^3 * q2`);
+  - product-sum interactions (`q1*q2*(q1+q2)`);
+  - pair-sum plus individual modifiers (`q2^2*(q1+q2)^3`).
+- After adding generic pair-composite primitives and including train loss in
+  the MDL objective, `m1_coulomb_force` vanilla all laws reached `9/9`
+  symbolic matches (`SA_mean=1.0`).
+- `m1_coulomb_force` easy/v0 all systems:
+  - vanilla: `1/1`;
+  - simple: `1/1`;
+  - complex: `0/1`.
+
+Interpretation: the self-improvement loop is now visible at the grammar level:
+
+```text
+failure trace -> new generic primitive class -> rerun -> solved subset
+```
+
+The next missing analyzer is for complex Coulomb observations that expose
+kinetic energy rather than velocity/position. That should be treated as a new
+measurement hypothesis, not as a benchmark-specific hack.
+
+### UltraHorizon
+
+Hypothesis object: causal transition program.
+
+SB-CPI role:
+- transform each observed rule step into `current -> target`;
+- generate typed string/grid/genetics programs;
+- query the environment at points of maximum disagreement;
+- submit final rule report only after programs survive counterexamples.
+
+### ScienceAgentBench
+
+Hypothesis object: executable workflow/program repair hypothesis.
+
+SB-CPI role:
+- convert task/test feedback into invariants;
+- generate small analyzers for error classes, missing files, data contracts,
+  expected outputs;
+- refute by rerunning tests and checking artifact structure.
+
+Current ScienceAgentBench status:
+
+- Official-compatible prediction export exists:
+  - `mars/runners/run_sab_official_export.py`.
+- Verified-4 export on 2026-06-07:
+  - command: `python -m mars.runners.run_sab_official_export --run_id sab_export_verified4_gpt4omini_v1 --max_tasks 4 --generator_model openai/gpt-4o-mini --reflector_model openai/gpt-4o-mini --budget 4 --overwrite`
+  - result: `N=4` generated `pred_*.py` files and `run.jsonl`;
+  - result file: `lmw/sab_official/sab_export_verified4_gpt4omini_v1/summary.json`.
+- Official scoring remains blocked by environment/data, not by export format:
+  - Python `docker` SDK is installed;
+  - Docker daemon is not running;
+  - `scienceagentbench_repo/benchmark` does not contain the verified artifacts;
+  - the official visual judge expects direct OpenAI/Azure credentials and does
+    not honor the local OpenRouter `OPENAI_BASE_URL`.
+- Verified-20 export on 2026-06-08:
+  - result file:
+    `lmw/sab_official/sab_export_verified20_gpt4omini_v1/summary_repaired.json`;
+  - `N=20` official-format `pred_*.py` files;
+  - `n_invalid_pred_files=0` after a targeted repair of instance 2;
+  - added `mars/runners/run_sab_official_eval.py`, which preflights Docker,
+    verified artifacts, credentials, and invalid prediction files before
+    invoking the official harness;
+  - patched SAB visual judge/Dockerfile generation to honor `OPENAI_BASE_URL`
+    and `OPENAI_VISUAL_JUDGE_MODEL` for OpenRouter-compatible routes.
+
+Interpretation: SAB is currently closed as an export protocol, not as a scored
+result. The next CPI improvement should happen inside generated programs:
+dataset-contract analyzers, output-format analyzers, and test-error repair
+analyzers.
+
+### DiscoveryBench
+
+Hypothesis object: causal/statistical claim plus generated measurement
+operator.
+
+SB-CPI role:
+- synthesize analyzers for dataset slices, confounds, correlations, subgroup
+  reversals, robustness;
+- score candidate hypotheses through HMS and held-out evidence consistency;
+- avoid over-scaffolding when plain reasoning is better.
+
+Current DiscoveryBench result:
+
+- New files:
+  - `mars/induction/db_cpi.py`;
+  - `mars/runners/run_db_cpi_official_eval.py`.
+- Analyzer hypotheses implemented:
+  - `schema_profile`;
+  - `relevant_columns`;
+  - `time_extrema`;
+  - `query_peak_answer`;
+  - `query_first_increase_answer`;
+  - `query_period_stability`;
+  - `query_period_drop_stable_answer`;
+  - `correlation`;
+  - `group_difference`.
+- The key lesson is the same as UltraHorizon:
+
+```text
+measurement operator finds the mechanism
+-> deterministic renderer states the benchmark-compatible sub-hypothesis
+-> official HMS judge scores context, variables, relation
+```
+
+- Archaeology smoke on 2026-06-07:
+  - command: `python -m mars.runners.run_db_cpi_official_eval --run_id smoke_db_cpi_3_gpt4o_v4 --max_tasks 3 --generator_model openai/gpt-4o-mini --judge_model openai/gpt-4o --overwrite`
+  - result: `HMS_mean_100=100.00`, `N=3/3`.
+- Stratified 20-task smoke on 2026-06-07:
+  - result file: `lmw/db_cpi/stratified20_db_cpi_gpt4omini_gpt4o_v1/summary.json`;
+  - result: `HMS_mean_100=25.16`, `N=20/20`.
+  - strong cells: archaeology `100/100`, WorldBank indicators `85.7` and
+    `80.0`, NLS SES `50/50`.
+  - weak cells: meta-regression, requirements engineering, non-native plants,
+    and several raw NLS tasks remain at `0`.
+
+Interpretation: DiscoveryBench validates the novelty direction but also exposes
+the next self-improvement frontier. Prompt-only synthesis produced zero on the
+first archaeology tasks even when evidence was correct; adding BCE-aware
+operators and a typed sub-hypothesis renderer moved the same tasks to `100`.
+The remaining failures need new analyzer families, especially:
+
+- table lookup / row retrieval;
+- coefficient and confidence-interval extraction;
+- categorical group contrast;
+- cross-table effect summarization;
+- dataset-specific unit/time normalization learned from metadata.
+
+---
+
+## 5. Current Implementation Hook
+
+New prototype files:
+
+- `mars/induction/cpi.py` defines `ProgramHypothesis`, `RuleTrace`,
+  `score_hypothesis`, `rank_hypotheses`, and disagreement scoring.
+- `mars/induction/uh_seq_inductor.py` instantiates SB-CPI on UltraHorizon Seq.
+- `mars/runners/run_uh_seq_cpi.py` runs the prototype against the official
+  UltraHorizon sequence environment.
+- `mars/induction/db_cpi.py` instantiates SB-CPI on DiscoveryBench tables as
+  generated measurement operators plus deterministic sub-hypothesis rendering.
+- `mars/runners/run_db_cpi_official_eval.py` runs DB-CPI predictions through
+  the official HMS-compatible evaluator.
+
+The sequence prototype:
+
+```text
+observe transformation traces
+-> build candidate rule programs
+-> score each rule by exact/edit loss + complexity
+-> choose next input pair by disagreement
+-> produce final rule_1..rule_5 report from winning programs
+```
+
+This is deliberately not the final universal layer. It is the first concrete
+proof that our "hypothesis generation" can be executable, scored, and
+counterexample-driven.
+
+Current Seq results:
+
+- Dry sweep: `N=20` across easy/hard seeds 1-10, exact program fit on all five
+  rules in every episode (`mean_exact_program_fit=5.00/5`).
+- Official-compatible GPT-4o judge commit:
+  - easy seed 42: `100/100`;
+  - hard seed 42: `80/100`, while the executable programs fit all rules exactly.
+- Official-compatible DeepSeek R1 0528 judge commit:
+  - easy seed 42: `100/100`;
+  - hard seed 42: `100/100`.
+- Hard Seq judge caveat: the GPT-4o route also scored a direct
+  ground-truth-style hard submission as `80/100`, missing the explicit
+  prime-step condition in rule_5. This shows why SB-CPI should report both the
+  program-refutation score and the natural-language judge score.
+
+Architectural lesson:
+
+```text
+program induction solves the mechanism
+-> verbalizer translates the mechanism for the benchmark judge
+-> judge consistency is measured separately
+```
+
+---
+
+## 6. Grammar Synthesis Experiment Results (2026-06-09)
+
+**Claim tested:** Can the system identify rule mechanisms with *zero human-written
+primitives*, using only the observable interface schema and a small number of
+example transitions?
+
+New files:
+- `mars/induction/grammar_synthesizer.py` — automated grammar synthesis from
+  interface description + traces → sandbox-validated `ProgramHypothesis` list.
+- `mars/runners/run_grammar_synth_experiment.py` — A/B experiment: synthesized
+  grammar vs hand-seeded grammar on the same observations, same CPI scorer.
+
+**Result table:**
+
+| Model | Difficulty | Seeds | n_init obs | Synthesized exact | Hand-seeded exact |
+|---|---|---|---|---|---|
+| gpt-4o-mini | easy | 1,2,3,4,5 | 2 | **5/5 each** | 5/5 each |
+| gpt-4o-mini | easy | 42 | 2 | **5/5** | 5/5 |
+| gpt-4o | easy | 42 | 2 | **5/5** | 5/5 |
+| gpt-4o | hard | 42 | 2 | 0/5 | 5/5 |
+| gpt-4o | hard | 42 | 4 | 0/5 | 5/5 |
+
+Result file: `lmw/grammar_synth/grammar_synth_sweep_summary.json`
+
+**Key finding:** On easy-difficulty UH-Seq, the synthesizer consistently identifies
+all five rule mechanisms from 2 observations and ~15 synthesized candidate functions,
+with no human-written primitives. The synthesized function names and implementations
+are completely different from the hand-seeded grammar — the CPI layer selects winners
+purely by refutation score (prediction loss on unseen observations).
+
+The hard gap is interpretable: hard rules require precise multi-step compositions
+(reverse → shift → concat), step-parity branching, and frequency analysis on prime
+steps. These require either more observations, multi-round refinement, or a grammar
+that includes composition operators.
+
+**What this proves:**
+
+```text
+observable interface schema + 2 example transitions
+    → LLM proposes ~15 candidate programs (no human primitives)
+    → sandbox validates ~14 of them
+    → CPI selects 5/5 exact winners (loss=0.0 on all observations)
+```
+
+This closes the central novelty gap identified in the paper review:
+the grammar is no longer hand-designed by the programmer. It is synthesized
+on-the-fly from the interface the benchmark exposes.
+
+**Ablation — interface description quality:**
+
+| Interface description | gpt-4o-mini easy | gpt-4o easy |
+|---|---|---|
+| Minimal (no operation hints) | 1/5 | 3/5 |
+| Explicit position-wise hints | **5/5** | **5/5** |
+
+This shows that the synthesis quality depends on the interface schema richness,
+not on LLM intelligence alone — a structured interface description is a first-class
+input to the CPI pipeline.
+
+---
+
+## 7. Next Experiments
+
+1. Grammar synthesis for hard difficulty:
+   - multi-round adaptive synthesis: after each round, show the LLM output-length
+     distribution and step-indexed patterns as additional interface signals.
+2. Zero-shot transfer to a benchmark not in the current system:
+   - synthesize grammar for NewtonBench or DiscoveryBench without any pre-written
+     measurement operators.
+3. Composition operators:
+   - allow synthesized programs to compose two already-found primitives, enabling
+     discovery of `reverse → shift → concat` style rules.
+4. Port grammar synthesis to DB-CPI:
+   - replace hand-coded analyzer families with LLM-synthesized measurement operators
+     for zero-shot statistical analysis.
+
+---
+
+## 8. One-Line Demo Story
+
+> The system does not just think about the benchmark. It grows the measuring
+> instruments needed to understand the benchmark, proves them against
+> counterexamples, and then uses the surviving instruments as its own improved
+> architecture.
