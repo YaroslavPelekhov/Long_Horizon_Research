@@ -1,0 +1,157 @@
+{
+  "run_id": "db_qd_arch0_v1",
+  "score_type": "db-zero-shot-vs-hand-cpi",
+  "task_dir": "discoverybench_repo/discoverybench/real/test/archaeology",
+  "metadata_file": "metadata_0.json",
+  "question": "In which century did the axes become quantitatively most frequent?",
+  "dataset": "time_series_data.csv",
+  "synth_model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "n_proposals": 8,
+  "interface_type": "semantic_reasoning",
+  "qd_cpi": {
+    "n_steps": 6,
+    "n_verified": 5,
+    "final_answer": "The axes became quantitatively most frequent in the century with the highest mean KDE value.",
+    "hms_100": 33.33333333333333,
+    "scores": {
+      "hms_0_1": 0.3333333333333333,
+      "hms_100": 33.33333333333333,
+      "context_match": 0.5,
+      "variable_match": 0.3,
+      "relation_correct": 0.2,
+      "reasoning": "The hypothesis attempts to address the frequency of axes, which is relevant to historical or archaeological studies. However, it introduces 'KDE value' without clear context or explanation, which may not be directly related to the frequency of axes. The relationship between axes frequency and KDE value is not clearly established or justified, leading to low scores in variable_match and relation_correct."
+    },
+    "chain": {
+      "steps": [
+        {
+          "step_id": 1,
+          "step_type": "identify_variable",
+          "description": "Identify the variable related to axes in the dataset.",
+          "result": "Axes are part of the Economic Capital, but the dataset does not explicitly list axes. We need to analyze 'kde_all_mean' as a proxy for overall data trends.",
+          "error": null,
+          "verified": true
+        },
+        {
+          "step_id": 2,
+          "step_type": "define_metric",
+          "description": "Define a metric to determine the frequency of axes over time.",
+          "result": "Use 'kde_all_mean' as a proxy to analyze trends in the data, assuming it reflects the frequency of axes.",
+          "error": null,
+          "verified": true
+        },
+        {
+          "step_id": 3,
+          "step_type": "write_code",
+          "description": "Calculate the century for each year in the dataset.",
+          "result": null,
+          "error": null,
+          "verified": true
+        },
+        {
+          "step_id": 4,
+          "step_type": "write_code",
+          "description": "Aggregate the mean KDE values by century to determine the frequency of axes.",
+          "result": null,
+          "error": null,
+          "verified": true
+        },
+        {
+          "step_id": 5,
+          "step_type": "write_code",
+          "description": "Identify the century with the highest mean KDE value.",
+          "result": null,
+          "error": "__import__ not found",
+          "verified": false
+        },
+        {
+          "step_id": 6,
+          "step_type": "interpret",
+          "description": "Interpret the result to determine the century when axes were most frequent.",
+          "result": "The century with the highest mean KDE value indicates when axes were quantitatively most frequent.",
+          "error": null,
+          "verified": true
+        }
+      ],
+      "final_answer": "The axes became quantitatively most frequent in the century with the highest mean KDE value.",
+      "evidence": "The analysis used 'kde_all_mean' as a proxy to determine the frequency of axes, identifying the century with the highest value as the period of greatest frequency.",
+      "confidence": 0.8,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 8.833648920059204
+    }
+  },
+  "zero_shot": {
+    "proposed": 8,
+    "valid": 7,
+    "evidence_pieces": 7,
+    "hypothesis": "Based on the evidence, axes became quantitatively most frequent in the -31st century, as indicated by the highest average frequency and categorical breakdown during this period. Despite a general decreasing trend over time, the peak decade for axes frequency was the -3200s, suggesting a significant concentration of axes during the late -4th millennium.",
+    "hms_100": 0.0,
+    "scores": {
+      "hms_0_1": 0.0,
+      "hms_100": 0.0,
+      "context_match": 0.0,
+      "variable_match": 0.0,
+      "relation_correct": 0.0,
+      "reasoning": "The hypothesis incorrectly refers to the '-31st century' and '-3200s', which are not valid chronological terms. The context of axes frequency should be based on historical or archaeological data, typically measured in positive centuries (e.g., 20th century BC). The variables are not correctly identified as there is no clear evidence or data provided to support the claim about axes frequency. The relationship is incorrect because the hypothesis lacks a factual basis and uses non-standard chronological terms."
+    },
+    "synthesis": {
+      "proposed": 8,
+      "valid": 7,
+      "model": "openai/gpt-4o",
+      "wall_time_s": 18.190545797348022,
+      "errors": [
+        "analyze_axes_regression: RuntimeError: __import__ not found"
+      ],
+      "operators": [
+        {
+          "name": "analyze_axes_frequency",
+          "description": "Calculate the frequency of axes per century",
+          "complexity": 2.0
+        },
+        {
+          "name": "analyze_axes_trend",
+          "description": "Analyze the trend of axes frequency over time",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_correlation",
+          "description": "Correlation between axes frequency and other variables",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_axes_temporal_patterns",
+          "description": "Identify temporal patterns in axes frequency",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_group_comparison",
+          "description": "Compare axes frequency across different centuries",
+          "complexity": 3.0
+        },
+        {
+          "name": "analyze_axes_effect_size",
+          "description": "Calculate the effect size of axes frequency changes",
+          "complexity": 4.0
+        },
+        {
+          "name": "analyze_axes_categorical_breakdown",
+          "description": "Break down axes frequency by categorical variables",
+          "complexity": 3.0
+        }
+      ]
+    }
+  },
+  "hand_cpi": {
+    "hypothesis": "Hypothesis: The axes became quantitatively most frequent during the 1st century CE, as indicated by a peak in the 'kde_all_mean' values for the 'Axes & Celts' category within the 'Economic Capital' domain, suggesting increased production or usage during this period.",
+    "hms_100": 33.33333333333333,
+    "scores": {
+      "hms_0_1": 0.3333333333333333,
+      "hms_100": 33.33333333333333,
+      "context_match": 0.5,
+      "variable_match": 0.3,
+      "relation_correct": 0.2,
+      "reasoning": "The hypothesis partially identifies the relevant context by mentioning 'Axes & Celts' and 'Economic Capital', which could be related to historical or archaeological studies. However, it lacks specificity about the dataset or study being referenced. The variable 'kde_all_mean' is mentioned, but without clear evidence or reference to a specific study, it's unclear if this is the correct variable to assess the frequency of axes. The relationship stated, that axes became most frequent in the 1st century CE, is speculative without supporting data or references to a specific analysis or dataset. Therefore, the hypothesis lacks sufficient evidence and clarity to be rated highly on any of the criteria."
+    }
+  },
+  "wall_time_s": 36.84285497665405
+}

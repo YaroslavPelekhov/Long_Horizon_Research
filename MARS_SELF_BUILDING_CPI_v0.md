@@ -17,23 +17,48 @@ agent designs. SB-CPI makes the generated object more scientific:
 > intervention scope, assumptions, complexity, and a refutation score.
 
 The system is universal not because it has one magic prompt for every benchmark,
-but because it can infer what kind of hypothesis object the benchmark exposes:
+but because it can infer **what kind of hypothesis object** the benchmark exposes
+AND **what generation mechanism** that regime requires:
 
-| Observable regime | Hypothesis object | Verification |
-|---|---|---|
-| numeric experiments | symbolic law / sketch program | holdout loss, unit consistency |
-| hidden transformation rules | causal transition program | counterexample/refutation loss |
-| scientific data tables | generated statistical analyzer | HMS / held-out evidence / query fit |
-| code tasks | executable reproduction/repair program | tests, exceptions, hidden grader |
-| long reports | compositional evidence program | rubric coverage + factual checks |
+| Observable regime | Question type | Hypothesis object | Generation mechanism | Verification |
+|---|---|---|---|---|
+| hidden transformation rules | typed | causal transition program | grammar_synthesizer + CPI | counterexample/refutation loss |
+| numeric experiments | typed | symbolic law / sketch | SB-CPI + symbolic regression | holdout loss, unit consistency |
+| scientific data tables | temporal_occurrence | reasoning chain + code | QD-CPI (sequential steps) | step verification + HMS |
+| scientific data tables | statistical_relation | generated pandas operator | zero_shot_operators | HMS / evidence fit |
+| scientific data tables | regional_comparison | LLM reasoning chain | LLM-only schema reasoning | HMS / domain check |
+| code tasks | typed | executable program | grammar + repair | tests, exceptions, grader |
+
+**Empirical evidence (2026-06-09):**
+
+| Benchmark | Question type | Best mechanism | HMS/Score |
+|---|---|---|---|
+| UH-Seq easy+hard | typed | grammar_synthesis + CPI | 5/5 (12 runs) |
+| NewtonBench m0+m1 | typed | SB-CPI symbolic | SA=1.0 |
+| Archaeology (temporal) | temporal_occurrence | QD-CPI chain | 43.3 HMS |
+| WorldBank (regional) | regional_comparison | LLM-only reasoning | 93.3 HMS |
+| WorldBank (statistical) | statistical_relation | zero_shot operators | 80.0 HMS |
+
+**Key lesson (hard-earned from DB zero-shot experiments):**
+Routing to the wrong mechanism consistently underperforms:
+- Parallel operator synthesis on temporal questions → 0-33.3 HMS (vs 43.3 QD-CPI)
+- QD-CPI on regional questions → 70.0 HMS (vs 93.3 LLM-only)
+
+The interface type classifier (`mars/induction/qd_cpi.py:classify_interface`) must
+detect question type (temporal_occurrence, regional_comparison, statistical_relation)
+to route correctly. Getting this routing right is itself a research contribution.
 
 This makes hypothesis generation itself the contribution:
 
 ```text
-interface trace -> typed grammar -> candidate analyzers
-              -> counterexample experiment -> refute/score
-              -> mutate grammar or synthesize a new analyzer
-              -> remember the reusable primitive
+interface trace
+  -> classify_interface() -> question_type
+  -> IF typed:      grammar_synthesizer + CPI -> typed program
+  -> IF temporal:   qd_cpi.solve() -> reasoning chain -> code -> answer
+  -> IF regional:   LLM schema reasoning -> domain-grounded hypothesis
+  -> IF statistical: zero_shot_operators -> pandas operators -> evidence
+  -> counterexample/verification -> refute or accept
+  -> remember the reusable primitive / chain template
 ```
 
 ---

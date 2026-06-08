@@ -49,6 +49,7 @@ from mars.induction.db_grammar_synthesizer import (  # noqa: E402
     run_operators,
     synthesize_db_grammar,
 )
+from mars.induction.qd_cpi import classify_interface, solve as qd_solve  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -330,7 +331,27 @@ def run_experiment(args: argparse.Namespace) -> dict[str, Any]:
     print(f"[zero_shot] HMS={zero_shot_score['hms_100']:.1f}/100")
 
     # ------------------------------------------------------------------ #
-    # Run B: hand-written CPI (control)                                   #
+    # Run A2: QD-CPI (question decomposition chain)                       #
+    # ------------------------------------------------------------------ #
+    interface_type = classify_interface(task_description)
+    print(f"\n[qd_cpi] interface_type={interface_type} — running reasoning chain")
+    qd_chain = qd_solve(
+        question,
+        domain_knowledge,
+        df,
+        column_descriptions=col_descs,
+        model=args.synth_model,
+    )
+    print(f"[qd_cpi] steps={len(qd_chain.steps)} answer={qd_chain.final_answer[:120]}")
+    for s in qd_chain.steps:
+        status = "✓" if s.verified else "✗"
+        print(f"  {status} step_{s.step_id} ({s.step_type}): result={str(s.result)[:60]}")
+
+    qd_score = _hms_judge(client, args.judge_model, question, qd_chain.final_answer)
+    print(f"[qd_cpi] HMS={qd_score['hms_100']:.1f}/100")
+
+    # ------------------------------------------------------------------ #
+    # Run B: LLM schema-only (control)                                    #
     # ------------------------------------------------------------------ #
     print(f"\n[hand_cpi] running control")
     hand_result = run_hand_cpi(client, args.synth_model, question, domain_knowledge, df, schema_desc)
@@ -352,6 +373,15 @@ def run_experiment(args: argparse.Namespace) -> dict[str, Any]:
         "synth_model": args.synth_model,
         "judge_model": args.judge_model,
         "n_proposals": args.n_proposals,
+        "interface_type": interface_type,
+        "qd_cpi": {
+            "n_steps": len(qd_chain.steps),
+            "n_verified": sum(1 for s in qd_chain.steps if s.verified),
+            "final_answer": qd_chain.final_answer,
+            "hms_100": qd_score["hms_100"],
+            "scores": qd_score,
+            "chain": qd_chain.to_dict(),
+        },
         "zero_shot": {
             "proposed": synthesis.proposed,
             "valid": synthesis.valid,
@@ -379,8 +409,10 @@ def _print_report(row: dict[str, Any]) -> None:
     print()
     z = row["zero_shot"]
     h = row["hand_cpi"]
-    print(f"{'Condition':<20} {'HMS':>8}  {'Hypothesis (truncated)'}")
-    print("-" * 60)
+    qd = row.get("qd_cpi", {})
+    print(f"{'Condition':<20} {'HMS':>8}  {'Answer (truncated)'}")
+    print("-" * 65)
+    print(f"{'qd_cpi':<20} {qd.get('hms_100',0):>7.1f}  {qd.get('final_answer','')[:50]}")
     print(f"{'zero_shot':<20} {z['hms_100']:>7.1f}  {z['hypothesis'][:50]}")
     print(f"{'hand_cpi':<20} {h['hms_100']:>7.1f}  {h['hypothesis'][:50]}")
     print()
