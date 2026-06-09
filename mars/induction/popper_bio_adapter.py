@@ -16,10 +16,18 @@ the prohibition forbids. Real viable offspring must never be forbidden.
 
 from __future__ import annotations
 
+import contextlib
+import io
 import itertools
 import json
 from collections import Counter
 from typing import Any
+
+
+@contextlib.contextmanager
+def _silence():
+    with contextlib.redirect_stdout(io.StringIO()):
+        yield
 
 from mars.agents.base import call_llm, make_openai_client
 from mars.induction.popperian_cpi import PopperAdapter, Prohibition, ProhibitionScore
@@ -28,10 +36,14 @@ from mars.induction.popperian_cpi import PopperAdapter, Prohibition, Prohibition
 class PopperBioAdapter(PopperAdapter):
     name = "uh_bio_popper"
 
-    def __init__(self, cross_records: list[dict], judge_model: str = "openai/gpt-4o"):
+    def __init__(self, cross_records: list[dict], judge_model: str = "openai/gpt-4o",
+                 env: Any = None, run_async: Any = None):
         self.cross_records = cross_records
         self.judge_model = judge_model
+        self.env = env                # if set, enables ACTIVE severe testing
+        self._run_async = run_async   # callable to run a coroutine synchronously
         self._real: list[dict] | None = None
+        self.severe_observations: list[dict] = []  # viability findings from active tests
         # observed feature vocabularies (data-grounded, no rubric)
         self._colors: list[str] = []
         self._shells: list[str] = []
@@ -139,6 +151,82 @@ class PopperBioAdapter(PopperAdapter):
             })
         return events
 
+    # ----- ACTIVE severe testing -----------------------------------------
+
+    def supports_active(self) -> bool:
+        return self.env is not None and self._run_async is not None
+
+    def action_space(self) -> str:
+        """Expose ONE atomic action (cross two organisms) and the current
+        organisms available to act on. No strategy — the engine plans."""
+        if self.env is None:
+            return ""
+        # List a compact, diverse set of available organisms (id + phenotype)
+        items = []
+        for oid, o in list(self.env.organisms.items()):
+            ph = o.get("phenotype", {})
+            items.append({"id": oid, "color": ph.get("body_color"),
+                          "shell": ph.get("shell_shape"), "size": ph.get("body_size")})
+        # Keep a representative, capped sample (founders + variety of offspring)
+        founders = [it for it in items if it["id"] <= 10]
+        rest = [it for it in items if it["id"] > 10]
+        # diversify rest by (color, shell)
+        seen, diverse = set(), []
+        for it in rest:
+            key = (it["color"], it["shell"])
+            if key not in seen:
+                seen.add(key); diverse.append(it)
+        shown = founders + diverse[:20]
+        return (
+            'ATOMIC ACTION (the only action; returns offspring + viability_rate):\n'
+            '{"action": "cross", "p1": <organism id>, "p2": <organism id>, "n": <int>}\n'
+            'Offspring produced by a cross become NEW organisms with fresh ids that\n'
+            'you can use as parents in later actions (this is how you build lineages\n'
+            'to reach allele combinations not present in any single current organism).\n'
+            'Newly created offspring ids continue from the current maximum id.\n\n'
+            f'CURRENT ORGANISMS (id: color/shell/size):\n' +
+            "\n".join(f'  {it["id"]}: {it["color"]}/{it["shell"]}/{it["size"]}' for it in shown)
+        )
+
+    def execute_action(self, action: dict) -> list[dict]:
+        """Execute ONE atomic cross. No strategy — just translate to env API."""
+        if not self.supports_active() or action.get("action") != "cross":
+            return []
+        p1, p2 = action.get("p1"), action.get("p2")
+        n = int(action.get("n", 12))
+        if p1 is None or p2 is None:
+            return []
+
+        async def _do():
+            if len(self.env.organisms) > 150:
+                with _silence():
+                    await self.env.remove_organisms(
+                        [o for o in list(self.env.organisms.keys()) if o > 10])
+            with _silence():
+                return await self.env.conduct_cross(p1, p2, n)
+
+        cr = self._run_async(_do())
+        if not isinstance(cr, dict) or not cr.get("success"):
+            return []
+        self.cross_records.append(cr)
+        self.severe_observations.append({
+            "p1": p1, "p2": p2,
+            "p1_shell": cr.get("parent1_phenotype", {}).get("shell_shape"),
+            "p2_shell": cr.get("parent2_phenotype", {}).get("shell_shape"),
+            "viability_rate": cr.get("viability_rate", 1.0),
+        })
+        p1p = cr.get("parent1_phenotype", {})
+        p2p = cr.get("parent2_phenotype", {})
+        vr = cr.get("viability_rate", 1.0)
+        new_events = []
+        for o in cr.get("offspring", []):
+            ph = o.get("phenotype", {})
+            if ph:
+                new_events.append({"parent1": _clean(p1p), "parent2": _clean(p2p),
+                                   "offspring": _clean(ph), "viability_rate": vr})
+        self._real = None
+        return new_events
+
     def verbalize(self, survivors: list[tuple[Prohibition, ProhibitionScore]]) -> str:
         """Compose a genetics report FROM the surviving prohibitions.
         The LLM sees only discovered bans + raw facts — no rubric."""
@@ -148,13 +236,29 @@ class PopperBioAdapter(PopperAdapter):
         for p, s in survivors[:10]:
             bans.append(f"- FORBIDDEN (content {s.content:.2f}): {p.description}")
         facts = _bio_facts(self.cross_records)
+        # Severe-testing findings: viability under deliberately-created conflicts
+        severe = ""
+        if self.severe_observations:
+            vias = [so["viability_rate"] for so in self.severe_observations]
+            base = max(vias) if vias else 1.0  # best-case viability as reference
+            lines = [f"\nACTIVE SEVERE-TEST FINDINGS (engine-designed crosses; "
+                     f"best observed viability ~{base:.2f}):"]
+            for so in self.severe_observations:
+                collapse = so["viability_rate"] < base * 0.6
+                lines.append(
+                    f"- cross of {so.get('p1_shell')}-type x {so.get('p2_shell')}-type "
+                    f"→ viability {so['viability_rate']:.2f}"
+                    + ("  <-- COLLAPSE: this allele combination appears LETHAL"
+                       if collapse else "")
+                )
+            severe = "\n".join(lines)
         client = make_openai_client()
         prompt = (
             "You are a geneticist. Through experiments you have established a set of\n"
             "PROHIBITIONS — combinations that NEVER occur among viable offspring.\n"
             "Each prohibition survived all data without a single counterexample.\n\n"
             f"ESTABLISHED PROHIBITIONS (laws of what cannot happen):\n" + "\n".join(bans) + "\n\n"
-            f"RAW EXPERIMENTAL FACTS:\n{facts}\n\n"
+            f"RAW EXPERIMENTAL FACTS:\n{facts}\n{severe}\n\n"
             "Translate these prohibitions into a formal inheritance report. A ban like\n"
             "'if a parent is red, offspring is never white' IS a dominance statement\n"
             "(red dominates white). A ban tied to low viability IS a lethal-combination\n"

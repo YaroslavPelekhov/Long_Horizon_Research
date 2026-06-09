@@ -211,6 +211,25 @@ class PopperAdapter(ABC):
         """Default: JSON of first k events for the LLM prompt."""
         return json.dumps([_trunc(e) for e in events[:k]], default=str, ensure_ascii=False)[:3000]
 
+    # ----- Optional: ACTIVE severe testing --------------------------------
+    # The engine designs strategy; the adapter only exposes ATOMIC actions and
+    # executes them. No domain strategy lives in the adapter (OS/driver split).
+
+    def supports_active(self) -> bool:
+        return False
+
+    def action_space(self) -> str:
+        """Describe the ATOMIC actions of this environment and the current
+        objects available to act on (e.g. organism ids + phenotypes). The engine
+        composes these atoms into a multi-step plan; the adapter never plans.
+        Return a short spec + a JSON action schema."""
+        return ""
+
+    def execute_action(self, action: dict) -> list[Any]:
+        """Execute ONE atomic environment action, return the new events it
+        produced. No strategy here — just translate action -> env API -> events."""
+        return []
+
 
 # ===========================================================================
 # The Popperian engine
@@ -371,6 +390,32 @@ Return ONLY JSON:
                 f"ordering bans. Avoid restating survivors; find NEW forbidden regions."
             )
 
+        # ---- ACTIVE SEVERE TESTING -------------------------------------
+        # Design experiments that would most severely test surviving
+        # prohibitions, run them, and fold the new events back into `real`.
+        # This is what lets the engine find impossibilities/lethality that
+        # passive analysis cannot: it deliberately tries to CREATE the
+        # forbidden event and sees whether reality permits it.
+        severe_log: list[dict] = []
+        if adapter.supports_active():
+            current_survivors = [p for p, s in
+                                 sorted([(p, self._score(p, real, plausible)) for p in all_probs],
+                                        key=lambda x: -x[1].content)
+                                 if not s.refuted and s.content >= self.min_content][:8]
+            # Engine designs a multi-step PLAN of atomic actions; adapter only
+            # executes each atom. All strategy stays in the engine.
+            plan = self._design_action_plan(adapter, current_survivors)
+            for action in plan:
+                try:
+                    new_events = adapter.execute_action(action)
+                except Exception as e:
+                    severe_log.append({"action": action, "error": str(e)})
+                    continue
+                if new_events:
+                    real.extend(new_events)
+                severe_log.append({"action": action, "n_new_events": len(new_events)})
+            plausible = adapter.plausible_events(self.content_samples)
+
         scored_all = [(p, self._score(p, real, plausible)) for p in all_probs]
         survivors = [(p, s) for p, s in scored_all
                      if not s.refuted and s.content >= self.min_content]
@@ -389,13 +434,57 @@ Return ONLY JSON:
 
         theory = adapter.verbalize(survivors) if survivors else "No surviving prohibitions."
 
-        return PopperResult(
+        result = PopperResult(
             benchmark=adapter.name, n_real=len(real),
             n_proposed=len(all_items), n_valid=len(all_probs),
             survivors=survivors[:12], refuted=refuted,
             theory=theory, rounds=rounds, errors=all_errors,
             wall_time_s=time.time() - t0,
         )
+        result.severe_log = severe_log  # type: ignore[attr-defined]
+        return result
+
+    def _design_action_plan(
+        self,
+        adapter: PopperAdapter,
+        survivors: list[Prohibition],
+    ) -> list[dict]:
+        """Ask the LLM to compose a multi-step PLAN of ATOMIC actions that would
+        most severely test the surviving prohibitions — deliberately trying to
+        CREATE a forbidden event. All strategy (sequencing, which objects to
+        combine, how to reach an impossible combination) is decided HERE, by the
+        engine, not by the adapter. The adapter only exposes atomic actions."""
+        if not survivors:
+            return []
+        bans = "\n".join(f"- {p.description}" for p in survivors[:8])
+        prompt = f"""{adapter.interface_description()}
+
+SURVIVING PROHIBITIONS (not yet refuted):
+{bans}
+
+ENVIRONMENT ACTION SPACE (atomic actions + current objects):
+{adapter.action_space()}
+
+Compose a PLAN: an ordered list of atomic actions whose combined effect tries
+to CREATE an event some prohibition forbids — the most severe possible test.
+You must do the sequencing yourself (e.g. to reach a combination not present in
+any single object, first combine two objects, then act on the result). A
+prohibition that survives its most severe test becomes a corroborated law.
+Prioritize impossibility/lethality claims — those can only be confirmed by
+actively attempting the forbidden combination.
+
+Return ONLY JSON: {{"plan": [ {{...atomic action per schema...}}, ... ]}} (max 6 actions)"""
+        raw = call_llm(
+            self._cl(), model=self.model,
+            system="You design multi-step severe-testing plans from atomic actions. Return only JSON.",
+            user=prompt, max_tokens=1400, temperature=0.5,
+        )
+        try:
+            obj = json.loads(_extract_json(raw))
+            plan = obj.get("plan", []) if isinstance(obj, dict) else []
+            return [a for a in plan if isinstance(a, dict)][:6]
+        except Exception:
+            return []
 
 
 # ===========================================================================
@@ -430,6 +519,17 @@ def severity(
 # ===========================================================================
 # Helpers
 # ===========================================================================
+
+def _extract_json(raw: str) -> str:
+    if not raw:
+        return "{}"
+    t = raw.strip()
+    if t.startswith("```"):
+        lines = t.split("\n")
+        t = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:]).lstrip()
+    m = re.search(r'\{.*\}', t, re.DOTALL)
+    return m.group() if m else "{}"
+
 
 def _trunc(v: Any, limit: int = 220) -> Any:
     if isinstance(v, (int, float, bool)) or v is None:
