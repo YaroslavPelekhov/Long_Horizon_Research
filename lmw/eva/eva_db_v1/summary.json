@@ -1,0 +1,99 @@
+{
+  "run_id": "eva_db_v1",
+  "score_type": "amplification-weak+eva-vs-strong",
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "judge": "openai/gpt-4o",
+  "n_tasks": 2,
+  "mean_weak_raw": 33.3,
+  "mean_strong_raw": 33.3,
+  "mean_weak_eva": 50.0,
+  "amplified_vs_strong": true,
+  "n_tasks_eva_beats_strong": 2,
+  "results": [
+    {
+      "task_key": "worldbank_education_gdp:3:0",
+      "question": "How does increased education expenditure influence human capital and economic output?",
+      "weak_raw": 0.0,
+      "strong_raw": 0.0,
+      "weak_eva": 0.0,
+      "amplified": true,
+      "eva": {
+        "answer": "Higher education expenditure positively influences human capital by increasing primary and secondary school enrollment, leading to enhanced economic output through increased exports of goods and services.",
+        "rounds": 3,
+        "n_candidates": 12,
+        "n_checks": 15,
+        "best_pass_rate": 0.6666666666666666,
+        "wall_time_s": 31.903298139572144,
+        "trace": [
+          {
+            "round": 1,
+            "n_candidates": 4,
+            "n_checks": 5,
+            "best_pass_rate": 0.0,
+            "best_answer": "In Sub-Saharan Africa, an increase in education expenditure (measured as a percentage of GNI) positively influences huma"
+          },
+          {
+            "round": 2,
+            "n_candidates": 4,
+            "n_checks": 5,
+            "best_pass_rate": 0.6666666666666666,
+            "best_answer": "Higher education expenditure positively influences human capital by increasing primary and secondary school enrollment, "
+          },
+          {
+            "round": 3,
+            "n_candidates": 4,
+            "n_checks": 5,
+            "best_pass_rate": 0.25,
+            "best_answer": "Higher education expenditure leads to improved GNI per capita by enhancing human capital, which subsequently drives econ"
+          }
+        ]
+      },
+      "hyp_weak": "Hypothesis: In Sub-Saharan Africa and Lower Middle Income countries, an increase in education expenditure (measured as a percentage of GNI) will positively influence human capital development (indicat",
+      "hyp_strong": "Hypothesis: Increased education expenditure, as a percentage of GNI, positively influences human capital development, evidenced by higher gross enrollment ratios in primary and secondary education, an",
+      "hyp_eva": "Higher education expenditure positively influences human capital by increasing primary and secondary school enrollment, leading to enhanced economic output through increased exports of goods and servi"
+    },
+    {
+      "task_key": "nls_ses:0:0",
+      "question": "How strongly does BA degree completion vary with socioeconomic status?",
+      "weak_raw": 66.66666666666666,
+      "strong_raw": 66.66666666666666,
+      "weak_eva": 100.0,
+      "amplified": true,
+      "eva": {
+        "answer": "Higher socioeconomic status positively influences the completion rates of BA degrees, with individuals from higher SES backgrounds exhibiting significantly higher completion rates than those from lower SES.",
+        "rounds": 3,
+        "n_candidates": 12,
+        "n_checks": 15,
+        "best_pass_rate": 0.75,
+        "wall_time_s": 33.541061878204346,
+        "trace": [
+          {
+            "round": 1,
+            "n_candidates": 4,
+            "n_checks": 5,
+            "best_pass_rate": 0.0,
+            "best_answer": "Higher SES positively correlates with BA degree completion, suggesting that respondents from higher socioeconomic backgr"
+          },
+          {
+            "round": 2,
+            "n_candidates": 4,
+            "n_checks": 5,
+            "best_pass_rate": 0.0,
+            "best_answer": "Individuals with higher socioeconomic status (SES) are more likely to complete a BA degree compared to those with lower "
+          },
+          {
+            "round": 3,
+            "n_candidates": 4,
+            "n_checks": 5,
+            "best_pass_rate": 0.75,
+            "best_answer": "Higher socioeconomic status positively influences the completion rates of BA degrees, with individuals from higher SES b"
+          }
+        ]
+      },
+      "hyp_weak": "Hypothesis: Higher socioeconomic status (SES) is positively correlated with the likelihood of BA degree completion, such that respondents from higher SES backgrounds will have a significantly greater ",
+      "hyp_strong": "Hypothesis: Socioeconomic status (SES) is positively correlated with BA degree completion, such that individuals with higher SES are more likely to complete a BA degree, controlling for ability as mea",
+      "hyp_eva": "Higher socioeconomic status positively influences the completion rates of BA degrees, with individuals from higher SES backgrounds exhibiting significantly higher completion rates than those from lowe"
+    }
+  ]
+}
