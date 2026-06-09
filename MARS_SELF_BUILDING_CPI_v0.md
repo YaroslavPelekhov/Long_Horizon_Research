@@ -68,6 +68,24 @@ undefined, not violated. The two results together delimit exactly where the one
 principle amplifies: **universality of the engine (same code, 2 benchmarks via
 thin tasks) is shown; amplification is bounded by proposer reachability.**
 
+**Long-horizon transfer — the accumulating Library expands reachability
+(`mars/runners/run_mdl_curriculum.py`):** A/B over 6 episodes, same weak model:
+A = fresh library each episode, B = one library persisting/accumulating.
+
+| Condition | exact rules / 5 | rounds-to-solve |
+|---|---|---|
+| no_transfer | 2.33 | 1.47 |
+| transfer | **3.33** | **1.22** |
+| transfer, late half | **4.00** | — |
+
+The decisive signal is the TREND: with transfer, per-episode capability climbs
+2→3→3→3→4→5; without it, it just fluctuates 2→2→1→2→5→2. Accumulated building
+blocks make later tasks cheaper in bits, so the same weak model reaches more and
+faster as experience grows. This is the long-horizon claim made concrete: not a
+bigger model, but a growing compression library, expands what the weak model can
+discover — a direct consequence of the one principle (reuse lowers description
+length), with no separate transfer mechanism.
+
 ---
 
 ## 0a. Universal Autonomous Engine (2026-06-09)

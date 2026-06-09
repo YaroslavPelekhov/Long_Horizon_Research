@@ -1,0 +1,103 @@
+{
+  "run_id": "mdl_curr_v1",
+  "score_type": "library-transfer-ab",
+  "weak": "openai/gpt-4o-mini",
+  "difficulty": "easy",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "no_transfer": {
+    "mean_exact": 2.33,
+    "mean_solve_round": 1.47,
+    "per_seed": [
+      {
+        "seed": 1,
+        "exact": 2,
+        "avg_solve_round": 2.5,
+        "lib_size": 2
+      },
+      {
+        "seed": 2,
+        "exact": 2,
+        "avg_solve_round": 1.5,
+        "lib_size": 2
+      },
+      {
+        "seed": 3,
+        "exact": 1,
+        "avg_solve_round": 1.0,
+        "lib_size": 1
+      },
+      {
+        "seed": 4,
+        "exact": 2,
+        "avg_solve_round": 1.0,
+        "lib_size": 2
+      },
+      {
+        "seed": 5,
+        "exact": 5,
+        "avg_solve_round": 1.8,
+        "lib_size": 5
+      },
+      {
+        "seed": 6,
+        "exact": 2,
+        "avg_solve_round": 1.0,
+        "lib_size": 2
+      }
+    ]
+  },
+  "transfer": {
+    "mean_exact": 3.33,
+    "mean_solve_round": 1.22,
+    "per_seed": [
+      {
+        "seed": 1,
+        "exact": 2,
+        "avg_solve_round": 1.0,
+        "lib_size": 2
+      },
+      {
+        "seed": 2,
+        "exact": 3,
+        "avg_solve_round": 1.0,
+        "lib_size": 3
+      },
+      {
+        "seed": 3,
+        "exact": 3,
+        "avg_solve_round": 1.0,
+        "lib_size": 3
+      },
+      {
+        "seed": 4,
+        "exact": 3,
+        "avg_solve_round": 1.0,
+        "lib_size": 3
+      },
+      {
+        "seed": 5,
+        "exact": 4,
+        "avg_solve_round": 1.75,
+        "lib_size": 4
+      },
+      {
+        "seed": 6,
+        "exact": 5,
+        "avg_solve_round": 1.6,
+        "lib_size": 5
+      }
+    ]
+  },
+  "transfer_late_half": {
+    "mean_exact": 4.0,
+    "mean_solve_round": 1.45
+  },
+  "reachability_expanded": true
+}
