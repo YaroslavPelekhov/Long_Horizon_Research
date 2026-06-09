@@ -1,0 +1,1155 @@
+{
+  "run_id": "bio_cpi_seeds_47_56",
+  "score_type": "official-env-compatible",
+  "judge_model": "openai/gpt-4o",
+  "budget": 18,
+  "n_seeds": 10,
+  "seeds": [
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56
+  ],
+  "mean_score": 73.2,
+  "sd_score": 9.282241108697834,
+  "scores": [
+    65.0,
+    80.0,
+    65.0,
+    65.0,
+    65.0,
+    85.0,
+    70.0,
+    65.0,
+    87.0,
+    85.0
+  ],
+  "results": [
+    {
+      "seed": 47,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 65.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.532,
+        "1x3_r2": 0.431,
+        "2x3_r3": 0.481,
+        "1x2_r4": 0.481,
+        "1x3_r5": 0.61,
+        "2x3_r6": 0.5,
+        "f2_4x29": 0.345,
+        "f2_4x54": 0.513,
+        "fill_9": 0.25,
+        "fill_10": 1.0,
+        "fill_11": 1.0,
+        "fill_12": 0.167,
+        "fill_13": 0.5,
+        "fill_14": 0.25,
+        "fill_15": 1.0,
+        "fill_16": 1.0,
+        "fill_17": 0.333,
+        "fill_18": 1.0
+      },
+      "report_len": 3296,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~150 size units per copy (three copies \u2192 ~450)\n- Medium allele (M): ~100 size units per copy (three copies \u2192 ~300)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 150) + (copies of M \u00d7 100) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013150. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: smooth > spiky > ridged (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 17% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~150 / ~100 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 65,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the meiosis mechanism, noting the production of 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly explains that only triploid zygotes are viable."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent identifies the additive dosage effect for body size inheritance."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent correctly identifies three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but they differ from the expected values (150, 100, 10 instead of 200, 50, 10). Partial credit awarded."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the dominance hierarchy for color: red > blue > white."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent states that the dominance is complete, with phenotype determined solely by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "The agent incorrectly describes the shell dominance as linear rather than cyclic, failing to identify the cyclic relationship."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent mentions lethality but does not clearly explain the specific lethal combination of all three shell alleles."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 3.9818978309631348
+    },
+    {
+      "seed": 48,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 80.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.521,
+        "1x3_r2": 0.439,
+        "2x3_r3": 0.543,
+        "1x2_r4": 0.521,
+        "1x3_r5": 0.521,
+        "2x3_r6": 0.391,
+        "f2_4x29": 0.455,
+        "f2_4x54": 0.408,
+        "fill_9": 0.5,
+        "fill_10": 1.0,
+        "fill_11": 1.0,
+        "fill_12": 0.25,
+        "fill_13": 1.0,
+        "fill_14": 1.0,
+        "fill_15": 1.0,
+        "fill_16": 0.5,
+        "fill_17": 0.143,
+        "fill_18": 1.0
+      },
+      "report_len": 3296,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~150 size units per copy (three copies \u2192 ~450)\n- Medium allele (M): ~100 size units per copy (three copies \u2192 ~300)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 150) + (copies of M \u00d7 100) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013150. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: smooth > spiky > ridged (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 14% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~150 / ~100 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 80,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the meiosis mechanism, noting the production of 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent explains that only triploid zygotes are viable, with other combinations being lethal."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent identifies that body size follows an additive dosage effect."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent correctly identifies the existence of three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but they deviate from the expected range (150, 100, 10 instead of 200, 50, 10)."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the strict dominance order for color: Red > Blue > White."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent states that the dominance is complete, with phenotype determined by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "The agent incorrectly describes the shell dominance as linear rather than cyclic."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent identifies the lethal combination of all three shell alleles but does not fully explain the cyclic nature of dominance."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 4.830852031707764
+    },
+    {
+      "seed": 49,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 65.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.595,
+        "1x3_r2": 0.472,
+        "2x3_r3": 0.568,
+        "1x2_r4": 0.595,
+        "1x3_r5": 0.556,
+        "2x3_r6": 0.431,
+        "f2_4x29": 0.357,
+        "f2_4x54": 0.392,
+        "fill_9": 1.0,
+        "fill_10": 0.5,
+        "fill_11": 0.5,
+        "fill_12": 0.333,
+        "fill_13": 0.5,
+        "fill_14": 1.0,
+        "fill_15": 1.0,
+        "fill_16": 1.0,
+        "fill_17": 1.0,
+        "fill_18": 1.0
+      },
+      "report_len": 3293,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~149 size units per copy (three copies \u2192 ~447)\n- Medium allele (M): ~99 size units per copy (three copies \u2192 ~297)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 149) + (copies of M \u00d7 99) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013149. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: spiky > smooth > ridged (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 33% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~149 / ~99 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 65,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the meiosis mechanism, noting the production of 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent explains that only triploid zygotes are viable, with other combinations being lethal."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent identifies that body size follows an additive dosage effect."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent correctly identifies the existence of three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but the values for the large and medium alleles are not within the specified range."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the strict dominance order for color: Red > Blue > White."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent states that the dominance is complete, with phenotype determined solely by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "The agent incorrectly describes the shell dominance as linear rather than cyclic."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent mentions the lethal combination but does not clearly explain the presence of all three alleles being lethal."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 4.3788769245147705
+    },
+    {
+      "seed": 50,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 65.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.463,
+        "1x3_r2": 0.556,
+        "2x3_r3": 0.51,
+        "1x2_r4": 0.641,
+        "1x3_r5": 0.61,
+        "2x3_r6": 0.455,
+        "f2_4x29": 0.233,
+        "f2_4x54": 0.317,
+        "fill_9": 1.0,
+        "fill_10": 0.5,
+        "fill_11": 0.5,
+        "fill_12": 0.143,
+        "fill_13": 0.5,
+        "fill_14": 0.333,
+        "fill_15": 0.5,
+        "fill_16": 0.5,
+        "fill_17": 0.5,
+        "fill_18": 0.111
+      },
+      "report_len": 3296,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~150 size units per copy (three copies \u2192 ~450)\n- Medium allele (M): ~100 size units per copy (three copies \u2192 ~300)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 150) + (copies of M \u00d7 100) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013150. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: smooth > ridged > spiky (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 11% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~150 / ~100 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 65,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the unequal segregation resulting in 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly explains that only triploid zygotes are viable."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent identifies the additive dosage effect for body size."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent correctly identifies three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent provides incorrect quantitative values for the alleles, which do not match the expected values."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the dominance hierarchy for color."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly states that the dominance is complete for color."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "The agent incorrectly describes the shell dominance as linear rather than cyclic."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent fails to correctly explain the lethal combination of all three shell alleles."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 2.6742262840270996
+    },
+    {
+      "seed": 51,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 65.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.51,
+        "1x3_r2": 0.568,
+        "2x3_r3": 0.424,
+        "1x2_r4": 0.481,
+        "1x3_r5": 0.417,
+        "2x3_r6": 0.481,
+        "f2_4x29": 0.351,
+        "f2_4x54": 0.339,
+        "fill_9": 1.0,
+        "fill_10": 0.333,
+        "fill_11": 1.0,
+        "fill_12": 1.0,
+        "fill_13": 0.25,
+        "fill_14": 1.0,
+        "fill_15": 1.0,
+        "fill_16": 1.0,
+        "fill_17": 1.0,
+        "fill_18": 1.0
+      },
+      "report_len": 3293,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~149 size units per copy (three copies \u2192 ~447)\n- Medium allele (M): ~99 size units per copy (three copies \u2192 ~297)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 149) + (copies of M \u00d7 99) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013149. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: spiky > ridged > smooth (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 25% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~149 / ~99 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 65,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the meiosis mechanism, noting the production of 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly explains that only triploid zygotes are viable."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent identifies the additive dosage effect for body size inheritance."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent correctly identifies three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but the values for the large and medium alleles are slightly off from the expected range."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the strict dominance order for color."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately states that the dominance is complete, with phenotype determined by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "The agent incorrectly describes the shell dominance as linear rather than cyclic."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent fails to correctly explain the cyclic dominance relationship, which affects the understanding of the lethal combination."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 3.7154040336608887
+    },
+    {
+      "seed": 52,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 85.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.472,
+        "1x3_r2": 0.439,
+        "2x3_r3": 0.532,
+        "1x2_r4": 0.532,
+        "1x3_r5": 0.581,
+        "2x3_r6": 0.463,
+        "f2_4x29": 0.308,
+        "f2_4x54": 0.345,
+        "fill_9": 0.333,
+        "fill_10": 1.0,
+        "fill_11": 1.0,
+        "fill_12": 0.333,
+        "fill_13": 1.0,
+        "fill_14": 1.0,
+        "fill_15": 0.333,
+        "fill_16": 0.167,
+        "fill_17": 1.0,
+        "fill_18": 0.25
+      },
+      "report_len": 3296,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~151 size units per copy (three copies \u2192 ~453)\n- Medium allele (M): ~100 size units per copy (three copies \u2192 ~300)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 151) + (copies of M \u00d7 100) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013151. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: smooth > spiky > ridged (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 17% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~151 / ~100 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 85,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the unequal segregation resulting in 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent explains that only triploid zygotes are viable, with other combinations being lethal."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the additive dosage effect for body size."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent identifies three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but the values for the large and medium alleles are not within the specified range."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the dominance hierarchy for color."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent states that the dominance is complete, with phenotype determined by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent identifies the cyclic dominance relationship for shell shape."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent mentions lethality but does not clearly explain the presence of all three shell alleles being lethal."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 2.954458236694336
+    },
+    {
+      "seed": 53,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 70.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.463,
+        "1x3_r2": 0.463,
+        "2x3_r3": 0.481,
+        "1x2_r4": 0.658,
+        "1x3_r5": 0.595,
+        "2x3_r6": 0.543,
+        "f2_4x29": 0.308,
+        "f2_4x54": 0.247,
+        "fill_9": 0.5,
+        "fill_10": 1.0,
+        "fill_11": 1.0,
+        "fill_12": 1.0,
+        "fill_13": 0.5,
+        "fill_14": 0.5,
+        "fill_15": 0.333,
+        "fill_16": 0.333,
+        "fill_17": 0.5,
+        "fill_18": 0.5
+      },
+      "report_len": 3296,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~150 size units per copy (three copies \u2192 ~450)\n- Medium allele (M): ~100 size units per copy (three copies \u2192 ~300)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 150) + (copies of M \u00d7 100) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013150. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: ridged > spiky > smooth (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 25% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~150 / ~100 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 70,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "Correctly identifies the organism as triploid with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "Accurately describes the meiosis mechanism with 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "Correctly explains that only triploid zygotes are viable."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "Identifies the additive dosage effect for body size."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "Correctly identifies three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "Quantitative values provided do not match the expected range (200 \u00b1 20; 50 \u00b1 10; 10 \u00b1 5)."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "Correctly identifies the strict dominance order for color."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "States that the dominance is complete, with phenotype determined by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "Incorrectly describes shell dominance as linear rather than cyclic."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 10,
+                "comment": "Correctly identifies the lethal combination of all three shell alleles, but the description of dominance is incorrect."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 4.067309141159058
+    },
+    {
+      "seed": 54,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 65.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.446,
+        "1x3_r2": 0.532,
+        "2x3_r3": 0.556,
+        "1x2_r4": 0.439,
+        "1x3_r5": 0.543,
+        "2x3_r6": 0.472,
+        "f2_4x29": 0.541,
+        "f2_4x54": 0.351,
+        "fill_9": 0.333,
+        "fill_10": 1.0,
+        "fill_11": 1.0,
+        "fill_12": 0.25,
+        "fill_13": 1.0,
+        "fill_14": 0.25,
+        "fill_15": 1.0,
+        "fill_16": 0.5,
+        "fill_17": 0.5,
+        "fill_18": 1.0
+      },
+      "report_len": 3296,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~151 size units per copy (three copies \u2192 ~453)\n- Medium allele (M): ~100 size units per copy (three copies \u2192 ~300)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 151) + (copies of M \u00d7 100) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013151. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: smooth > spiky > ridged (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 25% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~151 / ~100 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 65,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the meiosis mechanism, noting the production of 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent explains that only triploid zygotes are viable, with other combinations being lethal."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the additive dosage effect for body size inheritance."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent identifies three distinct alleles for size, which is correct."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but the values for the large and medium alleles are not within the specified range."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the dominance hierarchy for color: red > blue > white."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent states that the dominance is complete, with phenotype determined solely by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "The agent incorrectly describes the shell dominance as linear rather than cyclic."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent mentions lethality but does not clearly explain the cyclic dominance relationship leading to lethality."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 2.873894214630127
+    },
+    {
+      "seed": 55,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 87.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.556,
+        "1x3_r2": 0.532,
+        "2x3_r3": 0.481,
+        "1x2_r4": 0.521,
+        "1x3_r5": 0.61,
+        "2x3_r6": 0.521,
+        "f2_4x29": 0.333,
+        "f2_4x54": 0.317,
+        "fill_9": 0.5,
+        "fill_10": 1.0,
+        "fill_11": 0.2,
+        "fill_12": 0.333,
+        "fill_13": 1.0,
+        "fill_14": 0.5,
+        "fill_15": 1.0,
+        "fill_16": 1.0,
+        "fill_17": 0.333,
+        "fill_18": 0.25
+      },
+      "report_len": 3293,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~149 size units per copy (three copies \u2192 ~447)\n- Medium allele (M): ~99 size units per copy (three copies \u2192 ~297)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 149) + (copies of M \u00d7 99) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013149. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: ridged > spiky > smooth (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 20% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~149 / ~99 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 87,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the meiosis mechanism, noting the production of 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent explains that only triploid zygotes are viable, with other combinations being lethal."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the additive dosage effect for body size."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent identifies three distinct alleles for size, fulfilling the criterion."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but the values for the large and medium alleles are not within the specified range."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the dominance hierarchy for color: red > blue > white."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent states that the dominance is complete, with phenotype determined solely by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 0,
+                "comment": "The agent incorrectly describes the shell dominance as linear rather than cyclic."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 0,
+                "comment": "The agent fails to correctly explain the cyclic dominance relationship, which affects the understanding of the lethal combination."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 3.3905441761016846
+    },
+    {
+      "seed": 56,
+      "budget": 18,
+      "judge_model": "openai/gpt-4o",
+      "final_score": 85.0,
+      "steps_used": 20,
+      "cross_count": 18,
+      "n_crosses": 18,
+      "n_organisms": 203,
+      "ploidy_inferred": 3,
+      "color_order": [
+        "red",
+        "blue",
+        "white"
+      ],
+      "shell_mechanism": "linear_dominance",
+      "size_mechanism": "dosage",
+      "lethal_detected": true,
+      "viability_rates": {
+        "1x2_r1": 0.431,
+        "1x3_r2": 0.49,
+        "2x3_r3": 0.472,
+        "1x2_r4": 0.521,
+        "1x3_r5": 0.5,
+        "2x3_r6": 0.417,
+        "f2_4x29": 0.317,
+        "f2_4x54": 0.23,
+        "fill_9": 0.5,
+        "fill_10": 0.5,
+        "fill_11": 0.5,
+        "fill_12": 1.0,
+        "fill_13": 0.5,
+        "fill_14": 0.333,
+        "fill_15": 1.0,
+        "fill_16": 1.0,
+        "fill_17": 1.0,
+        "fill_18": 1.0
+      },
+      "report_len": 3296,
+      "commit_result": {
+        "success": true,
+        "result": {
+          "judge_input": "ALIEN ORGANISM GENETICS REPORT \u2014 Comprehensive Experimental Analysis\n=====================================================================\n\n## 1. Fundamental Genetic Architecture\n\nThese organisms are **3n (triploid)** \u2014 each individual carries exactly three alleles per genetic locus. This was confirmed by examining genotypes of initial founders and their offspring.\n\n**Meiosis mechanism**: gametes are produced through unequal segregation, yielding both 1n (haploid) and 2n (diploid) gamete types. Only 1n \u00d7 2n fertilisation events produce viable triploid (3n) offspring. 1n \u00d7 1n and 2n \u00d7 2n combinations produce non-triploid zygotes which are non-viable.\n\n**Viability constraint**: Only triploid offspring survive. This explains the observed ~50% viability rates in many crosses: half of fertilisation events produce non-triploid (lethal) zygotes.\n\n## 2. Body Size \u2014 Additive Dosage Effect\n\nBody size is controlled by an **additive dosage effect** across three distinct alleles.\n\nIdentified size alleles and approximate contribution per allele copy:\n- Large allele (L): ~151 size units per copy (three copies \u2192 ~453)\n- Medium allele (M): ~100 size units per copy (three copies \u2192 ~300)\n- Small allele (S): ~10 size units per copy (three copies \u2192 ~30)\n\nTotal body size score \u2248 (copies of L \u00d7 151) + (copies of M \u00d7 100) + (copies of S \u00d7 10).\n\nObserved size range: 10\u2013151. Intermediate offspring sizes confirm dosage inheritance rather than simple dominance.\n\n## 3. Body Color \u2014 Complete Dominance Hierarchy\n\nColor follows **strict linear dominance**: red > blue > white.\n\nThe most dominant allele determines the expressed phenotype completely; heterozygotes always show the dominant color with no blending. In every tested cross, the phenotype of the offspring matched the predicted dominant allele.\n\n## 4. Shell Shape \u2014 Linear Dominance\n\nShell shape follows **linear dominance: spiky > smooth > ridged (\u2192 cycles back)**.\n\nThis means each shell type dominates the next but is in turn dominated by the third:\n- Spiky (H1) is expressed over Smooth (H2)\n- Smooth (H2) is expressed over Ridged (H3)\n- Ridged (H3) is expressed over Spiky (H1) \u2014 completing the cycle\n\n**Critical lethal combination**: when an organism simultaneously carries alleles of all three shell types (H1 + H2 + H3), the combination is lethal. Certain shell allele combinations (all three shell types simultaneously) are lethal \u2014 viability rates as low as 23% observed. This lethality accounts for the reduced viability observed in heterozygous shell crosses.\n\n## 5. Predictions\n\n| Cross type | Predicted offspring | Predicted viability |\n|---|---|---|\n| Homozygous same shell | Single shell type | ~100% |\n| Two shell types mixed | Dominant shell wins | ~50% (lethal subset) |\n| All three shell types present | Mixed, many lethals | <33% |\n| Red \u00d7 Blue | Red (complete dominance) | Normal |\n| Size L\u00d7L\u00d7L \u00d7 S\u00d7S\u00d7S | Intermediate dosage mix | Normal |\n\n## 6. Summary\n\nThe alien organism displays triploid genetics with:\n1. **3 alleles per locus** in every individual\n2. **1n/2n gamete asymmetry** causing ~50% non-viable offspring\n3. **Additive size dosage** across three quantitative alleles (~151 / ~100 / ~10 per copy)\n4. **Complete dominance for color**: red > blue > white\n5. **Cyclic shell dominance** with H1+H2+H3 lethality",
+          "judge_result": {
+            "final_score": 85,
+            "score_breakdown": [
+              {
+                "criterion": "Triploidy recognition",
+                "max_score": 15,
+                "awarded_score": 15,
+                "comment": "The agent correctly identifies the organism as triploid, with three alleles per locus."
+              },
+              {
+                "criterion": "Meiosis process (1n/2n gametes)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent accurately describes the meiosis mechanism, noting the production of 1n and 2n gametes."
+              },
+              {
+                "criterion": "Viability constraint (only triploid survives)",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent explains that only triploid zygotes are viable, with other combinations being lethal."
+              },
+              {
+                "criterion": "Body size: dosage effect",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent identifies that body size follows an additive dosage effect."
+              },
+              {
+                "criterion": "Body size: allele identification",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent correctly identifies the existence of three distinct alleles for size."
+              },
+              {
+                "criterion": "Body size: quantitative values",
+                "max_score": 20,
+                "awarded_score": 15,
+                "comment": "The agent provides quantitative values for the alleles, but they deviate from the expected range."
+              },
+              {
+                "criterion": "Color: dominance hierarchy",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent correctly identifies the strict dominance order for color."
+              },
+              {
+                "criterion": "Color: complete dominance",
+                "max_score": 5,
+                "awarded_score": 5,
+                "comment": "The agent states that the dominance is complete, with phenotype determined by the dominant allele."
+              },
+              {
+                "criterion": "Shell: cyclic dominance",
+                "max_score": 10,
+                "awarded_score": 10,
+                "comment": "The agent correctly identifies the cyclic dominance relationship among shell alleles."
+              },
+              {
+                "criterion": "Shell: lethal combination",
+                "max_score": 20,
+                "awarded_score": 10,
+                "comment": "The agent explains the lethal combination of all three shell alleles, but the description is slightly vague."
+              }
+            ]
+          }
+        }
+      },
+      "wall_time_s": 4.814081907272339
+    }
+  ]
+}
