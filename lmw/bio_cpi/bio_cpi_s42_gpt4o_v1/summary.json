@@ -1,0 +1,22 @@
+{
+  "run_id": "bio_cpi_s42_gpt4o_v1",
+  "score_type": "official-env-compatible",
+  "judge_model": "openai/gpt-4o",
+  "budget": 18,
+  "n_seeds": 1,
+  "seeds": [
+    42
+  ],
+  "mean_score": 0.0,
+  "sd_score": 0.0,
+  "scores": [
+    0.0
+  ],
+  "results": [
+    {
+      "seed": 42,
+      "final_score": 0.0,
+      "error": "GeneticsLabEnvironment.query_organisms() got an unexpected keyword argument 'include_genotype'"
+    }
+  ]
+}
