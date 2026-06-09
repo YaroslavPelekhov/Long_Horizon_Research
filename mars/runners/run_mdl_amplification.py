@@ -154,6 +154,7 @@ def main() -> None:
     ap.add_argument("--weak", default="openai/gpt-4o-mini")
     ap.add_argument("--strong", default="openai/gpt-4o")
     ap.add_argument("--rounds", type=int, default=4)
+    ap.add_argument("--k", type=int, default=8)
     ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()
 
@@ -173,7 +174,7 @@ def main() -> None:
         slots = collect(seed, args.difficulty)
         # weak+MDL: ONE shared library across the 5 rules (long-horizon transfer)
         proposer = make_llm_proposer(args.weak)
-        engine = MDLEngine(proposer, max_rounds=args.rounds, library=Library())
+        engine = MDLEngine(proposer, max_rounds=args.rounds, k_per_round=args.k, library=Library())
         w = s = e = 0
         per_rule = []
         for slot in range(1, 6):

@@ -262,10 +262,12 @@ class MDLEngine:
     """The weak model proposes; bits decide. One loop, any task."""
 
     def __init__(self, propose_fn: Callable[..., list[str]], *,
-                 max_rounds: int = 4, library: Library | None = None):
+                 max_rounds: int = 4, k_per_round: int = 8,
+                 library: Library | None = None):
         # propose_fn(task_prompt, n) -> list of candidate source strings
         self.propose_fn = propose_fn
         self.max_rounds = max_rounds
+        self.k_per_round = k_per_round
         self.library = library or Library()
 
     def _score(self, fn: Callable, code: str, task: CompressionTask,
@@ -299,7 +301,7 @@ class MDLEngine:
         for rnd in range(self.max_rounds):
             rounds = rnd + 1
             prompt = self._build_prompt(task, obs, best, feedback)
-            candidates = self.propose_fn(prompt, 8)
+            candidates = self.propose_fn(prompt, self.k_per_round)
             n_proposed += len(candidates)
             preamble = self.library.source_preamble()
 

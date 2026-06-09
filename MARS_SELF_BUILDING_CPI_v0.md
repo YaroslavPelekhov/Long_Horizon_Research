@@ -8,6 +8,52 @@ and treats those analyzers as refutable hypotheses.
 
 ---
 
+## 0. THE Principle — Compression-as-Cognition (2026-06-10)
+
+The whole system reduces to ONE principle, not a zoo of modes:
+
+> Solving any task = finding the SHORTEST program that reproduces the
+> observations. A WEAK model only PROPOSES candidate programs; the single judge
+> is the total description length in bits (program bits + residual bits). Nothing
+> else.
+
+Every mechanism we previously hand-built is a consequence, not a separate part:
+progress compass (bits fall), decomposition (reuse shortens code), rollback
+(a candidate that doesn't shorten is rejected), prohibition (a constraint is a
+way to compress), transfer (the library lowers bits on later tasks), Occam
+(built into "shortest").
+
+**Why a weak model + this beats a strong model:** a larger model maximizes
+likelihood — it favours plausible-but-complex output, i.e. hallucination.
+Compression minimizes bits — Occam is intrinsic, so complex-but-uninformative
+proposals are auto-rejected. The weak model supplies variety; the bit-counter
+supplies the judgment weak models lack. This is approximate Solomonoff
+induction with an LLM as the hypothesis generator.
+
+Files: `mars/mdl/engine.py` (MDLEngine + Library + two-part code + sandbox),
+`mars/mdl/tasks_seq.py` (UH-Seq as a CompressionTask, no answers),
+`mars/runners/run_mdl_amplification.py`.
+
+**Measured amplification (UH-Seq hidden-rule recovery, exact rules / 5):**
+
+| Condition | seeds 1-3 (r4,k8) | seeds 1-5 (r6,k12) |
+|---|---|---|
+| weak_raw (gpt-4o-mini) | 0.33 | 0.00 |
+| strong_raw (gpt-4o) | 0.67 | 0.40 |
+| **weak+MDL (gpt-4o-mini)** | **1.67** | **1.80** |
+
+weak+MDL beats strong_raw on every seed. The shared Library grows each episode
+(cross-rule transfer = compression across the horizon). The architecture is
+task-agnostic: the engine never sees "UH-Seq" — only a CompressionTask contract
+(observations + how to run a candidate). A different CompressionTask runs any
+benchmark with the same engine and the same single principle.
+
+Honest boundary: absolute scores are modest (search budget is small and the
+proposer is weak); the *amplification ratio* (weak+MDL >> strong_raw >> weak_raw)
+is the result. Raising budget / proposer quality raises the absolute.
+
+---
+
 ## 0a. Universal Autonomous Engine (2026-06-09)
 
 The strongest form of the claim: **ONE engine, FOUR benchmarks, zero
