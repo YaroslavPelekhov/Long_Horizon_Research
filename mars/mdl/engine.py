@@ -165,6 +165,24 @@ class CompressionTask(ABC):
     def target(self, obs: Any) -> Any:
         """The observed value the prediction is compared against."""
 
+    def matches(self, prediction: Any, obs: Any) -> bool:
+        """Does the prediction reproduce the observation? Default exact equality.
+        Override for continuous targets (relative tolerance), sets, etc."""
+        return prediction == self.target(obs)
+
+    def calibrate(self, fn: Callable, observations: list[Any]) -> Callable:
+        """Optional: fit free constants in a candidate against the data before
+        scoring (e.g. the multiplicative constant in a physical law). The fitted
+        constant adds to description length elsewhere. Default: identity."""
+        return fn
+
+    def item_residual_bits(self, prediction: Any, obs: Any) -> float | None:
+        """Bits to encode ONE observation given the prediction. Return None to
+        fall back to the default two-part code (0 if matches else per_item_bits).
+        Override for continuous targets to give a GRADED residual (fewer bits for
+        smaller error), so partial-fit programs still lower total bits."""
+        return None
+
     @abstractmethod
     def per_item_bits(self) -> float:
         """Literal cost (bits) to encode one observation verbatim — the cost the
@@ -272,17 +290,27 @@ class MDLEngine:
 
     def _score(self, fn: Callable, code: str, task: CompressionTask,
                obs: list[Any]) -> MDLScore:
+        n = len(obs)
         n_correct = 0
+        graded_total = 0.0
+        graded_used = False
+        pointer = math.log2(n + 1)
         for o in obs:
             try:
                 pred = task.run(fn, o)
-                if pred == task.target(o):
+                if task.matches(pred, o):
                     n_correct += 1
+                res = task.item_residual_bits(pred, o)
             except Exception:
-                pass
-        n = len(obs)
+                res = task.per_item_bits()
+            if res is not None:
+                graded_used = True
+                graded_total += res
         pb = program_bits(code, self.library)
-        rb = residual_bits(n, n - n_correct, task.per_item_bits())
+        if graded_used:
+            rb = graded_total
+        else:
+            rb = residual_bits(n, n - n_correct, task.per_item_bits())
         return MDLScore(program_bits=pb, residual_bits=rb, n_items=n, n_correct=n_correct)
 
     def compress(self, task: CompressionTask) -> MDLResult:
@@ -311,6 +339,7 @@ class MDLEngine:
                 if not ok:
                     continue
                 n_valid += 1
+                fn = task.calibrate(fn, obs)
                 score = self._score(fn, code, task, obs)
                 prog = Program(name=f"p{rnd}_{n_valid}", code=code, fn=fn,
                                bits=score.program_bits, score=score)

@@ -1,0 +1,26 @@
+{
+  "benchmark": "newtonbench_m0",
+  "mean_weak_raw": 0.0,
+  "mean_strong_raw": 0.0,
+  "mean_weak_mdl": 0.0,
+  "results": [
+    {
+      "ver": "v0",
+      "weak_raw": 0.0,
+      "strong_raw": 0.0,
+      "weak_mdl": 0.0
+    },
+    {
+      "ver": "v1",
+      "weak_raw": 0.0,
+      "strong_raw": 0.0,
+      "weak_mdl": 0.0
+    },
+    {
+      "ver": "v2",
+      "weak_raw": 0.0,
+      "strong_raw": 0.0,
+      "weak_mdl": 0.0
+    }
+  ]
+}

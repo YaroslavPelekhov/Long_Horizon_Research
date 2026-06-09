@@ -52,6 +52,22 @@ Honest boundary: absolute scores are modest (search budget is small and the
 proposer is weak); the *amplification ratio* (weak+MDL >> strong_raw >> weak_raw)
 is the result. Raising budget / proposer quality raises the absolute.
 
+**Transfer of the SAME engine to NewtonBench (one principle, thin
+CompressionTask, no new mechanism):** `mars/mdl/tasks_newton.py` adds graded
+residual (bits ∝ error) and data-driven constant calibration via the engine's
+generic hooks. The engine code is unchanged. Result on m0 obfuscated laws
+(exact-rate, rel-err ≤ 5%): weak_raw 0.00 / strong_raw 0.00 / weak+MDL 0.00.
+
+This is an honest NEGATIVE-control result, and it is informative: NewtonBench's
+obfuscated laws are OUTSIDE the reachability zone of a generic LLM proposer —
+they need a rich domain grammar (the hand-built `nb_cpi` reached SA=1.0 only
+with primitives like pair_product/separable). Amplification needs the task to be
+reachable by the proposer; when it is (UH-Seq), weak+MDL beats strong; when it
+is not (obfuscated symbolic regression), no method moves and the ratio is
+undefined, not violated. The two results together delimit exactly where the one
+principle amplifies: **universality of the engine (same code, 2 benchmarks via
+thin tasks) is shown; amplification is bounded by proposer reachability.**
+
 ---
 
 ## 0a. Universal Autonomous Engine (2026-06-09)
