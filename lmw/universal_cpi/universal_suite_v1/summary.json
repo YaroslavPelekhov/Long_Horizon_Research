@@ -1,0 +1,101 @@
+{
+  "run_id": "universal_suite_v1",
+  "score_type": "universal-autonomous-engine",
+  "claim": "ONE UniversalCPI engine + thin adapters (no domain answers) across 4 benchmarks",
+  "model": "openai/gpt-4o",
+  "judge_model": "openai/gpt-4o",
+  "seed": 42,
+  "n_benchmarks": 4,
+  "mean_normalized": 0.4874,
+  "results": [
+    {
+      "benchmark": "uh_seq",
+      "metric": "exact_rules",
+      "score": 3,
+      "max": 5,
+      "normalized": 0.6,
+      "detail": [
+        {
+          "slot": 1,
+          "exact": true,
+          "loss": 0.0,
+          "winner": "double_and_slice",
+          "n_valid": 14
+        },
+        {
+          "slot": 2,
+          "exact": true,
+          "loss": 0.0,
+          "winner": "main_vice_interleave",
+          "n_valid": 28
+        },
+        {
+          "slot": 3,
+          "exact": false,
+          "loss": 0.48,
+          "winner": "alternate_main_vice",
+          "n_valid": 28
+        },
+        {
+          "slot": 4,
+          "exact": true,
+          "loss": 0.0,
+          "winner": "identity_transformation",
+          "n_valid": 13
+        },
+        {
+          "slot": 5,
+          "exact": false,
+          "loss": 0.42000000000000004,
+          "winner": "alternate_main_and_vice",
+          "n_valid": 28
+        }
+      ],
+      "wall_time_s": 89.4
+    },
+    {
+      "benchmark": "newtonbench",
+      "metric": "1-loss",
+      "score": 0.8496,
+      "max": 1,
+      "normalized": 0.8496053363066547,
+      "detail": {
+        "best_law": "def simple_gravitational_law(inputs):\n    G = 0.0002359615328819509\n    return G * inputs['mass1'] * inputs['mass2'] / inputs['distance'] ** 2",
+        "const": 0.4,
+        "loss": 0.15039466369334525,
+        "n_valid": 28
+      },
+      "wall_time_s": 17.1
+    },
+    {
+      "benchmark": "uh_bio",
+      "metric": "official_judge_100",
+      "score": 50.0,
+      "max": 100,
+      "normalized": 0.5,
+      "detail": {
+        "n_crosses": 18,
+        "n_valid": 28,
+        "winners": [
+          "dominant_color_recessive_shape",
+          "weighted_color_and_shape",
+          "intensity_based_color_choice"
+        ]
+      },
+      "wall_time_s": 100.0
+    },
+    {
+      "benchmark": "discoverybench",
+      "metric": "official_HMS_100",
+      "score": 0.0,
+      "max": 100,
+      "normalized": 0.0,
+      "detail": {
+        "task": "worldbank_education_gdp:3:0",
+        "n_valid": 10,
+        "report": "Hypothesis: Increased government expenditure on education is positively correlated with primary enrollment rates, which in turn is associated with higher exports growth, as evidenced by the average di"
+      },
+      "wall_time_s": 204.7
+    }
+  ]
+}

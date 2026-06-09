@@ -1,10 +1,55 @@
 # MARS Self-Building CPI v0
 
-**Date:** 2026-06-05  
+**Date:** 2026-06-05 (updated 2026-06-09)
 **Working name:** SB-CPI, Self-Building Causal/Program Induction  
 **Thesis:** the novelty is not "more agents" or "better prompts"; it is a
 layer that builds small causal/program analyzers under the current environment
 and treats those analyzers as refutable hypotheses.
+
+---
+
+## 0a. Universal Autonomous Engine (2026-06-09)
+
+The strongest form of the claim: **ONE engine, FOUR benchmarks, zero
+human-written domain answers.**
+
+Files:
+- `mars/induction/universal_cpi.py` — the single engine: propose (LLM) →
+  sandbox-validate → refute on held-out observations → MDL-select → render.
+- `mars/induction/cpi_adapters.py` — four thin adapters (UH-Seq, NewtonBench,
+  UH-Bio, DiscoveryBench). Each adapter contains ONLY mechanics (how to collect
+  observations, execute a candidate, measure loss, verbalize winners). **No
+  adapter prints a domain answer or sees the scoring rubric.**
+- `mars/runners/run_universal_cpi_suite.py` — instantiates the engine ONCE and
+  runs it across all four benchmarks.
+
+Result (one engine, autonomous, gpt-4o, official judges where applicable):
+
+| Benchmark | Metric | Score | Note |
+|---|---|---|---|
+| UH-Seq (easy) | exact rules | 3/5 | generic interface, no position-wise hints |
+| NewtonBench m0 | 1 − rel.loss | 0.85 | discovers `m1·m2/d²` structure + calibrates constant |
+| UH-Bio | official judge | 50–65/100 | **autonomous**; discovers color hierarchy from data |
+| DiscoveryBench | official HMS | 0–37.5/100 | weakest: fold-consistency refutation is a thin signal |
+
+**Autonomy honesty note.** An earlier `bio_cpi.py` scored 83/100 but did so by
+hard-coding rubric answers ("triploid", "cyclic H1>H2>H3", "200/50/10") into the
+report template — the same rubric leakage we criticized in the dev proxy, moved
+from the prompt into code. The universal engine scores lower (50–65) but
+**discovers** the color dominance order from cross data with no rubric. The
+lower honest number is the one we can defend.
+
+**Where the engine is strong vs weak (interpretable):**
+- Strong when a refutation signal exists during search: UH-Seq (held-out
+  transformation traces), NewtonBench (held-out (input,output) points), UH-Bio
+  (held-out cross outcomes — predict offspring, compare to reality).
+- Weak when no per-step ground truth exists during search: DiscoveryBench
+  semantic questions, where fold-consistency only checks that an analyzer runs,
+  not that it answers the question. This is the honest frontier.
+
+The per-benchmark specialized modules (`grammar_synthesizer`, `qd_cpi`,
+`nb_cpi`) remain as higher-ceiling references, but they are NOT the universality
+claim. The universality claim is `universal_cpi.py` + thin adapters.
 
 ---
 
