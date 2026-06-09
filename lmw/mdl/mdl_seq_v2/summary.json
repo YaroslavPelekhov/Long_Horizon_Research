@@ -1,0 +1,172 @@
+{
+  "run_id": "mdl_seq_v2",
+  "score_type": "compression-amplification-uhseq",
+  "principle": "shortest program reproducing observations; bits are the only judge",
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "n_seeds": 3,
+  "mean_weak_raw": 0.33,
+  "mean_strong_raw": 0.67,
+  "mean_weak_mdl": 1.67,
+  "amplified": true,
+  "results": [
+    {
+      "seed": 1,
+      "weak_raw": 1,
+      "strong_raw": 1,
+      "weak_mdl": 2,
+      "per_rule": [
+        {
+          "slot": 1,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 2,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 3,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 4,
+          "weak_raw": 1.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0,
+          "ratio": 3.672218529797728,
+          "lib": [
+            "seq_rule_4_solver"
+          ]
+        },
+        {
+          "slot": 5,
+          "weak_raw": 0.0,
+          "strong_raw": 0.2,
+          "weak_mdl": 1.0,
+          "ratio": 2.8661217793543243,
+          "lib": [
+            "seq_rule_4_solver",
+            "seq_rule_5_solver"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "weak_raw": 0,
+      "strong_raw": 1,
+      "weak_mdl": 2,
+      "per_rule": [
+        {
+          "slot": 1,
+          "weak_raw": 0.2,
+          "strong_raw": 0.8,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 2,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 3,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 4,
+          "weak_raw": 0.6,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0,
+          "ratio": 3.672218529797728,
+          "lib": [
+            "seq_rule_4_solver"
+          ]
+        },
+        {
+          "slot": 5,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 1.0,
+          "ratio": 2.732813789616914,
+          "lib": [
+            "seq_rule_4_solver",
+            "seq_rule_5_solver"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_mdl": 1,
+      "per_rule": [
+        {
+          "slot": 1,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 2,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 3,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.0,
+          "ratio": 1.0,
+          "lib": []
+        },
+        {
+          "slot": 4,
+          "weak_raw": 0.6,
+          "strong_raw": 0.4,
+          "weak_mdl": 1.0,
+          "ratio": 3.672218529797728,
+          "lib": [
+            "seq_rule_4_solver"
+          ]
+        },
+        {
+          "slot": 5,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.6,
+          "ratio": 1.357106616620194,
+          "lib": [
+            "seq_rule_4_solver"
+          ]
+        }
+      ]
+    }
+  ]
+}
