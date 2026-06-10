@@ -1,0 +1,140 @@
+{
+  "run_id": "grid_v2",
+  "score_type": "compression-amplification-uhgrid",
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "n_seeds": 3,
+  "mean_weak_raw": 1.33,
+  "mean_strong_raw": 2.33,
+  "mean_weak_mdl": 2.67,
+  "amplified": true,
+  "results": [
+    {
+      "seed": 1,
+      "weak_raw": 1,
+      "strong_raw": 2,
+      "weak_mdl": 2,
+      "per_letter": [
+        {
+          "letter": "A",
+          "n_obs": 11,
+          "weak_raw": 0.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0
+        },
+        {
+          "letter": "B",
+          "n_obs": 4,
+          "weak_raw": 1.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0
+        },
+        {
+          "letter": "C",
+          "n_obs": 11,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.8181818181818182
+        },
+        {
+          "letter": "D",
+          "n_obs": 5,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.6
+        },
+        {
+          "letter": "E",
+          "n_obs": 9,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.8888888888888888
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "weak_raw": 2,
+      "strong_raw": 3,
+      "weak_mdl": 3,
+      "per_letter": [
+        {
+          "letter": "A",
+          "n_obs": 11,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 1.0
+        },
+        {
+          "letter": "B",
+          "n_obs": 8,
+          "weak_raw": 1.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0
+        },
+        {
+          "letter": "C",
+          "n_obs": 4,
+          "weak_raw": 0.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0
+        },
+        {
+          "letter": "D",
+          "n_obs": 9,
+          "weak_raw": 1.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 0.8888888888888888
+        },
+        {
+          "letter": "E",
+          "n_obs": 10,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.9
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "weak_raw": 1,
+      "strong_raw": 2,
+      "weak_mdl": 3,
+      "per_letter": [
+        {
+          "letter": "A",
+          "n_obs": 5,
+          "weak_raw": 0.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0
+        },
+        {
+          "letter": "B",
+          "n_obs": 9,
+          "weak_raw": 1.0,
+          "strong_raw": 1.0,
+          "weak_mdl": 1.0
+        },
+        {
+          "letter": "C",
+          "n_obs": 8,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 0.875
+        },
+        {
+          "letter": "D",
+          "n_obs": 2,
+          "skipped": true
+        },
+        {
+          "letter": "E",
+          "n_obs": 7,
+          "weak_raw": 0.0,
+          "strong_raw": 0.0,
+          "weak_mdl": 1.0
+        }
+      ]
+    }
+  ]
+}

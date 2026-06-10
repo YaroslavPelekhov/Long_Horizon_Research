@@ -320,11 +320,20 @@ class MDLEngine:
         baseline = n * task.per_item_bits()      # store everything verbatim
 
         best: Program | None = None
-        best_total = baseline
+        best_total = float("inf")
         accepted: list[dict] = []
         n_proposed = n_valid = 0
         feedback = ""
         rounds = 0
+
+        def _better(s, cur: Program | None) -> bool:
+            # Prefer higher exact-fit; break ties by shorter description length.
+            # (MDL selects AMONG fitting programs; it is not a gate vs verbatim.)
+            if cur is None or cur.score is None:
+                return True
+            if s.exact_rate != cur.score.exact_rate:
+                return s.exact_rate > cur.score.exact_rate
+            return s.total < cur.score.total - 1e-9
 
         for rnd in range(self.max_rounds):
             rounds = rnd + 1
@@ -343,8 +352,8 @@ class MDLEngine:
                 score = self._score(fn, code, task, obs)
                 prog = Program(name=f"p{rnd}_{n_valid}", code=code, fn=fn,
                                bits=score.program_bits, score=score)
-                # The ONLY decision: does this lower total description length?
-                if score.total < best_total - 1e-9:
+                # Selection: best fit, ties broken by shortest description.
+                if _better(score, best):
                     best_total = score.total
                     best = prog
                     accepted.append({
@@ -352,7 +361,7 @@ class MDLEngine:
                         "exact_rate": round(score.exact_rate, 3),
                         "code": code[:160],
                     })
-                if round_best is None or score.total < round_best.score.total:
+                if round_best is None or _better(score, round_best):
                     round_best = prog
 
             # Stop if we've reached zero-residual (perfect compression)
@@ -390,9 +399,14 @@ class MDLEngine:
                      f"{self.library.source_preamble()[:1200]}\n" if lib else "")
         examples = json.dumps([task.render_observation(o) for o in obs[:8]],
                               default=str, ensure_ascii=False)[:2800]
-        return f"""Find the SHORTEST program that reproduces ALL observations.
-You are judged ONLY by total description length = program length + cost of the
-items it fails to reproduce. Shorter program that fits more items always wins.
+        return f"""Find the simplest program that reproduces ALL observations.
+You are judged by total description length = program length + cost of the items
+it fails to reproduce. Simpler logic that fits more items wins.
+
+CRITICAL: write NORMAL, syntactically valid Python. "Simplest" means the
+simplest LOGIC (fewest distinct rules/branches), NOT the fewest characters. Do
+NOT golf the code (no `1if x else-1`, no cramming onto one line). Use clear
+multi-line code with spaces; an invalid program scores the worst.
 
 The function you define MUST use EXACTLY this signature (do not change argument
 names or count):

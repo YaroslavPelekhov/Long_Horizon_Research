@@ -137,6 +137,29 @@ weak model makes single-shot (e.g. id=34, id=35: weak=0, strong=0, amp=1). SR is
 allowed to use — the same alignment boundary seen throughout: amplification moves
 the metric that execution can verify (VER), not the one it cannot (SR).
 
+## 0c. UltraHorizon Grid — same MDL engine (2026-06-11, UH fully covered)
+
+Third UH environment, via a thin `GridLetterTask` (mars/mdl/tasks_grid.py). A
+letter's hidden effect = shortest program mapping state (x,y,energy,steps,
+visit_count) → Δscore; one task per letter A-E. The engine is unchanged.
+
+Result (UH-Grid easy, seeds 1-3, exact letters / 5):
+  weak_raw (gpt-4o-mini)  : 1.33
+  strong_raw (gpt-4o)     : 2.33
+  weak+MDL (gpt-4o-mini)  : 2.67   >= strong on every seed
+
+The engine autonomously recovers nontrivial effects as programs: position parity
+((x+y)%2), energy thresholds (energy>=15), etc. Two engine fixes were required
+and both generalize: (1) the proposer prompt now forbids character-golf and
+demands valid multi-line Python (golfed `1if x else-1` was breaking on
+conditional logic); (2) selection now maximizes exact-fit with ties broken by
+description length, rather than gating against verbatim storage — at small N a
+correct program can cost more bits than memorizing the data, which wrongly
+suppressed induction. MDL now selects AMONG fitting programs (Occam), it is not
+a gate that blocks them.
+
+UltraHorizon is now fully covered (Seq, Bio, Grid) by the one principle.
+
 This makes the cross-benchmark pattern crisp:
   - aligned verifier (UH-Seq exact match, SAB VER) → weak+arch ≥ strong.
   - unaligned/absent verifier (DiscoveryBench gold-match, SAB SR, NB-obfuscated)
