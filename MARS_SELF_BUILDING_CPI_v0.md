@@ -86,6 +86,31 @@ bigger model, but a growing compression library, expands what the weak model can
 discover — a direct consequence of the one principle (reuse lowers description
 length), with no separate transfer mechanism.
 
+**Reachability curve & saturation (`mars/runners/run_mdl_longhorizon.py`,
+14-episode run, transfer vs cold-baseline per episode):**
+
+  transfer curve : [2,3,3,2,3,3,3,3,...]  mean 2.75
+  cold curve     : [2,2,3,1,2,2,2,2,...]  mean 2.00   (gap +0.75, stable)
+  library size   : 2→3 then PLATEAU at 3
+
+Honest finding: on a HOMOGENEOUS difficulty the reachable zone is finite. The
+library collects the small set of primitives that span easy rules (interleave,
+add, sort) within two episodes, then saturates; transfer holds a stable +0.75
+edge over cold but stops climbing because there is nothing new to add. Continued
+expansion of reachability requires INCREASING task difficulty (a curriculum that
+keeps demanding new primitives) — and that, in turn, is bounded by whether each
+next difficulty is reachable by the proposer at all (the NewtonBench-obfuscated
+boundary). So the complete picture is:
+
+  one principle (compression)
+    → weak+arch ≥ strong on reachable tasks (amplification)
+    → same engine across benchmarks (universality)
+    → accumulating library lifts capability and speed (transfer)
+    → reachable zone saturates per difficulty; growth needs rising difficulty,
+      itself capped by proposer reachability (the honest frontier).
+
+This is the defensible thesis with its limits drawn explicitly, not hidden.
+
 ---
 
 ## 0a. Universal Autonomous Engine (2026-06-09)

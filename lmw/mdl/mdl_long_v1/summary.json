@@ -1,0 +1,39 @@
+{
+  "run_id": "mdl_long_v1",
+  "weak": "openai/gpt-4o-mini",
+  "difficulty": "easy",
+  "episodes_done": 9,
+  "transfer_curve": [
+    2,
+    3,
+    3,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3
+  ],
+  "cold_curve": [
+    2,
+    2,
+    3,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "lib_sizes": [
+    2,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+  ]
+}
