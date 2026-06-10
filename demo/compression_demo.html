@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Compression-as-Cognition — a weak model beats a strong one</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#30363d; --txt:#e6edf3; --muted:#8b949e;
+    --good:#2ea043; --good2:#3fb950; --bad:#da3633; --warn:#d29922; --accent:#58a6ff;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  header{padding:18px 24px;border-bottom:1px solid var(--line);}
+  h1{font-size:19px;margin:0 0 4px;}
+  .sub{color:var(--muted);font-size:13px;}
+  .principle{color:var(--accent);font-size:13px;margin-top:6px;font-style:italic;}
+  .wrap{display:grid;grid-template-columns:1fr 360px;gap:0;height:calc(100vh - 84px);}
+  .stage{padding:16px 24px;overflow:auto;}
+  .side{border-left:1px solid var(--line);background:var(--panel);padding:16px;overflow:auto;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab{padding:6px 14px;border:1px solid var(--line);border-radius:20px;cursor:pointer;
+       font-size:13px;color:var(--muted);background:transparent;}
+  .tab.active{background:var(--accent);color:#0d1117;border-color:var(--accent);font-weight:600;}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+  button.ctrl{background:#21262d;color:var(--txt);border:1px solid var(--line);
+       border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px;}
+  button.ctrl:hover{border-color:var(--accent);}
+  button.ctrl.primary{background:var(--accent);color:#0d1117;font-weight:600;border-color:var(--accent);}
+  .roundlabel{color:var(--muted);font-size:12px;margin-left:6px;}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .modelcard{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--panel);}
+  .modelcard .name{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .verdict{font-size:13px;font-weight:600;}
+  .verdict.ok{color:var(--good2);} .verdict.no{color:var(--bad);}
+  .codeblk{font-family:var(--mono);font-size:11px;background:#0d1117;border:1px solid var(--line);
+       border-radius:6px;padding:8px;margin-top:8px;white-space:pre-wrap;max-height:90px;overflow:auto;color:#c9d1d9;}
+  .graph{position:relative;border:1px solid var(--line);border-radius:8px;background:
+       repeating-linear-gradient(0deg,transparent,transparent 79px,#1c2230 79px,#1c2230 80px);
+       min-height:420px;padding:8px;overflow:auto;}
+  .roundrow{display:flex;align-items:flex-start;gap:10px;min-height:72px;padding:6px 0;}
+  .rtag{flex:0 0 70px;color:var(--muted);font-size:11px;padding-top:8px;}
+  .nodes{display:flex;gap:8px;flex-wrap:wrap;flex:1;}
+  .node{border:1px solid var(--line);border-radius:7px;padding:6px 9px;cursor:pointer;
+       min-width:74px;transition:all .25s;background:var(--panel);position:relative;opacity:0;
+       transform:translateY(6px);}
+  .node.show{opacity:1;transform:translateY(0);}
+  .node.dim{opacity:.28;}
+  .node .ex{font-size:13px;font-weight:700;}
+  .node .bits{font-size:10px;color:var(--muted);font-family:var(--mono);}
+  .node.win{border-color:var(--good);box-shadow:0 0 0 2px rgba(46,160,67,.4);}
+  .node.invalid{border-style:dashed;color:var(--bad);}
+  .node .crown{position:absolute;top:-9px;right:-6px;font-size:13px;}
+  .legend{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7;}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:middle;margin-right:4px;}
+  .lib h3,.detail h3{font-size:13px;margin:0 0 10px;color:var(--accent);}
+  .libitem{font-family:var(--mono);font-size:11px;background:#0d1117;border:1px solid var(--line);
+       border-radius:6px;padding:6px 8px;margin-bottom:6px;animation:pop .4s;}
+  @keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+  .detail{margin-top:20px;border-top:1px solid var(--line);padding-top:14px;}
+  .obstable{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono);margin-top:8px;}
+  .obstable td,.obstable th{border:1px solid var(--line);padding:3px 6px;text-align:right;}
+  .obstable .ok{color:var(--good2);} .obstable .no{color:var(--bad);}
+  .empty{color:var(--muted);font-size:12px;}
+  .winbanner{margin-top:10px;padding:10px 12px;border-radius:8px;font-size:13px;display:none;}
+  .winbanner.show{display:block;}
+  .winbanner.amp{background:rgba(46,160,67,.12);border:1px solid var(--good);color:var(--good2);}
+</style>
+</head>
+<body>
+<header>
+  <h1>Compression-as-Cognition — a weak model beats a strong one, judged by bits</h1>
+  <div class="sub">A hidden rule must be recovered as a program. The weak model only proposes; the bit-counter judges. Watch the search graph form.</div>
+  <div class="principle" id="principle"></div>
+</header>
+<div class="wrap">
+  <div class="stage">
+    <div class="tabs" id="tabs"></div>
+    <div class="cmp">
+      <div class="modelcard">
+        <div class="name">gpt-4o (strong) — single shot</div>
+        <div class="verdict" id="strongVerdict">—</div>
+        <div class="codeblk" id="strongCode"></div>
+      </div>
+      <div class="modelcard">
+        <div class="name">gpt-4o-mini (weak) — single shot</div>
+        <div class="verdict" id="weakVerdict">—</div>
+        <div class="codeblk" id="weakCode"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ctrl primary" id="play">▶ Play search</button>
+      <button class="ctrl" id="step">Step</button>
+      <button class="ctrl" id="reset">Reset</button>
+      <span class="roundlabel" id="status"></span>
+    </div>
+    <div class="graph" id="graph"></div>
+    <div class="winbanner amp" id="winbanner"></div>
+    <div class="legend">
+      <span class="swatch" style="background:#2ea043"></span>fits all observations &nbsp;
+      <span class="swatch" style="background:#d29922"></span>partial fit &nbsp;
+      <span class="swatch" style="background:#da3633"></span>wrong / invalid &nbsp;
+      · node size ∝ shortness (fewer bits) · 👑 = current shortest-fitting program (the bit-counter's pick)
+    </div>
+  </div>
+  <div class="side">
+    <div class="lib">
+      <h3>Library (reused, ~free in bits)</h3>
+      <div id="lib"><div class="empty">empty — fills as rules are solved (transfer across tasks)</div></div>
+    </div>
+    <div class="detail">
+      <h3>Inspect a candidate</h3>
+      <div id="detail"><div class="empty">click any node to see its code and where it errs</div></div>
+    </div>
+  </div>
+</div>
+<script>
+const DEMO_DATA = /*__DEMO_DATA__*/ null;
+
+let DATA = DEMO_DATA, cur = 0, playTimer = null, revealed = 0, flatNodes = [];
+
+function fit_color(ex, valid){
+  if(valid===false) return "var(--bad)";
+  if(ex>=0.999) return "var(--good)";
+  if(ex>=0.5) return "var(--warn)";
+  return "var(--bad)";
+}
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function renderTabs(){
+  const t = document.getElementById("tabs"); t.innerHTML="";
+  DATA.showcase.forEach((s,i)=>{
+    const b=document.createElement("button");
+    b.className="tab"+(i===cur?" active":"");
+    b.textContent = (s.kind==="grid"?("Grid letter "+s.letter):s.kind);
+    b.onclick=()=>{cur=i;loadTask();};
+    t.appendChild(b);
+  });
+}
+
+function loadTask(){
+  clearInterval(playTimer); playTimer=null;
+  const s = DATA.showcase[cur];
+  document.getElementById("principle").textContent = "Principle: "+DATA.principle;
+  renderTabs();
+  // baselines
+  const sv=document.getElementById("strongVerdict"), wv=document.getElementById("weakVerdict");
+  sv.textContent = s.strong_raw.solved? "✓ solved" : "✗ wrong (exact "+(s.strong_raw.exact*100).toFixed(0)+"%)";
+  sv.className="verdict "+(s.strong_raw.solved?"ok":"no");
+  wv.textContent = s.weak_raw.solved? "✓ solved" : "✗ wrong (exact "+(s.weak_raw.exact*100).toFixed(0)+"%)";
+  wv.className="verdict "+(s.weak_raw.solved?"ok":"no");
+  document.getElementById("strongCode").textContent = esc(s.strong_raw.code||"(none)");
+  document.getElementById("weakCode").textContent = esc(s.weak_raw.code||"(none)");
+  // build flat node list grouped by round
+  flatNodes = s.weak_mdl.trace.map((n,idx)=>({...n,idx}));
+  revealed=0;
+  document.getElementById("winbanner").className="winbanner amp";
+  document.getElementById("lib").innerHTML = '<div class="empty">empty — fills as rules are solved (transfer across tasks)</div>';
+  document.getElementById("detail").innerHTML = '<div class="empty">click any node to see its code and where it errs</div>';
+  renderGraph();
+  setStatus();
+}
+
+function rounds(){ const r={}; flatNodes.forEach(n=>{(r[n.round]=r[n.round]||[]).push(n);}); return r; }
+
+function renderGraph(){
+  const g=document.getElementById("graph"); g.innerHTML="";
+  const byR = rounds();
+  Object.keys(byR).sort((a,b)=>a-b).forEach(rk=>{
+    const row=document.createElement("div"); row.className="roundrow";
+    const tag=document.createElement("div"); tag.className="rtag"; tag.textContent="round "+rk;
+    row.appendChild(tag);
+    const nd=document.createElement("div"); nd.className="nodes";
+    // best exact in this round so far (for crown among revealed)
+    byR[rk].forEach(n=>{
+      const el=document.createElement("div");
+      const sz = n.program_bits? Math.max(74, 150 - n.program_bits*1.1) : 74;
+      el.className="node"+(n.valid===false?" invalid":"");
+      el.style.minWidth=sz+"px";
+      el.style.borderColor = fit_color(n.exact_rate, n.valid);
+      el.dataset.idx=n.idx;
+      const exTxt = n.valid===false? "ERR" : (n.exact_rate*100).toFixed(0)+"%";
+      const bitsTxt = n.valid===false? esc((n.error||"").slice(0,16)) :
+          ("bits "+(n.program_bits||0)+(n.residual_bits?("+"+n.residual_bits):"" ));
+      el.innerHTML='<div class="ex" style="color:'+fit_color(n.exact_rate,n.valid)+'">'+exTxt+'</div>'+
+                   '<div class="bits">'+bitsTxt+'</div>';
+      el.onclick=()=>showDetail(n);
+      nd.appendChild(el);
+    });
+    row.appendChild(nd); g.appendChild(row);
+  });
+  applyReveal();
+}
+
+function applyReveal(){
+  const order = flatNodes; // reveal in trace order
+  let winnerIdx=-1, bestEx=-1, bestBits=1e9;
+  order.forEach((n,i)=>{
+    const el=document.querySelector('.node[data-idx="'+n.idx+'"]');
+    if(!el) return;
+    if(i<revealed){
+      el.classList.add("show");
+      // track running winner among revealed valid
+      if(n.valid!==false && (n.exact_rate>bestEx || (n.exact_rate===bestEx && (n.program_bits||1e9)<bestBits))){
+        bestEx=n.exact_rate; bestBits=n.program_bits||1e9; winnerIdx=n.idx;
+      }
+    } else {
+      el.classList.remove("show");
+    }
+  });
+  // crowns + dim losers among revealed
+  order.forEach(n=>{
+    const el=document.querySelector('.node[data-idx="'+n.idx+'"]');
+    if(!el) return;
+    el.querySelector(".crown")?.remove();
+    el.classList.remove("win","dim");
+    if(flatNodes.indexOf(n)<revealed){
+      if(n.idx===winnerIdx){ el.classList.add("win");
+        const c=document.createElement("div"); c.className="crown"; c.textContent="👑"; el.appendChild(c);
+      } else if(n.valid===false || n.exact_rate<bestEx){ el.classList.add("dim"); }
+    }
+  });
+  // winner banner + library when fully revealed
+  const s=DATA.showcase[cur];
+  if(revealed>=order.length){
+    const wb=document.getElementById("winbanner");
+    if(s.weak_mdl.solved){
+      wb.textContent="✓ weak+compression recovered the rule (exact 100%) — "+
+        (s.strong_raw.solved? "matching the strong model." :
+         "while the strong model alone got it WRONG. The bits, not the model, found it.");
+      wb.classList.add("show");
+    } else {
+      wb.textContent="weak+compression reached exact "+(s.weak_mdl.exact*100).toFixed(0)+"% (best available program).";
+      wb.classList.add("show");
+    }
+    renderLib();
+  } else {
+    document.getElementById("winbanner").classList.remove("show");
+  }
+  setStatus();
+}
+
+function renderLib(){
+  const s=DATA.showcase[cur];
+  const lib=document.getElementById("lib");
+  if(!s.library_after || !s.library_after.length){ return; }
+  lib.innerHTML="";
+  s.library_after.forEach(nm=>{
+    const d=document.createElement("div"); d.className="libitem"; d.textContent="✓ "+nm;
+    lib.appendChild(d);
+  });
+}
+
+function showDetail(n){
+  const s=DATA.showcase[cur];
+  const d=document.getElementById("detail");
+  let html='<div class="codeblk">'+esc(n.code||"")+'</div>';
+  if(n.valid===false){
+    html+='<div style="color:var(--bad);font-size:12px;margin-top:8px">compile/run error: '+esc(n.error||"")+'</div>';
+  } else {
+    html+='<div style="font-size:12px;margin:8px 0;color:var(--muted)">bits='+n.program_bits+
+          ' · residual='+n.residual_bits+' · reproduces '+n.n_correct+'/'+n.n_items+'</div>';
+    // observation table with predicted vs actual would require re-exec; show fit summary
+    html+='<table class="obstable"><tr><th>input</th><th>target</th></tr>';
+    s.observations.slice(0,8).forEach(o=>{
+      const inp = s.kind==="grid"? ("x"+o.x+" y"+o.y+" e"+o.energy+" s"+o.steps+" v"+o.visit_count) : JSON.stringify(o);
+      const tgt = (o.delta_score!==undefined)? o.delta_score : (o.output!==undefined? o.output : "");
+      html+='<tr><td style="text-align:left">'+esc(inp)+'</td><td>'+tgt+'</td></tr>';
+    });
+    html+='</table>';
+  }
+  d.innerHTML=html;
+}
+
+function setStatus(){
+  const s=DATA.showcase[cur];
+  document.getElementById("status").textContent =
+    "candidates "+Math.min(revealed,flatNodes.length)+"/"+flatNodes.length+
+    " · proposed "+s.weak_mdl.n_proposed+" · valid "+s.weak_mdl.n_valid+
+    " · winner exact "+(s.weak_mdl.exact*100).toFixed(0)+"%";
+}
+
+document.getElementById("step").onclick=()=>{ if(revealed<flatNodes.length){revealed++; applyReveal();} };
+document.getElementById("reset").onclick=()=>{ revealed=0; clearInterval(playTimer); playTimer=null; applyReveal(); };
+document.getElementById("play").onclick=()=>{
+  if(playTimer){clearInterval(playTimer);playTimer=null;return;}
+  if(revealed>=flatNodes.length) revealed=0;
+  playTimer=setInterval(()=>{
+    if(revealed>=flatNodes.length){clearInterval(playTimer);playTimer=null;return;}
+    revealed++; applyReveal();
+  }, 420);
+};
+
+if(DATA && DATA.showcase && DATA.showcase.length){ loadTask(); }
+else { document.body.innerHTML='<div style="padding:40px;color:#8b949e">No demo data embedded. Run: python -m mars.runners.make_demo_data && python -m mars.runners.build_demo</div>'; }
+</script>
+</body>
+</html>

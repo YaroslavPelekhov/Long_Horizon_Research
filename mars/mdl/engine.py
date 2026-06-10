@@ -325,6 +325,7 @@ class MDLEngine:
         n_proposed = n_valid = 0
         feedback = ""
         rounds = 0
+        trace: list[dict] = []   # full per-candidate trace for visualization
 
         def _better(s, cur: Program | None) -> bool:
             # Prefer higher exact-fit; break ties by shorter description length.
@@ -343,9 +344,13 @@ class MDLEngine:
             preamble = self.library.source_preamble()
 
             round_best = None
-            for code in candidates:
+            for ci, code in enumerate(candidates):
                 ok, err, fn = _compile(code, task.entry_point, preamble)
                 if not ok:
+                    trace.append({"round": rounds, "name": f"r{rnd}c{ci}", "code": code,
+                                  "valid": False, "error": err[:120],
+                                  "program_bits": None, "residual_bits": None,
+                                  "exact_rate": 0.0, "accepted": False})
                     continue
                 n_valid += 1
                 fn = task.calibrate(fn, obs)
@@ -353,7 +358,8 @@ class MDLEngine:
                 prog = Program(name=f"p{rnd}_{n_valid}", code=code, fn=fn,
                                bits=score.program_bits, score=score)
                 # Selection: best fit, ties broken by shortest description.
-                if _better(score, best):
+                is_best = _better(score, best)
+                if is_best:
                     best_total = score.total
                     best = prog
                     accepted.append({
@@ -363,6 +369,14 @@ class MDLEngine:
                     })
                 if round_best is None or _better(score, round_best):
                     round_best = prog
+                trace.append({"round": rounds, "name": prog.name, "code": code,
+                              "valid": True, "error": None,
+                              "program_bits": round(score.program_bits, 1),
+                              "residual_bits": round(score.residual_bits, 1),
+                              "total_bits": round(score.total, 1),
+                              "exact_rate": round(score.exact_rate, 3),
+                              "n_correct": score.n_correct, "n_items": score.n_items,
+                              "accepted": is_best})
 
             # Stop if we've reached zero-residual (perfect compression)
             if best is not None and best.score and best.score.residual_bits == 0:
@@ -384,13 +398,16 @@ class MDLEngine:
                                bits=best.bits, score=best.score)
             self.library.add(promoted)
 
-        return MDLResult(
+        result = MDLResult(
             task=task.name, best=best, total_bits=best_total, baseline_bits=baseline,
             compression_ratio=(baseline / best_total) if best_total > 0 else 1.0,
             exact_rate=best.score.exact_rate if best and best.score else 0.0,
             rounds=rounds, n_proposed=n_proposed, n_valid=n_valid,
             accepted=accepted, wall_time_s=time.time() - t0,
         )
+        result.trace = trace            # type: ignore[attr-defined]
+        result.baseline_bits = baseline
+        return result
 
     def _build_prompt(self, task: CompressionTask, obs: list[Any],
                       best: Program | None, feedback: str) -> str:
