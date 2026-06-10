@@ -1,0 +1,93 @@
+{
+  "run_id": "sab_amp_v1",
+  "score_type": "sab-execution-verified-amplification",
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "n_tasks": 10,
+  "SR_weak_raw": 0.0,
+  "SR_strong_raw": 0.0,
+  "SR_weak_amp": 0.0,
+  "amplified_vs_strong": true,
+  "results": [
+    {
+      "id": 5,
+      "domain": "Bioinformatics",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "no_exec"
+    },
+    {
+      "id": 6,
+      "domain": "Bioinformatics",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 7,
+      "domain": "Bioinformatics",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 8,
+      "domain": "Bioinformatics",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "no_exec"
+    },
+    {
+      "id": 12,
+      "domain": "Bioinformatics",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "no_exec"
+    },
+    {
+      "id": 29,
+      "domain": "Psychology and Cognitive science",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 34,
+      "domain": "Psychology and Cognitive science",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 35,
+      "domain": "Psychology and Cognitive science",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 36,
+      "domain": "Psychology and Cognitive science",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 42,
+      "domain": "Psychology and Cognitive science",
+      "weak_raw": 0,
+      "strong_raw": 0,
+      "weak_amp": 0,
+      "amp_status": "no_exec"
+    }
+  ]
+}

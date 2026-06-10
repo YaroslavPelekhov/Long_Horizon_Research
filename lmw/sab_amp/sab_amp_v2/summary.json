@@ -1,0 +1,126 @@
+{
+  "run_id": "sab_amp_v2",
+  "score_type": "sab-execution-verified-amplification",
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "n_tasks": 10,
+  "VER_weak_raw": 0.3,
+  "VER_strong_raw": 0.5,
+  "VER_weak_amp": 0.6,
+  "SR_weak_raw": 0.0,
+  "SR_strong_raw": 0.0,
+  "SR_weak_amp": 0.0,
+  "VER_amplified_vs_strong": true,
+  "results": [
+    {
+      "id": 5,
+      "domain": "Bioinformatics",
+      "VER_weak": 0,
+      "VER_strong": 0,
+      "VER_amp": 0,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "no_exec"
+    },
+    {
+      "id": 6,
+      "domain": "Bioinformatics",
+      "VER_weak": 1,
+      "VER_strong": 1,
+      "VER_amp": 1,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 7,
+      "domain": "Bioinformatics",
+      "VER_weak": 1,
+      "VER_strong": 1,
+      "VER_amp": 1,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 8,
+      "domain": "Bioinformatics",
+      "VER_weak": 0,
+      "VER_strong": 0,
+      "VER_amp": 0,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "no_exec"
+    },
+    {
+      "id": 12,
+      "domain": "Bioinformatics",
+      "VER_weak": 0,
+      "VER_strong": 0,
+      "VER_amp": 0,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "no_exec"
+    },
+    {
+      "id": 29,
+      "domain": "Psychology and Cognitive science",
+      "VER_weak": 0,
+      "VER_strong": 1,
+      "VER_amp": 1,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 34,
+      "domain": "Psychology and Cognitive science",
+      "VER_weak": 0,
+      "VER_strong": 0,
+      "VER_amp": 1,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 35,
+      "domain": "Psychology and Cognitive science",
+      "VER_weak": 0,
+      "VER_strong": 0,
+      "VER_amp": 1,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 36,
+      "domain": "Psychology and Cognitive science",
+      "VER_weak": 1,
+      "VER_strong": 1,
+      "VER_amp": 1,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "executed"
+    },
+    {
+      "id": 42,
+      "domain": "Psychology and Cognitive science",
+      "VER_weak": 0,
+      "VER_strong": 1,
+      "VER_amp": 0,
+      "SR_weak": 0,
+      "SR_strong": 0,
+      "SR_amp": 0,
+      "amp_status": "no_exec"
+    }
+  ]
+}

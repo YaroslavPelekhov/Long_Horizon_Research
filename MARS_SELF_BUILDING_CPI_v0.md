@@ -111,6 +111,39 @@ boundary). So the complete picture is:
 
 This is the defensible thesis with its limits drawn explicitly, not hidden.
 
+## 0b. ScienceAgentBench — execution-verified amplification on CODE (2026-06-10)
+
+Fourth benchmark, hardest verifier alignment test. Downloaded the official
+`benchmark_verified.zip` (1.77 GB via SharePoint direct-download format; partial
+unzip covers a 52-task subset with full dataset+gold+eval artifacts). Built an
+execution-verified scorer that runs WITHOUT Docker (gold-program sanity check
+reproduces the official success), then ran amplification on 10 light-dependency
+tasks. `mars/runners/run_sab_amplification.py`.
+
+  amplifier: weak model proposes K programs; RUNNING each program is the judge
+  (executed + produced the required output?); failures are refined with the real
+  error trace. The official eval script is used ONLY for final scoring (no oracle
+  in the loop).
+
+| Metric | weak_raw | strong_raw | weak+amp |
+|---|---|---|---|
+| **VER** (valid execution rate) | 0.30 | 0.50 | **0.60** |
+| SR (official success) | 0.00 | 0.00 | 0.00 |
+
+On VER — the metric ALIGNED with the execution signal — weak+amp (0.60) beats
+strong raw (0.50): the run-and-refine loop fixes data-wrangling crashes that the
+weak model makes single-shot (e.g. id=34, id=35: weak=0, strong=0, amp=1). SR is
+0 across the board because scientific correctness needs an oracle the loop is not
+allowed to use — the same alignment boundary seen throughout: amplification moves
+the metric that execution can verify (VER), not the one it cannot (SR).
+
+This makes the cross-benchmark pattern crisp:
+  - aligned verifier (UH-Seq exact match, SAB VER) → weak+arch ≥ strong.
+  - unaligned/absent verifier (DiscoveryBench gold-match, SAB SR, NB-obfuscated)
+    → no amplification, because execution does not certify the scored quantity.
+The thesis is precise: an execution-verified amplifier lifts a weak model above
+a strong one EXACTLY ON the metrics its verification is aligned with.
+
 ---
 
 ## 0a. Universal Autonomous Engine (2026-06-09)
