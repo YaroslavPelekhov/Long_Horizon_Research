@@ -18,8 +18,13 @@
   .sub{color:var(--muted);font-size:13px;}
   .principle{color:var(--accent);font-size:13px;margin-top:6px;font-style:italic;}
   .wrap{display:grid;grid-template-columns:1fr 360px;gap:0;height:calc(100vh - 84px);}
-  .stage{padding:16px 24px;overflow:auto;}
-  .side{border-left:1px solid var(--line);background:var(--panel);padding:16px;overflow:auto;}
+  .stage{padding:16px 24px;overflow:auto;min-width:0;}
+  .side{border-left:1px solid var(--line);background:var(--panel);padding:16px;overflow:auto;min-width:0;}
+  @media (max-width: 980px){
+    .wrap{grid-template-columns:1fr;height:auto;}
+    .side{border-left:none;border-top:1px solid var(--line);}
+    .cmp{grid-template-columns:1fr;}
+  }
   .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
   .tab{padding:6px 14px;border:1px solid var(--line);border-radius:20px;cursor:pointer;
        font-size:13px;color:var(--muted);background:transparent;}
@@ -36,7 +41,8 @@
   .verdict{font-size:13px;font-weight:600;}
   .verdict.ok{color:var(--good2);} .verdict.no{color:var(--bad);}
   .codeblk{font-family:var(--mono);font-size:11px;background:#0d1117;border:1px solid var(--line);
-       border-radius:6px;padding:8px;margin-top:8px;white-space:pre-wrap;max-height:90px;overflow:auto;color:#c9d1d9;}
+       border-radius:6px;padding:8px;margin-top:8px;white-space:pre-wrap;word-break:break-word;
+       max-height:120px;overflow:auto;color:#c9d1d9;}
   .graph{position:relative;border:1px solid var(--line);border-radius:8px;background:
        repeating-linear-gradient(0deg,transparent,transparent 79px,#1c2230 79px,#1c2230 80px);
        min-height:420px;padding:8px;overflow:auto;}
@@ -44,12 +50,13 @@
   .rtag{flex:0 0 70px;color:var(--muted);font-size:11px;padding-top:8px;}
   .nodes{display:flex;gap:8px;flex-wrap:wrap;flex:1;}
   .node{border:1px solid var(--line);border-radius:7px;padding:6px 9px;cursor:pointer;
-       min-width:74px;transition:all .25s;background:var(--panel);position:relative;opacity:0;
-       transform:translateY(6px);}
+       min-width:74px;max-width:160px;transition:all .25s;background:var(--panel);position:relative;opacity:0;
+       transform:translateY(6px);overflow:hidden;}
   .node.show{opacity:1;transform:translateY(0);}
   .node.dim{opacity:.28;}
   .node .ex{font-size:13px;font-weight:700;}
-  .node .bits{font-size:10px;color:var(--muted);font-family:var(--mono);}
+  .node .bits{font-size:10px;color:var(--muted);font-family:var(--mono);
+       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .node.win{border-color:var(--good);box-shadow:0 0 0 2px rgba(46,160,67,.4);}
   .node.invalid{border-style:dashed;color:var(--bad);}
   .node .crown{position:absolute;top:-9px;right:-6px;font-size:13px;}
@@ -151,8 +158,8 @@ function loadTask(){
   sv.className="verdict "+(s.strong_raw.solved?"ok":"no");
   wv.textContent = s.weak_raw.solved? "✓ solved" : "✗ wrong (exact "+(s.weak_raw.exact*100).toFixed(0)+"%)";
   wv.className="verdict "+(s.weak_raw.solved?"ok":"no");
-  document.getElementById("strongCode").textContent = esc(s.strong_raw.code||"(none)");
-  document.getElementById("weakCode").textContent = esc(s.weak_raw.code||"(none)");
+  document.getElementById("strongCode").textContent = s.strong_raw.code||"(none)";
+  document.getElementById("weakCode").textContent = s.weak_raw.code||"(none)";
   // build flat node list grouped by round
   flatNodes = s.weak_mdl.trace.map((n,idx)=>({...n,idx}));
   revealed=0;
