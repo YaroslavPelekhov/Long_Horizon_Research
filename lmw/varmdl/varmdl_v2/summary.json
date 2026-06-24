@@ -1,0 +1,115 @@
+{
+  "run_id": "varmdl_v2",
+  "k": 20,
+  "rounds": 3,
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "n_tasks": 5,
+  "mean_weak_raw_sem": 0.2,
+  "mean_strong_raw_sem": 0.8,
+  "mean_weak_mdl_sem": 0.6,
+  "mean_compression_ratio": 0.9,
+  "thesis_holds_sem": false,
+  "results": [
+    {
+      "task_id": "energy_threshold",
+      "weak_raw_kw": 0.67,
+      "strong_raw_kw": 0.33,
+      "weak_mdl_kw": 0.33,
+      "weak_raw_sem": 0.0,
+      "strong_raw_sem": 0.0,
+      "weak_mdl_sem": 0.0,
+      "compression_ratio": 0.905,
+      "uncertainty": 8.814,
+      "n_responses": 40,
+      "rounds": 2,
+      "probe_questions": [
+        "What is the score change when the robot's energy is exactly 15?",
+        "Is there a score change for energy levels between 11 and 14, specifically for energy 12 or 13?",
+        "Does the score change for energy levels below 8 follow the same pattern as the current observations?"
+      ],
+      "core_preview": "- Energy \u2265 17 \u2192 score +2\n- Energy = 14 \u2192 score -1\n- Energy \u2264 13 \u2192 score -2",
+      "elapsed_s": 268.9
+    },
+    {
+      "task_id": "parity_rule",
+      "weak_raw_kw": 0.75,
+      "strong_raw_kw": 0.0,
+      "weak_mdl_kw": 0.25,
+      "weak_raw_sem": 0.0,
+      "strong_raw_sem": 1.0,
+      "weak_mdl_sem": 1.0,
+      "compression_ratio": 0.917,
+      "uncertainty": 7.694,
+      "n_responses": 60,
+      "rounds": 3,
+      "probe_questions": [
+        "What is the effect at the grid position (2, 1)?",
+        "What is the effect at the grid position (3, 0)?",
+        "What is the effect at the grid position (4, 1)?"
+      ],
+      "core_preview": "The effect at grid position (x, y) is +1 if (x + y) is even, and -1 if (x + y) is odd.",
+      "elapsed_s": 509.0
+    },
+    {
+      "task_id": "visit_count",
+      "weak_raw_kw": 0.75,
+      "strong_raw_kw": 0.75,
+      "weak_mdl_kw": 0.75,
+      "weak_raw_sem": 1.0,
+      "strong_raw_sem": 1.0,
+      "weak_mdl_sem": 1.0,
+      "compression_ratio": 0.897,
+      "uncertainty": 5.724,
+      "n_responses": 40,
+      "rounds": 2,
+      "probe_questions": [
+        "What is the score change for visit 7?",
+        "Is there a maximum number of visits after which the score change remains constant?",
+        "Are there any additional rules or conditions that affect the score change based on visit count?"
+      ],
+      "core_preview": "Score change based on visit count: +3 for visits 1-3, +1 for visits 4-5, 0 for visit 6.",
+      "elapsed_s": 227.0
+    },
+    {
+      "task_id": "gene_interaction",
+      "weak_raw_kw": 0.25,
+      "strong_raw_kw": 1.0,
+      "weak_mdl_kw": 0.25,
+      "weak_raw_sem": 0.0,
+      "strong_raw_sem": 1.0,
+      "weak_mdl_sem": 0.0,
+      "compression_ratio": 0.917,
+      "uncertainty": 7.256,
+      "n_responses": 58,
+      "rounds": 3,
+      "probe_questions": [
+        "What is the specific genetic mechanism that determines the dominance of the large phenotype in the offspring?",
+        "How do the alleles A and B interact to influence the phenotype of the offspring in these crosses?",
+        "Are there any environmental factors that could affect the expression of the large phenotype in the offspring?"
+      ],
+      "core_preview": "The large phenotype is dominant and requires at least one dominant allele (A or B), while homozygous recessive alleles (aa and bb) result in a smaller phenotype.",
+      "elapsed_s": 2460.6
+    },
+    {
+      "task_id": "chemical_reaction",
+      "weak_raw_kw": 0.0,
+      "strong_raw_kw": 1.0,
+      "weak_mdl_kw": 0.75,
+      "weak_raw_sem": 0.0,
+      "strong_raw_sem": 1.0,
+      "weak_mdl_sem": 1.0,
+      "compression_ratio": 0.866,
+      "uncertainty": 3.722,
+      "n_responses": 42,
+      "rounds": 3,
+      "probe_questions": [
+        "What is the value of the activation energy \\( E_a \\) for the reaction based on the provided rate data?",
+        "What is the universal gas constant \\( R \\) used in the Arrhenius equation?",
+        "How can the natural logarithm of the reaction rates be calculated for each temperature?"
+      ],
+      "core_preview": "The relationship between temperature (\\( T \\)) and reaction rate (\\( k \\)) is described by the Arrhenius equation: \n\n\\[\nk = A e^{-\\frac{E_a}{RT}}\n\\]\n\nTaking the natural logarithm gives a linear relati",
+      "elapsed_s": 19008.7
+    }
+  ]
+}

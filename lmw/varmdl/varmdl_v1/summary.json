@@ -1,0 +1,115 @@
+{
+  "run_id": "varmdl_v1",
+  "k": 20,
+  "rounds": 3,
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "n_tasks": 5,
+  "mean_weak_raw_sem": 0.6,
+  "mean_strong_raw_sem": 0.8,
+  "mean_weak_mdl_sem": 0.6,
+  "mean_compression_ratio": 0.889,
+  "thesis_holds_sem": false,
+  "results": [
+    {
+      "task_id": "energy_threshold",
+      "weak_raw_kw": 0.67,
+      "strong_raw_kw": 0.33,
+      "weak_mdl_kw": 0.33,
+      "weak_raw_sem": 0.0,
+      "strong_raw_sem": 0.5,
+      "weak_mdl_sem": 0.0,
+      "compression_ratio": 0.893,
+      "uncertainty": 7.925,
+      "n_responses": 40,
+      "rounds": 2,
+      "probe_questions": [
+        "What is the score change for an energy level of 16?",
+        "What is the score change for an energy level of 15?",
+        "Is there a score change for energy levels below 8?"
+      ],
+      "core_preview": "- Energy \u2265 17 \u2192 score +2\n- Energy = 14 \u2192 score -1\n- Energy \u2264 13 \u2192 score -2",
+      "elapsed_s": 305.8
+    },
+    {
+      "task_id": "parity_rule",
+      "weak_raw_kw": 0.75,
+      "strong_raw_kw": 0.75,
+      "weak_mdl_kw": 0.5,
+      "weak_raw_sem": 1.0,
+      "strong_raw_sem": 1.0,
+      "weak_mdl_sem": 1.0,
+      "compression_ratio": 0.916,
+      "uncertainty": 7.28,
+      "n_responses": 60,
+      "rounds": 3,
+      "probe_questions": [
+        "What is the effect for the grid position (2,1)?",
+        "What is the effect for the grid position (3,0)?",
+        "What is the effect for the grid position (4,1)?"
+      ],
+      "core_preview": "The effect is +1 if the sum of the coordinates (x + y) is even; if odd, the effect is -1.",
+      "elapsed_s": 507.4
+    },
+    {
+      "task_id": "visit_count",
+      "weak_raw_kw": 1.0,
+      "strong_raw_kw": 0.75,
+      "weak_mdl_kw": 0.75,
+      "weak_raw_sem": 1.0,
+      "strong_raw_sem": 1.0,
+      "weak_mdl_sem": 1.0,
+      "compression_ratio": 0.871,
+      "uncertainty": 4.536,
+      "n_responses": 60,
+      "rounds": 3,
+      "probe_questions": [
+        "What is the score change for visit 7?",
+        "Is there a score change for visits beyond 6?",
+        "Does the score change revert to a previous value after visit 6?"
+      ],
+      "core_preview": "Score change based on visit count: +3 for visits 1-3, +1 for visits 4-5, 0 for visit 6 and beyond.",
+      "elapsed_s": 376.3
+    },
+    {
+      "task_id": "gene_interaction",
+      "weak_raw_kw": 0.25,
+      "strong_raw_kw": 0.75,
+      "weak_mdl_kw": 0.25,
+      "weak_raw_sem": 0.0,
+      "strong_raw_sem": 0.5,
+      "weak_mdl_sem": 0.0,
+      "compression_ratio": 0.92,
+      "uncertainty": 7.606,
+      "n_responses": 60,
+      "rounds": 3,
+      "probe_questions": [
+        "What is the phenotypic ratio of offspring when crossing Aa \u00d7 Bb?",
+        "Are there any instances where the presence of allele B alone (without A) can produce large offspring?",
+        "What are the specific genotypes of the offspring produced in each cross, and how do they relate to the observed phenotypes?"
+      ],
+      "core_preview": "The large phenotype is expressed when at least one dominant allele from either gene (A or B) is present, following Mendelian inheritance patterns.",
+      "elapsed_s": 571.7
+    },
+    {
+      "task_id": "chemical_reaction",
+      "weak_raw_kw": 1.0,
+      "strong_raw_kw": 1.0,
+      "weak_mdl_kw": 1.0,
+      "weak_raw_sem": 1.0,
+      "strong_raw_sem": 1.0,
+      "weak_mdl_sem": 1.0,
+      "compression_ratio": 0.845,
+      "uncertainty": 3.289,
+      "n_responses": 60,
+      "rounds": 3,
+      "probe_questions": [
+        "What is the value of the activation energy \\(E_a\\) for the reaction based on the provided rate data?",
+        "What is the pre-exponential factor \\(A\\) in the Arrhenius equation for this reaction?",
+        "How does the universal gas constant \\(R\\) factor into the calculation of the reaction rate at different temperatures?"
+      ],
+      "core_preview": "The relationship between temperature and reaction rate is described by the Arrhenius equation: \n\n\\[\nk = A e^{-\\frac{E_a}{RT}}\n\\]\n\nTaking the natural logarithm gives:\n\n\\[\n\\ln(k) = \\ln(A) - \\frac{E_a}{R",
+      "elapsed_s": 652.6
+    }
+  ]
+}
