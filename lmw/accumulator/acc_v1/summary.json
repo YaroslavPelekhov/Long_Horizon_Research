@@ -1,0 +1,211 @@
+{
+  "run_id": "acc_v1",
+  "weak": "openai/gpt-4o-mini",
+  "strong": "openai/gpt-4o",
+  "drill_prims": [
+    "parity",
+    "threshold",
+    "modulo",
+    "visit",
+    "corner",
+    "diag"
+  ],
+  "test": [
+    "t_pt",
+    "t_ptm",
+    "t_cdv",
+    "t_ptmv"
+  ],
+  "config": {
+    "n_obs": 24,
+    "drill_k": 12,
+    "drill_rounds": 4,
+    "test_k": 10,
+    "test_rounds": 4
+  },
+  "mini_cold": {
+    "solve": 0.0,
+    "mean": 0.604,
+    "per": {
+      "t_pt": 0.542,
+      "t_ptm": 0.583,
+      "t_cdv": 0.75,
+      "t_ptmv": 0.542
+    }
+  },
+  "strong_cold": {
+    "solve": 0.0,
+    "mean": 0.521,
+    "per": {
+      "t_pt": 0.375,
+      "t_ptm": 0.417,
+      "t_cdv": 0.833,
+      "t_ptmv": 0.458
+    }
+  },
+  "drilled": [
+    {
+      "prim": "parity",
+      "exact": 1.0,
+      "tries": 1,
+      "banked": true
+    },
+    {
+      "prim": "threshold",
+      "exact": 1.0,
+      "tries": 1,
+      "banked": true
+    },
+    {
+      "prim": "modulo",
+      "exact": 1.0,
+      "tries": 3,
+      "banked": true
+    },
+    {
+      "prim": "visit",
+      "exact": 1.0,
+      "tries": 1,
+      "banked": true
+    },
+    {
+      "prim": "corner",
+      "exact": 1.0,
+      "tries": 1,
+      "banked": true
+    },
+    {
+      "prim": "diag",
+      "exact": 1.0,
+      "tries": 2,
+      "banked": true
+    }
+  ],
+  "curve": [
+    {
+      "banked": 0,
+      "lib": [],
+      "test_solve": 0.0,
+      "test_mean": 0.604
+    },
+    {
+      "banked": 2,
+      "lib": [
+        "prim_parity",
+        "t_pt_solver"
+      ],
+      "test_solve": 0.25,
+      "test_mean": 0.646,
+      "test_per": {
+        "t_pt": 1.0,
+        "t_ptm": 0.583,
+        "t_cdv": 0.375,
+        "t_ptmv": 0.625
+      }
+    },
+    {
+      "banked": 4,
+      "lib": [
+        "prim_parity",
+        "t_pt_solver",
+        "prim_threshold",
+        "t_ptm_solver"
+      ],
+      "test_solve": 0.5,
+      "test_mean": 0.76,
+      "test_per": {
+        "t_pt": 1.0,
+        "t_ptm": 1.0,
+        "t_cdv": 0.292,
+        "t_ptmv": 0.75
+      }
+    },
+    {
+      "banked": 5,
+      "lib": [
+        "prim_parity",
+        "t_pt_solver",
+        "prim_threshold",
+        "t_ptm_solver",
+        "prim_modulo"
+      ],
+      "test_solve": 0.25,
+      "test_mean": 0.74,
+      "test_per": {
+        "t_pt": 0.917,
+        "t_ptm": 1.0,
+        "t_cdv": 0.292,
+        "t_ptmv": 0.75
+      }
+    },
+    {
+      "banked": 6,
+      "lib": [
+        "prim_parity",
+        "t_pt_solver",
+        "prim_threshold",
+        "t_ptm_solver",
+        "prim_modulo",
+        "prim_visit"
+      ],
+      "test_solve": 0.5,
+      "test_mean": 0.76,
+      "test_per": {
+        "t_pt": 1.0,
+        "t_ptm": 1.0,
+        "t_cdv": 0.292,
+        "t_ptmv": 0.75
+      }
+    },
+    {
+      "banked": 7,
+      "lib": [
+        "prim_parity",
+        "t_pt_solver",
+        "prim_threshold",
+        "t_ptm_solver",
+        "prim_modulo",
+        "prim_visit",
+        "prim_corner"
+      ],
+      "test_solve": 0.5,
+      "test_mean": 0.771,
+      "test_per": {
+        "t_pt": 1.0,
+        "t_ptm": 1.0,
+        "t_cdv": 0.333,
+        "t_ptmv": 0.75
+      }
+    },
+    {
+      "banked": 8,
+      "lib": [
+        "prim_parity",
+        "t_pt_solver",
+        "prim_threshold",
+        "t_ptm_solver",
+        "prim_modulo",
+        "prim_visit",
+        "prim_corner",
+        "prim_diag"
+      ],
+      "test_solve": 0.5,
+      "test_mean": 0.76,
+      "test_per": {
+        "t_pt": 1.0,
+        "t_ptm": 1.0,
+        "t_cdv": 0.292,
+        "t_ptmv": 0.75
+      }
+    }
+  ],
+  "verdict": {
+    "mini_cold_solve": 0.0,
+    "strong_cold_solve": 0.0,
+    "mini_lib_solve": 0.5,
+    "beats_cold": true,
+    "beats_strong": true,
+    "thesis_holds": true
+  },
+  "wall_time_s": 1422.0
+}

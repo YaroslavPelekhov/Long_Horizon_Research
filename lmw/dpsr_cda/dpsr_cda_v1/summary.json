@@ -1,0 +1,60 @@
+{
+  "run_id": "dpsr_cda_v1",
+  "weak": "openai/gpt-4o-mini",
+  "library": [
+    "prim_parity",
+    "prim_threshold",
+    "prim_modulo",
+    "prim_corner",
+    "prim_diag"
+  ],
+  "results": {
+    "pt": {
+      "prims": [
+        "parity",
+        "threshold"
+      ],
+      "cold_solve": 0.364,
+      "lib_solve": 1.0,
+      "H": "H = {'c_prim_parity': 1, 'c_prim_threshold': 1, 'c_prim_modulo': 0, 'c_prim_corner': 0, 'c_prim_diag': 0}"
+    },
+    "ptm": {
+      "prims": [
+        "parity",
+        "threshold",
+        "modulo"
+      ],
+      "cold_solve": 0.273,
+      "lib_solve": 1.0,
+      "H": "H = {'c_prim_parity': 1, 'c_prim_threshold': 1, 'c_prim_modulo': 1, 'c_prim_corner': 0, 'c_prim_diag': 0}"
+    },
+    "cdv": {
+      "prims": [
+        "corner",
+        "diag",
+        "visit"
+      ],
+      "cold_solve": 0.545,
+      "lib_solve": 0.727,
+      "H": "H = {'c_prim_parity': 0, 'c_prim_threshold': 0, 'c_prim_modulo': 0, 'c_prim_corner': 1, 'c_prim_diag': 1}"
+    },
+    "ptmv": {
+      "prims": [
+        "parity",
+        "threshold",
+        "modulo",
+        "visit"
+      ],
+      "cold_solve": 0.182,
+      "lib_solve": 0.727,
+      "H": "H = {'c_prim_parity': 1, 'c_prim_threshold': 1, 'c_prim_modulo': 1, 'c_prim_corner': 0, 'c_prim_diag': 0}"
+    }
+  },
+  "verdict": {
+    "cold_mean": 0.341,
+    "lib_mean": 0.863,
+    "lib_fully_solved": "2/4",
+    "crossing_helps": true
+  },
+  "wall_time_s": 595.2
+}

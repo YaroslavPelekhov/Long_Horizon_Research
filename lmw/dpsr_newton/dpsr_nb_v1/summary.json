@@ -1,0 +1,26 @@
+{
+  "run_id": "dpsr_nb_v1",
+  "weak": "openai/gpt-4o-mini",
+  "results": {
+    "gravity": {
+      "dpsr_relerr": 0.0,
+      "raw_relerr": 0.0,
+      "dpsr_better": true
+    },
+    "pendulum": {
+      "dpsr_relerr": 0.297,
+      "raw_relerr": 0.4677,
+      "dpsr_better": true
+    },
+    "kinetic": {
+      "dpsr_relerr": 0.4181,
+      "raw_relerr": 0.0,
+      "dpsr_better": false
+    }
+  },
+  "verdict": {
+    "dpsr_wins": "2/3",
+    "dpsr_near_exact": "1/3"
+  },
+  "wall_time_s": 62.7
+}
