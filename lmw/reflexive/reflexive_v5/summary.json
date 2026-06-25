@@ -1,0 +1,86 @@
+{
+  "run_id": "reflexive_v5",
+  "start_lib": [
+    "prim_parity",
+    "prim_threshold",
+    "prim_modulo"
+  ],
+  "final_lib": [
+    "prim_parity",
+    "prim_threshold",
+    "prim_modulo",
+    "prim_diag",
+    "prim_visit",
+    "prim_corner"
+  ],
+  "start_heldout_solve": 0.111,
+  "final_heldout_solve": 0.833,
+  "added": [
+    "prim_diag",
+    "prim_visit",
+    "prim_corner"
+  ],
+  "distractors_added": [],
+  "self_model": [
+    {
+      "round": 1,
+      "added": "prim_diag",
+      "train_failures_fixed": 6,
+      "heldout": 0.278,
+      "law": "was systematically failing tasks needing prim_diag"
+    },
+    {
+      "round": 2,
+      "added": "prim_visit",
+      "train_failures_fixed": 3,
+      "heldout": 0.722,
+      "law": "was systematically failing tasks needing prim_visit"
+    },
+    {
+      "probe": "prim_corner",
+      "added": true,
+      "heldout": 0.833,
+      "law": "active probing revealed verifiable blind spot needing prim_corner"
+    }
+  ],
+  "curve": [
+    {
+      "round": 0,
+      "lib": [
+        "prim_parity",
+        "prim_threshold",
+        "prim_modulo"
+      ],
+      "train_solve": 0.444,
+      "heldout_solve": 0.111
+    },
+    {
+      "round": 1,
+      "lib": [
+        "prim_parity",
+        "prim_threshold",
+        "prim_modulo",
+        "prim_diag"
+      ],
+      "train_solve": 0.778,
+      "heldout_solve": 0.278
+    },
+    {
+      "round": 2,
+      "lib": [
+        "prim_parity",
+        "prim_threshold",
+        "prim_modulo",
+        "prim_diag",
+        "prim_visit"
+      ],
+      "train_solve": 0.944,
+      "heldout_solve": 0.722
+    }
+  ],
+  "verdict": {
+    "improved": true,
+    "no_distractors": true
+  },
+  "wall_time_s": 7.55
+}

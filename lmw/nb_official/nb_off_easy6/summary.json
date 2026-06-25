@@ -1,0 +1,91 @@
+{
+  "run_id": "nb_off_easy6",
+  "weak": "openai/gpt-4o-mini",
+  "difficulty": "easy",
+  "results": {
+    "m0_gravity": {
+      "dpsr_on": {
+        "SA": 1.0,
+        "numeric_accuracy": 0.0,
+        "rmsle": NaN,
+        "symbolic_equivalent": true,
+        "holdout_loss": 0.0,
+        "winner_tags": [
+          "residual_kernel",
+          "induce_numeric_power_law"
+        ],
+        "submitted": "def _v(inputs: dict, key: str) -> float:\n    return float(inputs.get(key, 0.0))\n\ndef _safe_div(a: float, b: float) -> float:\n    if abs(b) < 1e-12:\n        return 0.0\n    return a / b\n\ndef law(inputs: dict) -> float:\n    return 6.674000040102736e-05 * (_v(inputs, 'mass1') * _v(inputs, 'mass2') * (_v(inputs, 'distance') ** -1.5))\n\ndef discovered_law(mass1, mass2, distance):\n    return 0.99999999399"
+      }
+    },
+    "m1_coulomb_force": {
+      "dpsr_on": {
+        "SA": 1.0,
+        "numeric_accuracy": 0.0,
+        "rmsle": NaN,
+        "symbolic_equivalent": true,
+        "holdout_loss": 0.0,
+        "winner_tags": [
+          "residual_kernel",
+          "induce_numeric_power_law"
+        ],
+        "submitted": "def _v(inputs: dict, key: str) -> float:\n    return float(inputs.get(key, 0.0))\n\ndef _safe_div(a: float, b: float) -> float:\n    if abs(b) < 1e-12:\n        return 0.0\n    return a / b\n\ndef law(inputs: dict) -> float:\n    return 1.999999998516478 * (_v(inputs, 'q1') * _v(inputs, 'q2') * (_v(inputs, 'distance') ** -3.0))\n\ndef discovered_law(q1, q2, distance):\n    return 1.000000000741761 * law({'q1'"
+      }
+    },
+    "m4_snell_law": {
+      "dpsr_on": {
+        "SA": 0.0,
+        "numeric_accuracy": 0.0,
+        "rmsle": NaN,
+        "symbolic_equivalent": false,
+        "holdout_loss": 0.0,
+        "winner_tags": [
+          "typed_numeric_prior"
+        ],
+        "submitted": "def law(inputs: dict) -> float:\n    return 1.0\n\n\ndef discovered_law(n1, n2, angle1):\n    return 90.0 * law({'n1': n1, 'n2': n2, 'angle1': angle1})\n"
+      }
+    },
+    "m5_radioactive_decay": {
+      "dpsr_on": {
+        "SA": 0.0,
+        "numeric_accuracy": 0.0,
+        "rmsle": NaN,
+        "symbolic_equivalent": false,
+        "holdout_loss": 0.5208,
+        "winner_tags": [
+          "dpsr",
+          "dpsr_inferred"
+        ],
+        "submitted": "H = {'A': 1, 'B': 2, 'C': 0}\n\ndef law(inputs: dict):\n    return H['A'] * inputs['N0'] * math.exp(-H['B'] * inputs['lambda_constant'] * inputs['t'])\n\ndef discovered_law(N0, lambda_constant, t):\n    return 2.8977833367044292 * law({'N0': N0, 'lambda_constant': lambda_constant, 't': t})\n"
+      }
+    },
+    "m7_malus_law": {
+      "dpsr_on": {
+        "SA": 0.0,
+        "numeric_accuracy": 0.0,
+        "rmsle": NaN,
+        "symbolic_equivalent": false,
+        "holdout_loss": 0.4019,
+        "winner_tags": [
+          "typed_numeric_prior"
+        ],
+        "submitted": "def _v(inputs: dict, key: str) -> float:\n    return float(inputs.get(key, 0.0))\n\ndef _safe_div(a: float, b: float) -> float:\n    if abs(b) < 1e-12:\n        return 0.0\n    return a / b\n\n\ndef law(inputs: dict) -> float:\n    return _v(inputs, 'I_0') * _v(inputs, 'theta')\n\n\ndef discovered_law(I_0, theta):\n    return 0.3970464158961056 * law({'I_0': I_0, 'theta': theta})\n"
+      }
+    },
+    "m9_hooke_law": {
+      "dpsr_on": {
+        "SA": 1.0,
+        "numeric_accuracy": 0.0,
+        "rmsle": NaN,
+        "symbolic_equivalent": true,
+        "holdout_loss": 0.0,
+        "winner_tags": [
+          "typed_numeric_prior"
+        ],
+        "submitted": "def law(inputs: dict) -> float:\n    x = float(inputs.get('x', 0.0))\n    return x * x\n\n\ndef discovered_law(x):\n    return 462.2820000000001 * law({'x': x})\n"
+      }
+    }
+  },
+  "mean_numeric_accuracy": 0.0,
+  "mean_SA_dpsr_on": 0.5,
+  "wall_time_s": 213.0
+}

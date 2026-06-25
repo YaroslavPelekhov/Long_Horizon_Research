@@ -1,0 +1,22 @@
+{
+  "run_id": "nb_off_smoke",
+  "weak": "openai/gpt-4o-mini",
+  "difficulty": "easy",
+  "results": {
+    "m0_gravity": {
+      "dpsr_on": {
+        "SA": 0.0,
+        "rmsle": NaN,
+        "symbolic_equivalent": false,
+        "holdout_loss": 0.0382,
+        "winner_tags": [
+          "dpsr",
+          "dpsr_inferred"
+        ],
+        "submitted": "H = {'A': 0.0001, 'B': 3e-05, 'C': 2, 'D': 2}\n\ndef law(inputs: dict) -> float:\n    return H['A'] * (inputs['mass1'] * inputs['mass2'] / inputs['distance'] ** H['C']) + H['B'] * math.sqrt(inputs['mass1'] * inputs['mass2'] / inputs['distance']) ** H['D']\n\ndef discovered_law(mass1, mass2, distance):\n    return 0.5888850707382124 * law({'mass1': mass1, 'mass2': mass2, 'distance': distance})\n"
+      }
+    }
+  },
+  "mean_SA_dpsr_on": 0.0,
+  "wall_time_s": 1700.3
+}
