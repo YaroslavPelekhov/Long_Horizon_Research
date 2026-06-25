@@ -83,9 +83,17 @@ symbolic laws, and pandas analyses.
    holes inferred by information-gain micro-measurements; and its composition with
    the accumulator (structure from the certified library, coefficients by
    measurement), which lifts held-out composite solve from 0.341 to 0.863.
-4. **An honest map of where weak ≥ strong holds**: the dividing line is verifier
+4. **A reflexive meta-loop**: the same compression criterion one level up — it
+   compresses the system's own *failure manifold*, designs experiments to expose
+   rare blind spots, and self-modifies, accepting changes only when they compress
+   held-out failure (self-discovers missing capability 0.11→0.83, adopts zero
+   distractors). Includes the *detection-floor* finding: a rare-real feature is
+   indistinguishable from a distractor on data alone, resolved by
+   activation-targeted probing + true-distribution acceptance.
+5. **An honest map of where weak ≥ strong holds**: the dividing line is verifier
    strength, demonstrated on both verifier-rich (synthetic, clean execution) and
-   verifier-poor (real DiscoveryBench) settings.
+   verifier-poor (real DiscoveryBench) settings; plus a first official-scored
+   NewtonBench result (3/6 easy modules exact) with full honesty about scope.
 
 ---
 
@@ -168,6 +176,37 @@ banked by the accumulator become the blocks of a DPSR skeleton
 `f(x) = Σ H[cᵢ]·blockᵢ(x)`, and DPSR infers the coefficients (subset selection)
 by measurement. Structure comes from the verified library; which blocks and
 weights are inferred from data.
+
+### 2.5 The reflexive meta-loop — compression at a second level
+
+Everything above is a fixed inner procedure: it changes the CONTENT (hypotheses,
+certified knowledge), never the procedure itself. A *systematic* error is
+therefore invisible to it — if the inner loop's hypothesis space lacks a needed
+structure, no amount of inner iteration reveals the gap, because the blind spot
+is baked into the loop's own assumptions.
+
+The outer loop applies the SAME compression principle one level up. Its
+observations are the inner system's behaviour across a task distribution; its
+"programs" are modifications to the inner loop:
+
+    L0 (inner): compress a task's observations          -> hypothesis
+    L1 (outer): compress the system's FAILURE manifold  -> a self-modification
+
+The acceptance criterion is identical at both levels: keep a change iff it
+reduces the description length of failures on a *held-out* task distribution.
+This is a practical replacement for the Gödel machine's (intractable) demand for
+a proof of improvement: not "provably better" but "empirically compresses
+held-out failure."
+
+Two phases. **Passive:** run the inner solver over a train distribution, then
+adopt the single modification that removes the most failures, gated by held-out
+gain. **Active (self-experimentation):** a maintained *self-model* of failure-laws
+predicts where the system is likely blind; the loop then DESIGNS experiments that
+maximise a suspected mechanism's activation, exposing even rare blind spots, and
+adopts only what improves the true held-out distribution. One principle
+(compression + execution), two levels, plus a growing self-model. It is also the
+natural controller of adaptation — deciding what to learn in token-space (CICA,
+§Future) versus, with open weights, weight-space.
 
 ---
 
@@ -314,6 +353,62 @@ DPSR's value is concentrated in the **discovery** regime where one-shot recall
 fails. (NewtonBench's own counterfactual law shifts are designed precisely to
 defeat recall, i.e. the regime where DPSR should help most; an official run is
 future work.)
+
+### 3.7 The reflexive meta-loop fixes its own blind spots (run `reflexive_v5`)
+
+The inner solver (DPSR block-composition) is given a deliberate blind spot: its
+library starts as {parity, threshold, modulo}, missing {visit, corner, diag}; the
+candidate pool also contains four distractor primitives that no task uses. Over a
+distribution of composite tasks the outer loop runs with no ground truth:
+
+```
+start  {parity,threshold,modulo}                       held-out solve = 0.11
+ passive (compress failure manifold):
+   + diag   (removes 6/10 train failures)   0.11 -> 0.28
+   + visit  (removes 3/4)                    0.28 -> 0.72
+ active self-experimentation:
+   designed experiments expose gaps: [corner, +4 distractors]
+   adopt only verified-on-true-distribution: [corner]   0.72 -> 0.83
+   reject (no verifiable gain): all 4 distractors
+final  {…,diag,visit,corner}                           held-out solve = 0.83
+```
+
+The system **self-discovers exactly the three missing real primitives and adopts
+zero of the four distractors** — held-out solve 0.11 → 0.83, with no human
+injecting the fix. It changes its own inner procedure, not just its content.
+
+**A genuine finding (the detection floor).** A *rare* real feature (corner fires
+on ~4% of states) is, on data alone, indistinguishable from a useless distractor
+— both barely move the aggregate distribution. The resolution is intrinsic to the
+loop and is dual: (i) **diagnose** with an experiment *designed* to maximise the
+candidate's activation, so even a rare mechanism is exercised; (ii) **accept**
+only on verifiable gain on the *true* distribution, which rejects distractors.
+This is the system doing science on itself: hypothesise a weakness → design an
+experiment that would expose it → test against reality → patch only what survives.
+
+### 3.8 Official NewtonBench, end-to-end (run `nb_off_easy6`)
+
+To get a directly-comparable number we route the authors' real environment
+(`run_experiment_for_module` / `evaluate_law`, the paper's SA metric) through the
+universal engine. Six easy-tier modules, weak model:
+
+| module | SA | winning layer |
+|---|---|---|
+| gravity, coulomb, hooke | **1.00** each | power-law inducer / typed prior |
+| snell, radioactive-decay, malus | 0.00 each | — |
+| **mean** | **0.50** | |
+
+gpt-4o-mini + the universal engine solves **3/6 easy modules exactly** under the
+official scorer. We state the caveats plainly: (i) this is an *easy slice*, not
+comparable to the published all-tier averages (GPT-5 0.76, o4-mini 0.48,
+DeepSeek-R1 0.43) — easy-tier baselines are higher; this is **not** a SOTA claim.
+(ii) The exact solves came from the **generic** power-law inducer and typed
+priors, **not** from DPSR; the three failures are non-power-law forms (sin, exp,
+cos²) outside the current generic operators. (iii) Power-law/rational-exponent
+priors are a *universal* inductive bias (as in AI-Feynman/PySR), not
+benchmark-specific tuning — we verified the result-producing path imports no
+benchmark-specific code; legacy hard-coded paths exist in the repo but were not
+on this path.
 
 ---
 
