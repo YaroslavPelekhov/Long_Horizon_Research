@@ -1,0 +1,73 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "episodes": 4,
+  "evidence_selected_mean": 87.0,
+  "single_rollout_mean": 81.67,
+  "best_rollout_mean": 87.0,
+  "results": {
+    "ep0": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        55.0
+      ],
+      "supports": [
+        0.8,
+        0.8,
+        0.6
+      ],
+      "mean_rollout": 76.3,
+      "best_rollout": 87.0
+    },
+    "ep1": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        55.0,
+        87.0,
+        87.0
+      ],
+      "supports": [
+        0.7,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 76.3,
+      "best_rollout": 87.0
+    },
+    "ep2": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        87.0
+      ],
+      "supports": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 87.0,
+      "best_rollout": 87.0
+    },
+    "ep3": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        87.0
+      ],
+      "supports": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 87.0,
+      "best_rollout": 87.0
+    }
+  }
+}

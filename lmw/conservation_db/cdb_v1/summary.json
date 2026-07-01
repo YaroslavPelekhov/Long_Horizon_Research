@@ -1,0 +1,72 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 7,
+  "abstained": 7,
+  "precision_answered": 33.27,
+  "forced_mean": 16.63,
+  "results": {
+    "archaeology:0:0": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor"
+    },
+    "archaeology:1:0": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor"
+    },
+    "introduction_pathways_non-native_plants:0:0": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor"
+    },
+    "introduction_pathways_non-native_plants:0:1": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor"
+    },
+    "meta_regression:0:0": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor"
+    },
+    "meta_regression:0:1": {
+      "status": "ANSWER",
+      "HMS": 0.0,
+      "answer": "There is no significant difference in the average effect estimates between original studies and replication st"
+    },
+    "nls_incarceration:0:0": {
+      "status": "ANSWER",
+      "HMS": 0.0,
+      "answer": "In 1985, gender disparities in median wealth for those ever incarcerated were less pronounced compared to 1990"
+    },
+    "nls_incarceration:0:1": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor"
+    },
+    "nls_ses:0:0": {
+      "status": "ANSWER",
+      "HMS": 100.0,
+      "answer": "There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that "
+    },
+    "nls_ses:0:1": {
+      "status": "ANSWER",
+      "HMS": 50.0,
+      "answer": "Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree."
+    },
+    "requirements_engineering_for_ML_enabled_systems:0:0": {
+      "status": "ANSWER",
+      "HMS": 40.0,
+      "answer": "The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% o"
+    },
+    "requirements_engineering_for_ML_enabled_systems:1:0": {
+      "status": "ANSWER",
+      "HMS": 42.9,
+      "answer": "Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% C"
+    },
+    "worldbank_education_gdp:0:0": {
+      "status": "ANSWER",
+      "HMS": 0.0,
+      "answer": "In Sub-Saharan Africa, increased education spending is positively correlated with per capita GDP growth."
+    },
+    "worldbank_education_gdp:0:1": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor"
+    }
+  }
+}

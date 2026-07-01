@@ -1,0 +1,112 @@
+{
+  "ep0": {
+    "exec_analysis": 87.0,
+    "best_rollout": 87.0,
+    "rollout_scores": [
+      57.0,
+      55.0,
+      87.0
+    ],
+    "n_crosses": 9,
+    "code_ran": true,
+    "computed": {
+      "ploidy": 40,
+      "gene_copies_per_locus": 20,
+      "size_allele_values": [
+        69.46,
+        69.6,
+        69.67,
+        69.94,
+        70.15,
+        70.25,
+        70.34,
+        70.56,
+        109.62,
+        110.77,
+        218.0,
+        219.14,
+        257.79,
+        258.46,
+        258.57,
+        259.15,
+        259.72,
+        259.84,
+        260.99,
+        297.45,
+        298.27,
+        298.35,
+        298.37,
+        298.59,
+        299.7,
+        299.82,
+        301.14,
+        302.08,
+        302.41,
+        409.05,
+        445.91,
+        447.33,
+        448.95,
+        449.3,
+        449.52,
+        450.25,
+        451.53,
+        453.41,
+        453.61,
+        601.06
+      ],
+      "color_dominance": [
+        [
+          "red",
+          950
+        ],
+        [
+          "blue",
+          180
+        ],
+        [
+          "white",
+          100
+        ]
+      ],
+      "shell_lethal": [
+        [
+          "spiky",
+          "smooth"
+        ],
+        [
+          "ridged",
+          "spiky"
+        ],
+        [
+          "spiky",
+          "ridged"
+        ],
+        [
+          "spiky",
+          "smooth"
+        ],
+        [
+          "ridged",
+          "spiky"
+        ],
+        [
+          "spiky",
+          "spiky"
+        ],
+        [
+          "spiky",
+          "smooth"
+        ],
+        [
+          "ridged",
+          "spiky"
+        ],
+        [
+          "spiky",
+          "ridged"
+        ]
+      ],
+      "notes": "Only one ploidy class is viable"
+    }
+  }
+}

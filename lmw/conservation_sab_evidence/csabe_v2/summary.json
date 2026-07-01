@@ -1,0 +1,35 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 2,
+  "abstained": 1,
+  "SR_answered": 0.0,
+  "SR_all": 0.0,
+  "results": {
+    "5": {
+      "status": "ANSWER",
+      "SR": 0,
+      "support_of_selected": 0.0,
+      "supports": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "domain": "Bioinformatics"
+    },
+    "71": {
+      "status": "ANSWER",
+      "SR": 0,
+      "support_of_selected": 0.0,
+      "supports": [
+        0.0,
+        0.0
+      ],
+      "domain": "Psychology and Cognitive science"
+    },
+    "72": {
+      "status": "ABSTAIN",
+      "reason": "no program ran",
+      "domain": "Psychology and Cognitive science"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 0,
+  "abstained": 6,
+  "SA_answered": 0.0,
+  "SA_all": 0.0,
+  "results": {
+    "m0_gravity": {
+      "status": "ABSTAIN",
+      "why": "no form fit"
+    },
+    "m1_coulomb_force": {
+      "status": "ABSTAIN",
+      "why": "no form fit"
+    },
+    "m9_hooke_law": {
+      "status": "ABSTAIN",
+      "why": "no form fit"
+    },
+    "m4_snell_law": {
+      "status": "ABSTAIN",
+      "why": "no form fit"
+    },
+    "m5_radioactive_decay": {
+      "status": "ABSTAIN",
+      "why": "no form fit"
+    },
+    "m7_malus_law": {
+      "status": "ABSTAIN",
+      "why": "no form fit"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 3,
+  "abstained": 3,
+  "SA_answered": 0.333,
+  "SA_all": 0.167,
+  "results": {
+    "m0_gravity": {
+      "status": "ANSWER",
+      "SA": 0.0,
+      "held_out_rmsle": 0.43,
+      "law": "3.5870078065866814e-05 * (mass1 ** 1.0) * (mass2 ** 1.0) / (distance *"
+    },
+    "m1_coulomb_force": {
+      "status": "ANSWER",
+      "SA": 0.0,
+      "held_out_rmsle": 0.416,
+      "law": "np.exp(0.049787068367863944) * (q1 ** 1.0) * (q2 ** 1.5) * (distance *"
+    },
+    "m9_hooke_law": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "law": "462.28200000000174 * (x ** 2.0)"
+    },
+    "m4_snell_law": {
+      "status": "ABSTAIN",
+      "best_rmsle": 1.869
+    },
+    "m5_radioactive_decay": {
+      "status": "ABSTAIN",
+      "best_rmsle": 6.57
+    },
+    "m7_malus_law": {
+      "status": "ABSTAIN",
+      "best_rmsle": 2.549
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 1,
+  "abstained": 1,
+  "score_answered": 45.0,
+  "single_rollout_mean": 67.67,
+  "results": {
+    "ep0": {
+      "status": "ABSTAIN",
+      "reason": "no consensus (top 1/3 agree, 3/3 ran)",
+      "rollout_scores": [
+        87.0,
+        55.0,
+        87.0
+      ]
+    },
+    "ep1": {
+      "status": "ANSWER",
+      "score": 45.0,
+      "reason": "consensus 2/3",
+      "rollout_scores": [
+        45.0,
+        87.0,
+        45.0
+      ]
+    }
+  }
+}

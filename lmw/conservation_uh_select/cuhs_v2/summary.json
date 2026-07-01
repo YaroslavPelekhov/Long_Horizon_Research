@@ -1,0 +1,137 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "episodes": 8,
+  "evidence_selected_mean": 87.0,
+  "single_rollout_mean": 77.42,
+  "best_rollout_mean": 87.0,
+  "results": {
+    "ep0": {
+      "selected": 87.0,
+      "support_of_selected": 0.7,
+      "rollout_scores": [
+        45.0,
+        87.0,
+        87.0
+      ],
+      "supports": [
+        0.6,
+        0.7,
+        0.7
+      ],
+      "mean_rollout": 73.0,
+      "best_rollout": 87.0
+    },
+    "ep1": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        45.0
+      ],
+      "supports": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 73.0,
+      "best_rollout": 87.0
+    },
+    "ep2": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        87.0
+      ],
+      "supports": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 87.0,
+      "best_rollout": 87.0
+    },
+    "ep3": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        55.0,
+        87.0
+      ],
+      "supports": [
+        0.8,
+        0.6,
+        0.8
+      ],
+      "mean_rollout": 76.3,
+      "best_rollout": 87.0
+    },
+    "ep4": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        45.0,
+        87.0
+      ],
+      "supports": [
+        0.8,
+        0.7,
+        0.8
+      ],
+      "mean_rollout": 73.0,
+      "best_rollout": 87.0
+    },
+    "ep5": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        45.0,
+        87.0,
+        87.0
+      ],
+      "supports": [
+        0.7,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 73.0,
+      "best_rollout": 87.0
+    },
+    "ep6": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        57.0
+      ],
+      "supports": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 77.0,
+      "best_rollout": 87.0
+    },
+    "ep7": {
+      "selected": 87.0,
+      "support_of_selected": 0.8,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        87.0
+      ],
+      "supports": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "mean_rollout": 87.0,
+      "best_rollout": 87.0
+    }
+  }
+}

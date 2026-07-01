@@ -1,0 +1,534 @@
+
+
+===== meta_regression:0:1 =====
+sub_hypo_json: {'sub_hypo': [{'text': 'The effect size estimates tend to be larger in original studies compared to replication studies across both the Experimental Economics and Psychology domains.', 'context': 'across both the Experimental Economics and Psychology domains', 'variables': ['fiso', 'fisr'], 'relations': 'original studies have larger effect sizes compared to replication studies'}, {'text': 'In Experimental Economics, the average effect estimate on the Fisher-z scale in original studies is 0.57, compared to 0.31 in replication studies.', 'context': 'in the field of Experimental Economics', 'variables': ['fiso', 'fisr'], 'relations': 'original studies have an average effect size of 0.57 on the Fisher-z scale compared to 0.31 in replication studies'}, {'text': 'In Psychology, the average is 0.5 in original studies versus 0.24 in replication studies.', 'context': 'in the field of Psychology', 'variables': ['fiso', 'fisr'], 'relations': 'original studies have an average effect size of 0.5 on the Fisher-z scale compared to 0.24 in replication studies'}]}
+gold_sub_hypo_json: {'sub_hypo': [{'text': 'The effect size estimates tend to be larger in original studies compared to replication studies across both the Experimental Economics and Psychology domains.', 'context': 'across both the Experimental Economics and Psychology domains', 'variables': ['fiso', 'fisr'], 'relations': 'original studies have larger effect sizes compared to replication studies'}, {'text': 'In Experimental Economics, the average effect estimate on the Fisher-z scale in original studies is 0.57, compared to 0.31 in replication studies.', 'context': 'in the field of Experimental Economics', 'variables': ['fiso', 'fisr'], 'relations': 'original studies have an average effect size of 0.57 on the Fisher-z scale compared to 0.31 in replication studies'}, {'text': 'In Psychology, the average is 0.5 in original studies versus 0.24 in replication studies.', 'context': 'in the field of Psychology', 'variables': ['fiso', 'fisr'], 'relations': 'original studies have an average effect size of 0.5 on the Fisher-z scale compared to 0.24 in replication studies'}], 'full_hypo': 'The effect size estimates tend to be larger in original studies compared to replication studies across both the Experimental Economics and Psychology domains. In Experimental Economics, the average effect estimate on the Fisher-z scale in original studies is 0.57, compared to 0.31 in replication studies. In Psychology, the average is 0.5 in original studies versus 0.24 in replication studies.'}
+sub_hypo_json: {'sub_hypo': [{'text': 'There is no significant difference in the average effect estimates between original studies and replication studies.', 'context': 'Data created by merging data.csv and RProjects.csv', 'variables': ['ro', 'rr'], 'relations': 'no significant difference between ro and rr'}]}
+gen_sub_hypo_json: {'sub_hypo': [{'text': 'There is no significant difference in the average effect estimates between original studies and replication studies.', 'context': 'Data created by merging data.csv and RProjects.csv', 'variables': ['ro', 'rr'], 'relations': 'no significant difference between ro and rr'}], 'full_hypo': 'There is no significant difference in the average effect estimates between original studies and replication studies.'}
+gen_subh_to_gold_subh: {0: -1}
+eval_rec: {
+  "query": "In Experimental Economics, what is the average effect estimate in original studies as compared to that in replication studies?",
+  "HypoA": "The effect size estimates tend to be larger in original studies compared to replication studies across both the Experimental Economics and Psychology domains. In Experimental Economics, the average effect estimate on the Fisher-z scale in original studies is 0.57, compared to 0.31 in replication studies. In Psychology, the average is 0.5 in original studies versus 0.24 in replication studies.",
+  "WorkflowA": "",
+  "HypoB": "There is no significant difference in the average effect estimates between original studies and replication studies.",
+  "WorkflowB": "",
+  "gold_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "The effect size estimates tend to be larger in original studies compared to replication studies across both the Experimental Economics and Psychology domains.",
+        "context": "across both the Experimental Economics and Psychology domains",
+        "variables": [
+          "fiso",
+          "fisr"
+        ],
+        "relations": "original studies have larger effect sizes compared to replication studies"
+      },
+      {
+        "text": "In Experimental Economics, the average effect estimate on the Fisher-z scale in original studies is 0.57, compared to 0.31 in replication studies.",
+        "context": "in the field of Experimental Economics",
+        "variables": [
+          "fiso",
+          "fisr"
+        ],
+        "relations": "original studies have an average effect size of 0.57 on the Fisher-z scale compared to 0.31 in replication studies"
+      },
+      {
+        "text": "In Psychology, the average is 0.5 in original studies versus 0.24 in replication studies.",
+        "context": "in the field of Psychology",
+        "variables": [
+          "fiso",
+          "fisr"
+        ],
+        "relations": "original studies have an average effect size of 0.5 on the Fisher-z scale compared to 0.24 in replication studies"
+      }
+    ],
+    "full_hypo": "The effect size estimates tend to be larger in original studies compared to replication studies across both the Experimental Economics and Psychology domains. In Experimental Economics, the average effect estimate on the Fisher-z scale in original studies is 0.57, compared to 0.31 in replication studies. In Psychology, the average is 0.5 in original studies versus 0.24 in replication studies."
+  },
+  "gen_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "There is no significant difference in the average effect estimates between original studies and replication studies.",
+        "context": "Data created by merging data.csv and RProjects.csv",
+        "variables": [
+          "ro",
+          "rr"
+        ],
+        "relations": "no significant difference between ro and rr"
+      }
+    ],
+    "full_hypo": "There is no significant difference in the average effect estimates between original studies and replication studies."
+  },
+  "gen_subh_to_gold_subh": {
+    "0": -1
+  },
+  "gold_subh_covered": [],
+  "matched_gold_gen_subh_evals": {},
+  "recall_context": 0.0,
+  "mean_accuracy_score": 0.0,
+  "final_score": 0.0
+}
+
+
+===== nls_incarceration:0:0 =====
+sub_hypo_json: {'sub_hypo': [{'text': 'Gender disparities was highest in median wealth in 1985 among individuals who were ever incarcerated', 'context': 'individuals who were ever incarcerated', 'variables': ['sex', 'composite_wealth_1985', 'ever_jailed'], 'relations': 'comparison of median wealth based on gender among those incarcerated'}]}
+gold_sub_hypo_json: {'sub_hypo': [{'text': 'Gender disparities was highest in median wealth in 1985 among individuals who were ever incarcerated', 'context': 'individuals who were ever incarcerated', 'variables': ['sex', 'composite_wealth_1985', 'ever_jailed'], 'relations': 'comparison of median wealth based on gender among those incarcerated'}], 'full_hypo': 'Gender disparities was highest in median wealth in 1985 among individuals who were ever incarcerated'}
+sub_hypo_json: {'sub_hypo': [{'text': 'In 1985, gender disparities in median wealth for those ever incarcerated were less pronounced compared to 1990.', 'context': 'gender disparities in median wealth for those ever incarcerated in the years 1985 and 1990', 'variables': ['sex', 'ever_jailed', 'composite_wealth_1985', 'composite_wealth_1990'], 'relations': 'comparison of median wealth across two different years'}]}
+gen_sub_hypo_json: {'sub_hypo': [{'text': 'In 1985, gender disparities in median wealth for those ever incarcerated were less pronounced compared to 1990.', 'context': 'gender disparities in median wealth for those ever incarcerated in the years 1985 and 1990', 'variables': ['sex', 'ever_jailed', 'composite_wealth_1985', 'composite_wealth_1990'], 'relations': 'comparison of median wealth across two different years'}], 'full_hypo': 'In 1985, gender disparities in median wealth for those ever incarcerated were less pronounced compared to 1990.'}
+gen_subh_to_gold_subh: {0: -1}
+eval_rec: {
+  "query": "In what year were gender disparities highest in median wealth among individuals who were ever incarcerated?",
+  "HypoA": "Gender disparities was highest in median wealth in 1985 among individuals who were ever incarcerated",
+  "WorkflowA": "",
+  "HypoB": "In 1985, gender disparities in median wealth for those ever incarcerated were less pronounced compared to 1990.",
+  "WorkflowB": "",
+  "gold_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Gender disparities was highest in median wealth in 1985 among individuals who were ever incarcerated",
+        "context": "individuals who were ever incarcerated",
+        "variables": [
+          "sex",
+          "composite_wealth_1985",
+          "ever_jailed"
+        ],
+        "relations": "comparison of median wealth based on gender among those incarcerated"
+      }
+    ],
+    "full_hypo": "Gender disparities was highest in median wealth in 1985 among individuals who were ever incarcerated"
+  },
+  "gen_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "In 1985, gender disparities in median wealth for those ever incarcerated were less pronounced compared to 1990.",
+        "context": "gender disparities in median wealth for those ever incarcerated in the years 1985 and 1990",
+        "variables": [
+          "sex",
+          "ever_jailed",
+          "composite_wealth_1985",
+          "composite_wealth_1990"
+        ],
+        "relations": "comparison of median wealth across two different years"
+      }
+    ],
+    "full_hypo": "In 1985, gender disparities in median wealth for those ever incarcerated were less pronounced compared to 1990."
+  },
+  "gen_subh_to_gold_subh": {
+    "0": -1
+  },
+  "gold_subh_covered": [],
+  "matched_gold_gen_subh_evals": {},
+  "recall_context": 0.0,
+  "mean_accuracy_score": 0.0,
+  "final_score": 0.0
+}
+
+
+===== nls_ses:0:0 =====
+sub_hypo_json: {'sub_hypo': [{'text': 'Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.', 'context': 'dataset contains social background factors and academic resources at the time of secondary school graduation', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'positive relationship with a coefficient of 0.4729'}]}
+gold_sub_hypo_json: {'sub_hypo': [{'text': 'Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.', 'context': 'dataset contains social background factors and academic resources at the time of secondary school graduation', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'positive relationship with a coefficient of 0.4729'}], 'full_hypo': 'Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.'}
+sub_hypo_json: {'sub_hypo': [{'text': 'There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion.', 'context': 'This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'strong positive correlation'}]}
+gen_sub_hypo_json: {'sub_hypo': [{'text': 'There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion.', 'context': 'This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'strong positive correlation'}], 'full_hypo': 'There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion.'}
+gen_subh_to_gold_subh: {0: 0}
+var_eval: {'p': 1.0, 'r': 1.0, 'f1': 1.0, 'sizeA': 2, 'sizeB': 2, 'intersection': 2, 'explanation': "Both HypoA and HypoB mention the variables 'socioeconomic status (SES)' and 'BA degree completion'. These variables are described in similar terms across both hypotheses, indicating a complete overlap."}
+{
+"answer": "A) very similar",
+"explanation": "Both HypoA and HypoB describe a strong positive relationship between socioeconomic status (SES) and BA degree completion. HypoA specifies a coefficient, indicating a more precise measurement, while HypoB emphasizes the strength of the correlation. Despite this slight difference in detail, the fundamental relationship described is the same: a positive correlation between SES and degree completion."
+}
+eval_rec: {
+  "query": "How strongly does BA degree completion vary with socioeconomic status?",
+  "HypoA": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.",
+  "WorkflowA": "",
+  "HypoB": "There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion.",
+  "WorkflowB": "",
+  "gold_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.",
+        "context": "dataset contains social background factors and academic resources at the time of secondary school graduation",
+        "variables": [
+          "SES",
+          "BA DEGREE COMPLETED"
+        ],
+        "relations": "positive relationship with a coefficient of 0.4729"
+      }
+    ],
+    "full_hypo": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729."
+  },
+  "gen_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion.",
+        "context": "This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.",
+        "variables": [
+          "SES",
+          "BA DEGREE COMPLETED"
+        ],
+        "relations": "strong positive correlation"
+      }
+    ],
+    "full_hypo": "There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion."
+  },
+  "gen_subh_to_gold_subh": {
+    "0": 0
+  },
+  "gold_subh_covered": [
+    0
+  ],
+  "matched_gold_gen_subh_evals": {
+    "P0||G0": {
+      "query": "How strongly does BA degree completion vary with socioeconomic status?",
+      "HypoA": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.",
+      "WorkflowA": "",
+      "HypoB": "There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion.",
+      "WorkflowB": "",
+      "var": {
+        "question": "        Question: For both HypoA and HypoB, what are the different variables found in the hypotheses?         Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"sizeA\": num of variables used in HypoA\n        \"sizeB\": num of variables used in HypoB\n        \"intersection\": num of variables common in HypoA and HypoB. Use *fuzzy matching* to determine intersection, accounting for paraphrases or slightly different surface forms\n        \"explanation\": a short text explanation about the variables\n        }}```\n        Answer:",
+        "answer": "{\n\"sizeA\": 2,\n\"sizeB\": 2,\n\"intersection\": 2,\n\"explanation\": \"Both HypoA and HypoB mention the variables 'socioeconomic status (SES)' and 'BA degree completion'. These variables are described in similar terms across both hypotheses, indicating a complete overlap.\"\n}",
+        "score": {
+          "p": 1.0,
+          "r": 1.0,
+          "f1": 1.0,
+          "sizeA": 2,
+          "sizeB": 2,
+          "intersection": 2,
+          "explanation": "Both HypoA and HypoB mention the variables 'socioeconomic status (SES)' and 'BA degree completion'. These variables are described in similar terms across both hypotheses, indicating a complete overlap."
+        }
+      },
+      "rel": {
+        "question": "        Question: Does HypoB exhibit the same relation as HypoA?\n        Compare using following example hierarchy of relationships (based on specificity):         \"there exists a relationship\" > \"positive relationship\" > \"positive AND (linear OR quadratic)\" > \"positive AND linear\".\n        Options: A) very similar B) similar but general than HypoA C) different\n        Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"answer\": one of the options from A) very similar B) similar but general than HypoA C) different\n        \"explanation\": a short text explanation about the relationship comparison\n        }}```\n        Answer:",
+        "answer": "{\n\"answer\": \"A) very similar\",\n\"explanation\": \"Both HypoA and HypoB describe a strong positive relationship between socioeconomic status (SES) and BA degree completion. HypoA specifies a coefficient, indicating a more precise measurement, while HypoB emphasizes the strength of the correlation. Despite this slight difference in detail, the fundamental relationship described is the same: a positive correlation between SES and degree completion.\"\n}",
+        "score": 1.0
+      },
+      "context": {
+        "question": "Comapring: GoldH: Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729., GoldC: dataset contains social background factors and academic resources at the time of secondary school graduation\nGenH: There is a strong positive correlation between socioeconomic status and BA degree completion, indicating that higher SES is associated with higher rates of degree completion., GenC: This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.",
+        "answer": true,
+        "score": 1.0
+      },
+      "accuracy_score": 1.0
+    }
+  },
+  "recall_context": 1.0,
+  "mean_accuracy_score": 1.0,
+  "final_score": 1.0
+}
+
+
+===== nls_ses:0:1 =====
+sub_hypo_json: {'sub_hypo': [{'text': 'Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.', 'context': 'This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'Positive relationship with a coefficient of 0.4729'}]}
+gold_sub_hypo_json: {'sub_hypo': [{'text': 'Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.', 'context': 'This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'Positive relationship with a coefficient of 0.4729'}], 'full_hypo': 'Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.'}
+sub_hypo_json: {'sub_hypo': [{'text': 'Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree.', 'context': 'This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'positively associated'}]}
+gen_sub_hypo_json: {'sub_hypo': [{'text': 'Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree.', 'context': 'This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.', 'variables': ['SES', 'BA DEGREE COMPLETED'], 'relations': 'positively associated'}], 'full_hypo': 'Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree.'}
+gen_subh_to_gold_subh: {0: 0}
+var_eval: {'p': 1.0, 'r': 1.0, 'f1': 1.0, 'sizeA': 2, 'sizeB': 2, 'intersection': 2, 'explanation': "Both HypoA and HypoB mention the variables 'socioeconomic status (SES)' and 'BA degree completion'. HypoA uses the term 'SES' and specifies a coefficient, while HypoB uses the phrase 'higher socioeconomic status' and describes a positive association, but both hypotheses fundamentally discuss the same variables."}
+{
+"answer": "B",
+"explanation": "Both HypoA and HypoB state that there is a positive relationship between socioeconomic status (SES) and BA degree completion. However, HypoA specifies the relationship with a coefficient (0.4729), indicating a quantified measure of the relationship, which makes it more specific than HypoB, which only mentions a positive association without quantification."
+}
+eval_rec: {
+  "query": "Is socioeconomic status a significant predictor of BA degree completion?",
+  "HypoA": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.",
+  "WorkflowA": "",
+  "HypoB": "Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree.",
+  "WorkflowB": "",
+  "gold_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.",
+        "context": "This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.",
+        "variables": [
+          "SES",
+          "BA DEGREE COMPLETED"
+        ],
+        "relations": "Positive relationship with a coefficient of 0.4729"
+      }
+    ],
+    "full_hypo": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729."
+  },
+  "gen_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree.",
+        "context": "This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.",
+        "variables": [
+          "SES",
+          "BA DEGREE COMPLETED"
+        ],
+        "relations": "positively associated"
+      }
+    ],
+    "full_hypo": "Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree."
+  },
+  "gen_subh_to_gold_subh": {
+    "0": 0
+  },
+  "gold_subh_covered": [
+    0
+  ],
+  "matched_gold_gen_subh_evals": {
+    "P0||G0": {
+      "query": "Is socioeconomic status a significant predictor of BA degree completion?",
+      "HypoA": "Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729.",
+      "WorkflowA": "",
+      "HypoB": "Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree.",
+      "WorkflowB": "",
+      "var": {
+        "question": "        Question: For both HypoA and HypoB, what are the different variables found in the hypotheses?         Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"sizeA\": num of variables used in HypoA\n        \"sizeB\": num of variables used in HypoB\n        \"intersection\": num of variables common in HypoA and HypoB. Use *fuzzy matching* to determine intersection, accounting for paraphrases or slightly different surface forms\n        \"explanation\": a short text explanation about the variables\n        }}```\n        Answer:",
+        "answer": "{\n\"sizeA\": 2,\n\"sizeB\": 2,\n\"intersection\": 2,\n\"explanation\": \"Both HypoA and HypoB mention the variables 'socioeconomic status (SES)' and 'BA degree completion'. HypoA uses the term 'SES' and specifies a coefficient, while HypoB uses the phrase 'higher socioeconomic status' and describes a positive association, but both hypotheses fundamentally discuss the same variables.\"\n}",
+        "score": {
+          "p": 1.0,
+          "r": 1.0,
+          "f1": 1.0,
+          "sizeA": 2,
+          "sizeB": 2,
+          "intersection": 2,
+          "explanation": "Both HypoA and HypoB mention the variables 'socioeconomic status (SES)' and 'BA degree completion'. HypoA uses the term 'SES' and specifies a coefficient, while HypoB uses the phrase 'higher socioeconomic status' and describes a positive association, but both hypotheses fundamentally discuss the same variables."
+        }
+      },
+      "rel": {
+        "question": "        Question: Does HypoB exhibit the same relation as HypoA?\n        Compare using following example hierarchy of relationships (based on specificity):         \"there exists a relationship\" > \"positive relationship\" > \"positive AND (linear OR quadratic)\" > \"positive AND linear\".\n        Options: A) very similar B) similar but general than HypoA C) different\n        Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"answer\": one of the options from A) very similar B) similar but general than HypoA C) different\n        \"explanation\": a short text explanation about the relationship comparison\n        }}```\n        Answer:",
+        "answer": "{\n\"answer\": \"B\",\n\"explanation\": \"Both HypoA and HypoB state that there is a positive relationship between socioeconomic status (SES) and BA degree completion. However, HypoA specifies the relationship with a coefficient (0.4729), indicating a quantified measure of the relationship, which makes it more specific than HypoB, which only mentions a positive association without quantification.\"\n}",
+        "score": 0.5
+      },
+      "context": {
+        "question": "Comapring: GoldH: Socioeconomic status (SES) is a significant predictor of BA degree completion. SES has a positive relationship with college degree completion with a coefficient of 0.4729., GoldC: This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.\nGenH: Higher socioeconomic status (SES) is positively associated with the likelihood of completing a BA degree., GenC: This dataset contains social background factors and academic resources at the time of secondary school graduation for the participants of the NLS.",
+        "answer": true,
+        "score": 1.0
+      },
+      "accuracy_score": 0.5
+    }
+  },
+  "recall_context": 1.0,
+  "mean_accuracy_score": 0.5,
+  "final_score": 0.5
+}
+
+
+===== requirements_engineering_for_ML_enabled_systems:0:0 =====
+sub_hypo_json: {'sub_hypo': [{'text': 'Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance.', 'context': 'ML-enabled system projects', 'variables': ['Q8_ML_Addressing_Project_Lead', 'Q8_ML_Addressing_Data_Scientist'], 'relations': 'statistical association measures and confidence intervals between roles and requirements association'}]}
+gold_sub_hypo_json: {'sub_hypo': [{'text': 'Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance.', 'context': 'ML-enabled system projects', 'variables': ['Q8_ML_Addressing_Project_Lead', 'Q8_ML_Addressing_Data_Scientist'], 'relations': 'statistical association measures and confidence intervals between roles and requirements association'}], 'full_hypo': 'Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance.'}
+sub_hypo_json: {'sub_hypo': [{'text': 'The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so.', 'context': 'in ML-enabled systems', 'variables': ['D4_Role'], 'relations': 'association with requirements'}]}
+gen_sub_hypo_json: {'sub_hypo': [{'text': 'The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so.', 'context': 'in ML-enabled systems', 'variables': ['D4_Role'], 'relations': 'association with requirements'}], 'full_hypo': 'The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so.'}
+gen_subh_to_gold_subh: {0: 0}
+var_eval: {'p': 1.0, 'r': 0.6666666666666666, 'f1': 0.8, 'sizeA': 3, 'sizeB': 2, 'intersection': 2, 'explanation': 'HypoA includes variables: role of project leads, role of data scientists, and proportion of association with requirements. HypoB includes variables: role of data scientist and proportion of association with requirements. The common variables between HypoA and HypoB are the role of data scientists (despite slight naming variation) and the proportion of association with requirements.'}
+{
+    "answer": "B",
+    "explanation": "HypoB describes a general relationship indicating the highest association of the Data Scientist role with requirements in ML-enabled systems, while HypoA specifies the exact proportions and confidence intervals for both Project Leads and Data Scientists, making it more specific. HypoB omits the comparative aspect and the detailed statistical information provided in HypoA."
+}
+eval_rec: {
+  "query": "Which two roles have the highest proportion of association with requirements in ML-enabled systems, with 49.6%(95% CI [49.219, 49.981] and 61.389% (95% CI [60.955, 61.822]) of respondents indicating so after bootstrapping for statistical significance?",
+  "HypoA": "Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance.",
+  "WorkflowA": "",
+  "HypoB": "The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so.",
+  "WorkflowB": "",
+  "gold_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance.",
+        "context": "ML-enabled system projects",
+        "variables": [
+          "Q8_ML_Addressing_Project_Lead",
+          "Q8_ML_Addressing_Data_Scientist"
+        ],
+        "relations": "statistical association measures and confidence intervals between roles and requirements association"
+      }
+    ],
+    "full_hypo": "Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance."
+  },
+  "gen_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so.",
+        "context": "in ML-enabled systems",
+        "variables": [
+          "D4_Role"
+        ],
+        "relations": "association with requirements"
+      }
+    ],
+    "full_hypo": "The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so."
+  },
+  "gen_subh_to_gold_subh": {
+    "0": 0
+  },
+  "gold_subh_covered": [
+    0
+  ],
+  "matched_gold_gen_subh_evals": {
+    "P0||G0": {
+      "query": "Which two roles have the highest proportion of association with requirements in ML-enabled systems, with 49.6%(95% CI [49.219, 49.981] and 61.389% (95% CI [60.955, 61.822]) of respondents indicating so after bootstrapping for statistical significance?",
+      "HypoA": "Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance.",
+      "WorkflowA": "",
+      "HypoB": "The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so.",
+      "WorkflowB": "",
+      "var": {
+        "question": "        Question: For both HypoA and HypoB, what are the different variables found in the hypotheses?         Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"sizeA\": num of variables used in HypoA\n        \"sizeB\": num of variables used in HypoB\n        \"intersection\": num of variables common in HypoA and HypoB. Use *fuzzy matching* to determine intersection, accounting for paraphrases or slightly different surface forms\n        \"explanation\": a short text explanation about the variables\n        }}```\n        Answer:",
+        "answer": "{\n    \"sizeA\": 3,\n    \"sizeB\": 2,\n    \"intersection\": 2,\n    \"explanation\": \"HypoA includes variables: role of project leads, role of data scientists, and proportion of association with requirements. HypoB includes variables: role of data scientist and proportion of association with requirements. The common variables between HypoA and HypoB are the role of data scientists (despite slight naming variation) and the proportion of association with requirements.\"\n}",
+        "score": {
+          "p": 1.0,
+          "r": 0.6666666666666666,
+          "f1": 0.8,
+          "sizeA": 3,
+          "sizeB": 2,
+          "intersection": 2,
+          "explanation": "HypoA includes variables: role of project leads, role of data scientists, and proportion of association with requirements. HypoB includes variables: role of data scientist and proportion of association with requirements. The common variables between HypoA and HypoB are the role of data scientists (despite slight naming variation) and the proportion of association with requirements."
+        }
+      },
+      "rel": {
+        "question": "        Question: Does HypoB exhibit the same relation as HypoA?\n        Compare using following example hierarchy of relationships (based on specificity):         \"there exists a relationship\" > \"positive relationship\" > \"positive AND (linear OR quadratic)\" > \"positive AND linear\".\n        Options: A) very similar B) similar but general than HypoA C) different\n        Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"answer\": one of the options from A) very similar B) similar but general than HypoA C) different\n        \"explanation\": a short text explanation about the relationship comparison\n        }}```\n        Answer:",
+        "answer": "{\n    \"answer\": \"B\",\n    \"explanation\": \"HypoB describes a general relationship indicating the highest association of the Data Scientist role with requirements in ML-enabled systems, while HypoA specifies the exact proportions and confidence intervals for both Project Leads and Data Scientists, making it more specific. HypoB omits the comparative aspect and the detailed statistical information provided in HypoA.\"\n}",
+        "score": 0.5
+      },
+      "context": {
+        "question": "Comapring: GoldH: Project leads (49.6%, 95% CI [49.219, 49.981]) and data scientists (61.389%, 95% CI [60.955, 61.822]) have the highest proportion of association with requirements in ML-enabled systems after bootstrapping for statistical significance., GoldC: ML-enabled system projects\nGenH: The role of Data Scientist has the highest association with requirements in ML-enabled systems, with 61.389% of respondents indicating so., GenC: in ML-enabled systems",
+        "answer": true,
+        "score": 1.0
+      },
+      "accuracy_score": 0.4
+    }
+  },
+  "recall_context": 1.0,
+  "mean_accuracy_score": 0.4,
+  "final_score": 0.4
+}
+
+
+===== requirements_engineering_for_ML_enabled_systems:1:0 =====
+sub_hypo_json: {'sub_hypo': [{'text': 'Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists.', 'context': 'in ML-enabled system projects', 'variables': ['Q8_ML_Addressing_Project_Lead', 'Q8_ML_Addressing_Business_Analyst', 'Q8_ML_Addressing_Data_Scientist', 'Q8_ML_Addressing_Developer'], 'relations': 'Comparative proportion association'}]}
+gold_sub_hypo_json: {'sub_hypo': [{'text': 'Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists.', 'context': 'in ML-enabled system projects', 'variables': ['Q8_ML_Addressing_Project_Lead', 'Q8_ML_Addressing_Business_Analyst', 'Q8_ML_Addressing_Data_Scientist', 'Q8_ML_Addressing_Developer'], 'relations': 'Comparative proportion association'}], 'full_hypo': 'Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists. For Business Analysts the proportion is 28.339% (95% CI: 28.024% to 28.653%) and for Developers the proportion is 21.386% (95% CI: 21.061% to 21.71% ).'}
+sub_hypo_json: {'sub_hypo': [{'text': 'Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25).', 'context': 'in ML-enabled systems', 'variables': ['D4_Role'], 'relations': 'proportional representation'}]}
+gen_sub_hypo_json: {'sub_hypo': [{'text': 'Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25).', 'context': 'in ML-enabled systems', 'variables': ['D4_Role'], 'relations': 'proportional representation'}], 'full_hypo': 'Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25).'}
+gen_subh_to_gold_subh: {0: 0}
+var_eval: {'p': 1.0, 'r': 0.75, 'f1': 0.8571428571428571, 'sizeA': 4, 'sizeB': 3, 'intersection': 3, 'explanation': 'HypoA uses variables: proportion of association, Business Analysts, Developers, and confidence intervals. HypoB uses variables: proportion, Developers, and confidence intervals. The common variables between HypoA and HypoB, considering fuzzy matching, are Developers, proportion (related to proportion of association), and confidence intervals.'}
+{
+"answer": "B",
+"explanation": "HypoA specifies exact proportions and confidence intervals for both Developers and Business Analysts, indicating a specific quantitative relationship. HypoB, however, only provides a general proportion and confidence interval for Developers, without specifying exact values or including Business Analysts. Thus, HypoB is similar in discussing proportions within ML-enabled systems but is more general than HypoA."
+}
+eval_rec: {
+  "query": "What are the proportions and their 95% Confidence Intervals for Business Analysts and Developers who are associated with addressing requirements in ML-enabled systems after bootstrapping for statistical significance?",
+  "HypoA": "Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists. For Business Analysts the proportion is 28.339% (95% CI: 28.024% to 28.653%) and for Developers the proportion is 21.386% (95% CI: 21.061% to 21.71% ).",
+  "WorkflowA": "",
+  "HypoB": "Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25).",
+  "WorkflowB": "",
+  "gold_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists.",
+        "context": "in ML-enabled system projects",
+        "variables": [
+          "Q8_ML_Addressing_Project_Lead",
+          "Q8_ML_Addressing_Business_Analyst",
+          "Q8_ML_Addressing_Data_Scientist",
+          "Q8_ML_Addressing_Developer"
+        ],
+        "relations": "Comparative proportion association"
+      }
+    ],
+    "full_hypo": "Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists. For Business Analysts the proportion is 28.339% (95% CI: 28.024% to 28.653%) and for Developers the proportion is 21.386% (95% CI: 21.061% to 21.71% )."
+  },
+  "gen_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25).",
+        "context": "in ML-enabled systems",
+        "variables": [
+          "D4_Role"
+        ],
+        "relations": "proportional representation"
+      }
+    ],
+    "full_hypo": "Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25)."
+  },
+  "gen_subh_to_gold_subh": {
+    "0": 0
+  },
+  "gold_subh_covered": [
+    0
+  ],
+  "matched_gold_gen_subh_evals": {
+    "P0||G0": {
+      "query": "What are the proportions and their 95% Confidence Intervals for Business Analysts and Developers who are associated with addressing requirements in ML-enabled systems after bootstrapping for statistical significance?",
+      "HypoA": "Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists. For Business Analysts the proportion is 28.339% (95% CI: 28.024% to 28.653%) and for Developers the proportion is 21.386% (95% CI: 21.061% to 21.71% ).",
+      "WorkflowA": "",
+      "HypoB": "Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25).",
+      "WorkflowB": "",
+      "var": {
+        "question": "        Question: For both HypoA and HypoB, what are the different variables found in the hypotheses?         Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"sizeA\": num of variables used in HypoA\n        \"sizeB\": num of variables used in HypoB\n        \"intersection\": num of variables common in HypoA and HypoB. Use *fuzzy matching* to determine intersection, accounting for paraphrases or slightly different surface forms\n        \"explanation\": a short text explanation about the variables\n        }}```\n        Answer:",
+        "answer": "{\n    \"sizeA\": 4,\n    \"sizeB\": 3,\n    \"intersection\": 3,\n    \"explanation\": \"HypoA uses variables: proportion of association, Business Analysts, Developers, and confidence intervals. HypoB uses variables: proportion, Developers, and confidence intervals. The common variables between HypoA and HypoB, considering fuzzy matching, are Developers, proportion (related to proportion of association), and confidence intervals.\"\n}",
+        "score": {
+          "p": 1.0,
+          "r": 0.75,
+          "f1": 0.8571428571428571,
+          "sizeA": 4,
+          "sizeB": 3,
+          "intersection": 3,
+          "explanation": "HypoA uses variables: proportion of association, Business Analysts, Developers, and confidence intervals. HypoB uses variables: proportion, Developers, and confidence intervals. The common variables between HypoA and HypoB, considering fuzzy matching, are Developers, proportion (related to proportion of association), and confidence intervals."
+        }
+      },
+      "rel": {
+        "question": "        Question: Does HypoB exhibit the same relation as HypoA?\n        Compare using following example hierarchy of relationships (based on specificity):         \"there exists a relationship\" > \"positive relationship\" > \"positive AND (linear OR quadratic)\" > \"positive AND linear\".\n        Options: A) very similar B) similar but general than HypoA C) different\n        Return your answer as a JSON object in the following format:\n        ```json\n        {{\n        \"answer\": one of the options from A) very similar B) similar but general than HypoA C) different\n        \"explanation\": a short text explanation about the relationship comparison\n        }}```\n        Answer:",
+        "answer": "{\n\"answer\": \"B\",\n\"explanation\": \"HypoA specifies exact proportions and confidence intervals for both Developers and Business Analysts, indicating a specific quantitative relationship. HypoB, however, only provides a general proportion and confidence interval for Developers, without specifying exact values or including Business Analysts. Thus, HypoB is similar in discussing proportions within ML-enabled systems but is more general than HypoA.\"\n}",
+        "score": 0.5
+      },
+      "context": {
+        "question": "Comapring: GoldH: Developers and Business Analysts have a lower proportion of association with addressing requirements in ML-enabled systems compared to Project Leads and Data Scientists., GoldC: in ML-enabled system projects\nGenH: Developers constitute about 20% of the individuals addressing requirements in ML-enabled systems, with a 95% Confidence Interval of (0.15, 0.25)., GenC: in ML-enabled systems",
+        "answer": true,
+        "score": 1.0
+      },
+      "accuracy_score": 0.42857142857142855
+    }
+  },
+  "recall_context": 1.0,
+  "mean_accuracy_score": 0.42857142857142855,
+  "final_score": 0.42857142857142855
+}
+
+
+===== worldbank_education_gdp:0:0 =====
+sub_hypo_json: {'sub_hypo': [{'text': 'Increase in education expenditure generates a positive impact on per capita GDP in developing countries', 'context': 'developing countries (Sub-Saharan Africa and Lower Middle Income Countries) from 1975 to 2015', 'variables': ['Adjusted savings: education expenditure (percentage of GNI)', 'GNI per capita (constant 2015 US dollar)'], 'relations': 'positive impact'}]}
+gold_sub_hypo_json: {'sub_hypo': [{'text': 'Increase in education expenditure generates a positive impact on per capita GDP in developing countries', 'context': 'developing countries (Sub-Saharan Africa and Lower Middle Income Countries) from 1975 to 2015', 'variables': ['Adjusted savings: education expenditure (percentage of GNI)', 'GNI per capita (constant 2015 US dollar)'], 'relations': 'positive impact'}], 'full_hypo': 'Increase in education expenditure generates a positive impact on per capita GDP in developing countries'}
+sub_hypo_json: {'sub_hypo': [{'text': 'In Sub-Saharan Africa, increased education spending is positively correlated with per capita GDP growth.', 'context': 'Sub-Saharan Africa', 'variables': ['Adjusted savings: education expenditure (percentage of GNI)', 'GNI per capita (constant 2015 US dollar)'], 'relations': 'positively correlated'}]}
+gen_sub_hypo_json: {'sub_hypo': [{'text': 'In Sub-Saharan Africa, increased education spending is positively correlated with per capita GDP growth.', 'context': 'Sub-Saharan Africa', 'variables': ['Adjusted savings: education expenditure (percentage of GNI)', 'GNI per capita (constant 2015 US dollar)'], 'relations': 'positively correlated'}], 'full_hypo': 'In Sub-Saharan Africa, increased education spending is positively correlated with per capita GDP growth.'}
+gen_subh_to_gold_subh: {0: -1}
+eval_rec: {
+  "query": "In what regions does increased education spending positively impact per capita GDP?",
+  "HypoA": "Increase in education expenditure generates a positive impact on per capita GDP in developing countries",
+  "WorkflowA": "",
+  "HypoB": "In Sub-Saharan Africa, increased education spending is positively correlated with per capita GDP growth.",
+  "WorkflowB": "",
+  "gold_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "Increase in education expenditure generates a positive impact on per capita GDP in developing countries",
+        "context": "developing countries (Sub-Saharan Africa and Lower Middle Income Countries) from 1975 to 2015",
+        "variables": [
+          "Adjusted savings: education expenditure (percentage of GNI)",
+          "GNI per capita (constant 2015 US dollar)"
+        ],
+        "relations": "positive impact"
+      }
+    ],
+    "full_hypo": "Increase in education expenditure generates a positive impact on per capita GDP in developing countries"
+  },
+  "gen_sub_hypo": {
+    "sub_hypo": [
+      {
+        "text": "In Sub-Saharan Africa, increased education spending is positively correlated with per capita GDP growth.",
+        "context": "Sub-Saharan Africa",
+        "variables": [
+          "Adjusted savings: education expenditure (percentage of GNI)",
+          "GNI per capita (constant 2015 US dollar)"
+        ],
+        "relations": "positively correlated"
+      }
+    ],
+    "full_hypo": "In Sub-Saharan Africa, increased education spending is positively correlated with per capita GDP growth."
+  },
+  "gen_subh_to_gold_subh": {
+    "0": -1
+  },
+  "gold_subh_covered": [],
+  "matched_gold_gen_subh_evals": {},
+  "recall_context": 0.0,
+  "mean_accuracy_score": 0.0,
+  "final_score": 0.0
+}

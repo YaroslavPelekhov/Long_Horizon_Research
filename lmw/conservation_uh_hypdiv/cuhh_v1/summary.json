@@ -1,0 +1,59 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "episodes": 3,
+  "hypdiv_mean": 87.0,
+  "best_rollout_mean": 87.0,
+  "results": {
+    "ep0": {
+      "hypdiv": 87.0,
+      "best_rollout": 87.0,
+      "rollout_scores": [
+        57.0,
+        87.0,
+        87.0
+      ],
+      "n_hypotheses": 5,
+      "hypotheses": [
+        "What is the ploidy level of the organisms involved in the crosses, and does it include non-diploid configurations?",
+        "What mode of meiosis is occurring in these organisms, and does it deviate from the typical processes observed in known species?",
+        "What is the dominance structure of the traits being observed, and are there non-simple dominance relationships present?",
+        "How do viability and lethal interactions influence the offspring outcomes, and are there specific combinations of parental traits that lead to increased lethality?",
+        "Is the inheritance of traits based on dosage effects or discrete Mendelian patterns, and how does this affect the phenotypic variation in the offspring?"
+      ]
+    },
+    "ep1": {
+      "hypdiv": 87.0,
+      "best_rollout": 87.0,
+      "rollout_scores": [
+        87.0,
+        87.0,
+        87.0
+      ],
+      "n_hypotheses": 5,
+      "hypotheses": [
+        "What is the ploidy level of the organisms involved in these crosses, and could it be non-diploid?",
+        "What is the mode of segregation during meiosis, and does it follow a standard Mendelian pattern?",
+        "What is the dominance structure of the traits observed, and are there any non-simple dominance interactions present?",
+        "How do lethal interactions between alleles affect the viability of the offspring produced in these crosses?",
+        "Is there a dosage effect influencing the expression of traits, or are the traits expressed in a discrete manner?"
+      ]
+    },
+    "ep2": {
+      "hypdiv": 87.0,
+      "best_rollout": 87.0,
+      "rollout_scores": [
+        55.0,
+        45.0,
+        87.0
+      ],
+      "n_hypotheses": 5,
+      "hypotheses": [
+        "What is the ploidy level of the alien organisms, and do they exhibit non-diploid characteristics?",
+        "What mode of meiosis do the alien organisms utilize, and how does this affect segregation patterns in their offspring?",
+        "What is the dominance structure of traits in the alien organisms, and do they exhibit non-simple dominance interactions?",
+        "What are the viability and lethality interactions among the offspring, and how do these affect overall offspring viability rates?",
+        "Do the traits in the alien organisms exhibit dosage effects, or are they expressed in a discrete manner?"
+      ]
+    }
+  }
+}

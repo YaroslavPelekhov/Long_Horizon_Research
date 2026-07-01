@@ -1,0 +1,26 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 2,
+  "abstained": 1,
+  "SR_answered": 0.5,
+  "SR_all": 0.333,
+  "results": {
+    "5": {
+      "status": "ANSWER",
+      "SR": 1.0,
+      "reason": "consensus 2/3",
+      "domain": "Bioinformatics"
+    },
+    "71": {
+      "status": "ANSWER",
+      "SR": 0.0,
+      "reason": "consensus 3/3",
+      "domain": "Psychology and Cognitive science"
+    },
+    "72": {
+      "status": "ABSTAIN",
+      "reason": "no candidate produced a usable outcome",
+      "domain": "Psychology and Cognitive science"
+    }
+  }
+}

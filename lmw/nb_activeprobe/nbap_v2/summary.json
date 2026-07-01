@@ -1,0 +1,49 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 5,
+  "abstained": 1,
+  "SA_answered": 1.0,
+  "SA_all": 0.833,
+  "results": {
+    "m0_gravity": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "law": "6.674e-05 * (mass1 ** 1.0) * (mass2 ** 1.0) * (distance ** -1.5)"
+    },
+    "m1_coulomb_force": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "law": "1.9999999999999998 * (q1 ** 1.0) * (q2 ** 1.0) * (distance ** -3.0)"
+    },
+    "m9_hooke_law": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "law": "462.2819999999997 * (x ** 2.0)"
+    },
+    "m4_snell_law": {
+      "status": "ABSTAIN",
+      "best_rmsle": 9.9,
+      "method": "all_constant"
+    },
+    "m5_radioactive_decay": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "joint_probe",
+      "law": "(N0 ** 1.0) * math.exp(-1.0000000000000004 * lambda_constant * (t ** 1"
+    },
+    "m7_malus_law": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "law": "1.0000000000000004 * (I_0 ** 1.0) * (0.9999999999999999 * (1 + math.si"
+    }
+  }
+}

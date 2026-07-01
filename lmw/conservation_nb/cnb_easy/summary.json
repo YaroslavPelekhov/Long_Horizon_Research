@@ -1,0 +1,44 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "difficulty": "easy",
+  "answered": 4,
+  "abstained": 2,
+  "SA_answered": 1.0,
+  "SA_all": 0.667,
+  "results": {
+    "m0_gravity": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "noise_floor": 0.0,
+      "law": "6.674000000000012e-05 * (mass1 ** 1.0) * (mass2 "
+    },
+    "m1_coulomb_force": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "noise_floor": 0.0,
+      "law": "1.9999999999999976 * (q1 ** 1.0) * (q2 ** 1.0) *"
+    },
+    "m9_hooke_law": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "noise_floor": 0.0,
+      "law": "462.2820000000001 * math.exp(2.546853114373017e-"
+    },
+    "m4_snell_law": {
+      "status": "ABSTAIN",
+      "reason": "no candidate generated",
+      "noise_floor": 0.0
+    },
+    "m5_radioactive_decay": {
+      "status": "ANSWER",
+      "SA": 1.0,
+      "noise_floor": 0.0,
+      "law": "0.9999999999999989 * (N0 ** 1.0) * math.exp(4.44"
+    },
+    "m7_malus_law": {
+      "status": "ABSTAIN",
+      "reason": "nothing conserved at the data noise floor",
+      "noise_floor": 0.0
+    }
+  }
+}

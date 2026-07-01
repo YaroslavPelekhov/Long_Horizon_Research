@@ -1,0 +1,32 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 0,
+  "abstained": 6,
+  "SA_answered": 0.0,
+  "SA_all": 0.0,
+  "results": {
+    "m0_gravity": {
+      "status": "ABSTAIN",
+      "best_mean": 0.179
+    },
+    "m1_coulomb_force": {
+      "status": "ABSTAIN",
+      "best_mean": 0.123
+    },
+    "m9_hooke_law": {
+      "status": "ABSTAIN",
+      "best_mean": 0.002
+    },
+    "m4_snell_law": {
+      "status": "no_data"
+    },
+    "m5_radioactive_decay": {
+      "status": "ABSTAIN",
+      "best_mean": 22.988
+    },
+    "m7_malus_law": {
+      "status": "ABSTAIN",
+      "best_mean": 1.312
+    }
+  }
+}

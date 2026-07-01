@@ -1,0 +1,18 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 0,
+  "abstained": 1,
+  "score_answered": 0.0,
+  "single_rollout_mean": 0.0,
+  "results": {
+    "ep0": {
+      "status": "ABSTAIN",
+      "reason": "no candidate produced a usable outcome",
+      "rollout_scores": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  }
+}
