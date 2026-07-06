@@ -116,18 +116,37 @@ class ScienceAgentBenchAdapter(ResearchEnvAdapter):
     def handle(self) -> EnvHandle:
         dk = (self.task.domain_knowledge or "").strip()
         dk_block = f"\nDOMAIN KNOWLEDGE:\n{dk[:1500]}\n" if dk else ""
+        first_tree_line = (self.task.dataset_folder_tree or "").splitlines()[0:1]
+        dataset_rel = ""
+        if first_tree_line:
+            # SAB official prompt computes:
+            # args.datasets_path + example["dataset_folder_tree"].split("\n")[0][4:]
+            # with args.datasets_path defaulting to "benchmark/datasets/".
+            dataset_rel = first_tree_line[0][4:].strip()
+        dataset_path = f"benchmark/datasets/{dataset_rel}" if dataset_rel else "benchmark/datasets/"
         desc = (
             f"ScienceAgentBench task — domain: {self.task.domain}, "
             f"github: {self.task.github}, subtasks: {self.task.subtask_categories}.\n\n"
             f"TASK INSTRUCTION:\n{self.task.task_inst}\n\n"
+            f"DATASET PATH:\n{dataset_path}\n\n"
             f"DATASET FOLDER TREE:\n{self.task.dataset_folder_tree[:1500]}\n\n"
             f"DATASET PREVIEW:\n{self.task.dataset_preview[:2000]}\n"
             f"{dk_block}\n"
             f"OUTPUT FILENAME (your program must save its result here): "
             f"{self.task.output_fname}\n\n"
             f"You will produce one Python program file that, when executed in a "
-            f"sandbox where the dataset path points to the folder above, solves "
-            f"this task and writes the output. You may submit up to {int(self._budget_total)} "
+            f"sandbox from the repository root, can access the dataset at "
+            f"`{dataset_path}` and must write output to `{self.task.output_fname}`. "
+            f"Use paths exactly in this style, e.g. `benchmark/datasets/...`, "
+            f"not only the bare dataset folder name.\n\n"
+            f"UNIVERSAL SELF-GROUNDING RULES:\n"
+            f"- First build a small manifest from the listed dataset files; never invent file names.\n"
+            f"- Create output parent directories before saving.\n"
+            f"- Probe file schema/shape/value ranges before choosing the transformation.\n"
+            f"- Category maps must be total: unseen values must not crash the program.\n"
+            f"- For rasters or large arrays, prefer streaming/windowed processing and avoid full reads when possible.\n"
+            f"- Keep execution under the official timeout; compute the minimal artifact required by the task.\n\n"
+            f"You may submit up to {int(self._budget_total)} "
             f"program revisions; each submission costs 1 budget unit. The final "
             f"submitted program will be scored."
         )
@@ -195,7 +214,7 @@ class ScienceAgentBenchAdapter(ResearchEnvAdapter):
         against the task description. NOT the published SAB metric; proxy
         for v0.1 architecture validation."""
         from openai import OpenAI
-        key = os.environ.get("OPENAI_API_KEY", "")
+        key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY", "")
         base_url = os.environ.get("OPENAI_BASE_URL")
         if not base_url and key.startswith("sk-or-"):
             base_url = "https://openrouter.ai/api/v1"
@@ -254,7 +273,7 @@ class ScienceAgentBenchAdapter(ResearchEnvAdapter):
         return 0.0, "(judge failed)"
 
     def score_episode(self, claim_store_active, final_artifact=None) -> dict:
-        code = self._submitted_program or ""
+        code = str(final_artifact).strip() if final_artifact else (self._submitted_program or "")
         if not code and claim_store_active:
             # fallback: agent emitted claims but no program — use highest-conf
             # claim as a stand-in (will score very low)

@@ -18,7 +18,7 @@ def make_openai_client():
     """Return an OpenAI client routed to OpenRouter when key starts with sk-or-,
     or honor explicit OPENAI_BASE_URL. Falls back to vanilla OpenAI client."""
     from openai import OpenAI
-    key = os.environ.get("OPENAI_API_KEY", "")
+    key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY", "")
     base_url = os.environ.get("OPENAI_BASE_URL")
     if not base_url and key.startswith("sk-or-"):
         base_url = "https://openrouter.ai/api/v1"

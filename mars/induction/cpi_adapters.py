@@ -14,6 +14,7 @@ through LLM proposal + sandbox + refutation scoring on held-out observations.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from mars.agents.base import call_llm, make_openai_client
@@ -23,6 +24,19 @@ from mars.induction.universal_cpi import (
     Observation,
     ProgramScore,
 )
+from mars.induction.universal_hypothesis_kernel import KernelTask, UniversalHypothesisKernel
+from mars.skills.metric_compiler import (
+    compile_hypothesis_workbench,
+    infer_temporal_event_hypothesis,
+)
+from mars.skills.slot_contract import infer_slot_contract_hypothesis
+from mars.skills.universal_slot_compiler import infer_universal_slot_hypothesis
+from mars.skills.problem_frame_inducer import infer_problem_frame_hypothesis
+from mars.skills.contrastive_world_inducer import infer_contrastive_world_hypothesis
+from mars.skills.answer_plan_inducer import infer_answer_plan_hypothesis
+from mars.skills.contract_baselines import generate_dataframe_analyzer_baselines
+from mars.skills.answer_contract import compile_answer_contract, normalize_answer_report
+from mars.skills.evidence_contract_compiler import infer_evidence_contract_hypothesis
 
 
 # ===========================================================================
@@ -32,10 +46,17 @@ from mars.induction.universal_cpi import (
 class UHSeqAdapter(CPIAdapter):
     name = "uh_seq"
 
-    def __init__(self, env: Any, rule_slot: int, steps: int = 5):
+    def __init__(
+        self,
+        env: Any,
+        rule_slot: int,
+        steps: int = 5,
+        induction_library: list[dict[str, Any]] | None = None,
+    ):
         self.env = env
         self.rule_slot = rule_slot   # which of 5 rules we induce (1..5)
         self.steps = steps
+        self.induction_library = induction_library or []
         self._observations: list[Observation] | None = None
         self._raw_results: list[dict] = []
 
@@ -51,6 +72,107 @@ class UHSeqAdapter(CPIAdapter):
 
     def signature_hint(self) -> str:
         return "def rule(current: str, context: dict) -> str"
+
+    def induction_library_hint(self) -> str:
+        if not self.induction_library:
+            return ""
+        lines = [
+            "\nDISCOVERED PARTIAL PROGRAM LIBRARY (scored on earlier slots; reuse ideas only if they reduce residuals):"
+        ]
+        for item in self.induction_library[-6:]:
+            lines.append(
+                f"- slot={item.get('slot')} name={item.get('name')} "
+                f"loss={item.get('loss_mean')} exact={item.get('exact_rate')} "
+                f"description={str(item.get('description', ''))[:180]}\n"
+                f"```python\n{str(item.get('code', ''))[:900]}\n```"
+            )
+        return "\n".join(lines)
+
+    def seed_program_sources(self) -> list[Any]:
+        seeds: list[Any] = []
+        for item in self.induction_library:
+            code = str(item.get("code", "") or "").strip()
+            if not code:
+                continue
+            seeds.append(
+                {
+                    "name": item.get("name", "trusted_seed"),
+                    "description": item.get("description", "trusted seed program"),
+                    "complexity": 1.2,
+                    "code": code,
+                }
+            )
+        return seeds
+
+    def compose_seed_programs(self) -> bool:
+        return True
+
+    def branch_seed_programs(self) -> bool:
+        return True
+
+    def branch_predicate_sources(self, observations) -> list[dict[str, str]]:
+        context_keys = set()
+        for obs in observations:
+            context_keys.update(obs.context.keys())
+
+        predicates: list[dict[str, str]] = []
+        if "step_number" in context_keys:
+            predicates.extend([
+                {
+                    "name": "step_even",
+                    "expr": "int(context.get('step_number', 0)) % 2 == 0",
+                },
+                {
+                    "name": "step_odd",
+                    "expr": "int(context.get('step_number', 0)) % 2 == 1",
+                },
+                {
+                    "name": "step_prime",
+                    "expr": "_is_prime(int(context.get('step_number', 0)))",
+                    "helper": (
+                        "def _is_prime(n: int) -> bool:\n"
+                        "    if n < 2:\n"
+                        "        return False\n"
+                        "    d = 2\n"
+                        "    while d * d <= n:\n"
+                        "        if n % d == 0:\n"
+                        "            return False\n"
+                        "        d += 1\n"
+                        "    return True\n"
+                    ),
+                },
+                {
+                    "name": "step_not_prime",
+                    "expr": "not _is_prime(int(context.get('step_number', 0)))",
+                    "helper": (
+                        "def _is_prime(n: int) -> bool:\n"
+                        "    if n < 2:\n"
+                        "        return False\n"
+                        "    d = 2\n"
+                        "    while d * d <= n:\n"
+                        "        if n % d == 0:\n"
+                        "            return False\n"
+                        "        d += 1\n"
+                        "    return True\n"
+                    ),
+                },
+            ])
+
+        predicates.extend([
+            {
+                "name": "empty_current",
+                "expr": "len(str(current)) == 0",
+            },
+            {
+                "name": "current_length_even",
+                "expr": "len(str(current)) % 2 == 0",
+            },
+            {
+                "name": "current_length_odd",
+                "expr": "len(str(current)) % 2 == 1",
+            },
+        ])
+        return predicates
 
     def set_observations(self, raw_results: list[dict]) -> None:
         """Inject already-collected env results (shared across 5 rule slots)."""
@@ -161,6 +283,9 @@ class NewtonAdapter(CPIAdapter):
         Uses the geometric mean of target/structure ratios (robust for laws
         spanning orders of magnitude, e.g. the gravitational constant)."""
         import math
+        if _skip_numeric_calibration_for_bounded_transform(program, train_observations):
+            program._const = 1.0  # type: ignore[attr-defined]
+            return program
         ratios = []
         for obs in train_observations:
             try:
@@ -203,16 +328,34 @@ class NewtonAdapter(CPIAdapter):
 # 3. DiscoveryBench — statistical analyzer over a table
 # ===========================================================================
 
+DEFAULT_DISCOVERY_MODULES = frozenset(
+    {
+        "universal_kernel",
+        "evidence_contract",
+        "answer_plan",
+        "contrastive_world",
+        "problem_frame",
+        "answer_slot",
+        "slot_contract",
+        "temporal",
+        "workbench",
+        "llm_synthesis",
+    }
+)
+
+
 class DiscoveryAdapter(CPIAdapter):
     name = "discoverybench"
 
     def __init__(self, df, question: str, domain_knowledge: str,
-                 column_descriptions: dict[str, str], judge_model: str = "openai/gpt-4o"):
+                 column_descriptions: dict[str, str], judge_model: str = "openai/gpt-4o",
+                 enabled_modules: set[str] | None = None):
         self.df = df
         self.question = question
         self.domain_knowledge = domain_knowledge
         self.column_descriptions = column_descriptions or {}
         self.judge_model = judge_model
+        self.enabled_modules = set(DEFAULT_DISCOVERY_MODULES if enabled_modules is None else enabled_modules)
         self._observations: list[Observation] | None = None
 
     def interface_description(self) -> str:
@@ -239,6 +382,22 @@ class DiscoveryAdapter(CPIAdapter):
         import numpy as np
         return {"pd": pd, "np": np, "df": self.df}
 
+    def seed_program_sources(self) -> list[Any]:
+        baselines = generate_dataframe_analyzer_baselines(
+            self.df,
+            question=self.question,
+            column_descriptions=self.column_descriptions,
+        )
+        return [
+            {
+                "name": baseline.name,
+                "description": baseline.rationale,
+                "complexity": 1.1,
+                "code": baseline.code,
+            }
+            for baseline in baselines
+        ]
+
     def collect_observations(self) -> list[Observation]:
         # DiscoveryBench has no per-row refutation target during search.
         # We use a SELF-CONSISTENCY refutation: split the table into folds and
@@ -260,25 +419,79 @@ class DiscoveryAdapter(CPIAdapter):
         return obs
 
     def execute(self, program: HypothesisProgram, obs: Observation) -> Any:
-        out = program.fn(obs.inputs)
-        if isinstance(out, dict):
-            return out.get("statistic", out.get("evidence"))
-        return out
+        return program.fn(obs.inputs)
 
     def loss(self, prediction: Any, obs: Observation) -> float:
-        # Loss = did the analyzer run and produce a finite statistic?
-        # Refutation here is "does it execute on this fold and yield signal".
-        if prediction is None:
+        # Loss = does the analyzer produce question-grounded scientific
+        # evidence, not merely any finite statistic. DiscoveryBench judges
+        # semantic hypothesis slots, so shape/mean-only analyzers must not get
+        # perfect internal loss.
+        if not isinstance(prediction, dict):
+            return 1.0
+        evidence = str(prediction.get("evidence", "") or "")
+        if not evidence.strip():
             return 1.0
         try:
-            if isinstance(prediction, (int, float)):
-                v = float(prediction)
-                return 0.0 if v == v else 1.0  # finite → 0 loss
-            if isinstance(prediction, str) and prediction.strip():
-                return 0.0
+            statistic = float(prediction.get("statistic", 0.0))
+            if statistic != statistic:
+                return 1.0
         except Exception:
-            return 1.0
-        return 0.5
+            pass
+        quality = self._semantic_evidence_quality(prediction)
+        return max(0.0, min(1.0, 1.0 - quality))
+
+    def _semantic_evidence_quality(self, prediction: dict) -> float:
+        evidence = str(prediction.get("evidence", "") or "")
+        low = evidence.lower()
+        question_tokens = _semantic_tokens(self.question)
+        schema_text = " ".join(
+            f"{col} {desc}" for col, desc in self.column_descriptions.items()
+        )
+        schema_tokens = _semantic_tokens(schema_text)
+        evidence_tokens = _semantic_tokens(evidence)
+        query_overlap = len(evidence_tokens & question_tokens)
+        schema_overlap = len(evidence_tokens & schema_tokens)
+        variables = prediction.get("variables", ())
+        if isinstance(variables, str):
+            variables = [variables]
+        variable_tokens = _semantic_tokens(" ".join(str(v) for v in variables))
+        role_hits = sum(
+            1
+            for key in ("cause", "mediator", "outcome", "relation")
+            if str(prediction.get(key, "") or "").strip()
+        )
+        operator_hits = sum(
+            1
+            for word in (
+                "corr", "correlation", "association", "trend", "increase",
+                "decrease", "positive", "negative", "mediator", "mediated",
+                "effect", "stable", "split", "robust", "maximum", "minimum",
+                "growth", "change",
+            )
+            if word in low
+        )
+        shape_only = (
+            ("rows=" in low or "columns=" in low or "shape" in low)
+            and query_overlap == 0
+            and schema_overlap == 0
+            and role_hits == 0
+        )
+        if shape_only:
+            return 0.0
+        score = 0.0
+        score += min(0.30, 0.08 * query_overlap)
+        score += min(0.20, 0.04 * schema_overlap)
+        score += min(0.20, 0.05 * len(variable_tokens & (question_tokens | schema_tokens)))
+        score += min(0.20, 0.06 * role_hits)
+        score += min(0.20, 0.04 * operator_hits)
+        try:
+            if abs(float(prediction.get("statistic", 0.0) or 0.0)) > 1e-12:
+                score += 0.05
+        except Exception:
+            pass
+        if query_overlap == 0 and schema_overlap == 0 and role_hits == 0:
+            score = min(score, 0.35)
+        return max(0.0, min(1.0, score))
 
     def render_report(self, winners, observations) -> str:
         # Collect evidence from all winning analyzers run on the full table,
@@ -292,8 +505,133 @@ class DiscoveryAdapter(CPIAdapter):
                     evidence_pieces.append(f"[{prog.name}] {out['evidence']}")
             except Exception:
                 continue
+        if "universal_kernel" in self.enabled_modules:
+            kernel_result = UniversalHypothesisKernel().run(
+                KernelTask(
+                    task_text=self.question,
+                    interface_kind="discovery_table",
+                    data=self.df,
+                    domain_context=self.domain_knowledge,
+                    schema=self.column_descriptions,
+                    metadata={},
+                )
+            )
+            if kernel_result.best is not None and kernel_result.best.coverage >= 0.5:
+                return self._final_answer_report(kernel_result.best.report())
+        contract = compile_answer_contract(self.question)
+        contract_report = self._render_contract_first_report(contract)
+        if contract_report:
+            return contract_report
+        if "evidence_contract" in self.enabled_modules:
+            evidence_contract = infer_evidence_contract_hypothesis(
+                question=self.question,
+                domain_context=self.domain_knowledge,
+                data=self.df,
+                schema=self.column_descriptions,
+                interface_kind="discovery_table",
+            )
+            if evidence_contract is not None and evidence_contract.coverage.score >= 0.75:
+                return self._final_answer_report(evidence_contract.as_report())
+        if "answer_plan" in self.enabled_modules:
+            answer_plan = infer_answer_plan_hypothesis(
+                question=self.question,
+                domain_context=self.domain_knowledge,
+                df=self.df,
+                column_descriptions=self.column_descriptions,
+            )
+            if answer_plan is not None:
+                return self._final_answer_report(
+                    f"HYPOTHESIS: {answer_plan.hypothesis}\n"
+                    f"WORKFLOW SUMMARY: {answer_plan.workflow} "
+                    f"Evidence: {answer_plan.evidence}."
+                )
+        if "answer_slot" in self.enabled_modules:
+            answer_slot = infer_universal_slot_hypothesis(
+                task_text=self.question,
+                interface_kind="discovery_table",
+                data=self.df,
+                domain_context=self.domain_knowledge,
+                schema=self.column_descriptions,
+            )
+            if answer_slot is not None:
+                return self._final_answer_report(
+                    f"HYPOTHESIS: {answer_slot.hypothesis}\n"
+                    f"WORKFLOW SUMMARY: {answer_slot.workflow} "
+                    f"Evidence: {answer_slot.evidence}."
+                )
+        if "contrastive_world" in self.enabled_modules:
+            contrastive = infer_contrastive_world_hypothesis(
+                question=self.question,
+                domain_context=self.domain_knowledge,
+                data=self.df,
+                column_descriptions=self.column_descriptions,
+            )
+            if contrastive is not None:
+                return self._final_answer_report(
+                    f"HYPOTHESIS: {contrastive.hypothesis}\n"
+                    f"WORKFLOW SUMMARY: {contrastive.workflow} "
+                    f"Evidence: {contrastive.evidence}."
+                )
+        if "problem_frame" in self.enabled_modules:
+            problem_frame = infer_problem_frame_hypothesis(
+                question=self.question,
+                domain_context=self.domain_knowledge,
+                data=self.df,
+                column_descriptions=self.column_descriptions,
+            )
+            if problem_frame is not None:
+                return self._final_answer_report(
+                    f"HYPOTHESIS: {problem_frame.hypothesis}\n"
+                    f"WORKFLOW SUMMARY: {problem_frame.workflow} "
+                    f"Evidence: {problem_frame.evidence}."
+                )
+        if "slot_contract" in self.enabled_modules:
+            slot_contract = infer_slot_contract_hypothesis(
+                question=self.question,
+                domain_context=self.domain_knowledge,
+                df=self.df,
+                column_descriptions=self.column_descriptions,
+            )
+            if slot_contract is not None:
+                return self._final_answer_report(
+                    f"HYPOTHESIS: {slot_contract.hypothesis}\n"
+                    f"WORKFLOW SUMMARY: {slot_contract.workflow} "
+                    f"Evidence: {slot_contract.evidence}."
+                )
+        if "temporal" in self.enabled_modules:
+            temporal = infer_temporal_event_hypothesis(
+                question=self.question,
+                domain_context=self.domain_knowledge,
+                df=self.df,
+                column_descriptions=self.column_descriptions,
+            )
+            if temporal is not None:
+                hypothesis, workflow, evidence = temporal
+                return self._final_answer_report(
+                    f"HYPOTHESIS: {hypothesis}\n"
+                    f"WORKFLOW SUMMARY: {workflow} Evidence: {evidence}."
+                )
+        semantic_report = self._render_semantic_winner_report(winners)
+        if semantic_report and contract.answer_type in {"relation", "hypothesis"}:
+            return self._final_answer_report(semantic_report)
         if not evidence_pieces:
             return "No stable evidence found."
+        if "workbench" in self.enabled_modules:
+            workbench = compile_hypothesis_workbench(
+                question=self.question,
+                domain_context=self.domain_knowledge,
+                evidence_lines=evidence_pieces,
+            )
+            best = workbench.best
+            if best is not None:
+                return self._final_answer_report(
+                    f"HYPOTHESIS: {best.hypothesis}\n"
+                    f"WORKFLOW SUMMARY: {best.workflow}"
+                )
+        if "llm_synthesis" not in self.enabled_modules:
+            return self._final_answer_report(
+                "\n\n".join(evidence_pieces[:2]).strip() or "No stable evidence found."
+            )
         client = make_openai_client()
         prompt = (
             f"Research question: {self.question}\n\n"
@@ -303,11 +641,104 @@ class DiscoveryAdapter(CPIAdapter):
             "\n\nWrite a 1-2 sentence hypothesis answering the question using ONLY "
             "this evidence. Name specific variables/values/periods."
         )
-        return call_llm(
+        return self._final_answer_report(call_llm(
             client, model=self.judge_model,
             system="You write evidence-grounded scientific hypotheses.",
             user=prompt, max_tokens=250, temperature=0.2,
+        ))
+
+    def _final_answer_report(self, report: str) -> str:
+        text = str(report or "").strip()
+        match = re.search(
+            r"(?is)\bHYPOTHESIS\s*:\s*(.*?)(?:\n\s*WORKFLOW\s+SUMMARY\s*:\s*(.*)|\Z)",
+            text,
         )
+        if not match:
+            return normalize_answer_report(self.question, text)
+        hypothesis = normalize_answer_report(self.question, match.group(1).strip())
+        workflow = (match.group(2) or "").strip()
+        if workflow:
+            return f"HYPOTHESIS: {hypothesis}\nWORKFLOW SUMMARY: {workflow}"
+        return hypothesis
+
+    def _render_contract_first_report(self, contract) -> str:
+        """Close required answer slots before generic evidence can compete."""
+
+        if contract.answer_type not in {"temporal_century", "temporal_event", "entity_or_slot", "relation"}:
+            return ""
+        slot_contract = infer_slot_contract_hypothesis(
+            question=self.question,
+            domain_context=self.domain_knowledge,
+            df=self.df,
+            column_descriptions=self.column_descriptions,
+        )
+        if slot_contract is None:
+            return ""
+        slots = dict(slot_contract.slots or {})
+        if contract.answer_type in {"temporal_century", "temporal_event"} and "time" not in slots:
+            return ""
+        if contract.answer_type == "entity_or_slot" and not any(k in slots for k in ("variable", "source", "target", "event")):
+            return ""
+        if contract.answer_type == "relation":
+            event = str(slots.get("event", ""))
+            if event not in {
+                "window_relationship",
+                "pca_component",
+                "simultaneous_decline",
+                "simultaneous_inverse",
+                "peak_context_change",
+            }:
+                return ""
+        return self._final_answer_report(
+            f"HYPOTHESIS: {slot_contract.hypothesis}\n"
+            f"WORKFLOW SUMMARY: {slot_contract.workflow} "
+            f"Evidence: {slot_contract.evidence}."
+        )
+
+    def _render_semantic_winner_report(self, winners) -> str:
+        """Render structured analyzer output before fallback modules.
+
+        If an executable analyzer has already bound cause/mediator/outcome
+        slots, use that measured structure directly.  This prevents generic
+        fallback modules from overriding the current best refutable evidence.
+        """
+
+        for prog, _score in winners[:5]:
+            try:
+                out = prog.fn(self.df)
+            except Exception:
+                continue
+            if not isinstance(out, dict):
+                continue
+            cause = str(out.get("cause", "") or "").strip()
+            outcome = str(out.get("outcome", "") or "").strip()
+            mediator = str(out.get("mediator", "") or "").strip()
+            relation = str(out.get("relation", "") or "").strip()
+            evidence = str(out.get("evidence", "") or "").strip()
+            if not cause or not outcome or not evidence:
+                continue
+            if mediator:
+                hypothesis = (
+                    f"{cause} is associated with {outcome}, with {mediator} acting "
+                    f"as an intermediate mechanism or proxy in the observed data."
+                )
+                workflow = (
+                    f"Selected query-relevant variables {cause}, {mediator}, and "
+                    f"{outcome}; tested a mediated chain; relation={relation or 'mediated association'}."
+                )
+            else:
+                hypothesis = (
+                    f"{cause} is associated with {outcome} in the observed data."
+                )
+                workflow = (
+                    f"Selected query-relevant variables {cause} and {outcome}; "
+                    f"tested their association; relation={relation or 'association'}."
+                )
+            return (
+                f"HYPOTHESIS: {hypothesis}\n"
+                f"WORKFLOW SUMMARY: {workflow} Evidence: {evidence}."
+            )
+        return ""
 
 
 # ===========================================================================
@@ -446,6 +877,46 @@ def _edit_distance(a: str, b: str) -> int:
             cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (0 if ca == cb else 1)))
         prev = cur
     return prev[-1]
+
+
+def _skip_numeric_calibration_for_bounded_transform(
+    program: HypothesisProgram,
+    train_observations,
+) -> bool:
+    text = f"{program.name}\n{program.description}\n{program.code}".lower()
+    if not (("asin" in text or "acos" in text) and "sin" in text):
+        return False
+    targets = []
+    preds = []
+    for obs in train_observations:
+        try:
+            targets.append(float(obs.target))
+            preds.append(float(program.fn(obs.inputs)))
+        except Exception:
+            continue
+    if len(targets) < 3 or not preds:
+        return False
+    target_constant = max(targets) - min(targets) <= 1e-9
+    pred_nonconstant = max(preds) - min(preds) > 1e-9
+    return target_constant and pred_nonconstant
+
+
+def _semantic_tokens(text: str) -> set[str]:
+    import re
+
+    stop = {
+        "the", "and", "for", "with", "from", "into", "between", "among", "which",
+        "what", "when", "where", "does", "did", "were", "was", "are", "how",
+        "there", "this", "that", "have", "has", "had", "over", "under", "after",
+        "before", "during", "in", "of", "to", "a", "an", "on", "by", "as",
+        "using", "use", "used", "table", "data", "dataset", "variable",
+        "variables", "column", "columns", "row", "rows",
+    }
+    return {
+        token
+        for token in re.findall(r"[a-zA-Z][a-zA-Z0-9_/-]{2,}", str(text).lower())
+        if token not in stop
+    }
 
 
 def _bio_facts(cross_records: list[dict]) -> str:

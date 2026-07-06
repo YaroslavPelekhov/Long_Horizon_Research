@@ -51,7 +51,12 @@ try:
 except ImportError:
     pass
 
-from ols.adapters.base import BudgetExhausted, EnvHandle, ResearchEnvAdapter
+from ols.adapters.base import (
+    BudgetExhausted,
+    EnvHandle,
+    ResearchEnvAdapter,
+    RubricSection,
+)
 from ols.core.types import ActionSpec, Claim, ExperimentResult
 
 # ── lazy import so repo needn't be present at import time ──────────────────
@@ -227,56 +232,88 @@ class UltraHorizonBioAdapter(ResearchEnvAdapter):
         budget = int(self._budget_total)
         return EnvHandle(
             description=(
-                "ALIEN GENETICS LABORATORY — SYSTEMATIC RESEARCH PROTOCOL\n\n"
-                "You study alien organisms with 3 heritable traits: body_size, color, shell_shape.\n"
-                "Starting organisms:\n"
-                "  ID 1 (Line A): body_size S1×3,     color C1×3, shell H1×3\n"
-                "  ID 2 (Line B): body_size S1×S2×S2, color C2×3, shell H2×3\n"
-                "  ID 3 (Line C): body_size S3×3,     color C3×3, shell H3×3\n\n"
-                "Work through the four research phases below IN ORDER.\n"
-                "Each phase has targeted experiments — run them explicitly.\n\n"
-                "━━ PHASE A: FUNDAMENTAL GENETICS (25 pts) ━━\n"
-                "  1. Count alleles per trait → confirm triploidy (3 copies per organism).\n"
-                "  2. Gamete ploidy: cross known parents, inspect offspring ploidy.\n"
-                "     Gametes are either 1n (haploid) or 2n (diploid) — determine which.\n"
-                "  3. Viability: do only triploid offspring survive?\n\n"
-                "━━ PHASE B: BODY SIZE — additive dosage (35 pts) ━━\n"
-                "  Body size is ADDITIVE: each allele copy contributes independently.\n"
-                "  4. Identify distinct size alleles (S1, S2, S3).\n"
-                "  5. Quantify each allele's contribution by crossing organisms with\n"
-                "     known allele compositions and measuring offspring body sizes.\n"
-                "     Hint: compare S1×3 (450?) vs S3×3 (30?) to estimate per-allele values.\n\n"
-                "━━ PHASE C: COLOR — dominance hierarchy (10 pts) ━━\n"
-                "  6. Cross C1×3 with C2×3 → which color appears in offspring?\n"
-                "  7. Cross C2×3 with C3×3, and C1×3 with C3×3.\n"
-                "  8. Establish full order: Red(C1) vs Blue(C2) vs White(C3).\n\n"
-                "━━ PHASE D: SHELL — cyclic dominance + LETHAL COMBINATION (30 pts) ━━\n"
-                "  9. Cross H1×3 with H2×3 → pairwise dominance.\n"
-                " 10. Cross H2×3 with H3×3, and H3×3 with H1×3.\n"
-                " 11. !! CRITICAL EXPERIMENT !! Cross to produce offspring carrying\n"
-                "     H1+H2+H3 (all three shell alleles). Check if these offspring\n"
-                "     are NON-VIABLE (lethal). This is worth 20 points.\n"
-                "     Tip: cross a H1/H2 offspring with a H3×3 parent.\n\n"
-                f"Budget: {budget} crosses total. Call submit_report when all 4 phases are done."
+                "ALIEN GENETICS LABORATORY — v3 RESEARCH PROTOCOL\n\n"
+                "You study alien organisms with 3 heritable traits: body_size, color, shell_shape.\n\n"
+                "━━ PRE-CONFIRMED OBSERVATION (no cross needed) ━━\n"
+                "Starting organisms carry EXACTLY 3 alleles per trait (×3 notation):\n"
+                "  ID 1 (Line A): body_size S1/S1/S1,   color C1/C1/C1,   shell H1/H1/H1\n"
+                "  ID 2 (Line B): body_size S1/S2/S2,   color C2/C2/C2,   shell H2/H2/H2\n"
+                "  ID 3 (Line C): body_size S3/S3/S3,   color C3/C3/C3,   shell H3/H3/H3\n"
+                "→ CONCLUSION: These organisms are TRIPLOID (3 allele copies per locus).\n"
+                "  State this explicitly in your report.\n\n"
+                "━━ MEIOSIS MECHANISM (determine experimentally) ━━\n"
+                "In triploid meiosis, the 3 alleles segregate UNEQUALLY into gametes.\n"
+                "One gamete receives 1 allele (haploid, 1n); the other receives 2 alleles (diploid, 2n).\n"
+                "A 1n + 2n fertilization → triploid (3n) offspring.\n"
+                "Determine: do all viable offspring have exactly 3 alleles per trait?\n"
+                "If yes → only triploid offspring survive (non-3n = lethal).\n\n"
+                "━━ PHASE A: FUNDAMENTAL GENETICS — 2-3 crosses ━━\n"
+                "  Goal: confirm gamete mechanism and viability rule.\n"
+                "  Cross ID1 × ID2: offspring should all be triploid. Count alleles per offspring.\n"
+                "  Cross ID1 × ID3: what happens? All offspring triploid?\n"
+                "  Verify: viability fraction and offspring ploidy.\n\n"
+                "━━ PHASE B: BODY SIZE — additive dosage (35 pts) — 5-6 crosses ━━\n"
+                "  Body size is ADDITIVE: each allele contributes independently to size.\n"
+                "  Identify distinct size alleles (S1, S2, S3) and their per-allele values.\n"
+                "  Strategy: cross ID1(S1/S1/S1) × ID3(S3/S3/S3) → offspring have S1+S1+S3\n"
+                "             and S1+S3+S3 phenotypes. Measure offspring sizes to compute values.\n"
+                "  Cross ID1 × ID2 to observe S1/S1/S2 and S1/S2/S2 offspring sizes.\n"
+                "  Target values: S1 ≈ 150-200 units, S2 ≈ 30-70 units, S3 ≈ 5-20 units per allele.\n\n"
+                "━━ PHASE C: COLOR — dominance hierarchy (10 pts) — 3 crosses ━━\n"
+                "  Cross ID1(C1) × ID2(C2) → which color in offspring?\n"
+                "  Cross ID2(C2) × ID3(C3) → which color?\n"
+                "  Cross ID1(C1) × ID3(C3) → which color?\n"
+                "  Establish strict order: Red(C1) vs Blue(C2) vs White(C3).\n"
+                "  Confirm: is phenotype determined SOLELY by the dominant allele (complete dominance)?\n\n"
+                "━━ PHASE D: SHELL — cyclic dominance + LETHAL (30 pts) — 5 crosses ━━\n"
+                "  Cross ID1(H1/H1/H1) × ID2(H2/H2/H2) → pairwise H1 vs H2.\n"
+                "  Cross ID2(H2/H2/H2) × ID3(H3/H3/H3) → pairwise H2 vs H3.\n"
+                "  Cross ID3(H3/H3/H3) × ID1(H1/H1/H1) → pairwise H3 vs H1.\n"
+                "  !! CRITICAL (20 pts) !! Find an offspring that has BOTH H1 and H2 alleles.\n"
+                "  Cross THAT offspring × ID3(H3/H3/H3) to produce H1+H2+H3 zygotes.\n"
+                "  Measure viability: are H1+H2+H3 offspring NON-VIABLE (lethal)?\n\n"
+                f"Budget: {budget} crosses. Allocate: A=2-3, B=5-6, C=3, D=5. Submit when done.\n\n"
+                "━━ MANDATORY REPORT TEMPLATE ━━\n"
+                "Your submit_report MUST address all 10 items below explicitly:\n"
+                "  [1] PLOIDY: 'Organisms are triploid — 3 alleles per locus.'\n"
+                "  [2] MEIOSIS: 'Gametes are 1n (haploid, 1 allele) and 2n (diploid, 2 alleles).'\n"
+                "  [3] VIABILITY: 'Only triploid (3n) offspring survive; other ploidy = lethal.'\n"
+                "  [4] SIZE RULE: 'Body size is additive — each allele contributes independently.'\n"
+                "  [5] SIZE ALLELES: 'Three alleles: S1, S2, S3 each contribute [value] units.'\n"
+                "  [6] SIZE VALUES: 'S1 ≈ [X] units/copy, S2 ≈ [Y] units/copy, S3 ≈ [Z] units/copy.'\n"
+                "  [7] COLOR ORDER: 'Dominance: Red(C1) > Blue(C2) > White(C3).'\n"
+                "  [8] COLOR MECH: 'Complete dominance — phenotype = most dominant allele only.'\n"
+                "  [9] SHELL CYCLIC: 'Cyclic: Spiky(H1)>Smooth(H2)>Ridged(H3)>Spiky(H1).'\n"
+                "  [10] SHELL LETHAL: 'H1+H2+H3 triple combination = lethal (0% viability).'"
             ),
             subdomains=[
                 ("A_fundamental_genetics",
-                 "Determine ploidy (triploid = 3 alleles/organism), gamete mechanism "
-                 "(1n haploid or 2n diploid gametes?), and viability (only triploid offspring survive?). "
-                 "Use crosses of Lines A×B, A×C, B×C and inspect offspring ploidy counts."),
+                 "TRIPLOIDY IS CONFIRMED (organisms show 3 alleles per trait). "
+                 "Now determine the GAMETE MECHANISM: in triploid meiosis, one gamete is 1n "
+                 "(haploid, 1 allele) and the other is 2n (diploid, 2 alleles). "
+                 "Cross Lines A×B and A×C. Inspect offspring: do ALL have exactly 3 alleles? "
+                 "This confirms viability rule: only 3n offspring survive. "
+                 "Report items [1][2][3] explicitly."),
                 ("B_body_size_quantification",
-                 "Identify all body-size alleles and measure each one's ADDITIVE size contribution. "
-                 "Cross organisms with known allele compositions to isolate each allele's effect. "
-                 "Target: approximate values for S1 (~200 units?), S2 (~50?), S3 (~10?)."),
+                 "Identify all body-size alleles (S1, S2, S3) and their ADDITIVE per-allele values. "
+                 "Cross ID1(S1/S1/S1) × ID3(S3/S3/S3): offspring have genotypes S1/S1/S3 and S1/S3/S3 "
+                 "→ measure mean sizes to compute S1 and S3 contributions. "
+                 "Cross ID1 × ID2 to get S1/S1/S2 and S1/S2/S2 phenotypes → solve for S2. "
+                 "Target: S1≈150-200/copy, S2≈30-70/copy, S3≈5-20/copy. "
+                 "Report items [4][5][6] with numeric estimates."),
                 ("C_color_dominance",
-                 "Establish the complete dominance hierarchy among C1, C2, C3. "
-                 "Run pairwise crosses: C1×3 × C2×3, C2×3 × C3×3, C1×3 × C3×3. "
-                 "Determine if dominance is complete (one allele fully masks others)."),
+                 "Establish the complete dominance hierarchy: Red(C1) vs Blue(C2) vs White(C3). "
+                 "Run three pairwise crosses: ID1×ID2, ID2×ID3, ID1×ID3. "
+                 "All offspring from C1×3 × C2×3 should be Red → C1 dominant. "
+                 "Confirm complete dominance (phenotype = solely the dominant allele). "
+                 "Report items [7][8] with explicit hierarchy and mechanism."),
                 ("D_shell_cyclic_and_lethal",
-                 "Map pairwise shell dominance (H1 vs H2 vs H3). "
-                 "PRIORITY: produce offspring with ALL THREE shell alleles (H1+H2+H3) "
-                 "to test if this combination is lethal (non-viable offspring). "
-                 "Cross H1/H2 offspring × H3 parent to generate H1+H2+H3 zygotes."),
+                 "Run three pairwise crosses to map shell dominance: ID1×ID2, ID2×ID3, ID3×ID1. "
+                 "Determine cyclic order: Spiky(H1)>Smooth(H2)>Ridged(H3)>Spiky(H1). "
+                 "CRITICAL (20 pts): From H1×H2 offspring, select one that carries both H1 and H2. "
+                 "Cross it with ID3(H3/H3/H3) → produces H1+H2+H3 zygotes. "
+                 "Measure viability: expect 0% survival for H1+H2+H3 combination. "
+                 "Report items [9][10] — lethal combo is worth 20 points."),
             ],
             actions=_ACTIONS,
             budget_total=self._budget_total,
@@ -286,6 +323,38 @@ class UltraHorizonBioAdapter(ResearchEnvAdapter):
         if self._submission is not None:
             return 0.0
         return max(0.0, self._budget_total - self._env.current_experiments)
+
+    def completeness_rubric(self) -> list[RubricSection]:
+        """Programmatic Completeness Gate for the genetics report (MARS-SELF).
+
+        Three trait sections become required at successive phases; all are
+        required for the terminal submit. Phase A (triploidy) is pre-confirmed
+        in the description, so it is never gated.
+        """
+        return [
+            RubricSection(
+                name="body_size",
+                keywords=["body_size", "size allele", "additive", "dosage",
+                          "s1", "s2", "s3", "200", "300", "400"],
+                hint="body_size allele values — run size crosses (S-allele parents)",
+                required_from_subgoal="B_body_size_quantification",
+            ),
+            RubricSection(
+                name="color",
+                keywords=["color", "dominan", "c1", "c2", "c3"],
+                hint="color dominance order — run color crosses (C-allele parents)",
+                required_from_subgoal="C_color_dominance",
+            ),
+            RubricSection(
+                name="shell",
+                keywords=["shell", "cyclic", "lethal", "h1", "h2", "h3"],
+                hint="shell cyclic dominance + lethals — run shell crosses (H-allele parents)",
+                required_from_subgoal="D_shell_cyclic_and_lethal",
+            ),
+        ]
+
+    def submit_action_names(self) -> set[str]:
+        return {"submit_report"}
 
     def execute(self, action: str, args: dict) -> ExperimentResult:
         if self.budget_left() <= 0 and action != "submit_report":
@@ -307,12 +376,35 @@ class UltraHorizonBioAdapter(ResearchEnvAdapter):
     def score_episode(self, claim_store_active: list[Claim],
                       final_artifact: str | None = None) -> dict:
         content = self._submission or final_artifact or ""
-        if not content.strip() and claim_store_active:
-            # Agent ran out of budget without submitting — score its accumulated claims
-            content = (
-                "Preliminary findings from experimental evidence (no formal report submitted):\n"
-                + "\n".join(f"- {c.statement}" for c in claim_store_active)
+
+        # ── MARS-SELF Report Assembler ───────────────────────────────────────
+        # The cognitive exoskeleton accumulates discovered facts as Claims (incl.
+        # [CE:...] module findings). The small model often writes a SPARSE final
+        # report, forgetting sections it already established (seed-45 failure:
+        # 19 crosses, but a 1-line color-only report → 10/100). Rather than
+        # demand the small model retype everything, the scaffold ASSEMBLES the
+        # final artifact: the submitted text is augmented with all accumulated
+        # substantive claims. This is the core MARS-SELF principle — the model
+        # discovers; the exoskeleton remembers and assembles.
+        substantive = [
+            c for c in (claim_store_active or [])
+            if not c.statement.startswith("[CE:coverage_guard]")
+            and not c.statement.startswith("[KG]")
+        ]
+        if substantive:
+            evidence_block = (
+                "\n\n━━ ACCUMULATED EXPERIMENTAL EVIDENCE "
+                "(assembled by research scaffold) ━━\n"
+                + "\n".join(f"- {c.statement}" for c in substantive)
             )
+            if content.strip():
+                content = content + evidence_block
+            else:
+                # no formal submission — build the report entirely from evidence
+                content = (
+                    "Findings from experimental evidence:" + evidence_block
+                )
+
         if not content.strip():
             return {"primary": 0.0, "final_score": 0.0, "judge_result": {},
                     "submitted": content, "n_crosses": self._env.current_experiments}

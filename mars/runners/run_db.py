@@ -27,6 +27,16 @@ _PROJ = Path(__file__).resolve().parent.parent.parent
 if str(_PROJ) not in sys.path:
     sys.path.insert(0, str(_PROJ))
 
+# CRITICAL: load .env.local (override=True) BEFORE any LLM client is built —
+# the shell may carry a stale OPENAI_API_KEY → empty completions → 0 score.
+try:
+    from dotenv import load_dotenv
+    _env_path = _PROJ / "autodiscovery" / ".env.local"
+    if _env_path.exists():
+        load_dotenv(_env_path, override=True)
+except ImportError:
+    pass
+
 from mars.adapters.discoverybench_adapter import (
     DBTask,
     DiscoveryBenchAdapter,
@@ -34,31 +44,46 @@ from mars.adapters.discoverybench_adapter import (
 )
 from mars.agents.generator import Generator
 from mars.agents.memory_selector import MemorySelector
+from mars.agents.code_evolver import CodeEvolver
 from mars.agents.reflector import Reflector
 from mars.coordinator import Coordinator
 
 
 ABLATIONS = [
     ("MARS-full",
-     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=True)),
+     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=True,
+          use_code_evolver=False)),
+    # MARS-SELF: Programmatic Completeness Gate (gate-only; no genetics module gen)
+    ("MARS-self",
+     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=True,
+          use_code_evolver=True)),
     ("MARS-no-ref",
-     dict(use_reflector=False, use_memory_selector=True,  use_futility_detector=True)),
+     dict(use_reflector=False, use_memory_selector=True,  use_futility_detector=True,
+          use_code_evolver=False)),
     ("MARS-no-mem",
-     dict(use_reflector=True,  use_memory_selector=False, use_futility_detector=True)),
+     dict(use_reflector=True,  use_memory_selector=False, use_futility_detector=True,
+          use_code_evolver=False)),
     ("MARS-no-fut",
-     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=False)),
+     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=False,
+          use_code_evolver=False)),
     ("MARS-all-off",
-     dict(use_reflector=False, use_memory_selector=False, use_futility_detector=False)),
+     dict(use_reflector=False, use_memory_selector=False, use_futility_detector=False,
+          use_code_evolver=False)),
 ]
 
 
 def _episode(task: DBTask, ablation: dict, gen_model: str, ref_model: str,
              judge_model: str, budget: float = 12.0) -> dict:
+    ablation = dict(ablation)   # copy — don't mutate shared ABLATIONS dict
     adapter = DiscoveryBenchAdapter(task=task, budget=budget,
                                     judge_model=judge_model)
     gen = Generator(model=gen_model, max_tokens=900)
     ref = Reflector(model=ref_model, max_tokens=300)
     sel = MemorySelector(k=4)
+    # MARS-SELF gate-only mode for DiscoveryBench (max_modules=0): only the
+    # domain-agnostic Programmatic Completeness Gate operates here.
+    use_ce = ablation.pop("use_code_evolver", False)
+    evolver = CodeEvolver(model=ref_model, max_modules=0) if use_ce else None
     coord = Coordinator(
         adapter=adapter,
         generator=gen,
@@ -67,6 +92,8 @@ def _episode(task: DBTask, ablation: dict, gen_model: str, ref_model: str,
         max_turns_per_subgoal=4,
         max_total_turns=int(budget) + 4,
         verbose=False,
+        code_evolver=evolver,
+        use_code_evolver=use_ce,
         **ablation,
     )
     t0 = time.time()
@@ -80,6 +107,7 @@ def _episode(task: DBTask, ablation: dict, gen_model: str, ref_model: str,
         "primary": rep.primary,
         "HMS": rep.score_dict.get("HMS", 0.0),
         "submitted_preview": rep.score_dict.get("submitted", "")[:300],
+        "theory_final_artifact_preview": rep.final_artifact[:300],
         "judge_explain": rep.score_dict.get("judge_explain", "")[:250],
         "n_turns": rep.n_turns,
         "n_actions": rep.n_actions,
@@ -164,7 +192,9 @@ def main():
             summary["paired_delta_HMS_mean"] = m_d
             summary["paired_delta_HMS_ci95z"] = 1.96 * se_d
 
-    out = _PROJ / "lmw" / f"mars_db_{gen_model.replace('/','-')}_{len(tasks)}t.json"
+    run_label = os.environ.get("MARS_RUN_LABEL", "").strip()
+    suffix = f"_{run_label}" if run_label else ""
+    out = _PROJ / "lmw" / f"mars_db_{gen_model.replace('/','-')}_{len(tasks)}t{suffix}.json"
     with open(out, "w") as f:
         json.dump(summary, f, indent=1)
     print(f"\n[written {out}]")

@@ -45,6 +45,7 @@ from ols.adapters.base import (
     BudgetExhausted,
     EnvHandle,
     ResearchEnvAdapter,
+    RubricSection,
 )
 from ols.core.types import (
     ActionSpec,
@@ -78,7 +79,7 @@ NB_LAW_VERSIONS = ["v0", "v1", "v2"]
 
 # system complexity (vanilla = direct law evaluation; simple/complex = motion-
 # simulation-based observation, which is harder)
-NB_SYSTEMS = ["vanilla_equation"]   # v0.1: stick to vanilla; complex later
+NB_SYSTEMS = ["vanilla_equation", "simple_system", "complex_system"]
 
 
 def _safe_python_exec(code: str, timeout_s: float = 8.0,
@@ -680,8 +681,8 @@ def enumerate_nb_tasks(
     noise_levels: list[float] | None = None,
     trials_per_combo: int = 1,
 ) -> list[NBTask]:
-    """Enumerate task configurations. Default = all 12 × 3 × 3 = 108 vanilla-
-    system tasks (×systems × noise_levels × trials = configurable)."""
+    """Enumerate task configurations. Default = official 12 x 3 x 3 x 3 = 324
+    task grid (x noise_levels x trials = configurable)."""
     _setup_nb_path()
     mods = modules or NB_MODULES
     diffs = difficulties or NB_DIFFICULTIES
@@ -885,6 +886,158 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
 
     def budget_left(self) -> float:
         return max(0.0, self._budget_total - self._budget_spent)
+
+    # -- completeness gate (MARS-SELF) --------------------------------------
+
+    def completeness_rubric(self) -> list[RubricSection]:
+        """Programmatic Completeness Gate for law discovery (MARS-SELF).
+
+        Blocks the canonical gpt-4o-mini failure mode: submitting memorised
+        textbook physics WITHOUT gathering data. Two predicate-driven sections:
+
+          1. sufficient_data — must have ≥8 accumulated finite experiments
+             spanning the input space before a law can be submitted.
+          2. fit_grounded   — the built-in symbolic-regression auto-fit must
+             have found a candidate with R² ≥ 0.90 on the accumulated data;
+             this guarantees the agent is submitting an empirically-grounded
+             form rather than a guess.
+
+        Both use the adapter's live state via the predicate context.
+        """
+        def _has_enough_data(ctx) -> bool:
+            ad = ctx.get("adapter")
+            return bool(ad is not None and len(getattr(ad, "_all_outputs", [])) >= 8)
+
+        def _fit_is_grounded(ctx) -> bool:
+            ad = ctx.get("adapter")
+            if ad is None:
+                return False
+            try:
+                cands = ad._auto_fit_summary(top_k=3)
+                if isinstance(cands, list) and cands:
+                    return float(cands[0].get("r2", 0.0)) >= 0.90
+            except Exception:
+                return False
+            return False
+
+        return [
+            RubricSection(
+                name="sufficient_data",
+                hint=("gather more experimental data — run_experiment across "
+                      "orders of magnitude (need ≥8 finite data points)"),
+                predicate=_has_enough_data,
+            ),
+            RubricSection(
+                name="fit_grounded",
+                hint=("ground the law in data — run python_exec / inspect the "
+                      "auto_discovery_top_candidates; the best fit must reach "
+                      "R² ≥ 0.90 before submitting"),
+                predicate=_fit_is_grounded,
+            ),
+        ]
+
+    def submit_action_names(self) -> set[str]:
+        return {"submit_law"}
+
+    # -- SRHP hooks (hypothesis = the law program itself) -------------------
+
+    def supports_srhp(self) -> bool:
+        return True
+
+    def _srhp_params(self) -> list[str]:
+        sig = str(self._module.FUNCTION_SIGNATURE).strip()
+        try:
+            inside = sig[sig.index("(") + 1: sig.rindex(")")]
+            return [p.strip() for p in inside.split(",") if p.strip()]
+        except Exception:
+            return []
+
+    def srhp_spec(self) -> dict:
+        params = self._srhp_params()
+        # Use a SHORT brief — the full task prompt contains a "DO NOT GUESS"
+        # workflow that makes the model refuse to conjecture. SRHP wants guesses.
+        try:
+            pdesc = str(getattr(self._module, "PARAM_DESCRIPTION", "") or "")[:500]
+        except Exception:
+            pdesc = ""
+        return {
+            "fn_name": "discovered_law",
+            "signature": str(self._module.FUNCTION_SIGNATURE).strip(),
+            "input_keys": params,
+            "output_desc": ("a single float — the law's output for the given "
+                            "inputs (the underlying physics may be non-standard)"),
+            "description": (
+                f"Discover the hidden physical law mapping inputs "
+                f"({', '.join(params)}) to one numeric output. The universe's "
+                f"physics may differ from textbook formulas — fit the observed "
+                f"data. Parameters: {pdesc}"
+            ),
+        }
+
+    def srhp_candidate_experiments(self, n: int = 16) -> list[dict]:
+        import numpy as np
+        params = self._srhp_params()
+        if not params:
+            return []
+        # angle-like variables need a domain-appropriate range — sampling an
+        # angle in [0.1, 100] makes sin/cos garbage and breaks trig-law fitting.
+        ANGLE_HINTS = ("theta", "angle", "phi", "alpha", "incid", "polar",
+                       "tilt", "deg", "rad")
+        def _is_angle(p):
+            pl = p.lower()
+            return any(h in pl for h in ANGLE_HINTS)
+
+        angle_vals = [0.1, 0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5]      # radians 0..~85°
+        scales = [0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 50.0, 100.0]
+        defaults = {q: (0.7 if _is_angle(q) else 1.0) for q in params}
+        cands: list[dict] = []
+        # one-variable-at-a-time sweeps with per-variable appropriate ranges
+        for p in params:
+            grid = angle_vals if _is_angle(p) else scales
+            for s in grid:
+                exp = dict(defaults)
+                exp[p] = float(s)
+                cands.append(exp)
+        # random combinations (angles in [0.05, 1.55] rad, others log-uniform)
+        rng = np.random.default_rng(12345 + self.task.trial_id)
+        for _ in range(max(n, 8)):
+            row = {}
+            for p in params:
+                if _is_angle(p):
+                    row[p] = float(rng.uniform(0.05, 1.55))
+                else:
+                    row[p] = float(np.exp(rng.uniform(np.log(0.1), np.log(100.0))))
+            cands.append(row)
+        return cands
+
+    def srhp_run(self, inputs: dict) -> float:
+        # spend one round (matches run_experiment cost)
+        self._budget_spent += 1.0
+        try:
+            r = self._module.run_experiment_for_module(
+                noise_level=self.task.noise_level,
+                difficulty=self.task.difficulty,
+                system=self.task.system,
+                law_version=self.task.law_version,
+                **{k: float(v) for k, v in inputs.items()},
+            )
+            y = float(r)
+            # accumulate for the tool-sovereignty fallback in score_episode
+            self._all_inputs.append({k: float(v) for k, v in inputs.items()})
+            self._all_outputs.append(y)
+            return y
+        except Exception:
+            return float("nan")
+
+    def srhp_finalize(self, program_code: str, fn_name: str) -> None:
+        if not program_code:
+            return
+        # ensure the function is named discovered_law for the evaluator
+        code = program_code
+        if fn_name != "discovered_law":
+            code = code.replace(f"def {fn_name}", "def discovered_law", 1)
+        self._submitted_law = code
+        self._all_submitted_attempts.append(code)
 
     # -- execute ----
 
@@ -1204,7 +1357,7 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
         """Last-resort LLM call: given the action log, emit a Python law."""
         try:
             from openai import OpenAI
-            key = os.environ.get("OPENAI_API_KEY", "")
+            key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY", "")
             base_url = os.environ.get("OPENAI_BASE_URL")
             if not base_url and key.startswith("sk-or-"):
                 base_url = "https://openrouter.ai/api/v1"
@@ -1249,6 +1402,9 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             return ""
 
     def score_episode(self, claim_store_active, final_artifact=None) -> dict:
+        if final_artifact:
+            self._submitted_law = str(final_artifact).strip()
+
         # Fallback: if agent never submitted, synthesize a final law from the
         # action log via one extra LLM call. Mirrors NewtonBench's own
         # "force final submission" fallback.
@@ -1302,10 +1458,22 @@ class NewtonBenchAdapter(ResearchEnvAdapter):
             }
 
         sa = float(ev.get("exact_accuracy", 0.0))
+        rmsle = ev.get("rmsle", float("nan"))
+        # NB's SA is BINARY symbolic equivalence — brutal for small models by
+        # design. RMSLE (numerical fit error) is the continuous metric where a
+        # forced-data-gathering scaffold + tool sovereignty actually show up.
+        # numerical_accuracy = exp(-rmsle) ∈ (0,1]: 1.0 = perfect fit, decays
+        # with log-error. Reported alongside SA so small-model gains are visible.
+        try:
+            import math as _m
+            na = float(_m.exp(-rmsle)) if rmsle == rmsle else 0.0  # NaN check
+        except Exception:
+            na = 0.0
         return {
             "primary": sa,
             "SA": sa,
-            "rmsle": ev.get("rmsle", float("nan")),
+            "numerical_accuracy": na,
+            "rmsle": rmsle,
             "symbolic_equivalent": bool(ev.get("symbolic_equivalent", False)),
             "symbolic_msg": str(ev.get("symbolic_msg", ""))[:300],
             "tool_override": bool(getattr(self, "_was_tool_override", False)),

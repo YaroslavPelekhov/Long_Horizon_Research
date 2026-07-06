@@ -37,6 +37,7 @@ Ablation switches (for component-decomposition study, H3 in MARS_SPEC):
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass, field
 from typing import Optional
@@ -50,6 +51,8 @@ from ols.core.types import AgendaItem, Claim
 from mars.agents.generator import Generator, GenContext, GenResponse
 from mars.agents.reflector import Reflector, ReflectorContext, ReflectorVerdict
 from mars.agents.memory_selector import MemorySelector
+from mars.skills.final_artifact import synthesize_final_artifact
+from mars.skills.theory_runtime import load_compiled_theory
 
 
 @dataclass
@@ -70,6 +73,8 @@ class EpisodeReport:
     ablations: dict[str, bool]
     seed: int | None = None
     history: list[dict] = field(default_factory=list)
+    code_evolver_stats: dict = field(default_factory=dict)
+    final_artifact: str = ""
 
 
 @dataclass
@@ -83,6 +88,9 @@ class Coordinator:
     use_reflector: bool = True
     use_memory_selector: bool = True
     use_futility_detector: bool = True
+    use_code_evolver: bool = False
+    # optional CodeEvolver instance (passed in by runner when use_code_evolver=True)
+    code_evolver: Optional[object] = None
     # caps
     max_turns_per_subgoal: int = 4         # hard cap; prevents Reflector loops
     max_total_turns: int = 48
@@ -114,6 +122,18 @@ class Coordinator:
         sg_iter = list(handle.subdomains)
         sg_idx = 0
 
+        # Programmatic Completeness Gate (MARS-SELF): pull the adapter's
+        # completeness rubric + sub-goal order + submit-action names once.
+        try:
+            ce_rubric = adapter.completeness_rubric()
+        except Exception:
+            ce_rubric = []
+        ce_subgoal_order = [sg for sg, _ in handle.subdomains]
+        try:
+            ce_submit_actions = adapter.submit_action_names()
+        except Exception:
+            ce_submit_actions = {"submit_report", "submit_law", "submit"}
+
         try:
             while (adapter.budget_left() > 0
                    and total_turns < self.max_total_turns
@@ -134,6 +154,54 @@ class Coordinator:
                     total_turns += 1
                     turns_on_sg += 1
                     cost_before = adapter.budget_spent()
+
+                    # 0a. AutoStatAnalyzer (CodeEvolver) — auto-run statistics
+                    # on any tabular data the adapter exposes (DiscoveryBench).
+                    # Injects [CE:stat] correlation findings as claims so the
+                    # small model's hypothesis is grounded in real coefficients.
+                    if self.use_code_evolver and self.code_evolver is not None:
+                        try:
+                            stat_findings = self.code_evolver.scaffold_data_analysis(
+                                adapter, query_text=handle.description,
+                            )
+                            for sf in stat_findings:
+                                store.assert_claim(
+                                    statement=sf, confidence=0.65,
+                                    provenance=[], budget=adapter.budget_spent(),
+                                    sub_goal=cur_sg,
+                                )
+                        except Exception:
+                            pass
+
+                    # 0b. Coverage guard (CodeEvolver) — inject before Generator sees context
+                    if self.use_code_evolver and self.code_evolver is not None:
+                        try:
+                            coverage_warnings = self.code_evolver.check_report_coverage(
+                                store.claims, adapter.budget_left(),
+                                current_subgoal=cur_sg,
+                                rubric=ce_rubric,
+                                subgoal_order=ce_subgoal_order,
+                                adapter=adapter,
+                            )
+                            for w in coverage_warnings:
+                                # retract previous coverage warning before re-asserting
+                                # (avoid accumulating stale versions)
+                                store.retract(
+                                    next((c.statement for c in store.claims
+                                          if c.status == "active"
+                                          and c.statement.startswith("[CE:coverage_guard]")),
+                                         ""),
+                                    adapter.budget_spent(),
+                                )
+                                store.assert_claim(
+                                    statement=w,
+                                    confidence=0.95,
+                                    provenance=[],
+                                    budget=adapter.budget_spent(),
+                                    sub_goal=cur_sg,
+                                )
+                        except Exception:
+                            pass
 
                     # 1. MemorySelector
                     if self.use_memory_selector:
@@ -165,6 +233,33 @@ class Coordinator:
                     new_eids: list[int] = []
                     action_results: list[dict] = []
                     for a in g_resp.actions:
+                        # CodeEvolver submit guard — block terminal submit_* when
+                        # critical sections are still missing (budget > 4 left).
+                        if (self.use_code_evolver
+                                and self.code_evolver is not None
+                                and a["action"] in ce_submit_actions
+                                and adapter.budget_left() > 4):
+                            try:
+                                # current_subgoal=None → require ALL sections
+                                # for a terminal submission
+                                cov_gaps = self.code_evolver.check_report_coverage(
+                                    store.claims, adapter.budget_left(),
+                                    current_subgoal=None,
+                                    rubric=ce_rubric,
+                                    subgoal_order=ce_subgoal_order,
+                                    adapter=adapter,
+                                )
+                                if cov_gaps:
+                                    # Block this submit; redirect to experiments
+                                    pending_feedback = (
+                                        cov_gaps[0]
+                                        + " SUBMISSION BLOCKED — gather more"
+                                        " evidence to fill these gaps first."
+                                    )
+                                    continue  # skip terminal action execution
+                            except Exception:
+                                pass
+
                         try:
                             result = adapter.execute(a["action"], a["args"])
                         except BudgetExhausted:
@@ -183,6 +278,40 @@ class Coordinator:
                             "args": a["args"],
                             "summary": result.summary,
                         })
+
+                    # 3b. CodeEvolver — run existing modules + maybe grow library
+                    if self.use_code_evolver and self.code_evolver is not None:
+                        for ar in action_results:
+                            ce_findings = self.code_evolver.process_observation(
+                                ar, cur_sg
+                            )
+                            for finding in ce_findings:
+                                store.assert_claim(
+                                    statement=finding,
+                                    confidence=0.75,
+                                    provenance=new_eids or [],
+                                    budget=adapter.budget_spent(),
+                                    sub_goal=cur_sg,
+                                )
+
+                    # 3c. TheoryEvidenceLedger — when a compiled benchmark
+                    # theory is active, promote concrete observations into
+                    # compact claims. This carries evidence across sub-goals
+                    # without forcing the Generator to manually restate every
+                    # tool result before synthesis.
+                    if self._theory_enabled() and self._evidence_ledger_enabled():
+                        for ar in action_results:
+                            if ar.get("action") in ce_submit_actions:
+                                continue
+                            ev = self._evidence_claim_from_action(ar)
+                            if ev:
+                                store.assert_claim(
+                                    statement=ev,
+                                    confidence=0.72,
+                                    provenance=[ar["eid"]] if ar.get("eid") else [],
+                                    budget=adapter.budget_spent(),
+                                    sub_goal=cur_sg,
+                                )
 
                     # 4. Claim deltas
                     asserted_idxs: list[int] = []
@@ -272,12 +401,44 @@ class Coordinator:
                         "n_claims": len(g_resp.claims),
                         "verdict": (r_resp.verdict.value if r_resp else None),
                         "picked_view": picked_view[:200],
+                        "action_results": action_results,
+                        "rationale": g_resp.rationale[:300],
                     })
 
                     if self.verbose:
                         v = r_resp.verdict.value if r_resp else "—"
                         print(f"[MARS] t={total_turns} sg={cur_sg} a={len(g_resp.actions)} "
                               f"c={len(g_resp.claims)} v={v}")
+
+                    # CodeEvolver coverage gate — BLOCK premature halt OR advance.
+                    # halt=True  → strict (current_subgoal=None): all sections required
+                    #              before ending the entire episode.
+                    # advance_subgoal → phase-aware (current_subgoal=cur_sg): only
+                    #              check sections relevant to the current phase.
+                    if (self.use_code_evolver
+                            and self.code_evolver is not None
+                            and (g_resp.halt or g_resp.advance_subgoal)
+                            and adapter.budget_left() > 4):
+                        try:
+                            # Halt ends the whole episode — always require all sections
+                            check_sg = None if g_resp.halt else cur_sg
+                            cov_gaps = self.code_evolver.check_report_coverage(
+                                store.claims, adapter.budget_left(),
+                                current_subgoal=check_sg,
+                                rubric=ce_rubric,
+                                subgoal_order=ce_subgoal_order,
+                                adapter=adapter,
+                            )
+                            if cov_gaps:
+                                g_resp.halt = False
+                                g_resp.advance_subgoal = False
+                                pending_feedback = (
+                                    cov_gaps[0]
+                                    + " — do NOT advance or halt yet."
+                                    " Run cross experiments to fill these gaps first."
+                                )
+                        except Exception:
+                            pass
 
                     if g_resp.halt:
                         agenda.mark_done(cur_sg, adapter.budget_spent())
@@ -303,11 +464,23 @@ class Coordinator:
             pass
 
         active = store.active()
-        score = adapter.score_episode(active, final_artifact=None)
+        final_artifact = self._maybe_synthesize_final_artifact(
+            handle_description=handle.description,
+            active_claims=active,
+            history=history,
+        )
+        score = adapter.score_episode(active, final_artifact=final_artifact or None)
         primary = score.get("primary", score.get("RPS", score.get("HMS", 0.0)))
 
         n_done = sum(1 for s in agenda.status.values() if s == SubGoalStatus.DONE)
         n_aband = sum(1 for s in agenda.status.values() if s == SubGoalStatus.ABANDONED)
+
+        ce_stats: dict = {}
+        if self.use_code_evolver and self.code_evolver is not None:
+            try:
+                ce_stats = self.code_evolver.stats()
+            except Exception:
+                pass
 
         return EpisodeReport(
             primary=primary,
@@ -327,7 +500,70 @@ class Coordinator:
                 "use_reflector": self.use_reflector,
                 "use_memory_selector": self.use_memory_selector,
                 "use_futility_detector": self.use_futility_detector,
+                "use_code_evolver": self.use_code_evolver,
             },
             seed=self.seed,
             history=history,
+            code_evolver_stats=ce_stats,
+            final_artifact=final_artifact,
         )
+
+    def _maybe_synthesize_final_artifact(
+        self,
+        *,
+        handle_description: str,
+        active_claims: list[Claim],
+        history: list[dict],
+    ) -> str:
+        """Compress episode evidence into the metric-facing artifact.
+
+        Enabled only for BenchmarkTheory-guided runs.  Raw baselines keep their
+        original adapter behavior.
+        """
+
+        if not self._theory_enabled():
+            return ""
+        if os.environ.get("MARS_USE_THEORY_FINALIZER", "1") in ("0", "false", "False", "no"):
+            return ""
+        path = os.environ.get("MARS_BENCHMARK_THEORY_PATH", "")
+        name = os.environ.get("MARS_BENCHMARK_THEORY_NAME", "")
+        if not path or not name:
+            return ""
+        try:
+            theory = load_compiled_theory(path, name)
+            return synthesize_final_artifact(
+                model=self.generator.model,
+                theory=theory,
+                env_description=handle_description,
+                active_claims=active_claims,
+                history=history,
+            )
+        except Exception:
+            return ""
+
+    def _theory_enabled(self) -> bool:
+        return os.environ.get("MARS_USE_BENCHMARK_THEORY", "") in ("1", "true", "True", "yes")
+
+    def _evidence_ledger_enabled(self) -> bool:
+        return os.environ.get("MARS_THEORY_EVIDENCE_LEDGER", "1") not in (
+            "0",
+            "false",
+            "False",
+            "no",
+        )
+
+    def _evidence_claim_from_action(self, action_result: dict) -> str:
+        action = str(action_result.get("action", "") or "")
+        args = action_result.get("args", {}) or {}
+        summary = action_result.get("summary", {}) or {}
+        if not action or not summary:
+            return ""
+        try:
+            import json as _json
+
+            args_s = _json.dumps(args, ensure_ascii=False, default=str)[:220]
+            summary_s = _json.dumps(summary, ensure_ascii=False, default=str)[:900]
+        except Exception:
+            args_s = str(args)[:220]
+            summary_s = str(summary)[:900]
+        return f"[EVIDENCE:{action}] args={args_s} observation={summary_s}"

@@ -1,0 +1,1491 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 12,
+  "abstained": 12,
+  "SA_answered": 0.833,
+  "SA_all": 0.417,
+  "modules": [
+    "m0_gravity",
+    "m1_coulomb_force",
+    "m2_magnetic_force",
+    "m3_fourier_law",
+    "m4_snell_law",
+    "m5_radioactive_decay",
+    "m6_underdamped_harmonic",
+    "m7_malus_law",
+    "m8_sound_speed",
+    "m9_hooke_law",
+    "m10_be_distribution",
+    "m11_heat_transfer"
+  ],
+  "difficulties": [
+    "hard"
+  ],
+  "law_versions": [
+    "v0",
+    "v1"
+  ],
+  "system": "vanilla_equation",
+  "disable_operator_charts": false,
+  "n": 24,
+  "rows": [
+    {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1+mass2)**2 * (distance)**-1.5",
+      "symbolic_equivalent": true,
+      "rmsle": 6.90638540302055e-17
+    },
+    {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1 ** 1.3) * (distance ** -2.6)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.926474933604744e-18
+    },
+    {
+      "module": "m1_coulomb_force",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "2 * ((q1*q2)*(q1+q2)) * (distance)**-2.71828182846",
+      "symbolic_equivalent": true,
+      "rmsle": 9.215585354553611e-13
+    },
+    {
+      "module": "m1_coulomb_force",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [
+        {
+          "param": "q1",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 0.8213,
+              "evidence": {
+                "raw_loss": 0.0926,
+                "chart_loss": 0.0361,
+                "compression_gain": 0.9432,
+                "stability_gain": 0.6638,
+                "invariance_gain": 0.2143
+              }
+            }
+          ]
+        },
+        {
+          "param": "q2",
+          "operators": [
+            {
+              "operator_id": "singular_chart:1/x",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/x",
+              "posterior_score": 3.7784,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0067,
+                "compression_gain": 3.7756,
+                "stability_gain": 0.3711,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "singular_chart:log1p(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "log1p(x)",
+              "posterior_score": 2.1795,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0344,
+                "compression_gain": 2.1438,
+                "stability_gain": 0.4231,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.8126,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0469,
+                "compression_gain": 1.8353,
+                "stability_gain": 0.5091,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "singular_chart:bose_denominator",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/(expm1(x))",
+              "posterior_score": 1.6899,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0469,
+                "compression_gain": 1.8353,
+                "stability_gain": 0.4183,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ],
+      "law": "2 * (q1+q2)**3 * (q2)**2 * (distance)**-2",
+      "symbolic_equivalent": true,
+      "rmsle": 1.8779663772570134e-16
+    },
+    {
+      "module": "m2_magnetic_force",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "0.0478 * (current1+current2)**1.5 * (distance)**-3",
+      "symbolic_equivalent": true,
+      "rmsle": 2.0656761997978882e-16
+    },
+    {
+      "module": "m2_magnetic_force",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "current1",
+          "operators": [
+            {
+              "operator_id": "scale_chart:x^2",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "x**2",
+              "posterior_score": 0.9329,
+              "evidence": {
+                "raw_loss": 0.3846,
+                "chart_loss": 0.1507,
+                "compression_gain": 0.9368,
+                "stability_gain": 0.6443,
+                "invariance_gain": 0.1
+              }
+            }
+          ]
+        },
+        {
+          "param": "current2",
+          "operators": [
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 0.7085,
+              "evidence": {
+                "raw_loss": 0.3108,
+                "chart_loss": 0.1311,
+                "compression_gain": 0.8637,
+                "stability_gain": 0.412,
+                "invariance_gain": 0.2786
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m3_fourier_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "1.0 * (k ** 1.0) * (A ** 0.5) * (delta_T ** 1.3) * (d ** -2.0)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.4739220831943613e-16
+    },
+    {
+      "module": "m3_fourier_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 0.0,
+      "held_out_rmsle": 0.0105,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "0.9885712840301922 * (k ** 1.0) * (A ** 0.5) * (delta_T ** 2.718281828459045) * (d ** -0.42857142857",
+      "symbolic_equivalent": false,
+      "rmsle": 0.07664579073116098
+    },
+    {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "self_induced_coordinate_inverse_refit:cos_deg<-sin_deg:resid=1.246e-14",
+      "operator_trace": [
+        {
+          "param": "n1",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:asin_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "asin(clip(x,-1,1))",
+              "posterior_score": 1.4654,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 1.3476,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 0.2143
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:logit_unit(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "log(x/(1-x))",
+              "posterior_score": 0.384,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.4819,
+                "compression_gain": 0.4419,
+                "stability_gain": 0.5284,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "regime_chart:threshold_indicator",
+              "family": "regime_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "I[x >= tau]",
+              "posterior_score": 0.137,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.6815,
+                "compression_gain": 0.0955,
+                "stability_gain": 0.686,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ],
+      "law": "math.degrees(math.acos(max(-1.0, min(1.0, INNER))))",
+      "symbolic_equivalent": true,
+      "rmsle": 1.9253570168352985e-12
+    },
+    {
+      "module": "m5_radioactive_decay",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "lambda_constant",
+          "operators": [
+            {
+              "operator_id": "singular_chart:bose_denominator",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/(expm1(x))",
+              "posterior_score": 1.7906,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.125,
+                "compression_gain": 1.8447,
+                "stability_gain": 0.7859,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.6941,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.125,
+                "compression_gain": 1.8447,
+                "stability_gain": 0.0,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:1/x",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/x",
+              "posterior_score": 1.5997,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.1758,
+                "compression_gain": 1.5035,
+                "stability_gain": 0.7468,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:log1p(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "log1p(x)",
+              "posterior_score": 1.4164,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.2047,
+                "compression_gain": 1.3512,
+                "stability_gain": 0.5429,
+                "invariance_gain": 0.9964
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m5_radioactive_decay",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "t",
+          "operators": [
+            {
+              "operator_id": "singular_chart:bose_denominator",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/(expm1(x))",
+              "posterior_score": 1.9854,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.1026,
+                "compression_gain": 2.0253,
+                "stability_gain": 0.8427,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:1/x",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/x",
+              "posterior_score": 1.7002,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.1587,
+                "compression_gain": 1.5891,
+                "stability_gain": 0.8065,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.3848,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.1674,
+                "compression_gain": 1.5353,
+                "stability_gain": 0.0,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:log1p(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "log1p(x)",
+              "posterior_score": 1.1114,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.275,
+                "compression_gain": 1.0392,
+                "stability_gain": 0.571,
+                "invariance_gain": 0.9964
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m6_underdamped_harmonic",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "m",
+          "operators": [
+            {
+              "operator_id": "regime_chart:threshold_indicator",
+              "family": "regime_chart",
+              "activation_signature": "regime_split",
+              "transform": "I[x >= tau]",
+              "posterior_score": 0.1681,
+              "evidence": {
+                "raw_loss": 0.226,
+                "chart_loss": 0.2058,
+                "compression_gain": 0.0936,
+                "stability_gain": 0.8177,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m6_underdamped_harmonic",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "m",
+          "operators": [
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.3425,
+              "evidence": {
+                "raw_loss": 0.2769,
+                "chart_loss": 0.0693,
+                "compression_gain": 1.3849,
+                "stability_gain": 0.4773,
+                "invariance_gain": 0.9214
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "theta",
+          "operators": [
+            {
+              "operator_id": "phase_chart:sin(2x)",
+              "family": "phase_chart",
+              "activation_signature": "oscillatory_or_phase_residual",
+              "transform": "sin(2*x)",
+              "posterior_score": 2.794,
+              "evidence": {
+                "raw_loss": 0.779,
+                "chart_loss": 0.0524,
+                "compression_gain": 2.6995,
+                "stability_gain": 0.9497,
+                "invariance_gain": 0.9143
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    {
+      "module": "m8_sound_speed",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "18.750999973334753 * math.exp(0.5000000000000001 * gamma) * (T ** 1.0) * (M ** -0.75)",
+      "symbolic_equivalent": true,
+      "rmsle": 4.549693413077342e-16
+    },
+    {
+      "module": "m8_sound_speed",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "gamma",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 4.6395,
+              "evidence": {
+                "raw_loss": 0.1372,
+                "chart_loss": 0.0012,
+                "compression_gain": 4.7098,
+                "stability_gain": 0.8702,
+                "invariance_gain": 0.2143
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m9_hooke_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": []
+    },
+    {
+      "module": "m9_hooke_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "x",
+          "operators": [
+            {
+              "operator_id": "scale_chart:x",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "x",
+              "posterior_score": 3.0788,
+              "evidence": {
+                "raw_loss": 0.1846,
+                "chart_loss": 0.0106,
+                "compression_gain": 2.8575,
+                "stability_gain": 0.6851,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "scale_chart:x^2",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "x**2",
+              "posterior_score": 3.0392,
+              "evidence": {
+                "raw_loss": 0.1846,
+                "chart_loss": 0.0106,
+                "compression_gain": 2.8575,
+                "stability_gain": 0.8469,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "scale_chart:sqrt(x)",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "sqrt(x)",
+              "posterior_score": 2.9771,
+              "evidence": {
+                "raw_loss": 0.1846,
+                "chart_loss": 0.0106,
+                "compression_gain": 2.8575,
+                "stability_gain": 0.5981,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m10_be_distribution",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "all_constant",
+      "operator_trace": []
+    },
+    {
+      "module": "m10_be_distribution",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 0.0,
+      "held_out_rmsle": 0.0025,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "95341582122202.69 * (omega ** -0.5) * (T ** -2.3022175635440085)",
+      "symbolic_equivalent": false,
+      "rmsle": 0.008127093339721064
+    },
+    {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "0.9999999999999994 * (m ** -3.718281828459044) * (c ** 1.0) * (delta_T ** -2.5)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.9160054108057574e-15
+    },
+    {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "1.0 * (m ** -2.5) * (c ** 1.0) * (delta_T ** -3.718281828459045)",
+      "symbolic_equivalent": true,
+      "rmsle": 1.2804995883321498e-16
+    }
+  ],
+  "results": {
+    "m0_gravity/hard/v0/vanilla_equation": {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1+mass2)**2 * (distance)**-1.5",
+      "symbolic_equivalent": true,
+      "rmsle": 6.90638540302055e-17
+    },
+    "m0_gravity/hard/v1/vanilla_equation": {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1 ** 1.3) * (distance ** -2.6)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.926474933604744e-18
+    },
+    "m1_coulomb_force/hard/v0/vanilla_equation": {
+      "module": "m1_coulomb_force",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "2 * ((q1*q2)*(q1+q2)) * (distance)**-2.71828182846",
+      "symbolic_equivalent": true,
+      "rmsle": 9.215585354553611e-13
+    },
+    "m1_coulomb_force/hard/v1/vanilla_equation": {
+      "module": "m1_coulomb_force",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [
+        {
+          "param": "q1",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 0.8213,
+              "evidence": {
+                "raw_loss": 0.0926,
+                "chart_loss": 0.0361,
+                "compression_gain": 0.9432,
+                "stability_gain": 0.6638,
+                "invariance_gain": 0.2143
+              }
+            }
+          ]
+        },
+        {
+          "param": "q2",
+          "operators": [
+            {
+              "operator_id": "singular_chart:1/x",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/x",
+              "posterior_score": 3.7784,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0067,
+                "compression_gain": 3.7756,
+                "stability_gain": 0.3711,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "singular_chart:log1p(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "log1p(x)",
+              "posterior_score": 2.1795,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0344,
+                "compression_gain": 2.1438,
+                "stability_gain": 0.4231,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.8126,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0469,
+                "compression_gain": 1.8353,
+                "stability_gain": 0.5091,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "singular_chart:bose_denominator",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/(expm1(x))",
+              "posterior_score": 1.6899,
+              "evidence": {
+                "raw_loss": 0.2938,
+                "chart_loss": 0.0469,
+                "compression_gain": 1.8353,
+                "stability_gain": 0.4183,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ],
+      "law": "2 * (q1+q2)**3 * (q2)**2 * (distance)**-2",
+      "symbolic_equivalent": true,
+      "rmsle": 1.8779663772570134e-16
+    },
+    "m2_magnetic_force/hard/v0/vanilla_equation": {
+      "module": "m2_magnetic_force",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "0.0478 * (current1+current2)**1.5 * (distance)**-3",
+      "symbolic_equivalent": true,
+      "rmsle": 2.0656761997978882e-16
+    },
+    "m2_magnetic_force/hard/v1/vanilla_equation": {
+      "module": "m2_magnetic_force",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "current1",
+          "operators": [
+            {
+              "operator_id": "scale_chart:x^2",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "x**2",
+              "posterior_score": 0.9329,
+              "evidence": {
+                "raw_loss": 0.3846,
+                "chart_loss": 0.1507,
+                "compression_gain": 0.9368,
+                "stability_gain": 0.6443,
+                "invariance_gain": 0.1
+              }
+            }
+          ]
+        },
+        {
+          "param": "current2",
+          "operators": [
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 0.7085,
+              "evidence": {
+                "raw_loss": 0.3108,
+                "chart_loss": 0.1311,
+                "compression_gain": 0.8637,
+                "stability_gain": 0.412,
+                "invariance_gain": 0.2786
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m3_fourier_law/hard/v0/vanilla_equation": {
+      "module": "m3_fourier_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "1.0 * (k ** 1.0) * (A ** 0.5) * (delta_T ** 1.3) * (d ** -2.0)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.4739220831943613e-16
+    },
+    "m3_fourier_law/hard/v1/vanilla_equation": {
+      "module": "m3_fourier_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 0.0,
+      "held_out_rmsle": 0.0105,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "0.9885712840301922 * (k ** 1.0) * (A ** 0.5) * (delta_T ** 2.718281828459045) * (d ** -0.42857142857",
+      "symbolic_equivalent": false,
+      "rmsle": 0.07664579073116098
+    },
+    "m4_snell_law/hard/v0/vanilla_equation": {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    "m4_snell_law/hard/v1/vanilla_equation": {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "self_induced_coordinate_inverse_refit:cos_deg<-sin_deg:resid=1.246e-14",
+      "operator_trace": [
+        {
+          "param": "n1",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:asin_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "asin(clip(x,-1,1))",
+              "posterior_score": 1.4654,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 1.3476,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 0.2143
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:logit_unit(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "log(x/(1-x))",
+              "posterior_score": 0.384,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.4819,
+                "compression_gain": 0.4419,
+                "stability_gain": 0.5284,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "regime_chart:threshold_indicator",
+              "family": "regime_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "I[x >= tau]",
+              "posterior_score": 0.137,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.6815,
+                "compression_gain": 0.0955,
+                "stability_gain": 0.686,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ],
+      "law": "math.degrees(math.acos(max(-1.0, min(1.0, INNER))))",
+      "symbolic_equivalent": true,
+      "rmsle": 1.9253570168352985e-12
+    },
+    "m5_radioactive_decay/hard/v0/vanilla_equation": {
+      "module": "m5_radioactive_decay",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "lambda_constant",
+          "operators": [
+            {
+              "operator_id": "singular_chart:bose_denominator",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/(expm1(x))",
+              "posterior_score": 1.7906,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.125,
+                "compression_gain": 1.8447,
+                "stability_gain": 0.7859,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.6941,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.125,
+                "compression_gain": 1.8447,
+                "stability_gain": 0.0,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:1/x",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/x",
+              "posterior_score": 1.5997,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.1758,
+                "compression_gain": 1.5035,
+                "stability_gain": 0.7468,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:log1p(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "log1p(x)",
+              "posterior_score": 1.4164,
+              "evidence": {
+                "raw_loss": 0.7906,
+                "chart_loss": 0.2047,
+                "compression_gain": 1.3512,
+                "stability_gain": 0.5429,
+                "invariance_gain": 0.9964
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m5_radioactive_decay/hard/v1/vanilla_equation": {
+      "module": "m5_radioactive_decay",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "t",
+          "operators": [
+            {
+              "operator_id": "singular_chart:bose_denominator",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/(expm1(x))",
+              "posterior_score": 1.9854,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.1026,
+                "compression_gain": 2.0253,
+                "stability_gain": 0.8427,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:1/x",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "1/x",
+              "posterior_score": 1.7002,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.1587,
+                "compression_gain": 1.5891,
+                "stability_gain": 0.8065,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.3848,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.1674,
+                "compression_gain": 1.5353,
+                "stability_gain": 0.0,
+                "invariance_gain": 0.9964
+              }
+            },
+            {
+              "operator_id": "singular_chart:log1p(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "log1p(x)",
+              "posterior_score": 1.1114,
+              "evidence": {
+                "raw_loss": 0.7773,
+                "chart_loss": 0.275,
+                "compression_gain": 1.0392,
+                "stability_gain": 0.571,
+                "invariance_gain": 0.9964
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m6_underdamped_harmonic/hard/v0/vanilla_equation": {
+      "module": "m6_underdamped_harmonic",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "m",
+          "operators": [
+            {
+              "operator_id": "regime_chart:threshold_indicator",
+              "family": "regime_chart",
+              "activation_signature": "regime_split",
+              "transform": "I[x >= tau]",
+              "posterior_score": 0.1681,
+              "evidence": {
+                "raw_loss": 0.226,
+                "chart_loss": 0.2058,
+                "compression_gain": 0.0936,
+                "stability_gain": 0.8177,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m6_underdamped_harmonic/hard/v1/vanilla_equation": {
+      "module": "m6_underdamped_harmonic",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "m",
+          "operators": [
+            {
+              "operator_id": "singular_chart:expm1(x)",
+              "family": "singular_chart",
+              "activation_signature": "singular_or_exponential_scale",
+              "transform": "expm1(x)",
+              "posterior_score": 1.3425,
+              "evidence": {
+                "raw_loss": 0.2769,
+                "chart_loss": 0.0693,
+                "compression_gain": 1.3849,
+                "stability_gain": 0.4773,
+                "invariance_gain": 0.9214
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m7_malus_law/hard/v0/vanilla_equation": {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "theta",
+          "operators": [
+            {
+              "operator_id": "phase_chart:sin(2x)",
+              "family": "phase_chart",
+              "activation_signature": "oscillatory_or_phase_residual",
+              "transform": "sin(2*x)",
+              "posterior_score": 2.794,
+              "evidence": {
+                "raw_loss": 0.779,
+                "chart_loss": 0.0524,
+                "compression_gain": 2.6995,
+                "stability_gain": 0.9497,
+                "invariance_gain": 0.9143
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m7_malus_law/hard/v1/vanilla_equation": {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    "m8_sound_speed/hard/v0/vanilla_equation": {
+      "module": "m8_sound_speed",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "18.750999973334753 * math.exp(0.5000000000000001 * gamma) * (T ** 1.0) * (M ** -0.75)",
+      "symbolic_equivalent": true,
+      "rmsle": 4.549693413077342e-16
+    },
+    "m8_sound_speed/hard/v1/vanilla_equation": {
+      "module": "m8_sound_speed",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "gamma",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 4.6395,
+              "evidence": {
+                "raw_loss": 0.1372,
+                "chart_loss": 0.0012,
+                "compression_gain": 4.7098,
+                "stability_gain": 0.8702,
+                "invariance_gain": 0.2143
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m9_hooke_law/hard/v0/vanilla_equation": {
+      "module": "m9_hooke_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": []
+    },
+    "m9_hooke_law/hard/v1/vanilla_equation": {
+      "module": "m9_hooke_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "x",
+          "operators": [
+            {
+              "operator_id": "scale_chart:x",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "x",
+              "posterior_score": 3.0788,
+              "evidence": {
+                "raw_loss": 0.1846,
+                "chart_loss": 0.0106,
+                "compression_gain": 2.8575,
+                "stability_gain": 0.6851,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "scale_chart:x^2",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "x**2",
+              "posterior_score": 3.0392,
+              "evidence": {
+                "raw_loss": 0.1846,
+                "chart_loss": 0.0106,
+                "compression_gain": 2.8575,
+                "stability_gain": 0.8469,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "scale_chart:sqrt(x)",
+              "family": "scale_chart",
+              "activation_signature": "generic_coordinate_search",
+              "transform": "sqrt(x)",
+              "posterior_score": 2.9771,
+              "evidence": {
+                "raw_loss": 0.1846,
+                "chart_loss": 0.0106,
+                "compression_gain": 2.8575,
+                "stability_gain": 0.5981,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m10_be_distribution/hard/v0/vanilla_equation": {
+      "module": "m10_be_distribution",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "all_constant",
+      "operator_trace": []
+    },
+    "m10_be_distribution/hard/v1/vanilla_equation": {
+      "module": "m10_be_distribution",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 0.0,
+      "held_out_rmsle": 0.0025,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "95341582122202.69 * (omega ** -0.5) * (T ** -2.3022175635440085)",
+      "symbolic_equivalent": false,
+      "rmsle": 0.008127093339721064
+    },
+    "m11_heat_transfer/hard/v0/vanilla_equation": {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "0.9999999999999994 * (m ** -3.718281828459044) * (c ** 1.0) * (delta_T ** -2.5)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.9160054108057574e-15
+    },
+    "m11_heat_transfer/hard/v1/vanilla_equation": {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "1.0 * (m ** -2.5) * (c ** 1.0) * (delta_T ** -3.718281828459045)",
+      "symbolic_equivalent": true,
+      "rmsle": 1.2804995883321498e-16
+    }
+  }
+}

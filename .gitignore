@@ -1,14 +1,25 @@
 # external clones / private data / venvs / caches / secrets
 autodiscovery/
+autoresearchbench_repo/
 discoverybench_repo/
+kg4code_repo/
+llm_srbench_repo/
 mlagentbench_repo/
 mlrcbench_repo/
 newtonbench_repo/
 scienceagentbench_repo/
 smell/
+ultrahorizon_repo/
 _ARCHIVED_nonsmell/
 
 **/.venv/
+IPython/
+dotenv/
+openai/
+requests/
+sympy/
+tenacity/
+tmp/
 **/__pycache__/
 *.pyc
 
@@ -32,3 +43,11 @@ Thumbs.db
 .claude/
 .vscode/
 .idea/
+
+# generated paper/demo build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+_deck/

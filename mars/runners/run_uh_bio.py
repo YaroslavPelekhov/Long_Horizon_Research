@@ -33,6 +33,8 @@ if str(_PROJ) not in sys.path:
 from mars.adapters.ultrahorizon_bio_adapter import UHBioTask, UltraHorizonBioAdapter
 from mars.agents.generator import Generator
 from mars.agents.memory_selector import MemorySelector
+from mars.agents.kg_memory_selector import KGMemorySelector
+from mars.agents.code_evolver import CodeEvolver
 from mars.agents.reflector import Reflector
 from mars.coordinator import Coordinator
 from ols.core.abandon import FutilityDetector
@@ -40,15 +42,27 @@ from ols.core.abandon import FutilityDetector
 
 ABLATIONS = [
     ("MARS-full",
-     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=True)),
+     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=True,
+          use_kg_memory=False, use_code_evolver=False)),
+    ("MARS-kg",
+     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=True,
+          use_kg_memory=True,  use_code_evolver=False)),
+    # MARS-SELF: KG memory + CodeEvolver cognitive exoskeleton (gpt-4o-mini)
+    ("MARS-self",
+     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=True,
+          use_kg_memory=True,  use_code_evolver=True)),
     ("MARS-no-ref",
-     dict(use_reflector=False, use_memory_selector=True,  use_futility_detector=True)),
+     dict(use_reflector=False, use_memory_selector=True,  use_futility_detector=True,
+          use_kg_memory=False, use_code_evolver=False)),
     ("MARS-no-mem",
-     dict(use_reflector=True,  use_memory_selector=False, use_futility_detector=True)),
+     dict(use_reflector=True,  use_memory_selector=False, use_futility_detector=True,
+          use_kg_memory=False, use_code_evolver=False)),
     ("MARS-no-fut",
-     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=False)),
+     dict(use_reflector=True,  use_memory_selector=True,  use_futility_detector=False,
+          use_kg_memory=False, use_code_evolver=False)),
     ("MARS-all-off",
-     dict(use_reflector=False, use_memory_selector=False, use_futility_detector=False)),
+     dict(use_reflector=False, use_memory_selector=False, use_futility_detector=False,
+          use_kg_memory=False, use_code_evolver=False)),
 ]
 
 
@@ -59,10 +73,24 @@ def _parse_csv(env_name: str, default: str) -> list[str]:
 
 def _episode(task: UHBioTask, ablation: dict,
              gen_model: str, ref_model: str) -> dict:
+    # copy so popping flags doesn't corrupt the shared ABLATIONS dict across seeds
+    ablation = dict(ablation)
+
     adapter = UltraHorizonBioAdapter(task=task)
     gen = Generator(model=gen_model, max_tokens=2000)
     ref = Reflector(model=ref_model, max_tokens=500)
-    sel = MemorySelector(k=6)
+
+    # KG memory: use KGMemorySelector (graph-based) or standard MemorySelector
+    use_kg = ablation.pop("use_kg_memory", False)
+    if use_kg:
+        sel = KGMemorySelector(k=8, model=ref_model, bfs_steps=2)
+    else:
+        sel = MemorySelector(k=6)
+
+    # CodeEvolver (MARS-SELF): generate Python cognitive modules during episode
+    use_ce = ablation.pop("use_code_evolver", False)
+    evolver = CodeEvolver(model=ref_model, max_modules=10) if use_ce else None
+
     # 4 explicit research phases (A–D) in handle().subdomains.
     # Give each phase up to 9 generator turns; 40 total provides a buffer.
     # Futility detector disabled — genetics requires patient accumulation.
@@ -75,6 +103,8 @@ def _episode(task: UHBioTask, ablation: dict,
         max_turns_per_subgoal=9,
         max_total_turns=40,
         verbose=False,
+        code_evolver=evolver,
+        use_code_evolver=use_ce,   # must pass explicitly (was popped from ablation)
         **ablation,
     )
     t0 = time.time()
@@ -96,6 +126,7 @@ def _episode(task: UHBioTask, ablation: dict,
         "n_generator_calls": rep.n_generator_calls,
         "n_reflector_calls": rep.n_reflector_calls,
         "verdict_counts": rep.verdict_counts,
+        "code_evolver_stats": rep.code_evolver_stats,
         "wall_time_s": elapsed,
     }
 
@@ -176,7 +207,7 @@ def main():
             summary["paired_delta_score_mean"] = m_d
             summary["paired_delta_score_ci95z"] = 1.96 * se_d
 
-    out = _PROJ / "lmw" / f"mars_uh_bio_v2_{gen_model.replace('/', '-')}_{len(tasks)}eps.json"
+    out = _PROJ / "lmw" / f"mars_uh_bio_v4_{gen_model.replace('/', '-')}_{len(tasks)}eps.json"
     out.parent.mkdir(exist_ok=True)
     with open(out, "w") as f:
         json.dump(summary, f, indent=1, default=str)

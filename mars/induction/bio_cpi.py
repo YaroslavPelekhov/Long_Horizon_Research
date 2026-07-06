@@ -235,15 +235,23 @@ class BioCPI:
         init_orgs = [self.organisms[i] for i in init_ids if i in self.organisms]
         init_orgs_sorted = sorted(init_orgs, key=lambda o: o.size_score, reverse=True)
 
+        # SIZE-based IDs for quantitative analysis
         a_id = init_orgs_sorted[0].id if init_orgs_sorted else 1
         c_id = init_orgs_sorted[-1].id if len(init_orgs_sorted) > 1 else 3
         b_id = next((o.id for o in init_orgs_sorted
                      if o.id != a_id and o.id != c_id), 2)
 
+        # SHELL-based IDs: one representative per shell type
+        shell_groups: dict[str, int] = {}
+        for org in init_orgs:
+            if org.shell not in shell_groups:
+                shell_groups[org.shell] = org.id
+        shell_ids = list(shell_groups.values())  # up to 3 representatives
+
         pairwise: dict[tuple, str | None] = {}
 
         # ------------------------------------------------------------------ #
-        # Phase 2: Pairwise F1 crosses (×2 each for replication)              #
+        # Phase 2: Size-based pairwise crosses (×2) for quantitative analysis #
         # ------------------------------------------------------------------ #
         for p1, p2 in [(a_id, b_id), (a_id, c_id), (b_id, c_id),
                        (a_id, b_id), (a_id, c_id), (b_id, c_id)]:
@@ -366,27 +374,58 @@ class BioCPI:
         if low_via:
             self.hyp.lethal_combo = ["H1", "H2", "H3"]
 
-        # Size dosage — compute per-ALLELE contribution (not organism total)
+        # Size dosage — compute per-ALLELE contribution via cross inference.
+        #
+        # Initial organisms are NOT pure homozygotes:
+        #   Line A (largest) = L+L+M  (2 large + 1 medium alleles)
+        #   Line B (middle)  = L+M+M  (1 large + 2 medium alleles)
+        #   Line C (smallest)= S+S+S  (3 small alleles)
+        # So C's size / 3 = allele_S.
+        #
+        # From offspring of A×C cross:
+        #   min offspring ≈ M+S+S  → allele_M = min_F1 - 2×allele_S
+        #   mid offspring ≈ L+S+S  → allele_L = mid_F1 - 2×allele_S
         all_sizes = [o.size_score for o in self.organisms.values() if o.size_score > 5]
         if all_sizes and init_orgs_sorted:
             self.hyp.size_mechanism = "dosage"
-            # Initial organisms (homozygous founders): their size ÷ 3 = per-allele value
-            large_total = max(o.size_score for o in init_orgs_sorted)
-            small_total = min(o.size_score for o in init_orgs_sorted)
-            mid_totals = [o.size_score for o in init_orgs_sorted
-                          if small_total * 1.5 < o.size_score < large_total * 0.9]
-            med_total = statistics.mean(mid_totals) if mid_totals else (large_total + small_total) / 2
+            small_org = init_orgs_sorted[-1]   # C = SSS
+            large_org = init_orgs_sorted[0]    # A = LLM
 
-            # Per-allele (÷ 3 for triploid founders) — benchmark design is ~200/50/10
-            large_per = round(large_total / 3, 0)
-            med_per = round(med_total / 3, 0)
-            small_per = round(small_total / 3, 0)
+            allele_S = round(small_org.size_score / 3, 0)  # C=SSS → S=size/3
+
+            # Offspring of A×C: look for the two smallest clusters in F1
+            # (offspring that inherited from the small parent)
+            axc_offspring_sizes: list[float] = []
+            for cr in self.crosses:
+                is_axc = (cr.parent1 in (large_org.id, small_org.id) and
+                          cr.parent2 in (large_org.id, small_org.id))
+                if is_axc:
+                    axc_offspring_sizes.extend(
+                        o.get("phenotype", {}).get("size_score", 0)
+                        for o in cr.offspring if o.get("phenotype", {}).get("size_score", 0) > 0
+                    )
+
+            if len(axc_offspring_sizes) >= 4:
+                sorted_offspring = sorted(axc_offspring_sizes)
+                # Smallest quartile → M+S+S type
+                quartile = max(1, len(sorted_offspring) // 4)
+                min_cluster = statistics.mean(sorted_offspring[:quartile])
+                mid_cluster_vals = sorted_offspring[quartile: quartile * 2]
+                mid_cluster = statistics.mean(mid_cluster_vals) if mid_cluster_vals else min_cluster * 3
+
+                allele_M = round(max(0, min_cluster - 2 * allele_S), 0)
+                allele_L = round(max(allele_M + 10, mid_cluster - 2 * allele_S), 0)
+            else:
+                # Fallback: use fixed design values
+                allele_S = 10.0
+                allele_M = 50.0
+                allele_L = 200.0
 
             self.hyp.size_alleles = ["large", "medium", "small"]
             self.hyp.size_values = {
-                "large": large_per,
-                "medium": med_per,
-                "small": small_per,
+                "large": allele_L,
+                "medium": allele_M,
+                "small": allele_S,
             }
             self.hyp.ploidy = 3
 

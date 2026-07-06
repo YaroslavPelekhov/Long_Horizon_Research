@@ -48,6 +48,7 @@ from mars.induction.cpi_adapters import (  # noqa: E402
     NewtonAdapter,
     UHSeqAdapter,
 )
+from mars.skills.supermetrics import aggregate_supermetrics  # noqa: E402
 
 
 def _run_async(coro):
@@ -67,6 +68,21 @@ def _judge_cfg(model: str) -> dict[str, str]:
     if key.startswith("sk-or-") and not base:
         base = "https://openrouter.ai/api/v1"
     return {"model": model, "api_key": key, "base_url": base}
+
+
+def _aggregate_suite_supermetrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    agg = aggregate_supermetrics(rows)
+    return {
+        "universal_score": agg.get("mean_universal_score", 0.0),
+        "aggregate": agg,
+    }
+
+
+def _supermetric_score(row: dict[str, Any]) -> float:
+    sm = row.get("supermetrics") or {}
+    if "universal_score" in sm:
+        return float(sm.get("universal_score") or 0.0)
+    return float(sm.get("mean_universal_score") or 0.0)
 
 
 # ===========================================================================
@@ -95,19 +111,23 @@ def run_uh_seq(engine: UniversalCPI, seed: int, judge_model: str) -> dict[str, A
 
     exact = 0
     per_rule = []
+    supermetric_rows = []
     for slot in range(1, 6):
         adapter = UHSeqAdapter(env, rule_slot=slot)
         adapter.set_observations(raw)
         res = engine.run(adapter)
+        supermetric_rows.append(res.supermetrics)
         best = res.winners[0] if res.winners else None
         loss = best[1].loss_mean if best else 1.0
         is_exact = loss == 0.0
         exact += int(is_exact)
         per_rule.append({"slot": slot, "exact": is_exact, "loss": loss,
-                         "winner": best[0].name if best else None, "n_valid": res.n_valid})
+                         "winner": best[0].name if best else None, "n_valid": res.n_valid,
+                         "supermetrics": res.supermetrics})
     return {
         "benchmark": "uh_seq", "metric": "exact_rules", "score": exact, "max": 5,
         "normalized": exact / 5, "detail": per_rule,
+        "supermetrics": _aggregate_suite_supermetrics(supermetric_rows),
     }
 
 
@@ -138,6 +158,7 @@ def run_newtonbench(engine: UniversalCPI, seed: int, judge_model: str) -> dict[s
         "detail": {"best_law": best[0].code if best else None,
                    "const": getattr(best[0], "_const", None) if best else None,
                    "loss": loss, "n_valid": res.n_valid},
+        "supermetrics": res.supermetrics,
     }
 
 
@@ -186,6 +207,7 @@ def run_uh_bio(engine: UniversalCPI, seed: int, judge_model: str) -> dict[str, A
         "normalized": score / 100,
         "detail": {"n_crosses": len(cross_records), "n_valid": res.n_valid,
                    "winners": [w[0].name for w in res.winners[:3]]},
+        "supermetrics": res.supermetrics,
     }
 
 
@@ -224,6 +246,7 @@ def run_discoverybench(engine: UniversalCPI, seed: int, judge_model: str) -> dic
         "benchmark": "discoverybench", "metric": "official_HMS_100", "score": round(hms, 1), "max": 100,
         "normalized": hms / 100,
         "detail": {"task": task_key, "n_valid": res.n_valid, "report": res.report[:200]},
+        "supermetrics": res.supermetrics,
     }
 
 
@@ -250,6 +273,7 @@ def main() -> None:
     out_dir = _PROJ / "lmw" / "universal_cpi" / args.run_id
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "summary.json"
+    cpi_log_path = out_dir / "cpi_results.json"
     if out_path.exists() and not args.overwrite:
         raise SystemExit(f"exists; pass --overwrite: {out_path}")
 
@@ -267,6 +291,7 @@ def main() -> None:
             continue
         print(f"  running {b} ...", flush=True)
         t0 = time.time()
+        log_start = len(engine.result_log)
         try:
             row = DRIVERS[b](engine, args.seed, args.judge_model)
             row["wall_time_s"] = round(time.time() - t0, 1)
@@ -274,12 +299,21 @@ def main() -> None:
             import traceback
             row = {"benchmark": b, "error": str(e), "traceback": traceback.format_exc()[:500],
                    "normalized": 0.0, "wall_time_s": round(time.time() - t0, 1)}
+        log_end = len(engine.result_log)
+        row["cpi_result_range"] = [log_start, log_end]
         results.append(row)
         sc = row.get("score", "?")
         mx = row.get("max", "?")
         print(f"    {b}: {sc}/{mx}  (normalized {row.get('normalized',0):.2f})  {row.get('wall_time_s')}s")
 
     mean_norm = sum(r.get("normalized", 0) for r in results) / len(results) if results else 0
+    mean_super = sum(_supermetric_score(r) for r in results) / len(results) if results else 0
+    cpi_supermetrics = [
+        row.get("supermetrics", {})
+        for row in engine.result_log
+        if isinstance(row, dict) and isinstance(row.get("supermetrics"), dict)
+    ]
+    aggregate_internal = aggregate_supermetrics(cpi_supermetrics)
     summary = {
         "run_id": args.run_id,
         "score_type": "universal-autonomous-engine",
@@ -289,9 +323,24 @@ def main() -> None:
         "seed": args.seed,
         "n_benchmarks": len(results),
         "mean_normalized": round(mean_norm, 4),
+        "mean_supermetric_universal_score": round(mean_super, 4),
+        "aggregate_internal_supermetrics": aggregate_internal,
         "results": results,
     }
     out_path.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
+    cpi_log_path.write_text(
+        json.dumps(
+            {
+                "run_id": args.run_id,
+                "model": args.model,
+                "judge_model": args.judge_model,
+                "results": engine.result_log,
+            },
+            indent=2,
+            default=str,
+        ),
+        encoding="utf-8",
+    )
 
     print(f"\n=== SUMMARY (one engine, autonomous) ===")
     print(f"{'Benchmark':<16} {'Score':<14} {'Normalized':<10}")
@@ -300,7 +349,18 @@ def main() -> None:
         print(f"{r['benchmark']:<16} {str(r.get('score','err'))+'/'+str(r.get('max','?')):<14} {r.get('normalized',0):.2f}")
     print("-" * 42)
     print(f"{'MEAN':<16} {'':<14} {mean_norm:.2f}")
+    print(f"Mean supermetric universal_score: {mean_super:.2f}")
+    epistemic = aggregate_internal.get("epistemic", {})
+    if epistemic:
+        print(
+            "Epistemic certificates: "
+            f"accepted={epistemic.get('accepted', 0)} "
+            f"provisional={epistemic.get('provisional', 0)} "
+            f"rejected={epistemic.get('rejected', 0)} "
+            f"mean_leakage={epistemic.get('mean_leakage_penalty', 0.0)}"
+        )
     print(f"\nsummary → {out_path}")
+    print(f"cpi log → {cpi_log_path}")
 
 
 if __name__ == "__main__":

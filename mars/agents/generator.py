@@ -22,6 +22,7 @@ import os
 from dataclasses import dataclass, field
 
 from mars.agents.base import call_llm, make_openai_client, parse_json_strict
+from mars.skills.theory_runtime import load_compiled_theory, render_theory_context
 from ols.core.types import ActionSpec, Claim                  # reuse types
 
 
@@ -55,7 +56,10 @@ _SYS = (
     "  R5. Set halt=true only to end the whole episode (rare).\n"
     "  R6. Watch budget_remaining. If the environment has a terminal "
     "submit_* action and budget_remaining ≤ 3, prefer submitting your "
-    "best current hypothesis NOW rather than gathering more data."
+    "best current hypothesis NOW rather than gathering more data.\n"
+    "  R7. Claims prefixed with [CE:fn_name] are results from auto-generated "
+    "Python analysis modules (CodeEvolver). Treat them as reliable derived "
+    "facts — cite their content in your reasoning and claims."
 )
 
 
@@ -91,6 +95,7 @@ class Generator:
         self.max_actions_per_turn = max_actions_per_turn
         self._client = make_openai_client()
         self.n_calls = 0
+        self._theory_context: str | None = None
 
     # -- prompt ----
 
@@ -128,6 +133,23 @@ class Generator:
             )
         return "Recent actions on this sub-goal:\n" + "\n".join(lines)
 
+    def _render_theory_context(self) -> str:
+        if os.environ.get("MARS_USE_BENCHMARK_THEORY", "") not in ("1", "true", "True", "yes"):
+            return ""
+        if self._theory_context is not None:
+            return self._theory_context
+        path = os.environ.get("MARS_BENCHMARK_THEORY_PATH", "")
+        name = os.environ.get("MARS_BENCHMARK_THEORY_NAME", "")
+        if not path or not name:
+            self._theory_context = ""
+            return ""
+        try:
+            theory = load_compiled_theory(path, name)
+            self._theory_context = render_theory_context(theory)
+        except Exception as exc:
+            self._theory_context = f"SELF-INDUCED BENCHMARK THEORY unavailable: {type(exc).__name__}: {exc}"
+        return self._theory_context
+
     def _build_user(self, ctx: GenContext) -> str:
         reflector_block = ""
         if ctx.reflector_feedback:
@@ -136,8 +158,13 @@ class Generator:
                 f"  {ctx.reflector_feedback}\n"
                 "Apply this feedback before issuing your next turn.\n"
             )
+        theory_block = ""
+        theory_context = self._render_theory_context()
+        if theory_context:
+            theory_block = f"\n{theory_context}\n"
         return (
             f"ENVIRONMENT:\n{ctx.env_description}\n\n"
+            f"{theory_block}"
             f"AVAILABLE ACTIONS:\n{self._render_actions(ctx)}\n\n"
             f"CURRENT SUB-GOAL [{ctx.sub_goal}]: {ctx.sub_goal_question}\n\n"
             f"{self._render_claims(ctx)}\n\n"

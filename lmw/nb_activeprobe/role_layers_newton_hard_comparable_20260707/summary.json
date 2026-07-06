@@ -1,0 +1,385 @@
+{
+  "model": "openai/gpt-4o-mini",
+  "answered": 5,
+  "abstained": 3,
+  "SA_answered": 1.0,
+  "SA_all": 0.625,
+  "modules": [
+    "m0_gravity",
+    "m4_snell_law",
+    "m7_malus_law",
+    "m11_heat_transfer"
+  ],
+  "difficulties": [
+    "hard"
+  ],
+  "law_versions": [
+    "v0",
+    "v1"
+  ],
+  "system": "vanilla_equation",
+  "disable_operator_charts": false,
+  "n": 8,
+  "rows": [
+    {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1+mass2)**2 * (distance)**-1.5",
+      "symbolic_equivalent": true,
+      "rmsle": 6.90638540302055e-17
+    },
+    {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1 ** 1.3) * (distance ** -2.6)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.926474933604744e-18
+    },
+    {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "self_induced_coordinate_inverse_refit:cos_deg<-sin_deg:resid=1.246e-14",
+      "operator_trace": [
+        {
+          "param": "n1",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:asin_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "asin(clip(x,-1,1))",
+              "posterior_score": 1.4654,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 1.3476,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 0.2143
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:logit_unit(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "log(x/(1-x))",
+              "posterior_score": 0.384,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.4819,
+                "compression_gain": 0.4419,
+                "stability_gain": 0.5284,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "regime_chart:threshold_indicator",
+              "family": "regime_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "I[x >= tau]",
+              "posterior_score": 0.137,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.6815,
+                "compression_gain": 0.0955,
+                "stability_gain": 0.686,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ],
+      "law": "math.degrees(math.acos(max(-1.0, min(1.0, INNER))))",
+      "symbolic_equivalent": true,
+      "rmsle": 1.9253570168352985e-12
+    },
+    {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "theta",
+          "operators": [
+            {
+              "operator_id": "phase_chart:sin(2x)",
+              "family": "phase_chart",
+              "activation_signature": "oscillatory_or_phase_residual",
+              "transform": "sin(2*x)",
+              "posterior_score": 2.794,
+              "evidence": {
+                "raw_loss": 0.779,
+                "chart_loss": 0.0524,
+                "compression_gain": 2.6995,
+                "stability_gain": 0.9497,
+                "invariance_gain": 0.9143
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "0.9999999999999994 * (m ** -3.718281828459044) * (c ** 1.0) * (delta_T ** -2.5)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.9160054108057574e-15
+    },
+    {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "1.0 * (m ** -2.5) * (c ** 1.0) * (delta_T ** -3.718281828459045)",
+      "symbolic_equivalent": true,
+      "rmsle": 1.2804995883321498e-16
+    }
+  ],
+  "results": {
+    "m0_gravity/hard/v0/vanilla_equation": {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "multivariate_probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1+mass2)**2 * (distance)**-1.5",
+      "symbolic_equivalent": true,
+      "rmsle": 6.90638540302055e-17
+    },
+    "m0_gravity/hard/v1/vanilla_equation": {
+      "module": "m0_gravity",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "6.674e-05 * (mass1 ** 1.3) * (distance ** -2.6)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.926474933604744e-18
+    },
+    "m4_snell_law/hard/v0/vanilla_equation": {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    "m4_snell_law/hard/v1/vanilla_equation": {
+      "module": "m4_snell_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "self_induced_coordinate_inverse_refit:cos_deg<-sin_deg:resid=1.246e-14",
+      "operator_trace": [
+        {
+          "param": "n1",
+          "operators": [
+            {
+              "operator_id": "inverse_coordinate_chart:asin_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "asin(clip(x,-1,1))",
+              "posterior_score": 1.4654,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:acos_clip(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "acos(clip(x,-1,1))",
+              "posterior_score": 1.3476,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.1767,
+                "compression_gain": 1.4454,
+                "stability_gain": 0.7599,
+                "invariance_gain": 0.2143
+              }
+            },
+            {
+              "operator_id": "inverse_coordinate_chart:logit_unit(x)",
+              "family": "inverse_coordinate_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "log(x/(1-x))",
+              "posterior_score": 0.384,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.4819,
+                "compression_gain": 0.4419,
+                "stability_gain": 0.5284,
+                "invariance_gain": 1.0
+              }
+            },
+            {
+              "operator_id": "regime_chart:threshold_indicator",
+              "family": "regime_chart",
+              "activation_signature": "saturating_or_inverse_coordinate",
+              "transform": "I[x >= tau]",
+              "posterior_score": 0.137,
+              "evidence": {
+                "raw_loss": 0.7497,
+                "chart_loss": 0.6815,
+                "compression_gain": 0.0955,
+                "stability_gain": 0.686,
+                "invariance_gain": 1.0
+              }
+            }
+          ]
+        }
+      ],
+      "law": "math.degrees(math.acos(max(-1.0, min(1.0, INNER))))",
+      "symbolic_equivalent": true,
+      "rmsle": 1.9253570168352985e-12
+    },
+    "m7_malus_law/hard/v0/vanilla_equation": {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ABSTAIN",
+      "SA": 0.0,
+      "best_rmsle": 9.9,
+      "method": "model_compile_fail",
+      "operator_trace": [
+        {
+          "param": "theta",
+          "operators": [
+            {
+              "operator_id": "phase_chart:sin(2x)",
+              "family": "phase_chart",
+              "activation_signature": "oscillatory_or_phase_residual",
+              "transform": "sin(2*x)",
+              "posterior_score": 2.794,
+              "evidence": {
+                "raw_loss": 0.779,
+                "chart_loss": 0.0524,
+                "compression_gain": 2.6995,
+                "stability_gain": 0.9497,
+                "invariance_gain": 0.9143
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "m7_malus_law/hard/v1/vanilla_equation": {
+      "module": "m7_malus_law",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "no_data",
+      "SA": 0.0
+    },
+    "m11_heat_transfer/hard/v0/vanilla_equation": {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v0",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "0.9999999999999994 * (m ** -3.718281828459044) * (c ** 1.0) * (delta_T ** -2.5)",
+      "symbolic_equivalent": true,
+      "rmsle": 2.9160054108057574e-15
+    },
+    "m11_heat_transfer/hard/v1/vanilla_equation": {
+      "module": "m11_heat_transfer",
+      "difficulty": "hard",
+      "law_version": "v1",
+      "system": "vanilla_equation",
+      "status": "ANSWER",
+      "SA": 1.0,
+      "held_out_rmsle": 0.0,
+      "method": "probe",
+      "operator_trace": [],
+      "law": "1.0 * (m ** -2.5) * (c ** 1.0) * (delta_T ** -3.718281828459045)",
+      "symbolic_equivalent": true,
+      "rmsle": 1.2804995883321498e-16
+    }
+  }
+}
