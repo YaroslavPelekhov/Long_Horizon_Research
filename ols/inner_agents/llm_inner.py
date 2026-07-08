@@ -86,7 +86,7 @@ class OLSInnerLLM:
         self.max_tokens = max_tokens
         self.max_actions_per_turn = max_actions_per_turn
         # Auto-detect OpenRouter from key prefix; honor explicit OPENAI_BASE_URL.
-        key = os.environ.get("OPENAI_API_KEY", "")
+        key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY", "")
         base_url = os.environ.get("OPENAI_BASE_URL")
         if not base_url and key.startswith("sk-or-"):
             base_url = "https://openrouter.ai/api/v1"

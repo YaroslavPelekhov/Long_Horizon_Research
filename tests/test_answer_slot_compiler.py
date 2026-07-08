@@ -247,6 +247,125 @@ class AnswerSlotCompilerTests(unittest.TestCase):
         self.assertIn("student subjects", result.hypothesis)
         self.assertIn("answer_slot_generic_category", result.evidence)
 
+    def test_generic_categorical_complement_measurement(self):
+        import pandas as pd
+
+        from mars.skills import infer_answer_slot_hypothesis
+
+        df = pd.DataFrame(
+            {
+                "domain": ["Psychology"] * 5 + ["Economics"] * 2,
+                "same_language": [1, 0, 0, 1, 0, 1, 0],
+            }
+        )
+        result = infer_answer_slot_hypothesis(
+            question=(
+                "In Psychology, what is the proportion of replication studies "
+                "conducted in a different language compared to the original study?"
+            ),
+            domain_context="",
+            df=df,
+            column_descriptions={
+                "domain": "Scientific domain of the study",
+                "same_language": "Whether the replication study used the same language as the original study",
+            },
+        )
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertIn("different language", result.hypothesis)
+        self.assertIn("60.0%", result.hypothesis)
+        self.assertIn("complement=", result.evidence)
+
+    def test_original_replication_design_measures_arm_proportion(self):
+        import pandas as pd
+
+        from mars.skills import infer_answer_slot_hypothesis
+
+        df = pd.DataFrame(
+            {
+                "project": ["ee", "ee", "ee", "rpp"],
+                "subjects.o": ["students", "community", "students", "students"],
+                "subjects.r": ["students", "students", "community", "community"],
+            }
+        )
+        result = infer_answer_slot_hypothesis(
+            question="What proportion of subjects were students in replication studies in Experimental Economics?",
+            domain_context="",
+            df=df,
+            column_descriptions={
+                "project": "The replication project (ee: Experimental Economics, rpp: Psychology)",
+                "subjects.o": "Type of subjects used in original experiment",
+                "subjects.r": "Type of subjects used in replication",
+            },
+        )
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertIn("66.7%", result.hypothesis)
+        self.assertIn("replication studies", result.hypothesis)
+        self.assertIn("answer_slot_original_replication_design", result.evidence)
+
+    def test_original_replication_design_measures_different_language(self):
+        import pandas as pd
+
+        from mars.skills import infer_answer_slot_hypothesis
+
+        df = pd.DataFrame(
+            {
+                "project": ["rpp", "rpp", "rpp", "ee"],
+                "same_language": [1, 0, 0, 0],
+                "subjects.r": ["students", "students", "community", "students"],
+            }
+        )
+        result = infer_answer_slot_hypothesis(
+            question=(
+                "In Psychology, what is the proportion of replication studies "
+                "conducted in a different language compared to the original study?"
+            ),
+            domain_context="",
+            df=df,
+            column_descriptions={
+                "project": "The replication project (ee: Experimental Economics, rpp: Psychology)",
+                "same_language": "Original study and replication are in the same language",
+            },
+        )
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertIn("66.7%", result.hypothesis)
+        self.assertIn("different language", result.hypothesis)
+        self.assertIn("original_replication_design", result.evidence)
+
+    def test_original_replication_design_measures_paired_numeric_means(self):
+        import pandas as pd
+
+        from mars.skills import infer_answer_slot_hypothesis
+
+        df = pd.DataFrame(
+            {
+                "project": ["rpp", "rpp", "ee"],
+                "author_citations_avg.o": [10, 20, 100],
+                "author_citations_avg.r": [5, 15, 40],
+            }
+        )
+        result = infer_answer_slot_hypothesis(
+            question="What are the average author citations for original studies and replication studies in Psychology?",
+            domain_context="",
+            df=df,
+            column_descriptions={
+                "project": "The replication project (ee: Experimental Economics, rpp: Psychology)",
+                "author_citations_avg.o": "Average number of citations of authors in original study",
+                "author_citations_avg.r": "Average number of citations of authors in replication study",
+            },
+        )
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertIn("15.00", result.hypothesis)
+        self.assertIn("10.00", result.hypothesis)
+        self.assertIn("original_replication_design", result.evidence)
+
     def test_value_to_measure_pair_from_stated_group_means(self):
         import pandas as pd
 
@@ -313,7 +432,8 @@ class AnswerSlotCompilerTests(unittest.TestCase):
         assert result is not None
         self.assertIn("Psychology", result.hypothesis)
         self.assertIn("subjects", result.hypothesis)
-        self.assertIn("answer_slot_generic_group_profile", result.evidence)
+        self.assertIn("answer_slot_original_replication_design", result.evidence)
+        self.assertIn("groupwise_min_pct=80", result.evidence)
 
 
 if __name__ == "__main__":

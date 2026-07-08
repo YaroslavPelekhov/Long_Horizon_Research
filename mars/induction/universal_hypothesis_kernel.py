@@ -470,6 +470,11 @@ def _answer_form_match(expected: str, actual: str) -> float:
         },
         "grouped_original_replication_comparison": {"grouped_comparison", "grouped_original_replication_comparison"},
         "paired_group_mean_comparison": {"paired_group_mean_comparison", "grouped_original_replication_comparison"},
+        "original_replication_design": {
+            "original_replication_design",
+            "grouped_original_replication_comparison",
+            "paired_group_mean_comparison",
+        },
         "measured_selection": {"generic_categorical_measurement", "top_category_proportion", "measured_selection"},
         "prompted_survey_item_proportion": {"prompted_survey_item_proportion", "top_role_proportion"},
     }

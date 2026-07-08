@@ -267,6 +267,8 @@ def _discovery_answer_form(q: str) -> str:
     form = infer_question_form(q)
     if form is not None:
         return form.name
+    if any(token in q for token in ("original", "replication", "replicated", "replicate")):
+        return "original_replication_design"
     if any(token in q for token in ("what", "which", "in which", "proportion", "majority", "primarily", "all")):
         return "generic_categorical_measurement"
     return ""
@@ -275,6 +277,7 @@ def _discovery_answer_form(q: str) -> str:
 def _discovery_slots(answer_form: str) -> tuple[str, ...]:
     return {
         "grouped_original_replication_comparison": ("group", "original_effect", "replication_effect", "relation"),
+        "original_replication_design": ("domain_filter", "study_arm", "attribute", "statistic", "measured_value"),
         "paired_group_mean_comparison": ("group", "left_measure", "right_measure", "left_mean", "right_mean"),
         "stated_coefficient_relationship": ("x", "y", "coefficient", "direction"),
         "prompted_survey_item_proportion": ("items", "percentages", "uncertainty", "affirmative_response"),

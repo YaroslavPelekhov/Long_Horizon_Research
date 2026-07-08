@@ -50,6 +50,7 @@ from ols.adapters.base import (
     BudgetExhausted,
     EnvHandle,
     ResearchEnvAdapter,
+    RubricSection,
 )
 from ols.core.types import (
     ActionSpec,
@@ -305,6 +306,45 @@ class DiscoveryBenchAdapter(ResearchEnvAdapter):
     def budget_left(self) -> float:
         return max(0.0, self._budget_total - self._budget_spent)
 
+    # -- completeness gate (MARS-SELF) --------------------------------------
+
+    # NOTE: completeness_rubric() intentionally NOT overridden — the empirical
+    # result (HMS 0.68 → 0.57) showed the completeness GATE adds friction here:
+    # baseline gpt-4o-mini already explores adequately, so premature-submission
+    # is NOT the bottleneck on DiscoveryBench (unlike UltraHorizon). Instead,
+    # MARS-SELF helps DB via the AutoStatAnalyzer (see get_dataframes below),
+    # which auto-computes the statistics the small model struggles to write.
+
+    def submit_action_names(self) -> set[str]:
+        return {"submit_hypothesis"}
+
+    def get_dataframes(self) -> dict:
+        """Expose all task CSVs as DataFrames for the AutoStatAnalyzer."""
+        out: dict = {}
+        for name in self.task.csv_paths:
+            try:
+                out[name] = self._df(name)
+            except Exception:
+                pass
+        return out
+
+    def get_column_descriptions(self) -> dict:
+        """Map column name → natural-language description (for query-relevance
+        matching in the AutoStatAnalyzer)."""
+        out: dict = {}
+        for d in self.task.datasets:
+            if not isinstance(d, dict):
+                continue
+            cols = (d.get("columns") or {}).get("raw") or []
+            for c in cols:
+                if isinstance(c, dict) and c.get("name"):
+                    out[str(c["name"])] = str(c.get("description", ""))
+        return out
+
+    def get_query_text(self) -> str:
+        """The raw discovery query (target for relevance matching)."""
+        return str(getattr(self.task, "query", "") or "")
+
     # -- execute ----
 
     def execute(self, action: str, args: dict) -> ExperimentResult:
@@ -365,7 +405,7 @@ class DiscoveryBenchAdapter(ResearchEnvAdapter):
     def _judge(self, submitted: str, gold: str, query: str) -> tuple[float, str]:
         """Single LLM-judge call returning HMS-style 0..1 score + brief reason."""
         from openai import OpenAI
-        key = os.environ.get("OPENAI_API_KEY", "")
+        key = os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY", "")
         base_url = os.environ.get("OPENAI_BASE_URL")
         if not base_url and key.startswith("sk-or-"):
             base_url = "https://openrouter.ai/api/v1"
@@ -420,7 +460,7 @@ class DiscoveryBenchAdapter(ResearchEnvAdapter):
         return 0.0, "(judge failed)"
 
     def score_episode(self, claim_store_active, final_artifact=None) -> dict:
-        submitted = self._submitted_hypothesis or ""
+        submitted = (final_artifact or self._submitted_hypothesis or "").strip()
         # if nothing was explicitly submitted, fall back to the highest-confidence
         # active claim's statement (so OLS earns partial credit if its inner
         # agent only emitted claims and forgot to call submit_hypothesis).

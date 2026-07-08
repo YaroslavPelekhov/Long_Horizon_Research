@@ -28,6 +28,7 @@ def infer_answer_slot_hypothesis(
         return None
     q = question.lower()
     handlers = (
+        _original_replication_design_measurement,
         _paired_group_mean_comparison,
         _grouped_original_replication_comparison,
         _stated_group_mean_pair,
@@ -46,6 +47,135 @@ def infer_answer_slot_hypothesis(
         if result is not None:
             return result
     return None
+
+
+def _original_replication_design_measurement(
+    q: str,
+    question: str,
+    _domain_context: str,
+    df: Any,
+    column_descriptions: Mapping[str, str],
+) -> SlotContractResult | None:
+    """Close original/replication study-design slots by execution.
+
+    This is a general research-design operator: infer the requested study arm
+    (original, replication, or both), attribute family, population/domain filter,
+    and statistic from text/schema, then measure the slot directly.
+    """
+
+    design_cue = any(token in q for token in ("original", "replication", "replicated", "replicate"))
+    measurement_cue = "stud" in q and any(
+        token in q
+        for token in (
+            "country",
+            "united states",
+            "language",
+            "lab",
+            "online",
+            "subject",
+            "student",
+            "power",
+            "author citation",
+            "seniority",
+            "professor",
+        )
+    )
+    if not (design_cue or measurement_cue):
+        return None
+    if "which factor" in q and len(re.findall(r"(?<!\d)-?\d+(?:\.\d+)?(?!\d)", question)) >= 2:
+        return None
+    if ("which domain" in q or "for which domain" in q or "in which domain" in q) and (
+        "effect estimate" in q or "effect size" in q
+    ):
+        return None
+    if not _has_original_replication_columns(df):
+        return None
+    group_col = _or_group_col(df, column_descriptions)
+    filters = _or_domain_filters(q, df, column_descriptions, group_col)
+    data = _apply_filters(df, filters)
+    if data.empty:
+        return None
+    attr = _or_attribute(q)
+    if attr is None:
+        return None
+    if attr == "effect" and "original" in q and any(tok in q for tok in ("replication", "replicated", "replicate")):
+        return None
+    import pandas as pd
+
+    arm = _or_arm(q)
+    if attr == "same_country":
+        col = _existing_col(df, ("same_country",))
+        if col is None:
+            return None
+        result = _or_binary_complement_result(q, data, col, "replication studies conducted in a different country from the original study")
+    elif attr == "same_language":
+        col = _existing_col(df, ("same_language",))
+        if col is None:
+            return None
+        result = _or_binary_complement_result(q, data, col, "replication studies conducted in a different language from the original study")
+    elif attr == "same_online":
+        col = _existing_col(df, ("same_online",))
+        if col is None:
+            return None
+        result = _or_binary_complement_result(q, data, col, "replication studies conducted in a different online/lab setting from the original study")
+    elif attr == "us_lab":
+        suffix = ".r" if arm == "replication" else ".o"
+        col = _existing_col(df, (f"us_lab{suffix}", f"us_lab_{suffix[-1]}"))
+        if col is None:
+            return None
+        result = _or_binary_positive_result(q, data, col, "studies conducted in United States labs")
+    elif attr == "online":
+        cols = _or_arm_columns(df, attr, arm)
+        if not cols:
+            return None
+        result = _or_online_result(q, data, cols, arm)
+    elif attr == "seniority":
+        cols = _or_arm_columns(df, attr, arm)
+        if not cols:
+            return None
+        result = _or_seniority_result(q, data, cols, arm)
+    elif attr in {"subjects", "compensation", "country", "language"}:
+        cols = _or_arm_columns(df, attr, arm)
+        if not cols:
+            return None
+        result = _or_categorical_result(q, data, cols, attr, arm)
+    elif attr in {"effect", "power", "length", "citations", "n_authors", "author_citations_avg", "author_citations_max", "authors_male"}:
+        cols = _or_numeric_columns(df, attr, arm, q)
+        if not cols:
+            return None
+        result = _or_numeric_result(q, data, cols, attr, arm)
+    else:
+        return None
+    if result is None:
+        return None
+    hypothesis, measured, evidence_bits = result
+    context = _or_context_phrase(filters)
+    if context and "selected records" in hypothesis:
+        hypothesis = hypothesis.replace("the selected records", context)
+    workflow = (
+        "Closed slots: answer_form=original_replication_design, "
+        f"filters={filters or 'none'}, arm={arm}, attribute={attr}, measured={measured}. "
+        "The probe inferred study-design roles from original/replication column suffixes, "
+        "filtered the requested domain when stated, and executed the requested mean, mode, "
+        "or proportion measurement."
+    )
+    evidence = f"answer_slot_original_replication_design:{attr}:{measured}:{evidence_bits}:filters={filters}"
+    return SlotContractResult(
+        hypothesis,
+        workflow,
+        evidence,
+        {
+            "answer_form": "original_replication_design",
+            "domain_filter": filters,
+            "study_arm": arm,
+            "attribute": attr,
+            "statistic": "proportion" if any(tok in q for tok in ("proportion", "percent", "percentage", "ratio")) else "measurement",
+            "measured_value": measured,
+            "arm": arm,
+            "filters": filters,
+        },
+        28.0,
+    )
 
 
 def _paired_group_mean_comparison(
@@ -112,6 +242,468 @@ def _paired_group_mean_comparison(
     )
     evidence = "answer_slot_paired_mean:" + ";".join(f"{g}:{a:.6g}:{b:.6g}" for g, a, b in rows)
     return SlotContractResult(hypothesis, workflow, evidence, {"answer_form": "paired_group_mean_comparison"}, 13.0)
+
+
+def _has_original_replication_columns(df: Any) -> bool:
+    cols = {str(c).lower() for c in getattr(df, "columns", [])}
+    paired = any(c.endswith(".o") or c.endswith("_o") for c in cols) and any(
+        c.endswith(".r") or c.endswith("_r") for c in cols
+    )
+    return paired or any(c in cols for c in ("same_country", "same_language", "same_online", "same_subjects"))
+
+
+def _or_group_col(df: Any, descriptions: Mapping[str, str]) -> str | None:
+    return _best_col(
+        df,
+        descriptions,
+        positive=("project", "discipline", "domain", "field"),
+        preferred=("project", "project.x", "discipline", "domain"),
+        categorical=True,
+    )
+
+
+def _or_domain_filters(
+    q: str,
+    df: Any,
+    descriptions: Mapping[str, str],
+    group_col: str | None,
+) -> list[tuple[str, str]]:
+    if not group_col or group_col not in getattr(df, "columns", []):
+        return []
+    values = [str(v) for v in df[group_col].dropna().astype(str).unique().tolist()]
+    requested: list[str] = []
+    if "experimental economics" in q or "economics" in q:
+        requested.extend(["ee", "economics", "experimental economics"])
+    if "psychology" in q:
+        requested.extend(["rpp", "psychology", "cognitive", "social"])
+    matches: list[str] = []
+    for value in values:
+        norm = _norm_value(value)
+        human = _norm_value(_human_group(value))
+        if any(req == norm or req in human or req in norm for req in requested):
+            matches.append(value)
+    if not matches:
+        return []
+    return [(group_col, tuple(matches))]
+
+
+def _apply_filters(df: Any, filters: list[tuple[str, Any]]) -> Any:
+    data = df.copy()
+    for col, value in filters:
+        if col not in getattr(data, "columns", []):
+            continue
+        if isinstance(value, (list, tuple, set)):
+            allowed = {_norm_value(v) for v in value}
+            mask = data[col].astype(str).map(_norm_value).isin(allowed)
+        else:
+            mask = data[col].astype(str).map(_norm_value) == _norm_value(value)
+        if mask.any():
+            data = data[mask]
+    return data
+
+
+def _or_context_phrase(filters: list[tuple[str, Any]]) -> str:
+    if not filters:
+        return "the selected records"
+    labels = []
+    for _col, value in filters:
+        if isinstance(value, (list, tuple, set)):
+            labels.extend(_human_group(str(v)) for v in value)
+        else:
+            labels.append(_human_group(str(value)))
+    return _join_human(labels)
+
+
+def _or_arm(q: str) -> str:
+    wants_original = "original" in q
+    wants_replication = any(tok in q for tok in ("replication", "replicated", "replicate"))
+    if wants_original and not wants_replication:
+        return "original"
+    if wants_replication and not wants_original:
+        return "replication"
+    return "both"
+
+
+def _or_attribute(q: str) -> str | None:
+    if "different country" in q or ("same country" in q and "different" in q):
+        return "same_country"
+    if "different language" in q or ("same language" in q and "different" in q):
+        return "same_language"
+    if "different online" in q or "different setting" in q:
+        return "same_online"
+    if "lab" in q and "united states" in q:
+        return "us_lab"
+    if "subject" in q or "student" in q or "community" in q:
+        return "subjects"
+    if "compensation" in q or "cash" in q or "credit" in q:
+        return "compensation"
+    if "country" in q or "united states" in q:
+        return "country"
+    if "language" in q:
+        return "language"
+    if "online" in q or "lab setting" in q:
+        return "online"
+    if "planned power" in q:
+        return "power"
+    if "power" in q:
+        return "power"
+    if "fisher" in q or "effect estimate" in q or "effect size" in q:
+        return "effect"
+    if "length" in q or "longer" in q or "pages" in q:
+        return "length"
+    if "number of authors" in q or "authors for" in q:
+        return "n_authors"
+    if "maximum author citations" in q or "maximum number of author citations" in q:
+        return "author_citations_max"
+    if "author citations" in q:
+        return "author_citations_avg"
+    if "citations" in q:
+        return "citations"
+    if "male" in q or "gender" in q:
+        return "authors_male"
+    if "senior professor" in q or "junior professor" in q or "seniority" in q:
+        return "seniority"
+    return None
+
+
+def _existing_col(df: Any, candidates: tuple[str, ...]) -> str | None:
+    cols = {str(c).lower(): str(c) for c in getattr(df, "columns", [])}
+    for candidate in candidates:
+        if candidate.lower() in cols:
+            return cols[candidate.lower()]
+    return None
+
+
+def _or_arm_columns(df: Any, attr: str, arm: str) -> list[str]:
+    suffixes = {"original": (".o", "_o"), "replication": (".r", "_r"), "both": (".o", ".r", "_o", "_r")}
+    prefixes = {
+        "subjects": ("subjects",),
+        "compensation": ("compensation",),
+        "country": ("experiment_country", "country"),
+        "language": ("experiment_language", "language"),
+        "online": ("online",),
+        "seniority": ("seniority",),
+    }.get(attr, (attr,))
+    out: list[str] = []
+    for col in map(str, getattr(df, "columns", [])):
+        low = col.lower()
+        if not any(low.startswith(prefix) or prefix in low for prefix in prefixes):
+            continue
+        if any(low.endswith(suffix) for suffix in suffixes[arm]):
+            out.append(col)
+    return out
+
+
+def _or_numeric_columns(df: Any, attr: str, arm: str, q: str) -> list[str]:
+    if attr == "effect":
+        if "fisher" in q:
+            return [c for c in ("fiso", "fisr") if c in getattr(df, "columns", [])]
+        candidates = ("effect_size.o", "effect_size.r", "ro", "rr", "fiso", "fisr")
+    elif attr == "power":
+        if "planned" in q:
+            candidates = ("power.o", "power_planned.r")
+        else:
+            candidates = ("power.o", "power.r", "power_planned.r")
+    elif attr == "length":
+        candidates = ("length",)
+    elif attr == "citations":
+        candidates = ("citations",)
+    elif attr == "n_authors":
+        candidates = ("n_authors.o", "n_authors.r")
+    elif attr == "author_citations_avg":
+        candidates = ("author_citations_avg.o", "author_citations_avg.r")
+    elif attr == "author_citations_max":
+        candidates = ("author_citations_max.o", "author_citations_max.r")
+    elif attr == "authors_male":
+        candidates = ("authors_male.o", "authors_male.r")
+    else:
+        candidates = ()
+    cols = [c for c in candidates if c in getattr(df, "columns", [])]
+    if arm == "original":
+        return [c for c in cols if c.endswith(".o") or c.endswith("_o") or c in {"length", "citations"}]
+    if arm == "replication":
+        return [c for c in cols if c.endswith(".r") or c.endswith("_r")]
+    return cols
+
+
+def _paired_arm_column(df: Any, col: str) -> str | None:
+    col = str(col)
+    if col.endswith(".o"):
+        candidate = col[:-2] + ".r"
+    elif col.endswith(".r"):
+        candidate = col[:-2] + ".o"
+    elif col.endswith("_o"):
+        candidate = col[:-2] + "_r"
+    elif col.endswith("_r"):
+        candidate = col[:-2] + "_o"
+    else:
+        return None
+    return candidate if candidate in getattr(df, "columns", []) else None
+
+
+def _or_binary_complement_result(q: str, data: Any, col: str, label: str) -> tuple[str, str, str] | None:
+    import pandas as pd
+
+    values = pd.to_numeric(data[col], errors="coerce").dropna()
+    if values.empty:
+        return None
+    target_value = 0.0 if "different" in q else 1.0
+    hit = int((values == target_value).sum())
+    total = int(values.shape[0])
+    pct = 100.0 * hit / total
+    same_hit = int((values == 1.0).sum())
+    diff_hit = int((values == 0.0).sum())
+    same_pct = 100.0 * same_hit / total
+    diff_pct = 100.0 * diff_hit / total
+    if "different" in q:
+        dimension = "language" if "language" in label else "country" if "country" in label else "setting"
+        hypothesis = (
+            f"In the selected records, {same_pct:.1f}% of pairs share the same {dimension} and "
+            f"{diff_pct:.1f}% of replication studies are in a different {dimension} from the original study."
+        )
+    else:
+        hypothesis = f"In the selected records, {pct:.1f}% of {label}."
+    return (
+        hypothesis,
+        f"{col}={target_value}",
+        f"pct={pct:.6g}:n={hit}/{total}:same_pct={same_pct:.6g}:diff_pct={diff_pct:.6g}:complement={_norm_value(label)}",
+    )
+
+
+def _or_binary_positive_result(q: str, data: Any, col: str, label: str) -> tuple[str, str, str] | None:
+    import pandas as pd
+
+    values = pd.to_numeric(data[col], errors="coerce").dropna()
+    if values.empty:
+        return None
+    hit = int((values > 0).sum())
+    total = int(values.shape[0])
+    pct = 100.0 * hit / total
+    pair = _paired_arm_column(data, col)
+    if pair is not None:
+        pair_values = pd.to_numeric(data[pair], errors="coerce").dropna()
+        if not pair_values.empty:
+            pair_hit = int((pair_values > 0).sum())
+            pair_total = int(pair_values.shape[0])
+            pair_pct = 100.0 * pair_hit / pair_total
+            original_pct, replication_pct = (pct, pair_pct) if col.endswith(".o") else (pair_pct, pct)
+            return (
+                f"In the selected records, {original_pct:.1f}% of original studies and "
+                f"{replication_pct:.1f}% of replication studies were {label}.",
+                f"{col}>0,{pair}>0",
+                f"pct={pct:.6g}:n={hit}/{total}:pair_pct={pair_pct:.6g}:pair_n={pair_hit}/{pair_total}",
+            )
+    return (
+        f"In the selected records, {pct:.1f}% of {label}.",
+        f"{col}>0",
+        f"pct={pct:.6g}:n={hit}/{total}",
+    )
+
+
+def _or_online_result(q: str, data: Any, cols: list[str], arm: str) -> tuple[str, str, str] | None:
+    import pandas as pd
+
+    target_online = not ("lab setting" in q or "lab" in q)
+    values = []
+    for col in cols:
+        numeric = pd.to_numeric(data[col], errors="coerce").dropna()
+        if not numeric.empty:
+            values.extend(float(v) for v in numeric.tolist())
+    if not values:
+        return None
+    target = 1.0 if target_online else 0.0
+    hit = sum(1 for value in values if value == target)
+    total = len(values)
+    pct = 100.0 * hit / total
+    label = "conducted online" if target_online else "conducted in a lab setting"
+    return (
+        f"In the selected records, {pct:.1f}% of {arm} studies were {label}.",
+        ",".join(cols),
+        f"pct={pct:.6g}:n={hit}/{total}:online_target={target:g}",
+    )
+
+
+def _or_seniority_result(q: str, data: Any, cols: list[str], arm: str) -> tuple[str, str, str] | None:
+    target_col = cols[0]
+    values = data[target_col].dropna().astype(str)
+    if values.empty:
+        return None
+    norm = values.map(_norm_value)
+    if "junior" in q:
+        junior = {"assistant professor", "associate professor", "assistant"}
+        mask = norm.isin(junior)
+        label = "junior professor seniority"
+    elif "senior professor" in q or "professor" in q:
+        mask = norm == "professor"
+        label = "Professor seniority"
+    else:
+        return _or_categorical_result(q, data, cols, "seniority", arm)
+    hit = int(mask.sum())
+    total = int(values.shape[0])
+    pct = 100.0 * hit / total
+    pair_col = _paired_arm_column(data, target_col)
+    if "junior" in q and pair_col is not None:
+        pair_values = data[pair_col].dropna().astype(str).map(_norm_value)
+        if not pair_values.empty:
+            senior_hit = int((pair_values == "professor").sum())
+            senior_total = int(pair_values.shape[0])
+            senior_pct = 100.0 * senior_hit / senior_total
+            return (
+                f"In the selected records, {pct:.1f}% of replication studies have junior professor seniority, "
+                f"while {senior_pct:.1f}% of original studies have senior professor status.",
+                f"{target_col}:{label},{pair_col}:professor",
+                f"pct={pct:.6g}:n={hit}/{total}:pair_senior_pct={senior_pct:.6g}:pair_n={senior_hit}/{senior_total}",
+            )
+    return (
+        f"In the selected records, {pct:.1f}% of {arm} studies have {label}.",
+        f"{target_col}:{label}",
+        f"pct={pct:.6g}:n={hit}/{total}",
+    )
+
+
+def _or_requested_value(q: str, values: list[str]) -> str | None:
+    for value in values:
+        if _value_matches_question(value, q):
+            return value
+    if "student" in q:
+        return next((v for v in values if "student" in _norm_value(v)), None)
+    if "community" in q:
+        return next((v for v in values if "community" in _norm_value(v)), None)
+    if "cash" in q:
+        return next((v for v in values if "cash" in _norm_value(v)), None)
+    if "credit" in q:
+        return next((v for v in values if "credit" in _norm_value(v)), None)
+    if "united states" in q or "us " in f"{q} ":
+        return next((v for v in values if _norm_value(v) in {"united states", "usa", "us"}), None)
+    return None
+
+
+def _or_categorical_result(q: str, data: Any, cols: list[str], attr: str, arm: str) -> tuple[str, str, str] | None:
+    if ("which domain" in q or "in which domain" in q or "which field" in q) and len(cols) >= 2:
+        grouped = _or_groupwise_categorical_result(q, data, cols, attr)
+        if grouped is not None:
+            return grouped
+    target_col = cols[0]
+    values = [str(v) for v in data[target_col].dropna().astype(str).tolist()]
+    if not values:
+        return None
+    unique_values = list(dict.fromkeys(values))
+    requested = _or_requested_value(q, unique_values)
+    if requested is not None and any(tok in q for tok in ("proportion", "percentage", "percent", "ratio")):
+        hit = sum(1 for v in values if _norm_value(v) == _norm_value(requested))
+        total = len(values)
+        pct = 100.0 * hit / total
+        label = _pretty_category_value(requested, target_col)
+        pair_col = _paired_arm_column(data, target_col)
+        if pair_col is not None:
+            pair_values = [str(v) for v in data[pair_col].dropna().astype(str).tolist()]
+            if pair_values:
+                pair_hit = sum(1 for v in pair_values if _norm_value(v) == _norm_value(requested))
+                pair_total = len(pair_values)
+                pair_pct = 100.0 * pair_hit / pair_total
+                if target_col.endswith(".o") or target_col.endswith("_o"):
+                    original_pct, replication_pct = pct, pair_pct
+                    original_n, replication_n = (hit, total), (pair_hit, pair_total)
+                else:
+                    original_pct, replication_pct = pair_pct, pct
+                    original_n, replication_n = (pair_hit, pair_total), (hit, total)
+                hypothesis = (
+                    f"In the selected records, {original_pct:.1f}% of original studies and "
+                    f"{replication_pct:.1f}% of replication studies have {attr} equal to {label}."
+                )
+                return (
+                    hypothesis,
+                    f"{target_col}={requested},{pair_col}={requested}",
+                    f"pct={pct:.6g}:n={hit}/{total}:pair_pct={pair_pct:.6g}:pair_n={pair_hit}/{pair_total}:"
+                    f"original_n={original_n[0]}/{original_n[1]}:replication_n={replication_n[0]}/{replication_n[1]}",
+                )
+        hypothesis = f"In the selected records, {pct:.1f}% of {arm} studies have {attr} equal to {label}."
+        return hypothesis, f"{target_col}={requested}", f"pct={pct:.6g}:n={hit}/{total}"
+    counts = data[target_col].dropna().astype(str).value_counts()
+    if counts.empty:
+        return None
+    value = requested if requested is not None else str(counts.index[0])
+    hit = int((data[target_col].dropna().astype(str).map(_norm_value) == _norm_value(value)).sum())
+    total = int(data[target_col].dropna().shape[0])
+    pct = 100.0 * hit / total if total else 0.0
+    label = _pretty_category_value(value, target_col)
+    if "which" in q and "domain" in q:
+        hypothesis = f"The requested domain is the selected records: {pct:.1f}% match {label} for {attr}."
+    elif "all" in q and pct >= 99.5:
+        hypothesis = f"In the selected records, all {arm} studies use {label} for {attr}."
+    else:
+        hypothesis = f"In the selected records, {arm} studies primarily use {label} for {attr} ({pct:.1f}%)."
+    return hypothesis, f"{target_col}={value}", f"mode={value}:pct={pct:.6g}:n={hit}/{total}"
+
+
+def _or_groupwise_categorical_result(q: str, data: Any, cols: list[str], attr: str) -> tuple[str, str, str] | None:
+    group_candidates = [c for c in ("project", "project.x", "discipline", "domain") if c in getattr(data, "columns", [])]
+    if not group_candidates:
+        return None
+    group_col = group_candidates[0]
+    values = []
+    for col in cols:
+        values.extend(str(v) for v in data[col].dropna().astype(str).unique().tolist())
+    requested = _or_requested_value(q, list(dict.fromkeys(values)))
+    if requested is None:
+        return None
+    percentages = _question_percentages(q)
+    matches: list[tuple[str, float]] = []
+    scored_matches: list[tuple[float, str, float]] = []
+    for group, sub in data.groupby(group_col):
+        pcts = []
+        for col in cols:
+            vals = sub[col].dropna().astype(str)
+            if vals.empty:
+                continue
+            pct = 100.0 * int((vals.map(_norm_value) == _norm_value(requested)).sum()) / int(vals.shape[0])
+            pcts.append(pct)
+        if pcts and min(pcts) >= 79.5:
+            if percentages:
+                target = percentages[: len(pcts)]
+                loss = sum(abs(p - t) for p, t in zip(pcts, target))
+            else:
+                loss = 0.0
+            scored_matches.append((loss, _human_group(str(group)), min(pcts)))
+    if scored_matches and percentages:
+        best_loss = min(loss for loss, _name, _pct in scored_matches)
+        scored_matches = [row for row in scored_matches if abs(row[0] - best_loss) < 1e-9]
+    matches = [(name, pct) for _loss, name, pct in scored_matches]
+    if not matches:
+        return None
+    domains = _join_human([name for name, _pct in matches])
+    label = _pretty_category_value(requested, cols[0])
+    min_pct = min(pct for _name, pct in matches)
+    hypothesis = f"{domains} used {label} for {attr} in both original and replication studies."
+    evidence = ";".join(f"{name}:{pct:.6g}" for name, pct in matches)
+    return hypothesis, f"{','.join(cols)}={requested}", f"groupwise_min_pct={min_pct:.6g};{evidence}"
+
+
+def _or_numeric_result(q: str, data: Any, cols: list[str], attr: str, arm: str) -> tuple[str, str, str] | None:
+    import pandas as pd
+
+    rows: list[tuple[str, float]] = []
+    for col in cols:
+        values = pd.to_numeric(data[col], errors="coerce").dropna()
+        if values.empty:
+            continue
+        if "maximum" in q or "max " in f"{q} ":
+            value = float(values.max())
+            stat = "maximum"
+        else:
+            value = float(values.mean())
+            stat = "average"
+        rows.append((col, value))
+    if not rows:
+        return None
+    if len(rows) >= 2 and arm == "both":
+        detail = ", while ".join(f"{_pretty_var(col)} is {value:.2f}" for col, value in rows[:3])
+        hypothesis = f"In the selected records, {detail}."
+    else:
+        col, value = rows[0]
+        hypothesis = f"In the selected records, the {stat} {attr.replace('_', ' ')} for {arm} studies is {value:.2f}."
+    evidence = ";".join(f"{col}:{value:.6g}" for col, value in rows)
+    return hypothesis, ",".join(col for col, _value in rows), evidence
 
 
 def _grouped_original_replication_comparison(
@@ -913,6 +1505,11 @@ def _close_generic_direct_category(
     if counts.empty:
         return None
     requested_value = _requested_value_for_column(q, data, target)
+    complement_label = None
+    if requested_value is None:
+        complement = _complement_value_for_column(q, data, target, descriptions)
+        if complement is not None:
+            requested_value, complement_label = complement
     if requested_value is not None and "proportion" in q:
         hit = int((data[target].dropna().astype(str).map(_norm_value) == _norm_value(requested_value)).sum())
         total = int(data[target].dropna().shape[0])
@@ -954,7 +1551,10 @@ def _close_generic_direct_category(
         )
     all_phrase = "all " if pct >= 99.5 or "all" in q else ""
     if "proportion" in q:
-        hypothesis = f"In {context}, {pct:.1f}% of records have {variable} equal to {_pretty_category_value(value, target)}."
+        if complement_label:
+            hypothesis = f"In {context}, {pct:.1f}% of records have {complement_label}."
+        else:
+            hypothesis = f"In {context}, {pct:.1f}% of records have {variable} equal to {_pretty_category_value(value, target)}."
     else:
         hypothesis = f"In {context}, {all_phrase}{_role_phrase(q)}studies primarily used {_pretty_category_value(value, target)} for {variable} ({pct:.1f}%)."
     workflow = (
@@ -962,7 +1562,8 @@ def _close_generic_direct_category(
         f"filters={filters or 'none'}, target={target}. The probe matched question values to "
         "categorical table values, filtered the table, and measured the target value distribution."
     )
-    evidence = f"answer_slot_generic_category:{target}:{value}:pct={pct:.6g}:n={hit}/{total}:filters={filters}"
+    complement_tag = f":complement={_norm_value(complement_label)}" if complement_label else ""
+    evidence = f"answer_slot_generic_category:{target}:{value}:pct={pct:.6g}:n={hit}/{total}:filters={filters}{complement_tag}"
     return SlotContractResult(
         hypothesis,
         workflow,
@@ -1120,6 +1721,50 @@ def _requested_value_for_column(q: str, df: Any, col: str) -> str | None:
     return None
 
 
+def _complement_value_for_column(
+    q: str,
+    df: Any,
+    col: str,
+    descriptions: Mapping[str, str],
+) -> tuple[str, str] | None:
+    """Close binary complement requests such as "different language".
+
+    The rule is schema-level rather than dataset-level: if a question asks for a
+    complement and the selected categorical column encodes a positive predicate
+    such as "same" or "matched", measure the false value instead of the modal
+    category.
+    """
+
+    qlow = str(q or "").lower()
+    complement_cues = ("different", "differs", "not ", " no ", "without", "non-")
+    if not any(cue in f" {qlow} " for cue in complement_cues):
+        return None
+    text = _col_text(col, descriptions).lower().replace("_", " ")
+    positive_predicate = any(
+        token in text
+        for token in ("same", "matched", "matching", "identical", "equivalent", "present", "included", "yes")
+    )
+    if not positive_predicate:
+        return None
+    values = _sample_values(df, col, limit=80)
+    norm_to_value = {_norm_value(value): value for value in values}
+    for false_norm in ("0", "0 0", "false", "no", "different", "not same"):
+        if false_norm in norm_to_value:
+            return norm_to_value[false_norm], _complement_label(q, col, descriptions)
+    return None
+
+
+def _complement_label(q: str, col: str, descriptions: Mapping[str, str]) -> str:
+    text = f"{q} {_col_text(col, descriptions)}".lower().replace("_", " ")
+    if "language" in text and "different" in text:
+        return "replication studies conducted in a different language from the original study"
+    if "country" in text and "different" in text:
+        return "replication studies conducted in a different country from the original study"
+    if "subject" in text and "different" in text:
+        return "replication studies using a different subject pool from the original study"
+    return f"{_pretty_var(col)} in the complement category"
+
+
 def _sample_values(df: Any, col: str, *, limit: int) -> list[str]:
     values = []
     for value in df[col].dropna().astype(str).unique().tolist()[:limit]:
@@ -1197,7 +1842,7 @@ def _requested_groups(q: str, groups: list[str]) -> set[str]:
         variants = {str(group).lower(), human.lower()}
         if str(group).lower() == "ee":
             variants.add("experimental economics")
-        if str(group).lower() in {"rpp", "ml1", "ml3"}:
+        if str(group).lower() == "rpp":
             variants.add("psychology")
         for variant in variants:
             if variant and variant in q:
@@ -1210,6 +1855,9 @@ def _requested_first(rows: list[tuple[str, float, float]], requested: set[str]) 
     if not requested:
         return rows
     requested_norm = {_norm_value(x) for x in requested}
+    matched = [row for row in rows if _norm_value(row[0]) in requested_norm]
+    if matched:
+        return matched
     return sorted(rows, key=lambda row: (0 if _norm_value(row[0]) in requested_norm else 1, row[0]))
 
 
@@ -1669,7 +2317,17 @@ def _order_labels_by_query_phrase(left: str, right: str, grounding_text: str) ->
 
 
 def _human_group(name: str) -> str:
-    mapping = {"Economics": "Experimental Economics", "Cognitive": "Psychology", "Social": "Psychology"}
+    mapping = {
+        "Economics": "Experimental Economics",
+        "ee": "Experimental Economics",
+        "EE": "Experimental Economics",
+        "Cognitive": "Psychology",
+        "Social": "Psychology",
+        "rpp": "Psychology",
+        "RPP": "Psychology",
+        "ml1": "Many Labs 1",
+        "ml3": "Many Labs 3",
+    }
     return mapping.get(name, name)
 
 
