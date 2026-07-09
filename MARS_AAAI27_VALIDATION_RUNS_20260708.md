@@ -314,3 +314,27 @@ scientific in style, and does not overlap the surrounding algorithm or text.
 The page-count increase is the tradeoff for keeping the architecture figure in
 the main paper; a strict 8-page version would require additional text
 compression.
+
+### Method Figure Routing Cleanup
+
+Follow-up change tested: the method schematic was redrawn as three explicit
+swimlanes rather than nested loop boxes. The main task/artifact flow is now
+horizontal, executable closure is routed on the lower lane, and residual-driven
+operator promotion is routed on the upper lane. Arrow endpoints use shortened
+paths so arrowheads do not touch labels or box text.
+
+Build/render validation:
+
+```bash
+pdflatex -interaction=nonstopmode -halt-on-error MARS_TYPED_EXECUTABLE_HYPOTHESIS_INDUCTION_AAAI2027.tex
+pdflatex -interaction=nonstopmode -halt-on-error MARS_TYPED_EXECUTABLE_HYPOTHESIS_INDUCTION_AAAI2027.tex
+rm -rf tmp/pdfs/mars_aaai27_scheme7_20260709
+mkdir -p tmp/pdfs/mars_aaai27_scheme7_20260709
+pdftoppm -png -r 150 MARS_TYPED_EXECUTABLE_HYPOTHESIS_INDUCTION_AAAI2027.pdf \
+  tmp/pdfs/mars_aaai27_scheme7_20260709/page
+```
+
+Result: PDF builds successfully, still `9` pages, no undefined references and
+no overfull boxes. Page 4 was visually inspected; the method figure no longer
+has arrows crossing or sitting on top of text, and the lane labels are visible
+without overlapping the task blocks.

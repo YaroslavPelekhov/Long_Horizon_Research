@@ -317,61 +317,65 @@ promoted operators.
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   font=\small,
-  node distance=0.55cm and 0.75cm,
   box/.style={draw, rounded corners=2pt, align=center, fill=gray!7,
-              inner sep=4pt, minimum height=0.78cm, text width=2.85cm},
+              inner sep=4pt, minimum height=0.80cm, text width=2.55cm},
   state/.style={draw, rounded corners=2pt, align=center, fill=gray!14,
-                inner sep=5pt, minimum height=1.0cm, text width=3.2cm},
+                inner sep=5pt, minimum height=0.92cm, text width=3.05cm},
   op/.style={draw, rounded corners=2pt, align=center, fill=white,
-             inner sep=3pt, minimum height=0.65cm, text width=2.55cm},
-  arrow/.style={-{Latex[length=2mm]}, line width=0.45pt},
-  dashedarrow/.style={-{Latex[length=2mm]}, dashed, line width=0.45pt}
+             inner sep=3pt, minimum height=0.68cm, text width=2.45cm},
+  lane/.style={font=\footnotesize\itshape, align=right, text width=2.35cm,
+               anchor=east},
+  arrow/.style={-{Latex[length=2mm]}, line width=0.45pt,
+                shorten >=2pt, shorten <=2pt},
+  dashedarrow/.style={-{Latex[length=2mm]}, dashed, line width=0.45pt,
+                      shorten >=2pt, shorten <=2pt}
 ]
 
-\node[box] (task) {Task interface $x$\\
+\node[lane] at (-1.55,1.65) {residual-conditioned\\language growth};
+\node[lane] at (-1.55,0.00) {typed state and\\artifact flow};
+\node[lane] at (-1.55,-1.55) {executable\\hole closure};
+
+\node[op] (library) at (3.15,1.65) {Shared operator library\\
+estimands, probes, renderers};
+\node[op] (residual) at (7.05,1.65) {Typed residuals\\
+missing role, coordinate, renderer};
+\node[op] (promote) at (10.95,1.65) {Operator promotion\\
+cross-task gain $-\beta K$};
+
+\node[box] (task) at (0.00,0.00) {Task interface $x$\\
 tables, simulator, traces};
-\node[box, right=of task] (contract) {Evidence contract $C(x)$\\
+\node[box] (contract) at (3.15,0.00) {Evidence contract $C(x)$\\
 answer form, slots, validators};
-\node[state, right=of contract] (ctx) {\textsc{MARSContext}\\
+\node[state] (ctx) at (7.05,0.00) {\textsc{MARSContext}\\
 $C,\mathcal{H},\Theta,\mathcal{E},\mathcal{R},\mathcal{O},h^\star$};
-\node[box, right=of ctx] (render) {Rendered artifact\\
+\node[box] (render) at (10.95,0.00) {Rendered artifact\\
 hypothesis, law, or program};
-\node[box, right=of render] (score) {Benchmark score\\
+\node[box] (score) at (14.10,0.00) {Benchmark score\\
 HMS, SA, env. score};
 
-\node[op, below=0.50cm of contract] (sketch) {LLM proposes\\
+\node[op] (sketch) at (3.15,-1.55) {LLM proposes\\
 typed sketches};
-\node[op, below=0.50cm of ctx] (execute) {Execution closes\\
+\node[op] (execute) at (7.05,-1.55) {Execution closes\\
 typed holes};
-\node[op, below=0.50cm of render] (verify) {Metamorphic and\\
+\node[op] (verify) at (10.95,-1.55) {Metamorphic and\\
 held-out validation};
-
-\node[op, above=0.50cm of ctx] (residual) {Typed residuals\\
-missing role, coordinate, renderer};
-\node[op, above=0.50cm of render] (promote) {Operator promotion\\
-cross-task gain $-\beta K$};
-\node[op, above=0.50cm of contract] (library) {Shared operator library\\
-estimands, probes, renderers};
 
 \draw[arrow] (task) -- (contract);
 \draw[arrow] (contract) -- (ctx);
 \draw[arrow] (ctx) -- (render);
 \draw[arrow] (render) -- (score);
+
 \draw[arrow] (contract) -- (sketch);
 \draw[arrow] (sketch) -- (execute);
 \draw[arrow] (execute) -- (ctx);
-\draw[arrow] (ctx.south) -- (verify.north west);
-\draw[arrow] (verify.north) -- (render.south);
-\draw[arrow] (verify.east) -- ++(0.35cm,0) |- (residual.east);
-\draw[arrow] (residual) -- (promote);
-\draw[arrow] (promote.north) -- ++(0,0.50cm) -| (library.north east);
-\draw[arrow] (library) -- (contract);
-\draw[dashedarrow] (score.north) |- ++(0,0.85cm) -| (promote.east);
+\draw[arrow] (ctx.south east) -- ++(0.35cm,-0.45cm) -| (verify.north);
+\draw[arrow] (verify) -- (render);
 
-\node[draw, rounded corners=2pt, fit=(contract)(ctx)(render)(sketch)(execute)(verify),
-      inner sep=7pt, label={[font=\footnotesize]below:inner loop: local proposal, execution, validation, and state update}] {};
-\node[draw, rounded corners=2pt, fit=(library)(residual)(promote),
-      inner sep=7pt, label={[font=\footnotesize]above:outer loop: residual-conditioned growth of the hypothesis language}] {};
+\draw[arrow] (ctx) -- (residual);
+\draw[arrow] (residual) -- (promote);
+\draw[arrow] (promote.north) -- ++(0,0.55cm) -| (library.north);
+\draw[arrow] (library) -- (contract);
+\draw[dashedarrow] (score.north) -- ++(0,0.98cm) -| (promote.east);
 \end{tikzpicture}
 }
 \caption{\mars as typed executable hypothesis induction. Benchmark adapters
