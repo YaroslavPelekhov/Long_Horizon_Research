@@ -287,3 +287,30 @@ pdftoppm -png -r 150 MARS_TYPED_EXECUTABLE_HYPOTHESIS_INDUCTION_AAAI2027.pdf \
 Result: PDF builds successfully, still `8` pages, no undefined references and
 no overfull boxes. Pages 5, 6, and 7 were visually inspected; the new ablation
 tables are readable and do not overlap surrounding text.
+
+## Method Figure Hardening Cycle
+
+Change tested: the AAAI-27 paper now includes a vector/TikZ method schematic
+for MARS as typed executable hypothesis induction. The figure separates the
+inner loop (contract -> local typed sketches -> execution -> validation ->
+state update) from the outer loop (typed residuals -> operator promotion ->
+shared operator library). The old compact trace table was replaced by a short
+textual trace to avoid duplicating visual method content.
+
+Build/render validation:
+
+```bash
+pdflatex -interaction=nonstopmode -halt-on-error MARS_TYPED_EXECUTABLE_HYPOTHESIS_INDUCTION_AAAI2027.tex
+pdflatex -interaction=nonstopmode -halt-on-error MARS_TYPED_EXECUTABLE_HYPOTHESIS_INDUCTION_AAAI2027.tex
+rm -rf tmp/pdfs/mars_aaai27_scheme4_20260709
+mkdir -p tmp/pdfs/mars_aaai27_scheme4_20260709
+pdftoppm -png -r 150 MARS_TYPED_EXECUTABLE_HYPOTHESIS_INDUCTION_AAAI2027.pdf \
+  tmp/pdfs/mars_aaai27_scheme4_20260709/page
+```
+
+Result: PDF builds successfully, `9` pages, no undefined references and no
+overfull boxes. Page 4 was visually inspected; the method schematic is readable,
+scientific in style, and does not overlap the surrounding algorithm or text.
+The page-count increase is the tradeoff for keeping the architecture figure in
+the main paper; a strict 8-page version would require additional text
+compression.
