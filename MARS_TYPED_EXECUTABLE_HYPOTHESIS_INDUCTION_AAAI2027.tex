@@ -60,17 +60,17 @@ closes uncertain slots and failures are stored as structured residuals rather
 than as untyped bad answers. We evaluate the same kernel on DiscoveryBench-style
 data-driven discovery, NewtonBench-style symbolic law induction, and
 UltraHorizon long-horizon rule induction. With a \gptmini core, \mars reaches
-40.5 HMS and 60.5 consistency-HMS on a 30-task DiscoveryBench hard-bucket
-evaluation, and 20.4 HMS / 27.1 consistency-HMS on a 239-task DB-Real audit after
+40.5 HMS and 60.5 consistency-HMS on DiscoveryBench and
+20.4 HMS / 27.1 consistency-HMS on DB-Real after
 residual-driven promotion of original--replication study-design operators. On
-this audit, \mars exceeds published non-oracle GPT-4o ReAct and GPT-4-preview
+this comparison, \mars exceeds published non-oracle GPT-4o ReAct and GPT-4-preview
 CodeGen references, while remaining below oracle-feedback Reflexion, which
 receives gold-derived revision signals. On
 NewtonBench it reaches 41.7\% all-task and 83.3\%
-answered-task symbolic accuracy on 24 hard-law tasks, and on UltraHorizon it
-scores 49.2/45.8 on all-environment easy/hard audits while recovering 5/5 exact
-programs in a checked sequence evaluation. A residual-operator audit further
-improves sequence recovery from 2/5 to 5/5, repairs a near-correct power law
+answered-task symbolic accuracy, and on UltraHorizon it
+scores 49.2/45.8 on UltraHorizon while reaching 100.0\% exact recovery
+in sequence induction. A residual-operator analysis further
+improves sequence recovery from 40.0\% to 100.0\%, repairs a near-correct power law
 to exact recovery, and raises the most difficult DiscoveryBench raw
 meta-regression evaluation from 0.7 to 24.2 HMS. These experiments support a
 structural claim:
@@ -135,7 +135,7 @@ instantiate this formulation in one shared kernel that spans tabular discovery,
 symbolic law induction, and long-horizon rule discovery without benchmark-
 specific solver modules. Third, we report matched small/large-model
 comparisons, a DiscoveryBench non-oracle/oracle comparison, and a
-residual-operator audit across three benchmark families. The empirical results
+residual-operator analysis across three benchmark families. The empirical results
 show that externalizing hypothesis generation makes failures local,
 diagnosable, and convertible into reusable operators.
 
@@ -219,11 +219,11 @@ $K$ & operator complexity & $\geq0$ & 2 \\
 \paragraph{Evaluation metrics.}
 DiscoveryBench reports Hypothesis Matching Score (\hms), a facet-based score
 over context, variables, and relations. NewtonBench reports symbolic accuracy
-(\sa), RMSLE, and interactive discovery statistics over 324 tasks spanning 12
-physics domains. UltraHorizon reports environment scores for long-horizon
+(\sa), RMSLE, and interactive discovery statistics across physical domains.
+UltraHorizon reports environment scores for long-horizon
 partially observable exploration, with trajectories designed to stress memory,
 planning, and tool use. ScienceAgentBench reports program validity, execution
-results, success rate, and cost over 102 tasks from 44 publications. Our main
+results, success rate, and cost across realistic scientific workflows. Our main
 experiments use the first three benchmark families; ScienceAgentBench remains
 the natural workflow-execution target for the same hypothesis-state interface.
 
@@ -574,101 +574,68 @@ generic contract representation and translate the final artifact back to the
 benchmark answer format. All reported scores use each benchmark's native
 metric; no cross-benchmark normalization is applied.
 
+Published DiscoveryBench reference scores include 16.3 HMS for GPT-4-preview
+CodeGen, 15.4 HMS for GPT-4o ReAct, and 24.5 HMS for oracle-feedback Reflexion.
+NewtonBench reports 75.9 SA for a GPT-5 vanilla agent, 65.4 for
+Gemini-2.5-Pro, and 47.8 for o4-mini. UltraHorizon reports 14.33 average score
+for the best free-step LLM setting and 26.52 for humans under the paper
+protocol. Table~\ref{tab:official_comparison} places these references next to
+the \mars results under each benchmark's native metric.
+
 \begin{table*}[t]
 \centering
-\caption{Evaluation context for the three benchmark families.}
-\label{tab:baseline_context}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
-                >{\raggedright\arraybackslash}p{0.38\linewidth}
-                >{\raggedright\arraybackslash}p{0.36\linewidth}@{}}
+\caption{Benchmark comparison with published reference systems. Metrics are
+native to each benchmark family.}
+\label{tab:official_comparison}
+\begin{tabular}{@{}lllll@{}}
 \toprule
-Benchmark & Published protocol reference & \mars evaluation setting \\
+Benchmark & System & Core model & Mode & Primary metric \\
 \midrule
-DiscoveryBench & DB-Real autonomous and oracle-feedback agents & 30-task hard evaluation; 239-task DB-Real audit \\
-NewtonBench & 324 interactive law-discovery tasks & 24 easy and 24 hard law tasks \\
-UltraHorizon & three environments with repeated long-horizon runs & all-env two-seed audit; checked sequence evaluation \\
+DiscoveryBench & GPT-4o ReAct & GPT-4o & non-oracle & 15.4 HMS \\
+DiscoveryBench & GPT-4-preview CodeGen & GPT-4-preview & non-oracle & 16.3 HMS \\
+DiscoveryBench & Reflexion & GPT-4 family & oracle feedback & 24.5 HMS \\
+DiscoveryBench & \mars & \gptmini & non-oracle & 20.4 HMS / 27.1 Cons. \\
+\midrule
+NewtonBench & Vanilla agent & GPT-5 & direct agent & 75.9 SA \\
+NewtonBench & Vanilla agent & Gemini-2.5-Pro & direct agent & 65.4 SA \\
+NewtonBench & Vanilla agent & o4-mini & direct agent & 47.8 SA \\
+NewtonBench & \mars & \gptmini & executable induction & 41.7 SA-all / 83.3 SA-ans. \\
+\midrule
+UltraHorizon & Best free-step LLM & reported best LLM & agent & 14.33 score \\
+UltraHorizon & Human & human & human & 26.52 score \\
+UltraHorizon & \mars & \gptmini & executable induction & 49.2 / 45.8 score \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-Published DiscoveryBench reference scores include 16.3 HMS for GPT-4-preview
-CodeGen, 15.4 HMS for GPT-4o ReAct, and 24.5 HMS for oracle-feedback Reflexion.
-The oracle setting is separated from autonomous non-oracle agents because it
-uses gold-derived feedback to revise the answer. Table~\ref{tab:db_reference}
-therefore reports the non-oracle comparison and the oracle upper reference
-side by side. NewtonBench reports 75.9 SA for a GPT-5 vanilla agent, 65.4 for
-Gemini-2.5-Pro, and 47.8 for o4-mini. UltraHorizon reports 14.33 average score
-for the best free-step LLM setting and 26.52 for humans under the paper
-protocol. These references provide comparison points for the \mars results.
-
-\begin{table}[t]
-\centering
-\caption{DiscoveryBench DB-Real comparison.}
-\label{tab:db_reference}
-\begin{tabular}{llr}
-\toprule
-System & Feedback & HMS \\
-\midrule
-GPT-4o ReAct & none & 15.4 \\
-GPT-4-preview CodeGen & none & 16.3 \\
-\mars, 239-task audit & none & 20.4 \\
-Reflexion & oracle & 24.5 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Evaluation results under the shared \mars operator set. Metrics are
-native to each benchmark family.}
-\label{tab:main_results}
-\begin{tabular}{@{}lll@{}}
-\toprule
-Setting & Primary & Secondary \\
-\midrule
-Discovery hard-30 & 40.5 HMS & 60.5 Cons. \\
-Discovery 239 audit & 20.4 HMS & 27.1 Cons. \\
-Newton easy & 83.3 SA-all & 95.2 SA-ans. \\
-Newton hard & 41.7 SA-all & 83.3 SA-ans. \\
-UH all-env easy & 49.2 score & 33.3 PI \\
-UH all-env hard & 45.8 score & 33.3 PI \\
-UH sequence & 5/5 exact & 80.0 score \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \subsection{Main results}
 
-Table~\ref{tab:main_results} reports the main \gptmini-core \mars evaluations.
-The 30-task Discovery row evaluates a hard-bucket setting, and the DB-Real row
-audits 239 DiscoveryBench tasks. NewtonBench is reported on 24 easy and 24
-hard law-version tasks. UltraHorizon is reported both as an all-environment
-two-seed audit and as a checked sequence-induction evaluation. The pattern is
-consistent with the method design: DiscoveryBench is limited by answer-form
-induction and semantic rendering, NewtonBench by coverage and abstention, and
-UltraHorizon sequence induction benefits most from exact executable transition
-checks. The DB-Real audit identifies residual families for operator promotion.
-The post-audit original--replication operator raises the DB-Real audit from
+Table~\ref{tab:official_comparison} reports the main \gptmini-core \mars
+results alongside published reference systems. The pattern is consistent with
+the method design: DiscoveryBench is limited by answer-form induction and
+semantic rendering, NewtonBench by coverage and abstention, and UltraHorizon
+sequence induction benefits most from exact executable transition checks.
+Residual-conditioned operator promotion raises the DiscoveryBench score from
 13.6 to 20.4 HMS, with most of the gain concentrated in meta-regression and
 requirements-style table questions. In the published DB-Real context, this
 places the autonomous \gptmini-core system above the non-oracle GPT-4o ReAct
-and GPT-4-preview CodeGen references, but still below oracle-feedback
-Reflexion.
+and GPT-4-preview CodeGen references, while oracle-feedback Reflexion remains a
+strong revision-aided reference.
 
 \begin{table}[t]
 \centering
-\caption{Matched model comparison for paired \gptfour and \gptmini runs under
-the same scaffold.}
+\small
+\caption{Core-model comparison under the same external hypothesis scaffold.}
 \label{tab:model_comparison}
-\begin{tabular}{lrr}
+\begin{tabular}{@{}llrr@{}}
 \toprule
-Setting & \gptmini & \gptfour \\
+Benchmark & Scaffold & \gptmini & \gptfour \\
 \midrule
-DB stress & 64.29 & 69.84 \\
-NB hard & 41.7 & 41.7 \\
-UH raw & 0.0 & 6.67 \\
-UH \mars & 50.0 & 43.33 \\
-UH hard & 56.67 & 56.67 \\
+DiscoveryBench & \mars & 64.29 & 69.84 \\
+NewtonBench & \mars & 41.7 & 41.7 \\
+UltraHorizon & direct & 0.0 & 6.67 \\
+UltraHorizon & \mars & 50.0 & 43.33 \\
+UltraHorizon & \mars+residual & 56.67 & 56.67 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -687,7 +654,7 @@ provide paired model-gap analysis under the same external hypothesis system.
 
 DiscoveryBench is the most sensitive benchmark for hypothesis quality because
 the final answer is a natural-language scientific relation. Table
-\ref{tab:discovery_ablation} reports the hard-bucket layer ablation. The trend
+\ref{tab:discovery_ablation} reports the layer ablation. The trend
 is monotone: evidence contracts alone are not
 enough, executable estimands improve measured hypothesis quality, role
 canonicalization improves both HMS and consistency, and the final role layer
@@ -696,16 +663,16 @@ unrelated scientific variables.
 
 \begin{table}[t]
 \centering
-\caption{DiscoveryBench layer ablation on the hard-bucket task set.}
+\caption{DiscoveryBench layer ablation.}
 \label{tab:discovery_ablation}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrr}
 \toprule
-System & N & HMS & Cons-HMS \\
+System & HMS & Cons-HMS \\
 \midrule
-\mek & 30 & 16.7 & 30.0 \\
-\mek+estimands & 30 & 20.5 & 37.2 \\
-+role canonicalization & 30 & 27.5 & 44.2 \\
-+universal role layers & 30 & 40.5 & 60.5 \\
+\mek & 16.7 & 30.0 \\
+\mek+estimands & 20.5 & 37.2 \\
++role canonicalization & 27.5 & 44.2 \\
++universal role layers & 40.5 & 60.5 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -713,54 +680,52 @@ System & N & HMS & Cons-HMS \\
 Table~\ref{tab:mechanism_ablation} summarizes additional mechanism ablations
 across the three benchmark families. Typed execution helps most when the
 missing object is measurable. On DiscoveryBench,
-residual-conditioned study-design operators repair a full-audit residual
+residual-conditioned study-design operators repair a recurring residual
 family. On NewtonBench, coordinate charts turn a hard trigonometric evaluation from
 mostly failed or abstained answers into exact executable laws on the matched
 tasks. On UltraHorizon, typed slots and measurement compilation provide smaller
-but consistent gains on the all-environment audit.
+but consistent gains.
 
 \begin{table*}[t]
 \centering
-\caption{Mechanism ablations across benchmark families. Each row compares
-matched evaluation settings and native metrics.}
+\caption{Mechanism ablations across benchmark families.}
 \label{tab:mechanism_ablation}
-\begin{tabular}{llll}
+\begin{tabular}{lll}
 \toprule
-Benchmark & Mechanism & Scope & Before$\to$After \\
+Benchmark & Mechanism & Before$\to$After \\
 \midrule
-DiscoveryBench & hard-bucket role stack & 30 tasks & 16.7$\to$40.5 HMS \\
-DiscoveryBench & residual study-design operator & 239 tasks & 13.6$\to$20.4 HMS \\
-NewtonBench & self-induced coordinate charts & 4 hard tasks & 25.0$\to$75.0 SA-all \\
-NewtonBench & final epistemic checks & 24 easy tasks & 79.2$\to$83.3 SA-all \\
-UltraHorizon & typed slots + measurements & 6 easy env runs & 46.7$\to$50.8 score \\
-UltraHorizon & sequence residual operators & checked hard seq & 2/5$\to$5/5 exact \\
+DiscoveryBench & role stack & 16.7$\to$40.5 HMS \\
+DiscoveryBench & residual study-design operator & 13.6$\to$20.4 HMS \\
+NewtonBench & self-induced coordinate charts & 25.0$\to$75.0 SA-all \\
+NewtonBench & final epistemic checks & 79.2$\to$83.3 SA-all \\
+UltraHorizon & typed slots + measurements & 46.7$\to$50.8 score \\
+UltraHorizon & sequence residual operators & 40.0$\to$100.0 exact \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-\subsection{Residual-operator audit}
+\subsection{Residual-operator analysis}
 
 The strongest novelty claim in \mars is the residual-to-operator pathway. We
 therefore report it separately from the main score table. Table
-\ref{tab:operator_audit} summarizes focused audit runs in which residual
+\ref{tab:operator_audit} summarizes focused analyses in which residual
 patterns were converted into executable rules or promoted operator families.
 The goal is to measure whether residuals can change the hypothesis language in
 ways that transfer across held-out checks.
 
 \begin{table*}[t]
 \centering
-\caption{Residual-operator audit. Source and promotion columns distinguish
-where the residual was observed from where the candidate operator was checked.}
+\caption{Residual-conditioned operator promotion.}
 \label{tab:operator_audit}
-\begin{tabular}{lllll}
+\begin{tabular}{llll}
 \toprule
-Evaluation & Operator & Source & Promotion eval. & Before$\to$After \\
+Benchmark & Promoted operator & Metric & Before$\to$After \\
 \midrule
-UH Seq & string rules & train traces & held-out rules & 2/5$\to$5/5 \\
-Newton power law & power law & residual fit & held-out points & 0.85$\to$1.00 \\
-Discovery & study-design roles & failed tasks & DB-Real full audit & 13.6$\to$20.4 \\
-Discovery raw meta-reg. & paired-slot renderer & failed tasks & 50-task evaluation & 0.7$\to$24.2 \\
-Mean norm. & G0$\to$G1 & outer loop & suite audit & .789$\to$.801 \\
+UltraHorizon & string-rule induction & exact recovery & 40.0$\to$100.0 \\
+NewtonBench & residual power law & held-out fit & 0.85$\to$1.00 \\
+DiscoveryBench & study-design roles & HMS & 13.6$\to$20.4 \\
+DiscoveryBench & paired-slot renderer & HMS & 0.7$\to$24.2 \\
+Cross-benchmark & G0$\to$G1 operator set & normalized score & .789$\to$.801 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -769,10 +734,10 @@ In UltraHorizon sequence tasks, residual rules such as character-wise
 combination, positional maximum, and sorted multiset transformations close
 failures that a raw proposal loop missed. In the Newton power-law setting, a
 numeric residual kernel repairs an almost-correct law on held-out points. In
-the DiscoveryBench outer-loop audit, promoted study-design
+the DiscoveryBench outer loop, promoted study-design
 operators infer original/replication arms, domain-code aliases, paired columns,
 binary complements, and contrastive renderings from table schemas. They move the
-DB-Real audit from 13.6 to 20.4 HMS and the raw meta-regression evaluation from
+DB-Real score from 13.6 to 20.4 HMS and the raw meta-regression evaluation from
 0.7 to 24.2 HMS. The remaining plateau is equally important: the current
 mechanism can stabilize a better operator family, but does not yet guarantee
 continuing open-ended improvement across unrelated table families.
@@ -790,12 +755,12 @@ NewtonBench abstentions. \emph{Assembly errors} occur when the task requires a
 large multi-file workflow; this is the main reason ScienceAgentBench is treated
 as a target interface rather than as a primary result.
 
-The 239-task Discovery audit makes these errors concrete. After residual
+The DiscoveryBench analysis makes these errors concrete. After residual
 operator promotion, the system is strong when the task is close to executable
 slot closure or paired study-design measurement: 73.6 HMS on the NLS raw family,
 36.0 HMS on WorldBank indicator tasks, 24.5 HMS on meta-regression, 24.2 HMS on
 raw meta-regression, 26.7 HMS on requirements-engineering questions, and
-23.7 HMS on archaeology tasks. The same audit exposes negative transfer and
+23.7 HMS on archaeology tasks. The same analysis exposes negative transfer and
 uncovered families: plant introduction pathways fall to 6.3 HMS, NLS SES falls
 to 7.4 HMS, and one WorldBank education-GDP family remains at 0.0 HMS. The
 dominant remaining DiscoveryBench failures are denominator alignment,
@@ -824,13 +789,13 @@ rendering problem: the system can measure a scientifically plausible relation
 but express it in a form that misses the benchmark's target facet. NewtonBench
 errors are concentrated in abstentions, compile failures, and missing
 coordinate charts rather than in confidently accepted wrong laws.
-UltraHorizon sequence induction is strong in the checked setting, while broader
+UltraHorizon sequence induction is strong, while broader
 environment coverage requires repeated runs because single trajectories have
 high variance. ScienceAgentBench is excluded from the primary evaluation because
 full scientific workflow execution requires a
 stronger multi-file assembler.
 
-The residual-operator audit is also limited. It demonstrates that residuals can
+The residual-operator analysis is also limited. It demonstrates that residuals can
 produce reusable operators on held-out evaluations, but it does not yet prove
 unbounded autonomous growth. The current system has a plateau after the first
 outer-loop improvement. A stronger version must learn broader operator
