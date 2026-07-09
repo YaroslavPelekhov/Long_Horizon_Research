@@ -50,32 +50,20 @@ standard agent evaluations: the difficult step is often not verifying a final
 answer, but constructing the right hypothesis family before the answer is
 known. This is especially problematic for small language models, whose extended
 reasoning traces can repeat shallow variants of the same wrong representation.
-We introduce \mars, a typed executable hypothesis-induction system that represents
-hypotheses as executable artifacts with typed holes, evidence contracts,
-measurements, validators, and residuals. A single \textsc{MARSContext} is shared
-across contract compilation, typed-hole closure, estimand synthesis,
-coordinate probing, metamorphic validation, and residual-conditioned operator
-promotion. The model therefore proposes local typed objects, while execution
-closes uncertain slots and failures are stored as structured residuals rather
-than as untyped bad answers. We evaluate the same kernel on DiscoveryBench-style
-data-driven discovery, NewtonBench-style symbolic law induction, and
-UltraHorizon long-horizon rule induction. With a \gptmini core, \mars reaches
-40.5 HMS and 60.5 consistency-HMS on DiscoveryBench and
-20.4 HMS / 27.1 consistency-HMS on DB-Real after
-residual-driven promotion of original--replication study-design operators. On
-this comparison, \mars exceeds published non-oracle GPT-4o ReAct and GPT-4-preview
-CodeGen references, while remaining below oracle-feedback Reflexion, which
-receives gold-derived revision signals. On
-NewtonBench it reaches 41.7\% all-task and 83.3\%
-answered-task symbolic accuracy, and on UltraHorizon it
-scores 49.2/45.8 on UltraHorizon while reaching 100.0\% exact recovery
-in sequence induction. A residual-operator analysis further
-improves sequence recovery from 40.0\% to 100.0\%, repairs a near-correct power law
-to exact recovery, and raises the most difficult DiscoveryBench raw
-meta-regression evaluation from 0.7 to 24.2 HMS. These experiments support a
-structural claim:
-externalizing hypothesis construction into typed executable state localizes
-small-model failures and makes missing hypothesis operators measurable.
+We introduce \mars, a typed executable hypothesis-induction system that
+represents hypotheses as artifacts with typed holes, evidence contracts,
+validators, and residuals. A shared \textsc{MARSContext} routes generation
+through contract compilation, typed-hole closure, executable measurement,
+metamorphic validation, and residual-conditioned operator promotion. The model
+proposes local typed objects, while execution closes uncertain slots and stores
+failures as structured residuals rather than untyped bad answers. We evaluate
+the same kernel on DiscoveryBench-style data-driven discovery, NewtonBench-style
+symbolic law induction, and UltraHorizon long-horizon rule induction. The
+results show that externalizing hypothesis construction can improve a
+\gptmini-core system across heterogeneous scientific reasoning tasks and can
+turn recurring failures into reusable operators. The central claim is
+structural: a weak model reasons more effectively when hypothesis generation is
+made executable, typed, and residual-aware.
 \end{abstract}
 
 \section{Introduction}
@@ -413,8 +401,8 @@ kernel only sees artifact, evidence, residual, and update.
 In a NewtonBench-style trajectory, the model does not guess the law directly:
 the contract asks for coordinate, exponent, constant, and residual slots; a
 sketch $y=c\phi(x)^p$ is executed; residual curvature activates a coordinate
-probe; the probe closes $\phi(x)=x$, $p=2.03\rightarrow2$, and
-$c=0.99\rightarrow1$; and the held-out validator accepts the artifact. The
+probe; the probe closes the coordinate, exponent, and constant slots; and the
+held-out validator accepts the artifact. The
 failed first probe changes typed state rather than merely changing the next
 prompt.
 
@@ -482,7 +470,7 @@ available before benchmark evaluation.
 \end{algorithmic}
 \end{algorithm}
 
-The score used in line 10 is the posterior-style objective from the
+The scoring step uses the posterior-style objective from the
 preliminaries:
 \begin{equation}
 \begin{aligned}
@@ -708,7 +696,7 @@ UltraHorizon & sequence residual operators & 40.0$\to$100.0 exact \\
 
 The strongest novelty claim in \mars is the residual-to-operator pathway. We
 therefore report it separately from the main score table. Table
-\ref{tab:operator_audit} summarizes focused analyses in which residual
+\ref{tab:operator_promotion} summarizes focused analyses in which residual
 patterns were converted into executable rules or promoted operator families.
 The goal is to measure whether residuals can change the hypothesis language in
 ways that transfer across held-out checks.
@@ -716,7 +704,7 @@ ways that transfer across held-out checks.
 \begin{table*}[t]
 \centering
 \caption{Residual-conditioned operator promotion.}
-\label{tab:operator_audit}
+\label{tab:operator_promotion}
 \begin{tabular}{llll}
 \toprule
 Benchmark & Promoted operator & Metric & Before$\to$After \\
