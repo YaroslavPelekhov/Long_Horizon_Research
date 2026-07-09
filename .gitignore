@@ -1,0 +1,34 @@
+# external clones / private data / venvs / caches / secrets
+autodiscovery/
+discoverybench_repo/
+mlagentbench_repo/
+mlrcbench_repo/
+newtonbench_repo/
+scienceagentbench_repo/
+smell/
+_ARCHIVED_nonsmell/
+
+**/.venv/
+**/__pycache__/
+*.pyc
+
+# never commit secrets
+.env
+.env.*
+**/.env
+**/.env.*
+
+# private real-data dirs (already in lmw/.gitignore; mirrored here)
+**/_neuro_data/
+**/_rawdata/
+
+# raw biosignals (defence-in-depth)
+*.bdf
+*.dat
+
+# editor / OS / IDE-local configs
+.DS_Store
+Thumbs.db
+.claude/
+.vscode/
+.idea/

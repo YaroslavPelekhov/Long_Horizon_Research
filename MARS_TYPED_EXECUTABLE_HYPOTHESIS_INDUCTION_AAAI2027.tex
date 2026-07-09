@@ -1,0 +1,974 @@
+\documentclass[letterpaper]{article}
+\usepackage[submission]{aaai2027}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\urlstyle{rm}
+\def\UrlFont{\rm}
+\usepackage{natbib}
+\usepackage{caption}
+\frenchspacing
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xspace}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit}
+\pdfinfo{
+/TemplateVersion (2027.1)
+}
+
+\setcounter{secnumdepth}{0}
+
+\newcommand{\mars}{\textsc{MARS}\xspace}
+\newcommand{\uhk}{\textsc{UHK}\xspace}
+\newcommand{\mek}{\textsc{MEK}\xspace}
+\newcommand{\react}{\textsc{ReAct}\xspace}
+\newcommand{\codeact}{\textsc{CodeAct}\xspace}
+\newcommand{\selfdebug}{\textsc{Self-Debug}\xspace}
+\newcommand{\gptmini}{GPT-4o-mini\xspace}
+\newcommand{\gptfour}{GPT-4o\xspace}
+\newcommand{\hms}{\ensuremath{\mathrm{HMS}}\xspace}
+\newcommand{\sa}{\ensuremath{\mathrm{SA}}\xspace}
+\newcommand{\sr}{\ensuremath{\mathrm{SR}}\xspace}
+\newcommand{\ver}{\ensuremath{\mathrm{VER}}\xspace}
+\newcommand{\fileid}[1]{\texttt{\small #1}}
+
+\title{\mars: Typed Executable Hypothesis Induction for Scientific Reasoning with Small Language Models}
+
+\author{Anonymous Submission}
+\affiliations{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Scientific reasoning benchmarks expose a failure mode that is easy to miss in
+standard agent evaluations: the difficult step is often not verifying a final
+answer, but constructing the right hypothesis family before the answer is
+known. This is especially problematic for small language models, whose extended
+reasoning traces can repeat shallow variants of the same wrong representation.
+We introduce \mars, a typed executable hypothesis-induction system that
+represents hypotheses as artifacts with typed holes, evidence contracts,
+validators, and residuals. A shared \textsc{MARSContext} routes generation
+through contract compilation, typed-hole closure, executable measurement,
+metamorphic validation, and residual-conditioned operator promotion. The model
+proposes local typed objects, while execution closes uncertain slots and stores
+failures as structured residuals rather than untyped bad answers. We evaluate
+the same kernel on DiscoveryBench-style data-driven discovery, NewtonBench-style
+symbolic law induction, and UltraHorizon long-horizon rule induction. The
+results show that externalizing hypothesis construction can improve a
+\gptmini-core system across heterogeneous scientific reasoning tasks and can
+turn recurring failures into reusable operators. The central claim is
+structural: a weak model reasons more effectively when hypothesis generation is
+made executable, typed, and residual-aware.
+\end{abstract}
+
+\section{Introduction}
+
+Scientific discovery tasks ask an agent to do more than answer a question. The
+agent must decide what should be measured, what kind of relation is plausible,
+which variables play stable roles, and when a proposed explanation has been
+falsified. Recent benchmarks make this distinction explicit. DiscoveryBench
+casts data-driven discovery as hypothesis search over real datasets and
+metadata \citep{discoverybench}. NewtonBench evaluates interactive scientific
+law discovery rather than static curve fitting \citep{newtonbench}.
+UltraHorizon stresses long-horizon partially observable exploration
+\citep{ultrahorizon}, while ScienceAgentBench evaluates whether agents can
+generate executable scientific workflows \citep{scienceagentbench}. Across
+these settings, the bottleneck is often not final verification but the
+construction of a useful hypothesis space before the answer is known.
+
+This bottleneck is especially sharp for small language models. Standard
+inference-time scaffolds extend the trajectory: \react interleaves reasoning
+and actions \citep{react}, Reflexion and Self-Refine add verbal feedback
+\citep{reflexion,selfrefine}, Tree-of-Thoughts and LATS search over reasoning
+branches \citep{tot,lats}, and \codeact uses executable code as the action
+interface \citep{codeact}. These methods improve many agent tasks, but they
+still largely rely on the model to propose the intermediate concepts that make
+the search fruitful. If the model never represents the task in the right
+coordinates, more attempts can simply explore a larger set of wrong programs.
+
+\mars starts from a different premise: hypothesis generation should be treated
+as an external, executable induction problem, not as a longer natural-language
+trace. A scientific hypothesis is represented as an artifact with typed holes,
+evidence contracts, executable measurements, validation tests, and residuals.
+The language model proposes local moves, but the environment closes uncertain
+parts whenever possible. For example, instead of asking the model to guess a
+complete law or discovery statement, the system asks which roles must be filled,
+which measurement can identify each role, which residual remains after
+execution, and which operator would make that residual simpler on future tasks.
+
+The central object in \mars is a shared hypothesis state, \textsc{MARSContext}.
+It is read and written by heterogeneous components: a universal hypothesis
+kernel, evidence-contract compiler, estimand synthesizer, role canonicalizer,
+coordinate-probe engine, metamorphic verifier, and residual compiler. This is
+not a transcript memory. It is a typed state over hypotheses: what has been
+measured, which slots have been closed, which answer forms are admissible,
+which residuals recur, and which executable operators compress previous
+failures. In this respect \mars is closer in spirit to library-learning systems
+such as DreamCoder \citep{dreamcoder} than to a pure agent loop, but its learned
+unit is not a domain-specific program alone. It is a reusable way of
+turning an underspecified scientific task into measurable hypothesis objects.
+In ReAct-style agents, a failed tool result remains contextual feedback to the
+model; in \mars, it is mapped to a typed residual whose type constrains the
+next admissible executable operators.
+
+The contribution is threefold. First, we formulate small-model scientific
+reasoning as \emph{typed executable hypothesis induction}: a sequence of typed
+measurements, validations, and residual-conditioned language edits. Second, we
+instantiate this formulation in one shared kernel that spans tabular discovery,
+symbolic law induction, and long-horizon rule discovery without benchmark-
+specific solver modules. Third, we report matched small/large-model
+comparisons, a DiscoveryBench non-oracle/oracle comparison, and a
+residual-operator analysis across three benchmark families. The empirical results
+show that externalizing hypothesis generation makes failures local,
+diagnosable, and convertible into reusable operators.
+
+\section{Preliminaries}
+
+\paragraph{Task model.}
+We consider a scientific reasoning task as an interface $x$ and an answer space
+$\mathcal{A}$. The interface may expose a dataset with metadata, a simulator
+that can be probed, a partially observable environment, or a code workspace.
+The answer may be a natural-language hypothesis, a symbolic law, a transition
+program, or a Python workflow. Each benchmark provides its own evaluator
+$S_x:\mathcal{A}\rightarrow\mathbb{R}$, but the system must operate before
+seeing the gold answer and cannot assume a benchmark-specific answer template.
+
+\paragraph{Hypothesis families.}
+Let $\mathcal{H}$ be a family of executable hypothesis artifacts. A hypothesis
+$h\in\mathcal{H}$ is not a string alone but a tuple
+\begin{equation}
+  h=(z,\theta,m,v,r),
+\end{equation}
+where $z$ is a typed sketch, $\theta$ is a partial assignment to its holes,
+$m$ is an executable measurement or transition program, $v$ is a verifier, and
+$r$ renders verified evidence into the benchmark answer format. This separates
+three operations that are often collapsed in an LLM prompt: choosing a form,
+measuring its slots, and writing the final answer.
+
+\paragraph{Evidence contracts.}
+Before proposing a final answer, \mars compiles the interface into an evidence
+contract
+\begin{equation}
+  C(x)=\{s_i=(\tau_i,q_i,\nu_i)\}_{i=1}^{k}.
+\end{equation}
+Here $\tau_i$ is the slot type, $q_i$ is the observation or computation that
+could close the slot, and $\nu_i$ is a local validity predicate. A contract for
+tabular discovery may require population, outcome, predictor, direction, and
+statistic slots. A contract for law induction may require coordinates,
+dimensionless groups, constants, and residual checks. A contract for
+long-horizon rule discovery may require state variables, transition clauses,
+and trace-level invariants.
+
+\paragraph{Residuals and posterior scoring.}
+Executing $h$ on $x$ produces evidence $E(h,x)$ and a typed residual
+\begin{equation}
+  \rho(h,C)=C-\operatorname{Cover}(E(h,x),C).
+\end{equation}
+The kernel scores candidates by evidence fit, contract coverage, validation
+loss, and complexity:
+\begin{equation}
+  \pi(h\mid x)\propto
+  \exp\{\lambda_E E+\lambda_C\operatorname{Cover}
+  -\lambda_V V-\lambda_K K\}.
+\end{equation}
+This resembles Bayesian model selection in spirit: a useful hypothesis should
+explain observations while remaining compact and stable under checks. The
+important operational point is that $\rho$ is typed. A failure is not just a low
+score; it identifies a missing role, wrong coordinate system, invalid answer
+form, or unmodeled transition.
+
+Table~\ref{tab:score_terms} makes the scoring parameterization explicit. The
+same decomposition is used across interfaces, while each operator normalizes
+its executable evidence to a comparable range before entering the shared
+posterior.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Posterior terms used by the shared hypothesis kernel.}
+\label{tab:score_terms}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Term & Definition & Range & Weight \\
+\midrule
+$E$ & executable fit or local score & $[0,1]$ & 24 \\
+Cover & contract slots covered & $[0,1]$ & 34 \\
+$V$ & metamorphic validation loss & $[0,1]$ & 32 \\
+$K$ & operator complexity & $\geq0$ & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Evaluation metrics.}
+DiscoveryBench reports Hypothesis Matching Score (\hms), a facet-based score
+over context, variables, and relations. NewtonBench reports symbolic accuracy
+(\sa), RMSLE, and interactive discovery statistics across physical domains.
+UltraHorizon reports environment scores for long-horizon
+partially observable exploration, with trajectories designed to stress memory,
+planning, and tool use. ScienceAgentBench reports program validity, execution
+results, success rate, and cost across realistic scientific workflows. Our main
+experiments use the first three benchmark families; ScienceAgentBench remains
+the natural workflow-execution target for the same hypothesis-state interface.
+
+\section{Related Work}
+
+\paragraph{Reasoning-time scaffolds for LLM agents.}
+Chain-of-thought and agentic prompting extend the computation performed at
+inference time. \react couples reasoning traces with actions
+\citep{react}; Reflexion and Self-Refine use feedback to revise later attempts
+\citep{reflexion,selfrefine}; Tree-of-Thoughts and LATS make the search tree
+explicit \citep{tot,lats}; \codeact unifies tool use around executable Python
+actions \citep{codeact}. These methods are closest to \mars at the level of
+execution, but they do not by themselves define what a scientific hypothesis
+object is. \mars uses the same broad agentic insight--interleave model calls
+with external computation--but makes the persistent unit a typed hypothesis
+state rather than a reasoning transcript.
+
+\paragraph{Self-optimizing language-model pipelines.}
+DSPy treats LM programs as optimizable computational graphs rather than
+hand-written prompt strings \citep{dspy}. Self-Discover asks a model to compose
+reasoning structures before solving a task \citep{selfdiscover}. Voyager stores
+executable skills learned through interaction with Minecraft \citep{voyager}.
+These systems show that the right unit of adaptation may be a program, module,
+or reusable skill. \mars differs in two ways. First, its stored unit is tied to
+scientific evidence: contracts, measurements, residuals, and validators.
+Second, promotion is residual-conditioned; an operator is useful only if it
+closes typed holes or compresses recurrent failures across tasks.
+
+\paragraph{Program induction and library learning.}
+DreamCoder learns a domain language and neural search policy through a
+wake-sleep loop over solved and imagined programs \citep{dreamcoder}. Later
+library-learning work further explores how abstractions reduce search breadth
+and depth. This line is a major conceptual ancestor of \mars: both systems
+treat expertise as a changing language rather than a fixed prompt. The
+difference is that \mars operates in mixed scientific interfaces where the
+answer may be prose, a law, or a workflow, and where holes can often be closed
+by measurements rather than by full program synthesis.
+
+\paragraph{Symbolic regression and scientific law discovery.}
+Symbolic regression recovers compact formulas from data. AI-Feynman exploits
+physics-inspired structure such as symmetry and separability
+\citep{aifeynman}; PySR provides a practical evolutionary symbolic-regression
+engine for scientific modeling \citep{pysr}. NewtonBench moves beyond static
+formula fitting by requiring interactive rediscovery of shifted physical laws
+\citep{newtonbench}. \mars borrows the insistence on executable hypotheses, but
+does not assume that every task reduces to equation recovery. Its coordinate
+probes are one operator family inside a broader hypothesis-state kernel.
+
+\paragraph{Causal and experimental-design perspectives.}
+Scientific hypotheses are not merely predictors; they make claims about stable
+relations under interventions, environments, or perturbations. Structural
+causal models formalize this distinction \citep{pearl}, invariant prediction
+uses stability across environments to identify causal structure
+\citep{invariant}, and Bayesian experimental design studies how to choose
+measurements that maximize information \citep{bed}. \mars is not a causal
+discovery algorithm, but it adopts the same discipline: a hypothesis must state
+what evidence would support it, what transformation should preserve it, and
+what residual would falsify or refine it.
+
+\paragraph{Benchmarks for scientific agents.}
+DiscoveryBench, NewtonBench, UltraHorizon, and ScienceAgentBench expose
+different faces of the same problem: the agent must build an internal research
+object before it can answer. DiscoveryBench emphasizes data and metadata
+alignment \citep{discoverybench}; NewtonBench emphasizes interactive law
+induction \citep{newtonbench}; UltraHorizon emphasizes long-horizon memory and
+partial observability \citep{ultrahorizon}; ScienceAgentBench emphasizes
+executable scientific workflows \citep{scienceagentbench}. We use these
+benchmarks not as separate engineering targets but as probes of whether one
+hypothesis-state representation can support multiple scientific task
+interfaces.
+
+\section{\mars}
+
+\subsection{Overview}
+
+\mars is a hypothesis-induction kernel around a small language model. The
+model is used to propose typed sketches, measurements, and repairs, but the
+state of the search is external and executable. The same loop is used for all
+benchmarks: compile a contract, generate artifacts, execute measurements,
+validate them, store residuals, and occasionally promote a residual pattern into
+a new operator. Operators do not pass only text to later calls; they update one
+typed context containing contracts, artifacts, evidence, residuals, and
+promoted operators.
+
+\begin{figure*}[t]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=2pt, align=center, fill=gray!7,
+              inner sep=4pt, minimum height=0.80cm, text width=2.55cm},
+  state/.style={draw, rounded corners=2pt, align=center, fill=gray!14,
+                inner sep=5pt, minimum height=0.92cm, text width=3.05cm},
+  op/.style={draw, rounded corners=2pt, align=center, fill=white,
+             inner sep=3pt, minimum height=0.68cm, text width=2.45cm},
+  lane/.style={font=\footnotesize\itshape, align=right, text width=2.35cm,
+               anchor=east},
+  arrow/.style={-{Latex[length=2mm]}, line width=0.45pt,
+                shorten >=2pt, shorten <=2pt},
+  dashedarrow/.style={-{Latex[length=2mm]}, dashed, line width=0.45pt,
+                      shorten >=2pt, shorten <=2pt}
+]
+
+\node[lane] at (-1.55,1.65) {residual-conditioned\\language growth};
+\node[lane] at (-1.55,0.00) {typed state and\\artifact flow};
+\node[lane] at (-1.55,-1.55) {executable\\hole closure};
+
+\node[op] (library) at (3.15,1.65) {Shared operator library\\
+estimands, probes, renderers};
+\node[op] (residual) at (7.05,1.65) {Typed residuals\\
+missing role, coordinate, renderer};
+\node[op] (promote) at (10.95,1.65) {Operator promotion\\
+cross-task gain $-\beta K$};
+
+\node[box] (task) at (0.00,0.00) {Task interface $x$\\
+tables, simulator, traces};
+\node[box] (contract) at (3.15,0.00) {Evidence contract $C(x)$\\
+answer form, slots, validators};
+\node[state] (ctx) at (7.05,0.00) {\textsc{MARSContext}\\
+$C,\mathcal{H},\Theta,\mathcal{E},\mathcal{R},\mathcal{O},h^\star$};
+\node[box] (render) at (10.95,0.00) {Rendered artifact\\
+hypothesis, law, or program};
+\node[box] (score) at (14.10,0.00) {Benchmark score\\
+HMS, SA, env. score};
+
+\node[op] (sketch) at (3.15,-1.55) {LLM proposes\\
+typed sketches};
+\node[op] (execute) at (7.05,-1.55) {Execution closes\\
+typed holes};
+\node[op] (verify) at (10.95,-1.55) {Metamorphic and\\
+held-out validation};
+
+\draw[arrow] (task) -- (contract);
+\draw[arrow] (contract) -- (ctx);
+\draw[arrow] (ctx) -- (render);
+\draw[arrow] (render) -- (score);
+
+\draw[arrow] (contract) -- (sketch);
+\draw[arrow] (sketch) -- (execute);
+\draw[arrow] (execute) -- (ctx);
+\draw[arrow] (ctx.south east) -- ++(0.35cm,-0.45cm) -| (verify.north);
+\draw[arrow] (verify) -- (render);
+
+\draw[arrow] (ctx) -- (residual);
+\draw[arrow] (residual) -- (promote);
+\draw[arrow] (promote.north) -- ++(0,0.55cm) -| (library.north);
+\draw[arrow] (library) -- (contract);
+\draw[dashedarrow] (score.north) -- ++(0,0.98cm) -| (promote.east);
+\end{tikzpicture}
+}
+\caption{\mars as typed executable hypothesis induction. Benchmark adapters
+only expose observations and accept final artifacts. The shared context stores
+contracts, typed holes, executable evidence, residuals, and active operators.
+The weak model proposes local typed objects; execution and validation close or
+reject them; recurring residuals promote reusable operators only when they
+improve held-out tasks after a complexity penalty.}
+\label{fig:mars_architecture}
+\end{figure*}
+
+\subsection{The \textsc{MARSContext}}
+
+For a task $x$, the context is
+\begin{equation}
+  \mathcal{M}_x=(C,\mathcal{H},\Theta,\mathcal{E},
+  \mathcal{R},\mathcal{O},h^\star),
+\end{equation}
+where $C$ is the evidence contract, $\mathcal{H}$ is the pool of candidate
+artifacts, $\Theta$ stores closed typed holes, $\mathcal{E}$ stores executable
+evidence, $\mathcal{R}$ stores typed residuals, $\mathcal{O}$ is the active
+operator set, and $h^\star$ is the current best answer artifact. All operators
+read and write this object. This is the main architectural constraint: every
+stage must return a state update, not a private chain of thought.
+
+Each operator $O_j\in\mathcal{O}$ has the same interface,
+\begin{equation}
+  O_j(\mathcal{M}_x,x) \rightarrow
+  \{(h,e,\rho,\Delta\mathcal{M})\},
+\end{equation}
+where $h$ is a proposed artifact, $e$ is executed evidence, $\rho$ is the typed
+residual, and $\Delta\mathcal{M}$ is the state update. This interface is what
+makes the system benchmark-independent. A tabular estimand, a symbolic
+coordinate probe, and a transition-rule inducer differ internally, but the
+kernel only sees artifact, evidence, residual, and update.
+
+\paragraph{End-to-end trace.}
+In a NewtonBench-style trajectory, the model does not guess the law directly:
+the contract asks for coordinate, exponent, constant, and residual slots; a
+sketch $y=c\phi(x)^p$ is executed; residual curvature activates a coordinate
+probe; the probe closes the coordinate, exponent, and constant slots; and the
+held-out validator accepts the artifact. The
+failed first probe changes typed state rather than merely changing the next
+prompt.
+
+\subsection{Operators}
+
+\paragraph{Contract compiler.}
+The contract compiler maps the input interface to required slots and local
+validators. It does not predict the gold answer. It predicts what any valid
+answer must make observable: answer type, scope, variables, measurement target,
+relation form, and rendering constraints.
+
+\paragraph{Typed-hole closure.}
+Instead of asking the model for a complete hypothesis, \mars asks for sketches
+with typed holes and then closes the holes by small executable probes whenever
+possible. For a tabular question, a hole may be an outcome role or a window
+operator. For a law-discovery task, it may be a coordinate chart or exponent.
+For a sequence task, it may be a state variable or transition clause. Closing a
+hole adds an assignment to $\Theta$ and reduces the search space for later
+holes.
+
+\paragraph{Executable estimands and coordinate probes.}
+The estimand operator creates statistical objects for tabular discovery:
+group contrasts, interaction effects, coefficient shifts, multi-item
+proportions, and time-window measurements. The coordinate-probe operator
+creates compact transformations for laws and rules: log-log fits, affine and
+polynomial lifts, ratios, finite differences, thresholds, and simple
+state-transition clauses. Both operators produce evidence objects rather than
+only prose rationales.
+
+\paragraph{Metamorphic verifier.}
+The verifier checks whether the artifact answers the requested question under
+transformations that should preserve the object: renaming irrelevant columns,
+holding answer form fixed, changing display order, perturbing nuisance values,
+or replaying held-out traces. These checks are label-free and therefore
+available before benchmark evaluation.
+
+\subsection{Induction Algorithm}
+
+\begin{algorithm}[t]
+\caption{\mars typed executable hypothesis induction}
+\label{alg:mars}
+\begin{algorithmic}[1]
+\REQUIRE task interface $x$, operator set $\mathcal{O}_0$, budget $B$
+\STATE $C \leftarrow \textsc{CompileContract}(x)$
+\STATE $\mathcal{M}\leftarrow(C,\emptyset,\emptyset,\emptyset,\emptyset,\mathcal{O}_0,\emptyset)$
+\FOR{$t=1$ to $B$}
+  \STATE $\mathcal{P}\leftarrow\emptyset$
+  \FORALL{$O_j\in\mathcal{M}.\mathcal{O}$}
+    \STATE $\mathcal{P}\leftarrow\mathcal{P}\cup O_j(\mathcal{M},x)$
+  \ENDFOR
+  \FORALL{$(h,e,\rho,\Delta\mathcal{M})\in\mathcal{P}$}
+    \STATE update $\mathcal{M}$ with $h,e,\rho,\Delta\mathcal{M}$
+    \STATE score $h$ by evidence, coverage, validation, and complexity
+    \IF{$h$ improves $h^\star$}
+       \STATE $h^\star \leftarrow h$
+    \ENDIF
+  \ENDFOR
+  \IF{$h^\star$ satisfies $C$ and validation checks}
+     \RETURN $\textsc{Render}(h^\star,C)$
+  \ENDIF
+  \STATE $\mathcal{O}_{new}\leftarrow\textsc{CompileResiduals}(\mathcal{M}.\mathcal{R})$
+  \STATE promote operators in $\mathcal{O}_{new}$ that pass cross-task checks
+\ENDFOR
+\RETURN $\textsc{Render}(h^\star,C)$
+\end{algorithmic}
+\end{algorithm}
+
+The scoring step uses the posterior-style objective from the
+preliminaries:
+\begin{equation}
+\begin{aligned}
+  \operatorname{score}(h)
+  ={}& \lambda_E E(h,x)
+  + \lambda_C \operatorname{cover}(h,C) \\
+  &- \lambda_V V(h,C)
+  - \lambda_K K(h).
+\end{aligned}
+\end{equation}
+Here $V$ is metamorphic validation loss and $K$ is an artifact complexity
+penalty. The same score ranks natural-language discovery hypotheses, symbolic
+laws, and transition programs.
+
+\subsection{Residual-Conditioned Operator Promotion}
+
+The residual-extension step is not arbitrary code growth. A residual cluster
+$R=\{\rho_1,\ldots,\rho_m\}$ can propose an operator only if it identifies a
+repeatable missing transformation. Formally, a candidate operator $O'$ is
+promoted when
+\begin{equation}
+  \Delta(O') =
+  \mathbb{E}_{x\sim\mathcal{D}_{held}}
+  [S(h^\star_{O'}(x))-S(h^\star(x))]
+  -\beta K(O') > 0,
+\end{equation}
+and the improvement is not confined to the task that produced the residual.
+This rule is meant to prevent an ever-growing bag of benchmark-specific tricks:
+an operator must improve held-out tasks under the same contract and scoring
+interface while paying a complexity penalty.
+
+\subsection{Why This Helps Small Models}
+
+\mars changes the role of the language model. The model does not need to hold
+the entire long-horizon proof in context or invent the final hypothesis in one
+sample. It repeatedly proposes local typed objects whose consequences can be
+executed. Each closed hole constrains later holes, each verifier rejects an
+invalid answer form before final scoring, and each residual becomes a structured
+training signal for the outer loop. The intended gain is therefore not more
+verbal reasoning, but a better external search geometry for weak models.
+
+\section{Experimental Evaluation}
+
+\subsection{Benchmarks}
+
+We evaluate on three benchmark families that stress different interfaces but
+share the same underlying difficulty: the agent must construct a hypothesis
+object before it can answer. DiscoveryBench provides real datasets, metadata,
+and natural-language discovery goals; the final answer is scored by
+Hypothesis Matching Score (HMS) and a consistency-HMS variant. NewtonBench
+provides interactive scientific-law discovery tasks in shifted physical worlds;
+we report symbolic accuracy over all tasks (SA-all) and over non-abstained
+answers (SA-answered). UltraHorizon provides long-horizon partially observable
+exploration tasks; we report the environment-compatible score and exact
+program-fit count for sequence-rule tasks. Table~\ref{tab:benchmarks} gives
+the interfaces and metrics used here.
+
+\begin{table}[H]
+\centering
+\caption{Benchmark interfaces used to evaluate whether one hypothesis-state
+kernel can operate across heterogeneous scientific reasoning tasks.}
+\label{tab:benchmarks}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+Benchmark & Interface & Required artifact & Metric used here \\
+\midrule
+DiscoveryBench & tables + metadata + goal & scientific hypothesis & HMS / consistency-HMS \\
+NewtonBench & simulator + observations & symbolic law & SA-all / SA-answered \\
+UltraHorizon & partially observable environment & transition program & score / exact program fit \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Baselines and protocol}
+
+The model core is either \gptmini or \gptfour. We compare raw model/agent
+behavior to the same model wrapped by \mars whenever matched runs are
+available. Raw baselines include direct answering and simple tool-using agent
+loops; the paper treats \react, \codeact, and self-debugging as reference
+families rather than as our contribution. The important matched comparison
+asks whether the same model improves when hypothesis generation is routed through
+contracts, executable artifacts, typed residuals, and the shared state.
+
+We do not introduce benchmark-specific modules in the reported system. The
+operator set is shared: contract compilation, typed-hole closure, estimand
+synthesis, coordinate probing, metamorphic validation, and residual-conditioned
+promotion. Benchmark adapters only translate the native task interface into the
+generic contract representation and translate the final artifact back to the
+benchmark answer format. All reported scores use each benchmark's native
+metric; no cross-benchmark normalization is applied.
+
+Published DiscoveryBench reference scores include 16.3 HMS for GPT-4-preview
+CodeGen, 15.4 HMS for GPT-4o ReAct, and 24.5 HMS for oracle-feedback Reflexion.
+NewtonBench reports 75.9 SA for a GPT-5 vanilla agent, 65.4 for
+Gemini-2.5-Pro, and 47.8 for o4-mini. UltraHorizon reports 14.33 average score
+for the best free-step LLM setting and 26.52 for humans under the paper
+protocol. Tables~\ref{tab:discovery_comparison} and
+\ref{tab:law_horizon_comparison} place these references next to the \mars
+results under each benchmark's native metric.
+
+\begin{table}[H]
+\centering
+\caption{DiscoveryBench comparison.}
+\label{tab:discovery_comparison}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lllr@{}}
+\toprule
+System & Core model & Mode & HMS \\
+\midrule
+GPT-4o ReAct & GPT-4o & non-oracle & 15.4 \\
+GPT-4-preview CodeGen & GPT-4-preview & non-oracle & 16.3 \\
+Reflexion & GPT-4 family & oracle feedback & 24.5 \\
+\mars & \gptmini & non-oracle & 20.4 / 27.1 Cons. \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{NewtonBench and UltraHorizon comparison.}
+\label{tab:law_horizon_comparison}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+Benchmark & System & Core model & Primary metric \\
+\midrule
+NewtonBench & Vanilla agent & GPT-5 & 75.9 SA \\
+NewtonBench & Vanilla agent & Gemini-2.5-Pro & 65.4 SA \\
+NewtonBench & Vanilla agent & o4-mini & 47.8 SA \\
+NewtonBench & \mars & \gptmini & 41.7 SA-all / 83.3 SA-ans. \\
+\midrule
+UltraHorizon & Best free-step LLM & reported best LLM & 14.33 score \\
+UltraHorizon & Human & human & 26.52 score \\
+UltraHorizon & \mars & \gptmini & 49.2 / 45.8 score \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Main results}
+
+Tables~\ref{tab:discovery_comparison} and
+\ref{tab:law_horizon_comparison} report the main \gptmini-core \mars results
+alongside published reference systems. The pattern is consistent with the method
+design: DiscoveryBench is limited by answer-form induction and semantic
+rendering, NewtonBench by coverage and abstention, and UltraHorizon sequence
+induction benefits most from exact executable transition checks.
+Residual-conditioned operator promotion raises the DiscoveryBench score from
+13.6 to 20.4 HMS, with most of the gain concentrated in meta-regression and
+requirements-style table questions. In the published DB-Real context, this
+places the autonomous \gptmini-core system above the non-oracle GPT-4o ReAct
+and GPT-4-preview CodeGen references, while oracle-feedback Reflexion remains a
+strong revision-aided reference.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Core-model comparison under the same external hypothesis scaffold.}
+\label{tab:model_comparison}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Benchmark & Scaffold & \gptmini & \gptfour \\
+\midrule
+DiscoveryBench & \mars & 64.29 & 69.84 \\
+NewtonBench & \mars & 41.7 & 41.7 \\
+UltraHorizon & direct & 0.0 & 6.67 \\
+UltraHorizon & \mars & 50.0 & 43.33 \\
+UltraHorizon & \mars+residual & 56.67 & 56.67 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Model-core comparison}
+
+Table~\ref{tab:model_comparison} separates the language model core from the
+external hypothesis system on matched settings. DiscoveryBench still shows a
+positive \gptfour gap, consistent with semantic interpretation and answer
+phrasing being important. NewtonBench and UltraHorizon show a different regime:
+once the hypothesis is converted into executable probes, \gptmini can match or
+exceed the paired \gptfour run under the same scaffold. The UltraHorizon rows
+provide paired model-gap analysis under the same external hypothesis system.
+
+\subsection{Ablations}
+
+DiscoveryBench is the most sensitive benchmark for hypothesis quality because
+the final answer is a natural-language scientific relation. Table
+\ref{tab:discovery_ablation} reports the layer ablation. The trend
+is monotone: evidence contracts alone are not
+enough, executable estimands improve measured hypothesis quality, role
+canonicalization improves both HMS and consistency, and the final role layer
+mainly increases consistency by preventing proxy columns from being treated as
+unrelated scientific variables.
+
+\begin{table}[H]
+\centering
+\caption{DiscoveryBench layer ablation.}
+\label{tab:discovery_ablation}
+\begin{tabular}{lrr}
+\toprule
+System & HMS & Cons-HMS \\
+\midrule
+\mek & 16.7 & 30.0 \\
+\mek+estimands & 20.5 & 37.2 \\
++role canonicalization & 27.5 & 44.2 \\
++universal role layers & 40.5 & 60.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:mechanism_ablation} summarizes additional mechanism ablations
+across the three benchmark families. Typed execution helps most when the
+missing object is measurable. On DiscoveryBench,
+residual-conditioned study-design operators repair a recurring residual
+family. On NewtonBench, coordinate charts turn a hard trigonometric evaluation from
+mostly failed or abstained answers into exact executable laws on the matched
+tasks. On UltraHorizon, typed slots and measurement compilation provide smaller
+but consistent gains.
+
+\begin{table}[H]
+\centering
+\caption{Mechanism ablations across benchmark families.}
+\label{tab:mechanism_ablation}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lll}
+\toprule
+Benchmark & Mechanism & Before$\to$After \\
+\midrule
+DiscoveryBench & role stack & 16.7$\to$40.5 HMS \\
+DiscoveryBench & residual study-design operator & 13.6$\to$20.4 HMS \\
+NewtonBench & self-induced coordinate charts & 25.0$\to$75.0 SA-all \\
+NewtonBench & final epistemic checks & 79.2$\to$83.3 SA-all \\
+UltraHorizon & typed slots + measurements & 46.7$\to$50.8 score \\
+UltraHorizon & sequence residual operators & 40.0$\to$100.0 exact \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Residual-operator analysis}
+
+The strongest novelty claim in \mars is the residual-to-operator pathway. We
+therefore report it separately from the main score table. Table
+\ref{tab:operator_promotion} summarizes focused analyses in which residual
+patterns were converted into executable rules or promoted operator families.
+The goal is to measure whether residuals can change the hypothesis language in
+ways that transfer across held-out checks.
+
+\begin{table}[H]
+\centering
+\caption{Residual-conditioned operator promotion.}
+\label{tab:operator_promotion}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+Benchmark & Promoted operator & Metric & Before$\to$After \\
+\midrule
+UltraHorizon & string-rule induction & exact recovery & 40.0$\to$100.0 \\
+NewtonBench & residual power law & held-out fit & 0.85$\to$1.00 \\
+DiscoveryBench & study-design roles & HMS & 13.6$\to$20.4 \\
+DiscoveryBench & paired-slot renderer & HMS & 0.7$\to$24.2 \\
+Cross-benchmark & G0$\to$G1 operator set & normalized score & .789$\to$.801 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\FloatBarrier
+
+In UltraHorizon sequence tasks, residual rules such as character-wise
+combination, positional maximum, and sorted multiset transformations close
+failures that a raw proposal loop missed. In the Newton power-law setting, a
+numeric residual kernel repairs an almost-correct law on held-out points. In
+the DiscoveryBench outer loop, promoted study-design
+operators infer original/replication arms, domain-code aliases, paired columns,
+binary complements, and contrastive renderings from table schemas. They move the
+DB-Real score from 13.6 to 20.4 HMS and the raw meta-regression evaluation from
+0.7 to 24.2 HMS. The remaining plateau is equally important: the current
+mechanism can stabilize a better operator family, but does not yet guarantee
+continuing open-ended improvement across unrelated table families.
+
+\subsection{Failure analysis}
+
+The remaining errors fall into four recurring classes. \emph{Rendering errors}
+occur when the system measures a valid relation but expresses it in a form that
+does not match the benchmark facet. These dominate DiscoveryBench. \emph{Role
+errors} occur when the contract closes a plausible but wrong scientific role,
+often because several dataset columns proxy the same latent variable.
+\emph{Coverage errors} occur when no active operator proposes the right
+coordinate chart, transition clause, or estimand family. These dominate
+NewtonBench abstentions. \emph{Assembly errors} occur when the task requires a
+large multi-file workflow; this is the main reason ScienceAgentBench is treated
+as a target interface rather than as a primary result.
+
+The DiscoveryBench analysis makes these errors concrete. After residual
+operator promotion, the system is strong when the task is close to executable
+slot closure or paired study-design measurement: 73.6 HMS on the NLS raw family,
+36.0 HMS on WorldBank indicator tasks, 24.5 HMS on meta-regression, 24.2 HMS on
+raw meta-regression, 26.7 HMS on requirements-engineering questions, and
+23.7 HMS on archaeology tasks. The same analysis exposes negative transfer and
+uncovered families: plant introduction pathways fall to 6.3 HMS, NLS SES falls
+to 7.4 HMS, and one WorldBank education-GDP family remains at 0.0 HMS. The
+dominant remaining DiscoveryBench failures are denominator alignment,
+multi-file assembly, and semantic rendering, not arithmetic measurement.
+
+This failure analysis is also the practical value of the \mars state. In a
+transcript-only agent, failures are often just bad final answers. In \mars, the
+failure is attached to the missing typed object: a role, a coordinate, a
+validator, a renderer, or an operator. That makes later improvement measurable
+without changing the benchmark-specific code path.
+
+\section{Limitations}
+
+\mars is a hypothesis-induction architecture for improving small-model
+scientific reasoning through external typed state and executable evidence. Its
+main limitation is operator coverage: the system improves hypothesis search
+when a missing object can be represented as a contract, a typed hole, a
+validator, a renderer, or a residual-induced operator, but the current operator
+language does not cover every scientific workflow.
+
+The strongest results occur when the task exposes measurements or traces that
+can close typed holes. When the needed operator is absent, the kernel cannot
+recover the right hypothesis by ranking alone. This makes operator coverage the
+main remaining technical bottleneck. DiscoveryBench additionally exposes a
+rendering problem: the system can measure a scientifically plausible relation
+but express it in a form that misses the benchmark's target facet. NewtonBench
+errors are concentrated in abstentions, compile failures, and missing
+coordinate charts rather than in confidently accepted wrong laws.
+UltraHorizon sequence induction is strong, while broader
+environment coverage requires repeated runs because single trajectories have
+high variance. ScienceAgentBench is excluded from the primary evaluation because
+full scientific workflow execution requires a
+stronger multi-file assembler.
+
+The residual-operator analysis is also limited. It demonstrates that residuals can
+produce reusable operators on held-out evaluations, but it does not yet prove
+unbounded autonomous growth. The current system has a plateau after the first
+outer-loop improvement. A stronger version must learn broader operator
+families from residuals while retaining the same contract, validation, and
+complexity controls.
+
+\section{Conclusion}
+
+We presented \mars, a typed executable hypothesis-induction system for
+scientific reasoning with small language models. The main claim is structural:
+weak models benefit when hypothesis generation is moved from free-form prose
+into an external state of typed artifacts, executable measurements, validators,
+and residuals. Across data-driven discovery, symbolic law induction, and
+long-horizon sequence induction, the same kernel improves the effective
+reasoning of \gptmini across the reported evaluations and sometimes reduces the gap to
+\gptfour. The experiments identify where external structure helps most: when
+the system can decompose a
+hypothesis into measurable slots, use execution to close them, and turn
+recurrent typed residuals into better operators. This suggests a concrete path
+for small-model scientific agents: grow the hypothesis language itself, guided
+by residuals, rather than only sampling more reasoning traces from a fixed
+language.
+
+\begin{thebibliography}{99}
+
+\bibitem[Majumder et al.(2024)]{discoverybench}
+Bodhisattwa Prasad Majumder, Harshit Surana, Dhruv Agarwal, Bhavana
+Dalvi Mishra, Abhijeetsingh Meena, Aryan Prakhar, Tirth Vora, Tushar
+Khot, Ashish Sabharwal, and Peter Clark.
+\newblock DiscoveryBench: Towards data-driven discovery with large language
+models.
+\newblock arXiv preprint arXiv:2407.01725, 2024.
+
+\bibitem[Zheng et al.(2025)]{newtonbench}
+Tianshi Zheng, Kelvin Kiu-Wai Tam, Newt Hue-Nam K. Nguyen, Baixuan Xu,
+Zhaowei Wang, Jiayang Cheng, Hong Ting Tsang, Weiqi Wang, Jiaxin Bai,
+Tianqing Fang, Yangqiu Song, Ginny Y. Wong, and Simon See.
+\newblock NewtonBench: Benchmarking generalizable scientific law discovery in
+LLM agents.
+\newblock arXiv preprint arXiv:2510.07172, 2025.
+
+\bibitem[Luo et al.(2025)]{ultrahorizon}
+Haotian Luo, Huaisong Zhang, Xuelin Zhang, Haoyu Wang, Zeyu Qin, Wenjie
+Lu, Guozheng Ma, Haiying He, Yingsha Xie, Qiyang Zhou, Zixuan Hu,
+Hongze Mi, Yibo Wang, Naiqiang Tan, Hong Chen, Yi R. Fung, Chun Yuan,
+and Li Shen.
+\newblock UltraHorizon: Benchmarking agent capabilities in ultra long-horizon
+scenarios.
+\newblock arXiv preprint arXiv:2509.21766, 2025.
+
+\bibitem[Chen et al.(2025)]{scienceagentbench}
+Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang,
+Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, Vishal Dey,
+Mingyi Xue, Frazier N. Baker, Benjamin Burns, Daniel Adu-Ampratwum,
+Xuhui Huang, Xia Ning, Song Gao, Yu Su, and Huan Sun.
+\newblock ScienceAgentBench: Toward rigorous assessment of language agents for
+data-driven scientific discovery.
+\newblock In \emph{ICLR}, 2025.
+
+\bibitem[Yao et al.(2023a)]{react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik
+Narasimhan, and Yuan Cao.
+\newblock ReAct: Synergizing reasoning and acting in language models.
+\newblock In \emph{ICLR}, 2023.
+
+\bibitem[Shinn et al.(2023)]{reflexion}
+Noah Shinn, Federico Cassano, Edward Berman, Ashwin Gopinath, Karthik
+Narasimhan, and Shunyu Yao.
+\newblock Reflexion: Language agents with verbal reinforcement learning.
+\newblock In \emph{NeurIPS}, 2023.
+
+\bibitem[Madaan et al.(2023)]{selfrefine}
+Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao,
+Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,
+Shashank Gupta, Bodhisattwa Prasad Majumder, Katherine Hermann, Sean
+Welleck, Amir Yazdanbakhsh, and Peter Clark.
+\newblock Self-Refine: Iterative refinement with self-feedback.
+\newblock In \emph{NeurIPS}, 2023.
+
+\bibitem[Yao et al.(2023b)]{tot}
+Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas L. Griffiths,
+Yuan Cao, and Karthik Narasimhan.
+\newblock Tree of thoughts: Deliberate problem solving with large language
+models.
+\newblock In \emph{NeurIPS}, 2023.
+
+\bibitem[Zhou et al.(2024)]{lats}
+Andy Zhou, Kai Yan, Michal Shlapentokh-Rothman, Haohan Wang, and
+Yu-Xiong Wang.
+\newblock Language agent tree search unifies reasoning, acting, and planning in
+language models.
+\newblock In \emph{ICML}, 2024.
+
+\bibitem[Wang et al.(2024)]{codeact}
+Xingyao Wang, Yangyi Chen, Lifan Yuan, Yizhe Zhang, Yunzhu Li, Hao Peng,
+and Heng Ji.
+\newblock Executable code actions elicit better LLM agents.
+\newblock In \emph{ICML}, 2024.
+
+\bibitem[Khattab et al.(2023)]{dspy}
+Omar Khattab, Arnav Singhvi, Paridhi Maheshwari, Zhiyuan Zhang, Keshav
+Santhanam, Sri Vardhamanan, Saiful Haq, Ashutosh Sharma, Thomas T.
+Joshi, Hanna Moazam, Heather Miller, Matei Zaharia, and Christopher Potts.
+\newblock DSPy: Compiling declarative language model calls into
+self-improving pipelines.
+\newblock arXiv preprint arXiv:2310.03714, 2023.
+
+\bibitem[Zhou et al.(2024)]{selfdiscover}
+Pei Zhou, Jay Pujara, Xiang Ren, Xinyun Chen, Heng-Tze Cheng, Quoc V.
+Le, Ed H. Chi, Denny Zhou, Swaroop Mishra, and Huaixiu Steven Zheng.
+\newblock Self-Discover: Large language models self-compose reasoning
+structures.
+\newblock arXiv preprint arXiv:2402.03620, 2024.
+
+\bibitem[Wang et al.(2023)]{voyager}
+Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Mandlekar, Chaowei Xiao,
+Yuke Zhu, Linxi Fan, and Anima Anandkumar.
+\newblock Voyager: An open-ended embodied agent with large language models.
+\newblock arXiv preprint arXiv:2305.16291, 2023.
+
+\bibitem[Ellis et al.(2021)]{dreamcoder}
+Kevin Ellis, Catherine Wong, Maxwell Nye, Mathias Sable-Meyer, Luc Cary,
+Lucas Morales, Luke Hewitt, Armando Solar-Lezama, and Joshua B. Tenenbaum.
+\newblock DreamCoder: Growing generalizable, interpretable knowledge with
+wake-sleep Bayesian program learning.
+\newblock In \emph{PLDI}, 2021.
+
+\bibitem[Udrescu and Tegmark(2020)]{aifeynman}
+Silviu-Marian Udrescu and Max Tegmark.
+\newblock AI Feynman: A physics-inspired method for symbolic regression.
+\newblock \emph{Science Advances}, 6(16), 2020.
+
+\bibitem[Cranmer(2023)]{pysr}
+Miles Cranmer.
+\newblock Interpretable machine learning for science with PySR and
+SymbolicRegression.jl.
+\newblock arXiv preprint arXiv:2305.01582, 2023.
+
+\bibitem[Pearl(2009)]{pearl}
+Judea Pearl.
+\newblock \emph{Causality: Models, Reasoning, and Inference}.
+\newblock Cambridge University Press, 2nd edition, 2009.
+
+\bibitem[Peters, Buhlmann, and Meinshausen(2016)]{invariant}
+Jonas Peters, Peter Buhlmann, and Nicolai Meinshausen.
+\newblock Causal inference by using invariant prediction: Identification and
+confidence intervals.
+\newblock \emph{Journal of the Royal Statistical Society: Series B},
+78(5):947--1012, 2016.
+
+\bibitem[Rainforth et al.(2023)]{bed}
+Tom Rainforth, Adam Foster, Desi R. Ivanova, and Freddie Bickford Smith.
+\newblock Modern Bayesian experimental design.
+\newblock arXiv preprint arXiv:2302.14545, 2023.
+
+\end{thebibliography}
+
+\end{document}
