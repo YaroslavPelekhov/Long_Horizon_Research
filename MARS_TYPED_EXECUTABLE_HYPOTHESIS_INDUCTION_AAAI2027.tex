@@ -14,6 +14,7 @@
 \usepackage{xspace}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{float}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit}
 \pdfinfo{
@@ -528,12 +529,14 @@ exploration tasks; we report the environment-compatible score and exact
 program-fit count for sequence-rule tasks. Table~\ref{tab:benchmarks} gives
 the interfaces and metrics used here.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
 \caption{Benchmark interfaces used to evaluate whether one hypothesis-state
 kernel can operate across heterogeneous scientific reasoning tasks.}
 \label{tab:benchmarks}
-\begin{tabular}{llll}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
 \toprule
 Benchmark & Interface & Required artifact & Metric used here \\
 \midrule
@@ -542,7 +545,8 @@ NewtonBench & simulator + observations & symbolic law & SA-all / SA-answered \\
 UltraHorizon & partially observable environment & transition program & score / exact program fit \\
 \bottomrule
 \end{tabular}
-\end{table*}
+}
+\end{table}
 
 \subsection{Baselines and protocol}
 
@@ -567,42 +571,60 @@ CodeGen, 15.4 HMS for GPT-4o ReAct, and 24.5 HMS for oracle-feedback Reflexion.
 NewtonBench reports 75.9 SA for a GPT-5 vanilla agent, 65.4 for
 Gemini-2.5-Pro, and 47.8 for o4-mini. UltraHorizon reports 14.33 average score
 for the best free-step LLM setting and 26.52 for humans under the paper
-protocol. Table~\ref{tab:official_comparison} places these references next to
-the \mars results under each benchmark's native metric.
+protocol. Tables~\ref{tab:discovery_comparison} and
+\ref{tab:law_horizon_comparison} place these references next to the \mars
+results under each benchmark's native metric.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
-\caption{Benchmark comparison with published reference systems. Metrics are
-native to each benchmark family.}
-\label{tab:official_comparison}
-\begin{tabular}{@{}lllll@{}}
+\caption{DiscoveryBench comparison.}
+\label{tab:discovery_comparison}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lllr@{}}
 \toprule
-Benchmark & System & Core model & Mode & Primary metric \\
+System & Core model & Mode & HMS \\
 \midrule
-DiscoveryBench & GPT-4o ReAct & GPT-4o & non-oracle & 15.4 HMS \\
-DiscoveryBench & GPT-4-preview CodeGen & GPT-4-preview & non-oracle & 16.3 HMS \\
-DiscoveryBench & Reflexion & GPT-4 family & oracle feedback & 24.5 HMS \\
-DiscoveryBench & \mars & \gptmini & non-oracle & 20.4 HMS / 27.1 Cons. \\
-\midrule
-NewtonBench & Vanilla agent & GPT-5 & direct agent & 75.9 SA \\
-NewtonBench & Vanilla agent & Gemini-2.5-Pro & direct agent & 65.4 SA \\
-NewtonBench & Vanilla agent & o4-mini & direct agent & 47.8 SA \\
-NewtonBench & \mars & \gptmini & executable induction & 41.7 SA-all / 83.3 SA-ans. \\
-\midrule
-UltraHorizon & Best free-step LLM & reported best LLM & agent & 14.33 score \\
-UltraHorizon & Human & human & human & 26.52 score \\
-UltraHorizon & \mars & \gptmini & executable induction & 49.2 / 45.8 score \\
+GPT-4o ReAct & GPT-4o & non-oracle & 15.4 \\
+GPT-4-preview CodeGen & GPT-4-preview & non-oracle & 16.3 \\
+Reflexion & GPT-4 family & oracle feedback & 24.5 \\
+\mars & \gptmini & non-oracle & 20.4 / 27.1 Cons. \\
 \bottomrule
 \end{tabular}
-\end{table*}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{NewtonBench and UltraHorizon comparison.}
+\label{tab:law_horizon_comparison}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+Benchmark & System & Core model & Primary metric \\
+\midrule
+NewtonBench & Vanilla agent & GPT-5 & 75.9 SA \\
+NewtonBench & Vanilla agent & Gemini-2.5-Pro & 65.4 SA \\
+NewtonBench & Vanilla agent & o4-mini & 47.8 SA \\
+NewtonBench & \mars & \gptmini & 41.7 SA-all / 83.3 SA-ans. \\
+\midrule
+UltraHorizon & Best free-step LLM & reported best LLM & 14.33 score \\
+UltraHorizon & Human & human & 26.52 score \\
+UltraHorizon & \mars & \gptmini & 49.2 / 45.8 score \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
 
 \subsection{Main results}
 
-Table~\ref{tab:official_comparison} reports the main \gptmini-core \mars
-results alongside published reference systems. The pattern is consistent with
-the method design: DiscoveryBench is limited by answer-form induction and
-semantic rendering, NewtonBench by coverage and abstention, and UltraHorizon
-sequence induction benefits most from exact executable transition checks.
+Tables~\ref{tab:discovery_comparison} and
+\ref{tab:law_horizon_comparison} report the main \gptmini-core \mars results
+alongside published reference systems. The pattern is consistent with the method
+design: DiscoveryBench is limited by answer-form induction and semantic
+rendering, NewtonBench by coverage and abstention, and UltraHorizon sequence
+induction benefits most from exact executable transition checks.
 Residual-conditioned operator promotion raises the DiscoveryBench score from
 13.6 to 20.4 HMS, with most of the gain concentrated in meta-regression and
 requirements-style table questions. In the published DB-Real context, this
@@ -610,7 +632,7 @@ places the autonomous \gptmini-core system above the non-oracle GPT-4o ReAct
 and GPT-4-preview CodeGen references, while oracle-feedback Reflexion remains a
 strong revision-aided reference.
 
-\begin{table}[t]
+\begin{table}[H]
 \centering
 \small
 \caption{Core-model comparison under the same external hypothesis scaffold.}
@@ -649,7 +671,7 @@ canonicalization improves both HMS and consistency, and the final role layer
 mainly increases consistency by preventing proxy columns from being treated as
 unrelated scientific variables.
 
-\begin{table}[t]
+\begin{table}[H]
 \centering
 \caption{DiscoveryBench layer ablation.}
 \label{tab:discovery_ablation}
@@ -674,10 +696,12 @@ mostly failed or abstained answers into exact executable laws on the matched
 tasks. On UltraHorizon, typed slots and measurement compilation provide smaller
 but consistent gains.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
 \caption{Mechanism ablations across benchmark families.}
 \label{tab:mechanism_ablation}
+\small
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lll}
 \toprule
 Benchmark & Mechanism & Before$\to$After \\
@@ -690,7 +714,8 @@ UltraHorizon & typed slots + measurements & 46.7$\to$50.8 score \\
 UltraHorizon & sequence residual operators & 40.0$\to$100.0 exact \\
 \bottomrule
 \end{tabular}
-\end{table*}
+}
+\end{table}
 
 \subsection{Residual-operator analysis}
 
@@ -701,10 +726,12 @@ patterns were converted into executable rules or promoted operator families.
 The goal is to measure whether residuals can change the hypothesis language in
 ways that transfer across held-out checks.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
 \caption{Residual-conditioned operator promotion.}
 \label{tab:operator_promotion}
+\small
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llll}
 \toprule
 Benchmark & Promoted operator & Metric & Before$\to$After \\
@@ -716,7 +743,10 @@ DiscoveryBench & paired-slot renderer & HMS & 0.7$\to$24.2 \\
 Cross-benchmark & G0$\to$G1 operator set & normalized score & .789$\to$.801 \\
 \bottomrule
 \end{tabular}
-\end{table*}
+}
+\end{table}
+
+\FloatBarrier
 
 In UltraHorizon sequence tasks, residual rules such as character-wise
 combination, positional maximum, and sorted multiset transformations close
