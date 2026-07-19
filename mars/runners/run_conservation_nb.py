@@ -28,7 +28,7 @@ for _p in (_PROJ, _NB):
         sys.path.insert(0, str(_p))
 try:
     from dotenv import load_dotenv
-    load_dotenv(_PROJ / "autodiscovery" / ".env.local", override=True)
+    load_dotenv(_PROJ / "autodiscovery" / ".env.local", override=False)
 except ImportError:
     pass
 

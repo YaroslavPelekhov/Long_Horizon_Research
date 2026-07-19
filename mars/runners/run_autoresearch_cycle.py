@@ -16,7 +16,7 @@ try:
 
     env_path = _PROJ / "autodiscovery" / ".env.local"
     if env_path.exists():
-        load_dotenv(env_path, override=True)
+        load_dotenv(env_path, override=False)
 except ImportError:
     pass
 

@@ -165,6 +165,11 @@ def _event_type(question: str) -> str:
         return "pca_component"
     if "when" in q and "peak" in q and any(w in q for w in ("how do", "how does", "change")):
         return "peak_context_change"
+    if (
+        "opposite growth trends" in q
+        or ("opposite" in q and any(w in q for w in ("increase", "increasing", "growth")) and any(w in q for w in ("decline", "declining", "decrease")))
+    ):
+        return "simultaneous_inverse"
     if any(w in q for w in ("simultaneously", "simultaneuosly", "simultaneous")) and any(
         w in q for w in ("decrease", "decline", "collapse", "dip")
     ) and not any(w in q for w in ("increase", "increases", "rise", "rises", "rising")):
@@ -280,13 +285,25 @@ def _close_peak(
     if not scored:
         return None
     score, cand, _idx, value, tv = max(scored, key=lambda x: x[0])
+    observed = _observed_counterpart(cand, candidates, getattr(df, "columns", []), question)
+    if observed.name != cand.name and observed.name in getattr(df, "columns", []):
+        s = _series_numeric(df[observed.name])
+        good = s.notna() & time.notna()
+        if good.sum() >= 3:
+            sg = s[good]
+            idx = int(sg.idxmax())
+            cand = observed
+            value = float(s.loc[idx])
+            tv = float(time.loc[idx])
+            score += 0.75
     canonical = _canonical_variable_name(cand.name, getattr(df, "columns", []))
     variable = _question_peak_subject(question) or _humanize(canonical)
     period = _period_phrase(tv, time_col)
     coarse_period = _coarse_period_phrase(tv, time_col)
     if "peak" in question.lower() or "peaked" in question.lower():
+        peak_period = _peak_period(tv, time_col)
         hypothesis = (
-            f"Around {abs(int(round(tv)))} BCE, {variable} peaked."
+            f"Around {peak_period}, {variable} peaked."
             if tv < 0 or "bce" in time_col.lower()
             else f"Around {int(round(tv))} CE, {variable} peaked."
         )
@@ -550,6 +567,7 @@ def _close_simultaneous_decline(
         return None
 
     time = _series_numeric(df[time_col])
+    series_by_name = {cand.name: _series_numeric(df[cand.name]) for cand in selected}
     frame = []
     for idx in df.index:
         if not _finite(time.loc[idx]):
@@ -557,19 +575,19 @@ def _close_simultaneous_decline(
         values = []
         ok = True
         for cand in selected:
-            s = _series_numeric(df[cand.name])
+            s = series_by_name[cand.name]
             if not _finite(s.loc[idx]):
                 ok = False
                 break
             values.append(float(s.loc[idx]))
         if ok:
             frame.append((float(time.loc[idx]), values))
-    frame.sort(key=lambda row: row[0])
+    frame.sort(key=lambda row: _observation_order_key(row[0], time_col))
     if len(frame) < 3:
         return None
     ranges = []
     for cand in selected:
-        s = _series_numeric(df[cand.name]).dropna()
+        s = series_by_name[cand.name].dropna()
         ranges.append(_safe_range(s) or 1.0)
     events: list[tuple[float, float, list[float]]] = []
     for i in range(1, len(frame)):
@@ -581,13 +599,19 @@ def _close_simultaneous_decline(
             events.append((tv, objective, drops))
     if not events:
         return None
+    windows = _transition_windows(events, time_col)
+    if not windows:
+        return None
     ordinal = _requested_ordinal(question)
-    if ordinal and len(events) >= ordinal:
-        tv, objective, drops = events[ordinal - 1]
+    if ordinal and len(windows) >= ordinal:
+        window = windows[ordinal - 1]
     elif "first" in q:
-        tv, objective, drops = events[0]
+        window = windows[0]
     else:
-        tv, objective, drops = max(events, key=lambda item: item[1])
+        window = max(windows, key=lambda group: sum(item[1] for item in group))
+    tv = _transition_window_display_time(window, time_col)
+    objective = sum(item[1] for item in window)
+    drops = [sum(item[2][j] for item in window) for j in range(len(window[0][2]))]
 
     period = _single_period(tv, time_col)
     names = [_humanize(_canonical_variable_name(c.name, getattr(df, "columns", []))) for c in selected]
@@ -625,6 +649,7 @@ def _close_peak_context_change(
     trigger = _best_role_candidate(candidates, {"monument", "monuments", "zmonument", "count", "peak"}, fallback_index=0)
     if trigger is None:
         return None
+    trigger = _observed_counterpart(trigger, candidates, getattr(df, "columns", []), question)
     targets: list[SlotCandidate] = []
     for aliases in ({"decoration", "decor", "keverz"}, {"form", "keform", "ceramic", "pottery"}):
         cand = _best_role_candidate(candidates, aliases, fallback_index=len(targets) + 1)
@@ -661,7 +686,7 @@ def _close_peak_context_change(
         pieces = [f"{name} {'increases' if delta > 0 else 'declines'}" for name, delta in changes]
         change_phrase = _join_phrase(pieces)
     trigger_name = _humanize(_canonical_variable_name(trigger.name, getattr(df, "columns", [])))
-    period = _single_period(peak_time, time_col)
+    period = _peak_period(peak_time, time_col)
     if "how" in q:
         hypothesis = f"When {trigger_name} peaks around {period}, {change_phrase}."
     else:
@@ -700,18 +725,30 @@ def _close_simultaneous_inverse(
     if good.sum() < 3:
         return None
     rows = [(float(time.loc[idx]), float(down.loc[idx]), float(up.loc[idx])) for idx in list(df.index[good])]
-    best: tuple[float, float, float, float] | None = None
+    rows.sort(key=lambda row: _observation_order_key(row[0], time_col))
+    events: list[tuple[float, float, list[float]]] = []
     for i in range(1, len(rows)):
         prev_t, prev_down, prev_up = rows[i - 1]
-        _cur_t, cur_down, cur_up = rows[i]
+        cur_t, cur_down, cur_up = rows[i]
         drop = prev_down - cur_down
         rise = cur_up - prev_up
         objective = max(0.0, drop) + max(0.0, rise)
-        if objective > 0 and (best is None or objective > best[0]):
-            best = (objective, prev_t, drop, rise)
-    if best is None:
+        if drop > 0 and rise > 0:
+            events.append((prev_t, objective, [drop, rise]))
+    windows = _transition_windows(events, time_col)
+    if not windows:
         return None
-    objective, tv, drop, rise = best
+    ordinal = _requested_ordinal(question)
+    if ordinal and len(windows) >= ordinal:
+        window = windows[ordinal - 1]
+    elif "first" in str(question).lower():
+        window = windows[0]
+    else:
+        window = max(windows, key=lambda group: sum(item[1] for item in group))
+    tv = _transition_window_display_time(window, time_col)
+    objective = sum(item[1] for item in window)
+    drop = sum(item[2][0] for item in window)
+    rise = sum(item[2][1] for item in window)
     down_canon = _canonical_variable_name(decreasing.name, getattr(df, "columns", []))
     up_canon = _canonical_variable_name(increasing.name, getattr(df, "columns", []))
     down_name = _humanize(down_canon)
@@ -1140,6 +1177,32 @@ def _best_role_candidate(
     return None
 
 
+def _observed_counterpart(
+    cand: SlotCandidate,
+    candidates: list[SlotCandidate],
+    columns: Any,
+    question: str,
+) -> SlotCandidate:
+    """Prefer directly observed columns for extrema unless smoothing is requested."""
+
+    q = str(question or "").lower()
+    low = cand.name.lower()
+    if any(tok in q for tok in ("smooth", "smoothed", "interpolat", "rolling")):
+        return cand
+    suffixes = ("_inter", "_smooth", "_rolling")
+    base = ""
+    for suffix in suffixes:
+        if low.endswith(suffix):
+            base = cand.name[: -len(suffix)]
+            break
+    if not base or not any(str(col) == base for col in columns):
+        return cand
+    for other in candidates:
+        if other.name == base:
+            return other
+    return SlotCandidate(cand.slot, base, cand.score + 0.75, cand.evidence)
+
+
 def _close_comparison(
     question: str,
     df: Any,
@@ -1467,9 +1530,16 @@ def _time_column(df: Any, question: str) -> str:
 
 def _series_numeric(values: Any):
     import pandas as pd
+    from pandas.api.types import is_numeric_dtype
 
+    if hasattr(values, "dtype") and is_numeric_dtype(values.dtype):
+        return pd.to_numeric(values, errors="coerce")
     if hasattr(values, "astype"):
         try:
+            sample = values.dropna().head(32) if hasattr(values, "dropna") else values
+            sample_text = " ".join(str(x) for x in list(sample)[:32])
+            if not re.search(r"[-+]?\d", sample_text):
+                return pd.to_numeric(values, errors="coerce")
             values = values.astype(str).str.replace(",", ".", regex=False)
         except Exception:
             pass
@@ -1681,6 +1751,64 @@ def _single_period(value: float, time_col: str) -> str:
     if value < 0 or "bce" in time_col.lower():
         return f"{abs(int(round(value / 100.0) * 100))} BCE"
     return f"{int(round(value))} CE"
+
+
+def _peak_period(value: float, time_col: str) -> str:
+    if value < 0 or "bce" in str(time_col or "").lower():
+        year = abs(int(round(value)))
+        return f"{year} BCE"
+    return f"{int(round(value))} CE"
+
+
+def _observation_order_key(value: float, time_col: str) -> float:
+    """Return chronological observation order, oldest to newest."""
+
+    low = str(time_col or "").lower()
+    if "calbp" in low:
+        return -float(value)
+    if "bce" in low and value >= 0:
+        return -float(value)
+    return float(value)
+
+
+def _transition_bucket(value: float, time_col: str) -> int:
+    low = str(time_col or "").lower()
+    if "bce" in low or value < 0:
+        year = abs(float(value))
+        return int(year // 100)
+    return int(float(value) // 100)
+
+
+def _transition_windows(
+    events: list[tuple[float, float, list[float]]],
+    time_col: str,
+) -> list[list[tuple[float, float, list[float]]]]:
+    """Compress adjacent row-level transitions into semantic event windows."""
+
+    if not events:
+        return []
+    ordered = sorted(events, key=lambda item: _observation_order_key(item[0], time_col))
+    windows: list[list[tuple[float, float, list[float]]]] = []
+    current: list[tuple[float, float, list[float]]] = [ordered[0]]
+    last_bucket = _transition_bucket(ordered[0][0], time_col)
+    for event in ordered[1:]:
+        bucket = _transition_bucket(event[0], time_col)
+        if abs(bucket - last_bucket) <= 1:
+            current.append(event)
+        else:
+            windows.append(current)
+            current = [event]
+        last_bucket = bucket
+    windows.append(current)
+    return windows
+
+
+def _transition_window_display_time(
+    window: list[tuple[float, float, list[float]]],
+    time_col: str,
+) -> float:
+    ordered = sorted(window, key=lambda item: _observation_order_key(item[0], time_col))
+    return ordered[-1][0]
 
 
 def _requested_ordinal(question: str) -> int | None:

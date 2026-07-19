@@ -1,0 +1,814 @@
+[
+  {
+    "key": [
+      "m3_fourier_law",
+      "medium",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.0678325178948133,
+      0.06845994497987098,
+      0.06716345135223827
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.012,
+    "base_rmsle": 0.06857257805101702,
+    "law": "0.9799876457073156 * (k ** 1.0) * (A ** 0.5) * (delta_T ** 2.718281828459045) * (d ** -1.0)"
+  },
+  {
+    "key": [
+      "m3_fourier_law",
+      "hard",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.06814734674782033,
+      0.06837153387928432,
+      0.0681833501474374
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.012,
+    "base_rmsle": 0.06854080574970291,
+    "law": "0.9799876457073169 * (k ** 1.0) * (A ** 0.5) * (delta_T ** 2.718281828459045) * (d ** -0.42857142857"
+  },
+  {
+    "key": [
+      "m6_underdamped_harmonic",
+      "hard",
+      "v0",
+      "simple_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      1.8345796003105173,
+      1.8345079146427294,
+      1.8337937303932952
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+compression_tournament",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 1.8345956423422747,
+    "law": "(max(0.0, ((8.8598432579e-09) * ((k)**0.5 * (m)**-0.5) + (-6.91833673683e-11) * ((b)**-1 * (m)**3.4)"
+  },
+  {
+    "key": [
+      "m7_malus_law",
+      "medium",
+      "v1",
+      "simple_system"
+    ],
+    "votes": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.0306792565930334,
+      0.03059837703544183,
+      0.030494466907818124
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      null,
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+compression_tournament",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 0.03060356831066216,
+    "law": "(1.03224363724) * ((I_0) * (math.sin(theta))**2 * (math.cos(theta))**-3)"
+  },
+  {
+    "key": [
+      "m7_malus_law",
+      "hard",
+      "v0",
+      "complex_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.04754517739343574,
+      0.04670507848335111,
+      0.047813596821753304
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0145,
+    "base_rmsle": 0.04702350059010001,
+    "law": "(3.48175466173) * ((I_0) * (math.sin(theta))**2) + (7.01452003078) * ((I_0) * (math.sin(theta)) * (m"
+  },
+  {
+    "key": [
+      "m8_sound_speed",
+      "hard",
+      "v0",
+      "complex_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.016934198977413543,
+      0.01692450124720963,
+      0.016934193012658864
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0253,
+    "base_rmsle": 0.016933376069898066,
+    "law": "19.21872567579661 * math.exp(0.4948525457341469 * gamma) * (T ** 1.0) * (M ** -0.75)"
+  },
+  {
+    "key": [
+      "m9_hooke_law",
+      "easy",
+      "v1",
+      "simple_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.7798314114067167,
+      0.7787587020446568,
+      0.7802501237218689
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 0.7718021285615355,
+    "law": "math.sqrt(max(0.0, ((9335.27699529) * ((x)**0.5) + (7468.22159617) * ((x)**1.5) + (1493.64431923) * "
+  },
+  {
+    "key": [
+      "m9_hooke_law",
+      "medium",
+      "v0",
+      "simple_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.008607495389812453,
+      0.008597175932848308,
+      0.008596028276085086
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+compression_tournament",
+    "held_out_rmsle": 0.0004,
+    "base_rmsle": 0.008579851987988284,
+    "law": "((1228.45669909) * ((x)) + (473.776319376) * ((x)**2) + (-0.00780851036477) * ((x)**3))"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "easy",
+      "v0",
+      "simple_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      4.4909758816648315,
+      4.481981647809758,
+      4.494813611347634
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+compression_tournament",
+    "held_out_rmsle": 0.0048,
+    "base_rmsle": 4.466176810340535,
+    "law": "12.5655082365 * (T)**0.5"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "easy",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      0.015261945875264749,
+      0.015259558628777661,
+      0.015258962834057749
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+compression_tournament",
+    "held_out_rmsle": 0.029,
+    "base_rmsle": 0.015258665201297638,
+    "law": "1.0 / max(1e-300, math.exp(1.03537870361e-14 * (omega)**0.5 * (T)**-1) - 1.0)"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "easy",
+      "v1",
+      "simple_system"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      0.001905944923837545,
+      0.0019137094737876714,
+      0.0019090363583769826
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0028,
+    "base_rmsle": 0.0019092608757051318,
+    "law": "1.0 / max(1e-300, math.exp(1.0533042272e-14 * (omega)**0.5 * (T)**-1) - 1.0)"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "easy",
+      "v2",
+      "simple_system"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      0.0021526724776079146,
+      0.001624536100367101,
+      0.0018738664580307833
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+compression_tournament",
+    "held_out_rmsle": 0.0613,
+    "base_rmsle": 0.0018943521887047024,
+    "law": "1.0 / max(1e-300, math.exp(1.05050191801e-14 * (omega) * (T)**-3) - 1.0)"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "medium",
+      "v0",
+      "simple_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.012567891703261294,
+      0.0120635863561935,
+      0.012868330156577118
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "balanced_probe+verified_fallback",
+    "held_out_rmsle": 0.3876,
+    "base_rmsle": 0.012425517402416658,
+    "law": "(max(0.0, ((2.13307795493e-12) * ((omega) * (T)**-2) + (-1.22721748417e-11) * ((omega) * (T)**-0.5) "
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "medium",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      5.11597145672257e-06,
+      5.115871672952236e-06,
+      5.11597149330072e-06
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 5.115683541347952e-06,
+    "law": "1.0 / max(1e-300, math.exp(1.0513053783e-14 * (omega)**0.5 * (T)) - 1.0)"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "medium",
+      "v1",
+      "simple_system"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      0.00026527124347748094,
+      0.00026527112904158566,
+      0.0002652714025039196
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0008,
+    "base_rmsle": 0.00026527083951485657,
+    "law": "1.0 / max(1e-300, math.exp(1.05157891641e-14 * (omega)**0.5 * (T)) - 1.0)"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "hard",
+      "v0",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      7.883549987872933e-08,
+      8.15955326625486e-08,
+      7.40791121539293e-08
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0046,
+    "base_rmsle": 7.795842802169012e-08,
+    "law": "1.0 / (math.exp(1.0513727211e-14 * (omega)**1.5 * (T)**-2) + 1.0)"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "hard",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      3.833313754328795e-05,
+      3.789928707984312e-05,
+      3.825991483310803e-05
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0177,
+    "base_rmsle": 3.747345219600259e-05,
+    "law": "1.0 / max(1e-300, math.exp(1.05138713081e-14 * (omega)**0.5 * (T)**2.29997699912) - 1.0)"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "hard",
+      "v2",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      2.7703485030557317e-18,
+      2.8339244640771167e-18,
+      2.952089598632169e-18
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 2.8827743078553554e-18,
+    "law": "1.0 / max(1e-300, (-math.log(max(1e-300, 1.0513e-14 * (omega)**1.5 * (T)**-3)) - 1.0))"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "hard",
+      "v2",
+      "simple_system"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      3.026185203446958e-18,
+      2.553286678332614e-18,
+      2.57020227010409e-18
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 2.8827743078553554e-18,
+    "law": "1.0 / max(1e-300, (-math.log(max(1e-300, 1.0513e-14 * (omega)**1.5 * (T)**-3)) - 1.0))"
+  },
+  {
+    "key": [
+      "m10_be_distribution",
+      "hard",
+      "v2",
+      "complex_system"
+    ],
+    "votes": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "majority_SA": 0.0,
+    "rmsles": [
+      0.5194898597124004,
+      0.5270735229221586,
+      0.5240468488842472
+    ],
+    "errors": [
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent.",
+      "LLM judge determined formulas are not equivalent."
+    ],
+    "method": "multivariate_probe+anti_asymptotic",
+    "held_out_rmsle": 0.0001,
+    "base_rmsle": 0.5246364783845643,
+    "law": "1.0 / max(1e-300, (-math.log(max(1e-300, 0.0162670077705 * (omega)**0.149999994839 * (T)**-0.3000000"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "easy",
+      "v0",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 0.0,
+    "law": "1.0 * (m ** 1.0) * (c ** 1.0) * (delta_T ** 2.5)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "easy",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 0.0,
+    "law": "1.0 * (m ** 2.5) * (c ** 1.0) * (delta_T ** 1.0)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "easy",
+      "v2",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      5.878074990739004e-16,
+      5.97901931666616e-16,
+      5.363545895949479e-16
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 5.508733455767522e-16,
+    "law": "1.0 * (m ** 2.5) * (c ** 1.0) * (delta_T ** 2.5)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "medium",
+      "v0",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      9.827140954934876e-17,
+      8.679682119600094e-17,
+      9.386817726146911e-17
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 9.171493780958097e-17,
+    "law": "1.0 * (m ** -1.0) * (c ** 1.0) * (delta_T ** -2.5)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "medium",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      2.746819882858556e-16,
+      2.703617101926489e-16,
+      2.904006904298178e-16
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 2.7592525267251485e-16,
+    "law": "1.0 * (m ** -2.5) * (c ** 1.0) * (delta_T ** -1.0)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "medium",
+      "v2",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      1.9723196922931338e-16,
+      1.8657003849890494e-16,
+      1.8406167529494395e-16
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 2.1398818185998089e-16,
+    "law": "1.0 * (m ** -2.5) * (c ** 1.0) * (delta_T ** -2.5)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "hard",
+      "v0",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      3.0430060685102197e-15,
+      2.982654890510075e-15,
+      3.1024504454466555e-15
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 3.1153310110428172e-15,
+    "law": "0.9999999999999991 * (m ** -3.718281828459044) * (c ** 1.0) * (delta_T ** -2.5)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "hard",
+      "v1",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      1.2270232932989271e-16,
+      1.31331872480082e-16,
+      1.2306836332385078e-16
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 1.281942262390777e-16,
+    "law": "1.0 * (m ** -2.5) * (c ** 1.0) * (delta_T ** -3.718281828459045)"
+  },
+  {
+    "key": [
+      "m11_heat_transfer",
+      "hard",
+      "v2",
+      "vanilla_equation"
+    ],
+    "votes": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "majority_SA": 1.0,
+    "rmsles": [
+      1.447376363305198e-15,
+      1.4559959286422313e-15,
+      1.4086915419601528e-15
+    ],
+    "errors": [
+      null,
+      null,
+      null
+    ],
+    "method": "probe",
+    "held_out_rmsle": 0.0,
+    "base_rmsle": 1.432163020568077e-15,
+    "law": "1.0000000000000018 * (m ** -3.718281828459046) * (c ** 1.0) * (delta_T ** -3.718281828459046)"
+  }
+]

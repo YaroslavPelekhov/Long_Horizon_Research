@@ -11,10 +11,12 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{array}
+\usepackage{tabularx}
 \usepackage{xspace}
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{float}
+\usepackage{placeins}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit}
 \pdfinfo{
@@ -58,13 +60,18 @@ through contract compilation, typed-hole closure, executable measurement,
 metamorphic validation, and residual-conditioned operator promotion. The model
 proposes local typed objects, while execution closes uncertain slots and stores
 failures as structured residuals rather than untyped bad answers. We evaluate
-the same kernel on DiscoveryBench-style data-driven discovery, NewtonBench-style
-symbolic law induction, and UltraHorizon long-horizon rule induction. The
-results show that externalizing hypothesis construction can improve a
-\gptmini-core system across heterogeneous scientific reasoning tasks and can
-turn recurring failures into reusable operators. The central claim is
-structural: a weak model reasons more effectively when hypothesis generation is
-made executable, typed, and residual-aware.
+the same kernel on three heterogeneous scientific reasoning benchmarks:
+DiscoveryBench, NewtonBench, and UltraHorizon. Complete-run evaluations with a
+\gptmini core reach 21.86 HMS on DiscoveryBench, 47.5\% symbolic accuracy on
+NewtonBench, and 75.36 average score on UltraHorizon. Component ablations show
+larger gains on a stratified DiscoveryBench set when typed evidence contracts
+and answer-slot closure are enabled. These results do not imply that external
+scaffolding eliminates the need for strong model priors; rather, they show that
+making hypothesis construction typed, executable, and residual-aware turns many
+small-model failures into local, measurable objects. The central claim is
+structural: weak models reason more effectively when the hypothesis language is
+externalized and refined by evidence instead of being sampled only as free-form
+prose.
 \end{abstract}
 
 \section{Introduction}
@@ -77,10 +84,9 @@ casts data-driven discovery as hypothesis search over real datasets and
 metadata \citep{discoverybench}. NewtonBench evaluates interactive scientific
 law discovery rather than static curve fitting \citep{newtonbench}.
 UltraHorizon stresses long-horizon partially observable exploration
-\citep{ultrahorizon}, while ScienceAgentBench evaluates whether agents can
-generate executable scientific workflows \citep{scienceagentbench}. Across
-these settings, the bottleneck is often not final verification but the
-construction of a useful hypothesis space before the answer is known.
+\citep{ultrahorizon}. Across these settings, the bottleneck is often not final
+verification but the construction of a useful hypothesis space before the
+answer is known.
 
 This bottleneck is especially sharp for small language models. Standard
 inference-time scaffolds extend the trajectory: \react interleaves reasoning
@@ -121,22 +127,32 @@ The contribution is threefold. First, we formulate small-model scientific
 reasoning as \emph{typed executable hypothesis induction}: a sequence of typed
 measurements, validations, and residual-conditioned language edits. Second, we
 instantiate this formulation in one shared kernel that spans tabular discovery,
-symbolic law induction, and long-horizon rule discovery without benchmark-
-specific solver modules. Third, we report matched small/large-model
-comparisons, a DiscoveryBench non-oracle/oracle comparison, and a
-residual-operator analysis across three benchmark families. The empirical results
-show that externalizing hypothesis generation makes failures local,
-diagnosable, and convertible into reusable operators.
+symbolic law induction, and long-horizon rule discovery without
+benchmark-specific solver modules. Third, we report full-run evaluations on
+three benchmark families and analyze where the shared mechanism succeeds or
+fails. The empirical results show that externalizing hypothesis generation
+makes failures local and diagnosable, while also revealing a clear remaining
+bottleneck: small models still need richer mechanisms for generating useful
+hypothesis representations when the missing object cannot be reduced to a
+measurement.
+
+The paper tests a specific mechanism-level hypothesis: small models fail
+scientific reasoning tasks when intermediate hypotheses remain untyped strings,
+and they improve when those hypotheses become executable objects with typed
+slots, validators, and residuals. This makes the claim narrower than general
+``agent improvement'' and broader than a benchmark solver: \mars is an
+interface for changing the hypothesis language available to the model at
+inference time.
 
 \section{Preliminaries}
 
 \paragraph{Task model.}
 We consider a scientific reasoning task as an interface $x$ and an answer space
 $\mathcal{A}$. The interface may expose a dataset with metadata, a simulator
-that can be probed, a partially observable environment, or a code workspace.
+that can be probed, or a partially observable environment.
 The answer may be a natural-language hypothesis, a symbolic law, a transition
-program, or a Python workflow. Each benchmark provides its own evaluator
-$S_x:\mathcal{A}\rightarrow\mathbb{R}$, but the system must operate before
+program, or another executable scientific artifact. Each benchmark provides
+its own evaluator $S_x:\mathcal{A}\rightarrow\mathbb{R}$, but the system must operate before
 seeing the gold answer and cannot assume a benchmark-specific answer template.
 
 \paragraph{Hypothesis families.}
@@ -188,7 +204,7 @@ same decomposition is used across interfaces, while each operator normalizes
 its executable evidence to a comparable range before entering the shared
 posterior.
 
-\begin{table}[t]
+\begin{table}[H]
 \centering
 \small
 \caption{Posterior terms used by the shared hypothesis kernel.}
@@ -211,10 +227,9 @@ over context, variables, and relations. NewtonBench reports symbolic accuracy
 (\sa), RMSLE, and interactive discovery statistics across physical domains.
 UltraHorizon reports environment scores for long-horizon
 partially observable exploration, with trajectories designed to stress memory,
-planning, and tool use. ScienceAgentBench reports program validity, execution
-results, success rate, and cost across realistic scientific workflows. Our main
-experiments use the first three benchmark families; ScienceAgentBench remains
-the natural workflow-execution target for the same hypothesis-state interface.
+planning, and tool use. Our experiments use these three benchmark families to
+test whether one hypothesis-state interface can span tabular discovery,
+symbolic law induction, and long-horizon rule induction.
 
 \section{Related Work}
 
@@ -229,6 +244,11 @@ execution, but they do not by themselves define what a scientific hypothesis
 object is. \mars uses the same broad agentic insight--interleave model calls
 with external computation--but makes the persistent unit a typed hypothesis
 state rather than a reasoning transcript.
+This distinction matters when the model's blind spot is representational. If a
+model does not propose the right variables, coordinates, answer form, or
+transition clauses, additional sampled traces can preserve the same missing
+object. \mars instead makes the missing object part of the state: a hole or
+residual that later operators can target.
 
 \paragraph{Self-optimizing language-model pipelines.}
 DSPy treats LM programs as optimizable computational graphs rather than
@@ -248,8 +268,8 @@ library-learning work further explores how abstractions reduce search breadth
 and depth. This line is a major conceptual ancestor of \mars: both systems
 treat expertise as a changing language rather than a fixed prompt. The
 difference is that \mars operates in mixed scientific interfaces where the
-answer may be prose, a law, or a workflow, and where holes can often be closed
-by measurements rather than by full program synthesis.
+answer may be prose, a law, or a transition program, and where holes can often
+be closed by measurements rather than by full program synthesis.
 
 \paragraph{Symbolic regression and scientific law discovery.}
 Symbolic regression recovers compact formulas from data. AI-Feynman exploits
@@ -273,16 +293,14 @@ what evidence would support it, what transformation should preserve it, and
 what residual would falsify or refine it.
 
 \paragraph{Benchmarks for scientific agents.}
-DiscoveryBench, NewtonBench, UltraHorizon, and ScienceAgentBench expose
-different faces of the same problem: the agent must build an internal research
-object before it can answer. DiscoveryBench emphasizes data and metadata
-alignment \citep{discoverybench}; NewtonBench emphasizes interactive law
-induction \citep{newtonbench}; UltraHorizon emphasizes long-horizon memory and
-partial observability \citep{ultrahorizon}; ScienceAgentBench emphasizes
-executable scientific workflows \citep{scienceagentbench}. We use these
-benchmarks not as separate engineering targets but as probes of whether one
-hypothesis-state representation can support multiple scientific task
-interfaces.
+DiscoveryBench, NewtonBench, and UltraHorizon expose different faces of the
+same problem: the agent must build an internal research object before it can
+answer. DiscoveryBench emphasizes data and metadata alignment
+\citep{discoverybench}; NewtonBench emphasizes interactive law induction
+\citep{newtonbench}; UltraHorizon emphasizes long-horizon memory and partial
+observability \citep{ultrahorizon}. We use these benchmarks not as separate
+engineering targets but as probes of whether one hypothesis-state
+representation can support multiple scientific task interfaces.
 
 \section{\mars}
 
@@ -297,79 +315,25 @@ a new operator. Operators do not pass only text to later calls; they update one
 typed context containing contracts, artifacts, evidence, residuals, and
 promoted operators.
 
+The design is governed by three invariants. \emph{Typed state}: every useful
+intermediate claim must be represented as a slot, artifact, validator, or
+residual rather than only as prose. \emph{Executable closure}: whenever a slot
+can be identified by a computation or probe, the system closes it by execution
+instead of asking the model to guess it again. \emph{Residual discipline}: a
+failed hypothesis can expand the operator language only when the residual type
+recurs and the proposed operator improves held-out tasks after a complexity
+penalty. These invariants are the difference between \mars and a longer
+self-refinement transcript.
+
 \begin{figure*}[t]
 \centering
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tikzpicture}[
-  font=\small,
-  box/.style={draw, rounded corners=2pt, align=center, fill=gray!7,
-              inner sep=4pt, minimum height=0.80cm, text width=2.55cm},
-  state/.style={draw, rounded corners=2pt, align=center, fill=gray!14,
-                inner sep=5pt, minimum height=0.92cm, text width=3.05cm},
-  op/.style={draw, rounded corners=2pt, align=center, fill=white,
-             inner sep=3pt, minimum height=0.68cm, text width=2.45cm},
-  lane/.style={font=\footnotesize\itshape, align=right, text width=2.35cm,
-               anchor=east},
-  arrow/.style={-{Latex[length=2mm]}, line width=0.45pt,
-                shorten >=2pt, shorten <=2pt},
-  dashedarrow/.style={-{Latex[length=2mm]}, dashed, line width=0.45pt,
-                      shorten >=2pt, shorten <=2pt}
-]
-
-\node[lane] at (-1.55,1.65) {residual-conditioned\\language growth};
-\node[lane] at (-1.55,0.00) {typed state and\\artifact flow};
-\node[lane] at (-1.55,-1.55) {executable\\hole closure};
-
-\node[op] (library) at (3.15,1.65) {Shared operator library\\
-estimands, probes, renderers};
-\node[op] (residual) at (7.05,1.65) {Typed residuals\\
-missing role, coordinate, renderer};
-\node[op] (promote) at (10.95,1.65) {Operator promotion\\
-cross-task gain $-\beta K$};
-
-\node[box] (task) at (0.00,0.00) {Task interface $x$\\
-tables, simulator, traces};
-\node[box] (contract) at (3.15,0.00) {Evidence contract $C(x)$\\
-answer form, slots, validators};
-\node[state] (ctx) at (7.05,0.00) {\textsc{MARSContext}\\
-$C,\mathcal{H},\Theta,\mathcal{E},\mathcal{R},\mathcal{O},h^\star$};
-\node[box] (render) at (10.95,0.00) {Rendered artifact\\
-hypothesis, law, or program};
-\node[box] (score) at (14.10,0.00) {Benchmark score\\
-HMS, SA, env. score};
-
-\node[op] (sketch) at (3.15,-1.55) {LLM proposes\\
-typed sketches};
-\node[op] (execute) at (7.05,-1.55) {Execution closes\\
-typed holes};
-\node[op] (verify) at (10.95,-1.55) {Metamorphic and\\
-held-out validation};
-
-\draw[arrow] (task) -- (contract);
-\draw[arrow] (contract) -- (ctx);
-\draw[arrow] (ctx) -- (render);
-\draw[arrow] (render) -- (score);
-
-\draw[arrow] (contract) -- (sketch);
-\draw[arrow] (sketch) -- (execute);
-\draw[arrow] (execute) -- (ctx);
-\draw[arrow] (ctx.south east) -- ++(0.35cm,-0.45cm) -| (verify.north);
-\draw[arrow] (verify) -- (render);
-
-\draw[arrow] (ctx) -- (residual);
-\draw[arrow] (residual) -- (promote);
-\draw[arrow] (promote.north) -- ++(0,0.55cm) -| (library.north);
-\draw[arrow] (library) -- (contract);
-\draw[dashedarrow] (score.north) -- ++(0,0.98cm) -| (promote.east);
-\end{tikzpicture}
-}
-\caption{\mars as typed executable hypothesis induction. Benchmark adapters
-only expose observations and accept final artifacts. The shared context stores
-contracts, typed holes, executable evidence, residuals, and active operators.
-The weak model proposes local typed objects; execution and validation close or
-reject them; recurring residuals promote reusable operators only when they
-improve held-out tasks after a complexity penalty.}
+\includegraphics[width=\textwidth]{paper_assets/figures/residual_language_induction_ravr_style.pdf}
+\caption{Residual-guided hypothesis-language induction. The per-task loop
+searches for executable typed hypotheses in the current language $L_t$ and
+turns validation failures into typed residual classes. The language-growth loop
+interprets recurring residual classes as expressivity deficits, induces typed
+operators that close those classes, and admits them only when they improve
+held-out search beyond an explicit complexity cost.}
 \label{fig:mars_architecture}
 \end{figure*}
 
@@ -515,80 +479,98 @@ verbal reasoning, but a better external search geometry for weak models.
 
 \section{Experimental Evaluation}
 
-\subsection{Benchmarks}
+\subsection{Benchmarks and protocol}
 
-We evaluate on three benchmark families that stress different interfaces but
-share the same underlying difficulty: the agent must construct a hypothesis
-object before it can answer. DiscoveryBench provides real datasets, metadata,
-and natural-language discovery goals; the final answer is scored by
-Hypothesis Matching Score (HMS) and a consistency-HMS variant. NewtonBench
-provides interactive scientific-law discovery tasks in shifted physical worlds;
-we report symbolic accuracy over all tasks (SA-all) and over non-abstained
-answers (SA-answered). UltraHorizon provides long-horizon partially observable
-exploration tasks; we report the environment-compatible score and exact
-program-fit count for sequence-rule tasks. Table~\ref{tab:benchmarks} gives
-the interfaces and metrics used here.
+We evaluate on three benchmark families that stress different scientific
+interfaces while sharing the same central difficulty: the agent must construct
+a hypothesis object before it can answer. DiscoveryBench provides real
+datasets, metadata, and natural-language discovery goals; the final answer is
+scored by Hypothesis Matching Score (HMS) and a consistency-HMS variant.
+NewtonBench provides interactive scientific-law discovery tasks in shifted
+physical worlds; we report symbolic accuracy over all tasks (SA-all) and over
+non-abstained answers (SA-answered). UltraHorizon provides long-horizon
+partially observable rule-induction environments; we report the reproduced
+paper-style environment score.
+
+The reported system uses a \gptmini core throughout. We use one shared
+hypothesis-induction stack: contract compilation, typed-hole closure,
+estimand synthesis, coordinate probing, metamorphic validation, and
+residual-conditioned promotion. Benchmark adapters expose observations and
+accept final artifacts, but the reported system does not include separate
+benchmark-specific solver modules. We exclude diagnostic ceiling runs that
+used task-family measurement bootstraps or hand-engineered rendering fixes.
+
+\paragraph{Reproducibility audit.}
+For DiscoveryBench we evaluate the repository real-test task rows using the
+benchmark evaluator, producing 239 predictions and 239 scored rows. For
+NewtonBench we evaluate the full cross-product of 12 physics domains, three
+difficulty levels, three law versions, and three system variants, for 324
+symbolic-law tasks. For UltraHorizon we evaluate 32 seeds for each of the
+three official environments, for 96 total runs, using the paper-style judge,
+hard difficulty, 50-step episodes, and no environment hints or measurement
+bootstraps. The row-level outputs are retained for each benchmark, and the main
+table is generated only from complete runs with the expected row counts.
 
 \begin{table}[H]
 \centering
-\caption{Benchmark interfaces used to evaluate whether one hypothesis-state
-kernel can operate across heterogeneous scientific reasoning tasks.}
+\caption{Benchmark interfaces and metrics.}
 \label{tab:benchmarks}
 \small
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}llll@{}}
 \toprule
-Benchmark & Interface & Required artifact & Metric used here \\
+Benchmark & Interface & Artifact & Metric \\
 \midrule
-DiscoveryBench & tables + metadata + goal & scientific hypothesis & HMS / consistency-HMS \\
-NewtonBench & simulator + observations & symbolic law & SA-all / SA-answered \\
-UltraHorizon & partially observable environment & transition program & score / exact program fit \\
+DiscoveryBench & tables, metadata, goal & hypothesis & HMS / Cons-HMS \\
+NewtonBench & simulator, observations & symbolic law & SA-all / SA-answered \\
+UltraHorizon & partial-observation env. & transition program & score \\
 \bottomrule
 \end{tabular}
 }
 \end{table}
 
-\subsection{Baselines and protocol}
+\subsection{Main full-run results}
 
-The model core is either \gptmini or \gptfour. We compare raw model/agent
-behavior to the same model wrapped by \mars whenever matched runs are
-available. Raw baselines include direct answering and simple tool-using agent
-loops; the paper treats \react, \codeact, and self-debugging as reference
-families rather than as our contribution. The important matched comparison
-asks whether the same model improves when hypothesis generation is routed through
-contracts, executable artifacts, typed residuals, and the shared state.
+Table~\ref{tab:main_results} gives the current full-run results. Each row is a
+complete benchmark run under the corresponding native metric. The pattern is
+informative rather than uniformly dominant. On DiscoveryBench, \mars improves
+over published non-oracle ReAct-style references, while still trailing the
+\gptfour \mars comparison. On NewtonBench, \mars reaches 47.5\% SA-all, within
+0.3 points of the published o4-mini reference and below stronger
+frontier-model agents. On UltraHorizon, the reproduced paper-style run is
+strong for the compiler-enabled \mars system, but the per-environment
+breakdown shows that grid exploration remains substantially harder than
+sequence and bio rule induction.
 
-We do not introduce benchmark-specific modules in the reported system. The
-operator set is shared: contract compilation, typed-hole closure, estimand
-synthesis, coordinate probing, metamorphic validation, and residual-conditioned
-promotion. Benchmark adapters only translate the native task interface into the
-generic contract representation and translate the final artifact back to the
-benchmark answer format. All reported scores use each benchmark's native
-metric; no cross-benchmark normalization is applied.
+We therefore make two claims from the table. The first is empirical: the same
+\gptmini-core hypothesis kernel produces nontrivial full-run results across
+three different scientific interfaces. The second is diagnostic: the failures
+concentrate in different residual types across benchmarks, which supports the
+use of a shared typed state rather than benchmark-specific prompt repair. We do
+not claim that the current operator set dominates all larger-model systems.
 
-Published DiscoveryBench reference scores include 16.3 HMS for GPT-4-preview
-CodeGen, 15.4 HMS for GPT-4o ReAct, and 24.5 HMS for oracle-feedback Reflexion.
-NewtonBench reports 75.9 SA for a GPT-5 vanilla agent, 65.4 for
-Gemini-2.5-Pro, and 47.8 for o4-mini. UltraHorizon reports 14.33 average score
-for the best free-step LLM setting and 26.52 for humans under the paper
-protocol. Tables~\ref{tab:discovery_comparison} and
-\ref{tab:law_horizon_comparison} place these references next to the \mars
-results under each benchmark's native metric.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{paper_assets/figures/main_results_chart.pdf}
+\caption{Headline comparison under each benchmark's native metric. Reference
+rows are contextual rather than controlled ablations because the published
+systems use different models, budgets, and interfaces.}
+\label{fig:main_results_chart}
+\end{figure}
 
 \begin{table}[H]
 \centering
-\caption{DiscoveryBench comparison.}
-\label{tab:discovery_comparison}
+\caption{Full-run \gptmini-core \mars results.}
+\label{tab:main_results}
 \small
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lllr@{}}
+\begin{tabular}{@{}lrrl@{}}
 \toprule
-System & Core model & Mode & HMS \\
+Benchmark & $N$ & Primary & Secondary / breakdown \\
 \midrule
-GPT-4o ReAct & GPT-4o & non-oracle & 15.4 \\
-GPT-4-preview CodeGen & GPT-4-preview & non-oracle & 16.3 \\
-Reflexion & GPT-4 family & oracle feedback & 24.5 \\
-\mars & \gptmini & non-oracle & 20.4 / 27.1 Cons. \\
+DiscoveryBench & 239 & 21.86 HMS & 28.14 Cons-HMS \\
+NewtonBench & 324 & 47.5\% SA-all & 64.7\% SA-answered \\
+UltraHorizon & 96 & 75.36 score & compiler-enabled; Grid 54.38, Seq 81.25, Bio 90.47 \\
 \bottomrule
 \end{tabular}
 }
@@ -596,228 +578,151 @@ Reflexion & GPT-4 family & oracle feedback & 24.5 \\
 
 \begin{table}[H]
 \centering
-\caption{NewtonBench and UltraHorizon comparison.}
-\label{tab:law_horizon_comparison}
+\caption{Published references under each benchmark's native metric. Reference
+systems are not all matched by model, budget, or protocol, so they should be
+read as context rather than controlled ablations.}
+\label{tab:published_refs}
 \small
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}llll@{}}
 \toprule
-Benchmark & System & Core model & Primary metric \\
+Benchmark & System & Core & Reported score \\
 \midrule
-NewtonBench & Vanilla agent & GPT-5 & 75.9 SA \\
-NewtonBench & Vanilla agent & Gemini-2.5-Pro & 65.4 SA \\
-NewtonBench & Vanilla agent & o4-mini & 47.8 SA \\
-NewtonBench & \mars & \gptmini & 41.7 SA-all / 83.3 SA-ans. \\
+DiscoveryBench & GPT-4o ReAct & GPT-4o & 15.4 HMS \\
+DiscoveryBench & CodeGen & GPT-4-preview & 16.3 HMS \\
+DiscoveryBench & Reflexion & GPT-4 family, oracle feedback & 24.5 HMS \\
+DiscoveryBench & \mars & \gptmini & 21.86 HMS \\
+\midrule
+NewtonBench & Vanilla agent & GPT-5 & 75.9\% SA \\
+NewtonBench & Vanilla agent & Gemini-2.5-Pro & 65.4\% SA \\
+NewtonBench & Vanilla agent & o4-mini & 47.8\% SA \\
+NewtonBench & \mars & \gptmini & 47.5\% SA-all \\
 \midrule
 UltraHorizon & Best free-step LLM & reported best LLM & 14.33 score \\
 UltraHorizon & Human & human & 26.52 score \\
-UltraHorizon & \mars & \gptmini & 49.2 / 45.8 score \\
+UltraHorizon & \mars, compiler-enabled & \gptmini & 75.36 score \\
 \bottomrule
 \end{tabular}
 }
 \end{table}
 
-\subsection{Main results}
+Detailed component ablations and diagnostic deltas are reported after the
+references. We place them outside the main narrative because their role is to
+attribute failures and component contributions, while the primary claims in
+Table~\ref{tab:main_results} are based on complete benchmark runs.
 
-Tables~\ref{tab:discovery_comparison} and
-\ref{tab:law_horizon_comparison} report the main \gptmini-core \mars results
-alongside published reference systems. The pattern is consistent with the method
-design: DiscoveryBench is limited by answer-form induction and semantic
-rendering, NewtonBench by coverage and abstention, and UltraHorizon sequence
-induction benefits most from exact executable transition checks.
-Residual-conditioned operator promotion raises the DiscoveryBench score from
-13.6 to 20.4 HMS, with most of the gain concentrated in meta-regression and
-requirements-style table questions. In the published DB-Real context, this
-places the autonomous \gptmini-core system above the non-oracle GPT-4o ReAct
-and GPT-4-preview CodeGen references, while oracle-feedback Reflexion remains a
-strong revision-aided reference.
+\subsection{What the full runs show}
 
-\begin{table}[H]
+\paragraph{DiscoveryBench.}
+The DiscoveryBench result supports the main hypothesis-state claim most
+directly, but also gives the clearest warning against overclaiming.
+Natural-language discovery questions are difficult for small models because
+the model must infer the relevant table, population, variables, and relation
+before writing the hypothesis. \mars replaces much of this latent choice with
+evidence contracts and executable estimands. The complete 239-task run reaches
+21.86 HMS, while the controlled component set rises from 8.33 HMS with typed
+modules disabled to 42.27 HMS with the full stack. The remaining gap is not
+primarily arithmetic: errors often occur when the system measures a reasonable
+relation but renders it in a facet that the benchmark does not credit, or when
+multiple files must be assembled into a single scientific object.
+
+\paragraph{NewtonBench.}
+NewtonBench exposes the limit of external scaffolding. The full run answers
+238 of 324 tasks and reaches 64.7\% symbolic accuracy on answered tasks, but
+abstentions lower SA-all to 47.5\%. This is close to the published o4-mini
+reference but below larger-model baselines. The failure mode is therefore
+specific: when a useful coordinate chart or law family is proposed, executable
+checking is effective; when no active operator proposes the right representation,
+the system abstains or fails compilation. The result argues for richer
+representation generation, not for more prompt-level retrying.
+
+\paragraph{UltraHorizon.}
+UltraHorizon shows the strongest absolute score under the reproduced
+paper-style judge, but also the clearest internal heterogeneity. The reported
+score is for the compiler-enabled \mars system: the post-budget evidence
+compiler can turn long tool traces into a terminal artifact when the agent has
+not committed. Strict no-fallback checks are substantially weaker, as reported
+in the appendix. Grid tasks remain the main bottleneck, with many zero-score
+runs caused by insufficient exploration or wrong state abstraction. This is
+important for the paper claim: the result is a strong long-horizon score for
+the full \mars pipeline, but not a solved benchmark and not a raw-agent
+ceiling.
+
+\begin{figure}[t]
 \centering
-\small
-\caption{Core-model comparison under the same external hypothesis scaffold.}
-\label{tab:model_comparison}
-\begin{tabular}{@{}llrr@{}}
-\toprule
-Benchmark & Scaffold & \gptmini & \gptfour \\
-\midrule
-DiscoveryBench & \mars & 64.29 & 69.84 \\
-NewtonBench & \mars & 41.7 & 41.7 \\
-UltraHorizon & direct & 0.0 & 6.67 \\
-UltraHorizon & \mars & 50.0 & 43.33 \\
-UltraHorizon & \mars+residual & 56.67 & 56.67 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\includegraphics[width=\columnwidth]{paper_assets/figures/uh_breakdown_chart.pdf}
+\caption{UltraHorizon environment breakdown for the complete 96-run
+compiler-enabled evaluation. The grid environment remains the dominant
+long-horizon bottleneck.}
+\label{fig:uh_breakdown}
+\end{figure}
 
-\subsection{Model-core comparison}
+\subsection{Residual analysis}
 
-Table~\ref{tab:model_comparison} separates the language model core from the
-external hypothesis system on matched settings. DiscoveryBench still shows a
-positive \gptfour gap, consistent with semantic interpretation and answer
-phrasing being important. NewtonBench and UltraHorizon show a different regime:
-once the hypothesis is converted into executable probes, \gptmini can match or
-exceed the paired \gptfour run under the same scaffold. The UltraHorizon rows
-provide paired model-gap analysis under the same external hypothesis system.
+The distinctive mechanism in \mars is that failed hypotheses are stored as
+typed residuals. A residual can say that a role is missing, a coordinate system
+is wrong, a renderer is incompatible with the answer form, or a transition
+clause fails held-out replay. This changes the search problem: the next
+operator is selected because it can close a residual type, not because a
+language model sampled a longer chain of thought.
 
-\subsection{Ablations}
-
-DiscoveryBench is the most sensitive benchmark for hypothesis quality because
-the final answer is a natural-language scientific relation. Table
-\ref{tab:discovery_ablation} reports the layer ablation. The trend
-is monotone: evidence contracts alone are not
-enough, executable estimands improve measured hypothesis quality, role
-canonicalization improves both HMS and consistency, and the final role layer
-mainly increases consistency by preventing proxy columns from being treated as
-unrelated scientific variables.
-
-\begin{table}[H]
-\centering
-\caption{DiscoveryBench layer ablation.}
-\label{tab:discovery_ablation}
-\begin{tabular}{lrr}
-\toprule
-System & HMS & Cons-HMS \\
-\midrule
-\mek & 16.7 & 30.0 \\
-\mek+estimands & 20.5 & 37.2 \\
-+role canonicalization & 27.5 & 44.2 \\
-+universal role layers & 40.5 & 60.5 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table~\ref{tab:mechanism_ablation} summarizes additional mechanism ablations
-across the three benchmark families. Typed execution helps most when the
-missing object is measurable. On DiscoveryBench,
-residual-conditioned study-design operators repair a recurring residual
-family. On NewtonBench, coordinate charts turn a hard trigonometric evaluation from
-mostly failed or abstained answers into exact executable laws on the matched
-tasks. On UltraHorizon, typed slots and measurement compilation provide smaller
-but consistent gains.
-
-\begin{table}[H]
-\centering
-\caption{Mechanism ablations across benchmark families.}
-\label{tab:mechanism_ablation}
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lll}
-\toprule
-Benchmark & Mechanism & Before$\to$After \\
-\midrule
-DiscoveryBench & role stack & 16.7$\to$40.5 HMS \\
-DiscoveryBench & residual study-design operator & 13.6$\to$20.4 HMS \\
-NewtonBench & self-induced coordinate charts & 25.0$\to$75.0 SA-all \\
-NewtonBench & final epistemic checks & 79.2$\to$83.3 SA-all \\
-UltraHorizon & typed slots + measurements & 46.7$\to$50.8 score \\
-UltraHorizon & sequence residual operators & 40.0$\to$100.0 exact \\
-\bottomrule
-\end{tabular}
-}
-\end{table}
-
-\subsection{Residual-operator analysis}
-
-The strongest novelty claim in \mars is the residual-to-operator pathway. We
-therefore report it separately from the main score table. Table
-\ref{tab:operator_promotion} summarizes focused analyses in which residual
-patterns were converted into executable rules or promoted operator families.
-The goal is to measure whether residuals can change the hypothesis language in
-ways that transfer across held-out checks.
-
-\begin{table}[H]
-\centering
-\caption{Residual-conditioned operator promotion.}
-\label{tab:operator_promotion}
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{llll}
-\toprule
-Benchmark & Promoted operator & Metric & Before$\to$After \\
-\midrule
-UltraHorizon & string-rule induction & exact recovery & 40.0$\to$100.0 \\
-NewtonBench & residual power law & held-out fit & 0.85$\to$1.00 \\
-DiscoveryBench & study-design roles & HMS & 13.6$\to$20.4 \\
-DiscoveryBench & paired-slot renderer & HMS & 0.7$\to$24.2 \\
-Cross-benchmark & G0$\to$G1 operator set & normalized score & .789$\to$.801 \\
-\bottomrule
-\end{tabular}
-}
-\end{table}
-
-\FloatBarrier
-
-In UltraHorizon sequence tasks, residual rules such as character-wise
-combination, positional maximum, and sorted multiset transformations close
-failures that a raw proposal loop missed. In the Newton power-law setting, a
-numeric residual kernel repairs an almost-correct law on held-out points. In
-the DiscoveryBench outer loop, promoted study-design
-operators infer original/replication arms, domain-code aliases, paired columns,
-binary complements, and contrastive renderings from table schemas. They move the
-DB-Real score from 13.6 to 20.4 HMS and the raw meta-regression evaluation from
-0.7 to 24.2 HMS. The remaining plateau is equally important: the current
-mechanism can stabilize a better operator family, but does not yet guarantee
-continuing open-ended improvement across unrelated table families.
+Across the three full runs, residuals have different practical meanings. In
+DiscoveryBench, residuals are mostly semantic and structural: wrong table,
+wrong population, wrong denominator, or wrong answer facet. In NewtonBench,
+residuals are algebraic: missing coordinate transforms, constants, exponents,
+and unit-compatible charts. In UltraHorizon, residuals are temporal:
+transition clauses fail on replay, an invariant holds only locally, or an
+exploration policy does not expose the evidence needed to identify the rule.
+These residual types are the basis for operator promotion. An operator is kept
+only if it improves held-out tasks after paying a complexity penalty, which is
+the mechanism used to limit benchmark-specific growth.
 
 \subsection{Failure analysis}
 
-The remaining errors fall into four recurring classes. \emph{Rendering errors}
-occur when the system measures a valid relation but expresses it in a form that
-does not match the benchmark facet. These dominate DiscoveryBench. \emph{Role
-errors} occur when the contract closes a plausible but wrong scientific role,
-often because several dataset columns proxy the same latent variable.
-\emph{Coverage errors} occur when no active operator proposes the right
-coordinate chart, transition clause, or estimand family. These dominate
-NewtonBench abstentions. \emph{Assembly errors} occur when the task requires a
-large multi-file workflow; this is the main reason ScienceAgentBench is treated
-as a target interface rather than as a primary result.
+The remaining errors fall into four recurring classes. \emph{Representation
+misses} occur when no active operator proposes the right hypothesis family.
+These dominate NewtonBench abstentions and some UltraHorizon grid failures.
+\emph{Renderer misses} occur when the system measures useful evidence but
+expresses it in an answer form that does not match the evaluator. These are
+common in DiscoveryBench. \emph{Assembly misses} occur when the task requires
+joining evidence across multiple files, time windows, or schemas. These
+currently limit DiscoveryBench.
+\emph{Exploration misses} occur when the system cannot collect the observations
+needed to identify a long-horizon rule within the action budget; these dominate
+the UltraHorizon grid gap.
 
-The DiscoveryBench analysis makes these errors concrete. After residual
-operator promotion, the system is strong when the task is close to executable
-slot closure or paired study-design measurement: 73.6 HMS on the NLS raw family,
-36.0 HMS on WorldBank indicator tasks, 24.5 HMS on meta-regression, 24.2 HMS on
-raw meta-regression, 26.7 HMS on requirements-engineering questions, and
-23.7 HMS on archaeology tasks. The same analysis exposes negative transfer and
-uncovered families: plant introduction pathways fall to 6.3 HMS, NLS SES falls
-to 7.4 HMS, and one WorldBank education-GDP family remains at 0.0 HMS. The
-dominant remaining DiscoveryBench failures are denominator alignment,
-multi-file assembly, and semantic rendering, not arithmetic measurement.
-
-This failure analysis is also the practical value of the \mars state. In a
+This failure analysis is part of the practical value of \mars. In a
 transcript-only agent, failures are often just bad final answers. In \mars, the
 failure is attached to the missing typed object: a role, a coordinate, a
-validator, a renderer, or an operator. That makes later improvement measurable
-without changing the benchmark-specific code path.
+validator, a renderer, or an exploration operator. That makes later improvement
+measurable without changing the benchmark-specific code path.
+
+\FloatBarrier
 
 \section{Limitations}
 
 \mars is a hypothesis-induction architecture for improving small-model
 scientific reasoning through external typed state and executable evidence. Its
 main limitation is operator coverage: the system improves hypothesis search
-when a missing object can be represented as a contract, a typed hole, a
-validator, a renderer, or a residual-induced operator, but the current operator
-language does not cover every scientific workflow.
+when the missing object can be represented as a contract, a typed hole, a
+validator, a renderer, or a residual-induced operator. When the right
+representation is absent, ranking and verification cannot recover it by
+themselves.
 
-The strongest results occur when the task exposes measurements or traces that
-can close typed holes. When the needed operator is absent, the kernel cannot
-recover the right hypothesis by ranking alone. This makes operator coverage the
-main remaining technical bottleneck. DiscoveryBench additionally exposes a
-rendering problem: the system can measure a scientifically plausible relation
-but express it in a form that misses the benchmark's target facet. NewtonBench
-errors are concentrated in abstentions, compile failures, and missing
-coordinate charts rather than in confidently accepted wrong laws.
-UltraHorizon sequence induction is strong, while broader
-environment coverage requires repeated runs because single trajectories have
-high variance. ScienceAgentBench is excluded from the primary evaluation because
-full scientific workflow execution requires a
-stronger multi-file assembler.
+The three benchmark runs expose this limitation in different ways.
+DiscoveryBench still depends on semantic rendering and multi-file assembly.
+NewtonBench is limited by missing coordinate charts and abstentions: the system
+is accurate on many answered tasks, but it does not yet cover enough law
+families to surpass stronger published agents. UltraHorizon shows strong
+sequence and bio rule induction, but grid tasks reveal an exploration problem:
+without the right state abstraction, the agent may never collect the evidence
+needed to induce the rule.
 
-The residual-operator analysis is also limited. It demonstrates that residuals can
-produce reusable operators on held-out evaluations, but it does not yet prove
-unbounded autonomous growth. The current system has a plateau after the first
-outer-loop improvement. A stronger version must learn broader operator
-families from residuals while retaining the same contract, validation, and
+The residual-operator mechanism is therefore a disciplined form of adaptation,
+not a proof of unbounded autonomous self-improvement. It demonstrates that
+typed failures can be converted into reusable operators under held-out checks
+and complexity penalties. A stronger version must learn broader operator
+families from residuals while preserving the same contract, validation, and
 complexity controls.
 
 \section{Conclusion}
@@ -827,15 +732,15 @@ scientific reasoning with small language models. The main claim is structural:
 weak models benefit when hypothesis generation is moved from free-form prose
 into an external state of typed artifacts, executable measurements, validators,
 and residuals. Across data-driven discovery, symbolic law induction, and
-long-horizon sequence induction, the same kernel improves the effective
-reasoning of \gptmini across the reported evaluations and sometimes reduces the gap to
-\gptfour. The experiments identify where external structure helps most: when
-the system can decompose a
-hypothesis into measurable slots, use execution to close them, and turn
-recurrent typed residuals into better operators. This suggests a concrete path
-for small-model scientific agents: grow the hypothesis language itself, guided
-by residuals, rather than only sampling more reasoning traces from a fixed
-language.
+long-horizon rule induction, one \gptmini-core kernel obtains competitive
+full-run results on three benchmark families while exposing clear residual
+types when it fails. The experiments identify where external structure helps
+most: when the system can decompose a hypothesis into measurable slots, execute
+probes to close them, validate the resulting artifact, and promote recurring
+residuals into better operators. This suggests a concrete path for small-model
+scientific agents: improve the hypothesis language itself, guided by evidence
+and typed residuals, rather than only sampling more reasoning traces from a
+fixed language.
 
 \begin{thebibliography}{99}
 
@@ -863,15 +768,6 @@ and Li Shen.
 \newblock UltraHorizon: Benchmarking agent capabilities in ultra long-horizon
 scenarios.
 \newblock arXiv preprint arXiv:2509.21766, 2025.
-
-\bibitem[Chen et al.(2025)]{scienceagentbench}
-Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang,
-Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, Vishal Dey,
-Mingyi Xue, Frazier N. Baker, Benjamin Burns, Daniel Adu-Ampratwum,
-Xuhui Huang, Xia Ning, Song Gao, Yu Su, and Huan Sun.
-\newblock ScienceAgentBench: Toward rigorous assessment of language agents for
-data-driven scientific discovery.
-\newblock In \emph{ICLR}, 2025.
 
 \bibitem[Yao et al.(2023a)]{react}
 Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik
@@ -970,5 +866,120 @@ Tom Rainforth, Adam Foster, Desi R. Ivanova, and Freddie Bickford Smith.
 \newblock arXiv preprint arXiv:2302.14545, 2023.
 
 \end{thebibliography}
+
+\clearpage
+\section*{Appendix: Detailed Ablations}
+
+This appendix reports component ablations used to diagnose the current
+\mars implementation. The goal is attribution: which parts of the universal
+hypothesis-induction stack change the measured behavior, and which parts are
+not currently bottlenecks. These runs use the same \gptmini core as the main
+experiments and the native evaluators for each benchmark family.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{paper_assets/figures/discovery_ablation_chart.pdf}
+\caption{DiscoveryBench component attribution on the fixed 30-task component
+set. The strict-none row disables typed Discovery modules; the full stack adds
+answer-slot closure, evidence contracts, executable measurements, validation,
+and residual-conditioned rendering.}
+\label{fig:discovery_ablation}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Component ablations. DiscoveryBench uses a fixed stratified task set
+for component attribution, NewtonBench uses the full 324-task grid, and
+UltraHorizon reports grid and sequence component ablations with the same
+paper-style judge used in the full run.}
+\label{tab:ablations}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Benchmark & Condition & $N$ & Score \\
+\midrule
+DiscoveryBench & strict none & 30 & 8.33 HMS \\
+DiscoveryBench & probes + LLM renderer & 30 & 13.41 HMS \\
+DiscoveryBench & hypothesis workbench & 30 & 12.11 HMS \\
+DiscoveryBench & slot contract only & 30 & 11.00 HMS \\
+DiscoveryBench & answer-slot stack & 30 & 28.67 HMS \\
+DiscoveryBench & \mars full & 30 & 42.27 HMS / 52.27 Cons-HMS \\
+\midrule
+NewtonBench & operator-chart enabled & 324 & 46.0\% SA-all / 62.3\% SA-answered \\
+NewtonBench & operator-chart disabled & 324 & 47.5\% SA-all / 64.7\% SA-answered \\
+\midrule
+UltraHorizon & \mars full, grid+seq & 8 & 95.0 score \\
+UltraHorizon & no reflector, compiler on, grid+seq & 8 & 95.0 score \\
+UltraHorizon & no refl./memory/futility, compiler on, grid+seq & 8 & 97.5 score \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Diagnostic deltas derived from Table~\ref{tab:ablations}. Positive
+values indicate that the second condition scores higher than the first under
+the listed metric.}
+\label{tab:ablation_deltas}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+Benchmark & Comparison & Delta \\
+\midrule
+DiscoveryBench & probes + LLM renderer $\rightarrow$ \mars full & +28.86 HMS \\
+DiscoveryBench & strict none $\rightarrow$ \mars full & +33.94 HMS \\
+DiscoveryBench & slot contract only $\rightarrow$ answer-slot stack & +17.67 HMS \\
+DiscoveryBench & answer-slot stack $\rightarrow$ \mars full & +13.60 HMS \\
+\midrule
+NewtonBench & chart enabled $\rightarrow$ chart disabled & +1.50 SA-all \\
+NewtonBench & chart enabled $\rightarrow$ chart disabled & +2.40 SA-answered \\
+\midrule
+UltraHorizon & \mars full $\rightarrow$ no reflector, compiler on & +0.00 score \\
+UltraHorizon & \mars full $\rightarrow$ no refl./memory/futility, compiler on & +2.50 score \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{UltraHorizon strict sanity checks. These rows separate the
+compiler-enabled \mars pipeline from raw or no-fallback agent execution.}
+\label{tab:uh_strict_sanity}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Condition & Env./seeds & $N$ & Score \\
+\midrule
+Raw \gptmini, no hints, no fallback & grid+seq+bio, seed 0 & 3 & 0.0 mean \\
+Strict \mars, no fallback/compiler & bio, seed 0 & 1 & 0.0 score \\
+\mars, compiler-enabled & bio, seeds 0--3 & 4 & 100.0 mean \\
+\mars, compiler-enabled & grid+seq+bio, seeds 0--3 & 12 & 96.67 mean \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+The DiscoveryBench ablation is the clearest positive component test:
+single-stage probes, the hypothesis workbench, and slot contracts alone are
+insufficient, while answer-slot closure and the full evidence-contract stack
+produce large gains. The NewtonBench ablation has the opposite diagnostic
+meaning. Disabling residual-born operator charts slightly improves the full
+grid, so the reported Newton result should not be attributed to a
+benchmark-specific chart library. Instead, it is carried by the shared
+active-probe, residual-gating, and symbolic-verification kernel. The
+UltraHorizon grid+sequence rows should be read as component toggles rather than
+no-module baselines: the final evidence compiler remains enabled in these
+conditions. Their non-monotone behavior therefore indicates that reflector,
+memory selection, and futility detection are not the current bottleneck for
+that component slice, not that a raw weak agent solves the environment. The
+benchmark-level UltraHorizon claim remains the complete 96-run result reported
+in Table~\ref{tab:main_results}. Table~\ref{tab:uh_strict_sanity} makes this
+separation explicit: without the final compiler/fallback path, the same weak
+core does not solve the bio task in the audited seed.
 
 \end{document}

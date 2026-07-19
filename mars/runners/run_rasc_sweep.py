@@ -40,7 +40,7 @@ try:
     from dotenv import load_dotenv
     _env = _PROJ / "autodiscovery" / ".env.local"
     if _env.exists():
-        load_dotenv(_env, override=True)
+        load_dotenv(_env, override=False)
 except ImportError:
     pass
 

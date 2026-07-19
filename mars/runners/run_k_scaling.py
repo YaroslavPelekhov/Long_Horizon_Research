@@ -30,7 +30,7 @@ for _p in (_PROJ, _PROJ / "ultrahorizon_repo"):
 
 try:
     from dotenv import load_dotenv
-    load_dotenv(_PROJ / "autodiscovery" / ".env.local", override=True)
+    load_dotenv(_PROJ / "autodiscovery" / ".env.local", override=False)
 except ImportError:
     pass
 

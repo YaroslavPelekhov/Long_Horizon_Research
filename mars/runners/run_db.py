@@ -27,13 +27,13 @@ _PROJ = Path(__file__).resolve().parent.parent.parent
 if str(_PROJ) not in sys.path:
     sys.path.insert(0, str(_PROJ))
 
-# CRITICAL: load .env.local (override=True) BEFORE any LLM client is built —
+# CRITICAL: load .env.local (override=False) BEFORE any LLM client is built —
 # the shell may carry a stale OPENAI_API_KEY → empty completions → 0 score.
 try:
     from dotenv import load_dotenv
     _env_path = _PROJ / "autodiscovery" / ".env.local"
     if _env_path.exists():
-        load_dotenv(_env_path, override=True)
+        load_dotenv(_env_path, override=False)
 except ImportError:
     pass
 

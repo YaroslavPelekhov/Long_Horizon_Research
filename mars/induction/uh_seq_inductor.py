@@ -27,7 +27,7 @@ JUDGE_FACING_DESCRIPTIONS = {
     "interleave_step_parity": "Interweave main and vice characters completely. The leading sequence is determined by the parity of current step number: main leads if odd, vice leads if even. Equivalent wording: alternating main and vice characters; merge main and vice with step-based leading character",
     "add_main_vice": "Add character position values (main[i] + vice[i]) with proper modular arithmetic",
     "add_main_vice_mod26": "Add character position values at each position, main[i] + vice[i], modulo 26",
-    "reverse_shift_concat": "Reverse the current sequence and shift all characters forward by n, where n = current step number, positions in the alphabet cyclic A to B to ... to Z to A. Concatenate this with the similarly shifted version of the original sequence",
+    "reverse_shift_concat": "Reverse the current sequence and shift all characters forward by n, where n = current step number, positions in the alphabet cyclic A to B to ... to Z to A. Also shift the original current sequence by the same n. The output is exactly shifted_reverse followed by shifted_original_current, i.e. shifted_reverse + shifted_current.",
     "poswise_max": "Take maximum character at each position between main and vice, or remove consecutive duplicates if no main/vice",
     "append_step_char_copy": "Select the character at position current step number mod 10, with 0 treated as 10. Copy this character a times, where a is that current step number modulo 10 value. Append the copies to the current sequence",
     "poswise_max_rule4": "Take main if main[i] >= vice[i], else take vice[i], or append length character if no main/vice",

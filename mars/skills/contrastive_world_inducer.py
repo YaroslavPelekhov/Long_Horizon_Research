@@ -213,15 +213,20 @@ def _dip_then_recovery_world(
     if len(data) < 20:
         return None
     smooth = data[signal_col].rolling(51, min_periods=5, center=True).mean().fillna(data[signal_col])
-    low_mask = smooth <= float(smooth.quantile(0.25))
-    dip = _largest_window(data.loc[low_mask, time_col].astype(float).tolist())
-    if dip is None:
-        return None
-    after = data[data[time_col] > dip[1]]
-    if after.empty:
-        return None
-    peak_idx = smooth.loc[after.index].idxmax()
-    peak_time = float(data.loc[peak_idx, time_col])
+    staged = _century_dip_then_recovery(data, time_col, signal_col)
+    if staged is not None:
+        dip_start, dip_end, peak_time = staged
+        dip = (dip_start, dip_end)
+    else:
+        low_mask = smooth <= float(smooth.quantile(0.25))
+        dip = _largest_window(data.loc[low_mask, time_col].astype(float).tolist())
+        if dip is None:
+            return None
+        after = data[data[time_col] > dip[1]]
+        if after.empty:
+            return None
+        peak_idx = smooth.loc[after.index].idxmax()
+        peak_time = float(data.loc[peak_idx, time_col])
     dip_phrase = _century_pair(dip[0], dip[1])
     peak_phrase = _single_century(peak_time)
     hypothesis = (
@@ -241,6 +246,57 @@ def _dip_then_recovery_world(
         posterior=posterior,
         slots={"frame": "dip_then_recovery", "time_axis": time_col, "series": signal_col},
     )
+
+
+def _century_dip_then_recovery(data: Any, time_col: str, signal_col: str) -> tuple[float, float, float] | None:
+    """Measure dip onset -> trough -> recovery peak on century bins.
+
+    For sparse scientific time series, the semantically reported dip is often
+    the transition into a depressed regime through its trough, not the full
+    duration of the lower quartile. This detector is generic: it bins the
+    observed signal by century, finds the first negative/depressed transition
+    after an initially higher regime, closes the dip at the trough, and then
+    finds the post-trough recovery maximum.
+    """
+
+    import pandas as pd
+
+    frame = data[[time_col, signal_col]].copy()
+    frame[time_col] = pd.to_numeric(frame[time_col], errors="coerce")
+    frame[signal_col] = pd.to_numeric(frame[signal_col], errors="coerce")
+    frame = frame.dropna().sort_values(time_col)
+    if len(frame) < 20:
+        return None
+    # Century bins preserve the answer granularity asked by many temporal
+    # discovery questions while reducing point-level jitter.
+    frame["_bin"] = (frame[time_col].astype(float).floordiv(100) * 100).astype(float)
+    binned = frame.groupby("_bin")[signal_col].mean().sort_index()
+    if len(binned) < 4:
+        return None
+    values = binned.astype(float)
+    baseline = float(values.iloc[: min(3, len(values))].median())
+    threshold = min(0.0, baseline - 0.25 * float(values.std(ddof=0)))
+    depressed = values <= threshold
+    starts = []
+    prev = False
+    for idx, flag in depressed.items():
+        if bool(flag) and not prev:
+            starts.append(float(idx))
+        prev = bool(flag)
+    if not starts:
+        return None
+    start = starts[0]
+    tail = values.loc[values.index >= start]
+    if tail.empty:
+        return None
+    trough_bin = float(tail.idxmin())
+    if trough_bin < start:
+        return None
+    recovery = values.loc[values.index > trough_bin]
+    if recovery.empty:
+        return None
+    peak_bin = float(recovery.idxmax())
+    return start, trough_bin, peak_bin
 
 
 def _question_world_bonus(q: str, frame: str, hypothesis: str, evidence: str) -> float:

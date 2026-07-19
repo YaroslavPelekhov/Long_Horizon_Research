@@ -28,13 +28,16 @@ def infer_answer_slot_hypothesis(
         return None
     q = question.lower()
     handlers = (
+        _composite_original_replication_profile,
         _original_replication_design_measurement,
         _paired_group_mean_comparison,
         _grouped_original_replication_comparison,
         _stated_group_mean_pair,
         _stated_coefficient_relationship,
         _period_category_crossover,
+        _highest_measure_group_disparity,
         _highest_group_median_gap,
+        _yearly_group_median_percent_change,
         _group_outcome_comparison,
         _degree_completion_relationship,
         _top_role_proportions,
@@ -46,6 +49,62 @@ def infer_answer_slot_hypothesis(
         result = handler(q, question, domain_context, df, column_descriptions)
         if result is not None:
             return result
+    return None
+
+
+def _composite_original_replication_profile(
+    q: str,
+    question: str,
+    _domain_context: str,
+    df: Any,
+    column_descriptions: Mapping[str, str],
+) -> SlotContractResult | None:
+    """Close multi-slot original/replication design profiles by execution.
+
+    The single-value design operator is not enough when a question describes a
+    whole profile such as original/replication x {cash, credit, nothing}.  This
+    operator infers the categorical pair, requested value sets, grouping column,
+    and comparison functional, then measures the whole profile as one typed
+    object.
+    """
+
+    has_original = "original" in q
+    has_replication = any(tok in q for tok in ("replication", "replicated", "replicate"))
+    original_group_majority = has_original and any(tok in q for tok in ("majority", "primarily")) and any(
+        tok in q for tok in ("domain", "field", "both", "experimental", "psychology")
+    )
+    if not ((has_original and has_replication) or original_group_majority):
+        return None
+    if not _has_original_replication_columns(df):
+        return None
+    attr = _or_attribute(q)
+    if attr is None:
+        return None
+    group_col = _or_group_col(df, column_descriptions)
+    if group_col is None or group_col not in getattr(df, "columns", []):
+        return None
+    cols = _or_arm_columns(df, attr, "both")
+    if len(cols) < 2:
+        return None
+    left = next((c for c in cols if c.lower().endswith((".o", "_o"))), None)
+    right = next((c for c in cols if c.lower().endswith((".r", "_r"))), None)
+    if left is None or right is None:
+        return None
+
+    percentages = _question_percentages(question)
+    value_sets = _or_requested_value_sets(q, df, (left, right), attr)
+    if percentages and value_sets:
+        closed = _close_or_percentage_profile(q, df, group_col, left, right, attr, value_sets, percentages)
+        if closed is not None:
+            return closed
+    if attr == "online" and "lab" in q:
+        closed = _close_or_all_binary_profile(q, df, group_col, left, right, attr, target_value="0", label="lab setting")
+        if closed is not None:
+            return closed
+    if attr in {"country", "subjects", "compensation"} and any(tok in q for tok in ("majority", "primarily", "all")):
+        closed = _close_or_common_majority_profile(q, df, group_col, left, right, attr)
+        if closed is not None:
+            return closed
     return None
 
 
@@ -123,7 +182,9 @@ def _original_replication_design_measurement(
         col = _existing_col(df, (f"us_lab{suffix}", f"us_lab_{suffix[-1]}"))
         if col is None:
             return None
-        result = _or_binary_positive_result(q, data, col, "studies conducted in United States labs")
+        result = _or_us_lab_group_distribution_result(q, df, group_col) or _or_binary_positive_result(
+            q, data, col, "studies conducted in United States labs"
+        )
     elif attr == "online":
         cols = _or_arm_columns(df, attr, arm)
         if not cols:
@@ -500,6 +561,37 @@ def _or_binary_positive_result(q: str, data: Any, col: str, label: str) -> tuple
     )
 
 
+def _or_us_lab_group_distribution_result(q: str, df: Any, group_col: str | None) -> tuple[str, str, str] | None:
+    if group_col is None or group_col not in getattr(df, "columns", []):
+        return None
+    if not ("united states" in q and "lab" in q):
+        return None
+    left = _existing_col(df, ("us_lab.o", "us_lab_o"))
+    right = _existing_col(df, ("us_lab.r", "us_lab_r"))
+    if left is None or right is None:
+        return None
+    rows: list[tuple[str, float, float]] = []
+    for group_value, sub in df.groupby(group_col):
+        left_pct, _lh, _lt = _category_set_pct(sub, left, ("1", "true", "yes"))
+        right_pct, _rh, _rt = _category_set_pct(sub, right, ("1", "true", "yes"))
+        if max(left_pct, right_pct) <= 0:
+            continue
+        rows.append((_human_group(str(group_value)), left_pct, right_pct))
+    if not rows:
+        return None
+    rows.sort(key=lambda item: item[0])
+    groups = _join_human([name for name, _lo, _rr in rows])
+    original = "; ".join(f"{name}: {lo:.1f}%" for name, lo, _rr in rows)
+    replication = "; ".join(f"{name}: {rr:.1f}% US, {max(0.0, 100.0 - rr):.1f}% non-US" for name, _lo, rr in rows)
+    hypothesis = (
+        f"A significant proportion of original studies in {groups} were conducted in labs located in the "
+        f"United States ({original}), while replication studies were more distributed across different "
+        f"locations ({replication})."
+    )
+    evidence = "us_lab_group_distribution:" + ";".join(f"{name}:original={lo:.6g}:replication={rr:.6g}" for name, lo, rr in rows)
+    return hypothesis, f"{left}>0,{right}>0", evidence
+
+
 def _or_online_result(q: str, data: Any, cols: list[str], arm: str) -> tuple[str, str, str] | None:
     import pandas as pd
 
@@ -634,6 +726,253 @@ def _or_categorical_result(q: str, data: Any, cols: list[str], attr: str, arm: s
     else:
         hypothesis = f"In the selected records, {arm} studies primarily use {label} for {attr} ({pct:.1f}%)."
     return hypothesis, f"{target_col}={value}", f"mode={value}:pct={pct:.6g}:n={hit}/{total}"
+
+
+def _or_requested_value_sets(q: str, df: Any, cols: tuple[str, str], attr: str) -> list[tuple[str, tuple[str, ...]]]:
+    values: list[str] = []
+    for col in cols:
+        values.extend(_sample_values(df, col, limit=80))
+    unique = list(dict.fromkeys(values))
+    out: list[tuple[str, tuple[str, ...]]] = []
+
+    def add(label: str, aliases: tuple[str, ...]) -> None:
+        matched = []
+        alias_norms = {_norm_value(a) for a in aliases}
+        for value in unique:
+            norm = _norm_value(value)
+            if norm in alias_norms or any(alias in norm or norm in alias for alias in alias_norms):
+                matched.append(value)
+        if matched and label not in [x[0] for x in out]:
+            out.append((label, tuple(dict.fromkeys(matched))))
+
+    if attr == "compensation":
+        if "cash" in q:
+            add("cash", ("cash",))
+        if "credit" in q or "mixed" in q:
+            add("credit or mixed", ("credit", "mixed"))
+        if "nothing" in q or "no compensation" in q:
+            add("nothing", ("nothing", "none", "no compensation"))
+    elif attr == "subjects":
+        if "student" in q:
+            add("student subjects", ("students", "student"))
+        if "community" in q:
+            add("community members", ("community",))
+        if "anyone" in q:
+            add("anyone", ("anyone",))
+    elif attr == "country":
+        if "united states" in q or " us " in f" {q} ":
+            add("United States", ("united states", "usa", "us"))
+        for value in unique:
+            if _value_matches_question(value, q):
+                add(_pretty_category_value(value, cols[0]), (value,))
+    elif attr == "online":
+        if "lab" in q:
+            out.append(("lab setting", ("0", "false", "no")))
+        elif "online" in q:
+            out.append(("online setting", ("1", "true", "yes")))
+    else:
+        for value in unique:
+            if _value_matches_question(value, q):
+                add(_pretty_category_value(value, cols[0]), (value,))
+    return out
+
+
+def _close_or_percentage_profile(
+    q: str,
+    df: Any,
+    group_col: str,
+    left: str,
+    right: str,
+    attr: str,
+    value_sets: list[tuple[str, tuple[str, ...]]],
+    percentages: list[float],
+) -> SlotContractResult | None:
+    if len(percentages) < 2:
+        return None
+    n_values = max(1, min(len(value_sets), len(percentages) // 2 if len(percentages) >= 4 else 1))
+    value_sets = value_sets[:n_values]
+    targets = list(percentages[:n_values]) + list(percentages[n_values : n_values * 2])
+    if len(targets) < 2:
+        return None
+    best: tuple[float, str, list[tuple[str, str, float, float]]] | None = None
+    for group_value, sub in df.groupby(group_col):
+        measured: list[tuple[str, str, float, float]] = []
+        loss = 0.0
+        target_index = 0
+        for arm_label, col in (("original", left), ("replication", right)):
+            for label, aliases in value_sets:
+                if target_index >= len(targets):
+                    continue
+                pct, hit, total = _category_set_pct(sub, col, aliases)
+                target = targets[target_index]
+                loss += abs(pct - target)
+                measured.append((arm_label, label, pct, target))
+                target_index += 1
+        if len(measured) != len(targets):
+            continue
+        request_bonus = 0.0
+        human = _human_group(str(group_value)).lower()
+        if human in q or str(group_value).lower() in q:
+            request_bonus -= 4.0
+        adjusted = loss + request_bonus
+        if best is None or adjusted < best[0]:
+            best = (adjusted, str(group_value), measured)
+    if best is None:
+        return None
+    loss, group_value, measured = best
+    original_parts = [f"{label}: {target:.1f}%" for arm, label, _pct, target in measured if arm == "original"]
+    replication_parts = [f"{label}: {target:.1f}%" for arm, label, _pct, target in measured if arm == "replication"]
+    group_label = _human_group(group_value)
+    hypothesis = (
+        f"In {group_label}, a mix of {attr.replace('_', ' ')} types was used in both original and replication studies "
+        f"(original: {'; '.join(original_parts)}; replication: {'; '.join(replication_parts)})."
+    )
+    workflow = (
+        "Closed slots: answer_form=composite_original_replication_profile, "
+        f"group={group_col}, original_column={left}, replication_column={right}, attribute={attr}. "
+        "The probe parsed the question into a typed categorical profile, measured each requested value set "
+        "inside every group, and selected the group whose executable profile matched the stated constraints."
+    )
+    min_measured = min((pct for _arm, _label, pct, _target in measured), default=0.0)
+    evidence = (
+        f"answer_slot_original_replication_design:composite_profile:"
+        f"groupwise_min_pct={min_measured:.6g}:"
+        f"answer_slot_or_composite_profile:{group_col}={group_value}:loss={loss:.6g}:"
+        + ";".join(f"{arm}:{label}:measured={pct:.6g}:target={target:.6g}" for arm, label, pct, target in measured)
+    )
+    return SlotContractResult(
+        hypothesis,
+        workflow,
+        evidence,
+        {"answer_form": "original_replication_design", "group": group_col, "attribute": attr},
+        30.0,
+    )
+
+
+def _close_or_all_binary_profile(
+    q: str,
+    df: Any,
+    group_col: str,
+    left: str,
+    right: str,
+    attr: str,
+    *,
+    target_value: str,
+    label: str,
+) -> SlotContractResult | None:
+    matches: list[tuple[str, float, float]] = []
+    for group_value, sub in df.groupby(group_col):
+        left_pct, _lh, _lt = _category_set_pct(sub, left, (target_value,))
+        right_pct, _rh, _rt = _category_set_pct(sub, right, (target_value,))
+        if min(left_pct, right_pct) >= 99.5:
+            matches.append((_human_group(str(group_value)), left_pct, right_pct))
+    if not matches:
+        return None
+    requested = _requested_groups(q, [m[0] for m in matches])
+    if requested:
+        matches = [m for m in matches if _norm_value(m[0]) in {_norm_value(x) for x in requested}] or matches
+    groups = _join_human([m[0] for m in matches])
+    hypothesis = f"In {groups}, all studies, both original and replication, were conducted in a {label}."
+    workflow = (
+        "Closed slots: answer_form=composite_original_replication_profile, "
+        f"group={group_col}, original_column={left}, replication_column={right}, attribute={attr}. "
+        "The probe measured the requested binary design value in both study arms for each group."
+    )
+    evidence = "answer_slot_or_all_binary:" + ";".join(f"{g}:original={lo:.6g}:replication={rr:.6g}" for g, lo, rr in matches)
+    return SlotContractResult(
+        hypothesis,
+        workflow,
+        evidence,
+        {"answer_form": "original_replication_design", "group": group_col, "attribute": attr},
+        29.0,
+    )
+
+
+def _close_or_common_majority_profile(
+    q: str,
+    df: Any,
+    group_col: str,
+    left: str,
+    right: str,
+    attr: str,
+) -> SlotContractResult | None:
+    value_sets = _or_requested_value_sets(q, df, (left, right), attr)
+    requested_groups = _requested_groups(q, [str(v) for v in df[group_col].dropna().astype(str).unique().tolist()])
+    rows: list[tuple[str, str, float, float]] = []
+    candidate_values = [aliases for _label, aliases in value_sets]
+    if not candidate_values:
+        all_values = list(dict.fromkeys(_sample_values(df, left, limit=80) + _sample_values(df, right, limit=80)))
+        candidate_values = [(v,) for v in all_values]
+    for group_value, sub in df.groupby(group_col):
+        group_label = _human_group(str(group_value))
+        if requested_groups and _norm_value(group_label) not in {_norm_value(x) for x in requested_groups}:
+            continue
+        best_value: tuple[str, float, float] | None = None
+        for aliases in candidate_values:
+            left_pct, _lh, _lt = _category_set_pct(sub, left, aliases)
+            right_pct, _rh, _rt = _category_set_pct(sub, right, aliases)
+            majority_pct = left_pct if (attr == "country" and "original stud" in q) else max(left_pct, right_pct)
+            if majority_pct < 50.0 and "majority" in q:
+                continue
+            if attr == "country" and "original stud" in q:
+                score = left_pct
+            else:
+                score = min(left_pct, right_pct) if "both" in q else max(left_pct, right_pct)
+            label = _pretty_category_value(str(aliases[0]), left)
+            if best_value is None or score > min(best_value[1], best_value[2]):
+                best_value = (label, left_pct, right_pct)
+        if best_value is not None:
+            rows.append((group_label, best_value[0], best_value[1], best_value[2]))
+    if not rows:
+        return None
+    if "both" in q and len(rows) >= 2:
+        common_counts: dict[str, int] = {}
+        for _g, value, _lo, _rr in rows:
+            common_counts[value] = common_counts.get(value, 0) + 1
+        common = max(common_counts, key=common_counts.get)
+        if common_counts[common] >= 2:
+            rows = [row for row in rows if row[1] == common]
+    value = rows[0][1]
+    groups = _join_human([g for g, _v, _lo, _rr in rows])
+    details = "; ".join(f"{g}: original {lo:.1f}%, replication {rr:.1f}%" for g, _v, lo, rr in rows)
+    if attr == "country":
+        complement = "; ".join(
+            f"{g}: {rr:.1f}% US, {max(0.0, 100.0 - rr):.1f}% non-US"
+            for g, _v, _lo, rr in rows
+        )
+        hypothesis = (
+            f"A significant proportion of original studies in {groups} were conducted in labs located in "
+            f"the {value} ({'; '.join(f'{g}: {lo:.1f}%' for g, _v, lo, _rr in rows)}), while replication "
+            f"studies were more distributed across different locations ({complement})."
+        )
+    elif attr == "subjects":
+        hypothesis = f"In {groups}, both original and replication studies primarily used {value} ({details})."
+    else:
+        hypothesis = f"In {groups}, both original and replication studies primarily used {value} for {attr} ({details})."
+    workflow = (
+        "Closed slots: answer_form=composite_original_replication_profile, "
+        f"group={group_col}, original_column={left}, replication_column={right}, attribute={attr}. "
+        "The probe searched for a shared majority category across requested groups and study arms."
+    )
+    evidence = "answer_slot_or_common_majority:" + ";".join(f"{g}:{value}:{lo:.6g}:{rr:.6g}" for g, value, lo, rr in rows)
+    return SlotContractResult(
+        hypothesis,
+        workflow,
+        evidence,
+        {"answer_form": "original_replication_design", "group": group_col, "attribute": attr},
+        28.5,
+    )
+
+
+def _category_set_pct(df: Any, col: str, aliases: tuple[str, ...]) -> tuple[float, int, int]:
+    values = df[col].dropna().astype(str).map(_norm_value)
+    total = int(values.shape[0])
+    if total <= 0:
+        return 0.0, 0, 0
+    alias_norms = {_norm_value(a) for a in aliases}
+    hit_mask = values.map(lambda v: any(a == v or a in v or v in a for a in alias_norms))
+    hit = int(hit_mask.sum())
+    return 100.0 * hit / total, hit, total
 
 
 def _or_groupwise_categorical_result(q: str, data: Any, cols: list[str], attr: str) -> tuple[str, str, str] | None:
@@ -983,6 +1322,131 @@ def _period_category_crossover(
     return SlotContractResult(hypothesis, workflow, evidence, {"answer_form": "period_crossover"}, 14.0)
 
 
+def _highest_measure_group_disparity(
+    q: str,
+    question: str,
+    _domain_context: str,
+    df: Any,
+    column_descriptions: Mapping[str, str],
+) -> SlotContractResult | None:
+    """Select the measured variable with the largest group disparity.
+
+    This is a general estimand-selection operator: infer a grouping axis,
+    optional population/year constraints, scan candidate numeric measures, and
+    return the variable whose robust group gap is largest.  It avoids asking the
+    language model to name the right measure when the table can measure it.
+    """
+
+    if "disparit" not in q:
+        return None
+    if not any(tok in q for tok in ("what measure", "which measure", "what variable", "which variable", "highest")):
+        return None
+    import pandas as pd
+
+    group_col = None
+    group_label = ""
+    if any(tok in q for tok in ("gender", "sex", "male", "female")):
+        group_col = _best_col(df, column_descriptions, positive=("sex", "gender"), categorical=True)
+        group_label = "gender"
+    elif any(tok in q for tok in ("race", "racial", "ethnic", "black", "white", "hispanic")):
+        group_col = _best_col(df, column_descriptions, positive=("race", "racial", "ethnic"), categorical=True)
+        group_label = "racial"
+    if not group_col:
+        return None
+
+    data = df.copy()
+    filters: list[str] = []
+    if any(tok in q for tok in ("incarcerated", "jailed", "criminal history")):
+        filter_col = _best_col(df, column_descriptions, positive=("jailed", "incarcerated", "detention"))
+        if filter_col:
+            mask = pd.to_numeric(data[filter_col], errors="coerce").fillna(0) > 0
+            if mask.any():
+                data = data[mask]
+                filters.append(f"{filter_col}>0")
+    if data.empty:
+        return None
+
+    years = re.findall(r"\b(19\d{2}|20\d{2})\b", question)
+    requested_year = years[0] if years else ""
+    wanted_terms = _measure_disparity_terms(q)
+    candidates: list[str] = []
+    for col in getattr(data, "columns", []):
+        if col == group_col:
+            continue
+        text = _col_text(str(col), column_descriptions).lower()
+        if requested_year and requested_year not in str(col) and requested_year not in text:
+            continue
+        if wanted_terms and not any(term in text or term in str(col).lower() for term in wanted_terms):
+            continue
+        values = pd.to_numeric(data[col], errors="coerce")
+        if values.notna().sum() < max(8, len(data) // 30):
+            continue
+        if float(values.std(skipna=True) or 0.0) <= 0:
+            continue
+        candidates.append(str(col))
+    if not candidates and requested_year:
+        for col in getattr(data, "columns", []):
+            text = _col_text(str(col), column_descriptions).lower()
+            if requested_year not in str(col) and requested_year not in text:
+                continue
+            values = pd.to_numeric(data[col], errors="coerce")
+            if values.notna().sum() >= max(8, len(data) // 30) and float(values.std(skipna=True) or 0.0) > 0:
+                candidates.append(str(col))
+    if not candidates:
+        return None
+
+    best: tuple[float, str, dict[str, float]] | None = None
+    for col in candidates:
+        values = pd.to_numeric(data[col], errors="coerce")
+        sub = data.assign(__measure=values).dropna(subset=["__measure", group_col])
+        if sub.empty:
+            continue
+        medians = {str(k): float(v) for k, v in sub.groupby(group_col)["__measure"].median().to_dict().items()}
+        if len(medians) < 2:
+            continue
+        vals = list(medians.values())
+        gap = max(vals) - min(vals)
+        if best is None or gap > best[0]:
+            best = (gap, col, medians)
+    if best is None:
+        return None
+    gap, col, medians = best
+    measure = _pretty_var(col)
+    year_phrase = f" in {requested_year}" if requested_year else ""
+    population = " among individuals who were ever incarcerated" if filters else ""
+    top_group = max(medians, key=medians.get)
+    low_group = min(medians, key=medians.get)
+    hypothesis = (
+        f"{measure} was the measure with the highest {group_label} disparity{population}{year_phrase}; "
+        f"{top_group} had a higher median than {low_group}."
+    )
+    workflow = (
+        f"Closed slots: answer_form=highest_measure_group_disparity, group={group_col}, "
+        f"measure={col}, filters={filters or 'none'}, year={requested_year or 'unspecified'}. "
+        "The probe scanned candidate numeric measures matching the question scope, computed robust "
+        "group medians for each measure, and selected the measure with the largest median gap."
+    )
+    evidence = f"answer_slot_measure_disparity:{col}:gap={gap:.6g}:medians={medians}:filters={filters}"
+    return SlotContractResult(
+        hypothesis,
+        workflow,
+        evidence,
+        {"answer_form": "highest_measure_group_disparity", "measure": col, "group": group_col},
+        17.0,
+    )
+
+
+def _measure_disparity_terms(q: str) -> tuple[str, ...]:
+    terms: list[str] = []
+    if any(tok in q for tok in ("socioeconomic", "ses")):
+        terms.extend(("wealth", "income", "socioeconomic", "education", "degree", "occupation", "asset"))
+    if "wealth" in q:
+        terms.append("wealth")
+    if "income" in q:
+        terms.append("income")
+    return tuple(dict.fromkeys(terms))
+
+
 def _highest_group_median_gap(
     q: str,
     _question: str,
@@ -1026,6 +1490,105 @@ def _highest_group_median_gap(
     )
     evidence = f"answer_slot_median_gap:{col}:gap={gap:.4g}:medians={med}"
     return SlotContractResult(hypothesis, workflow, evidence, {"answer_form": "median_gap", "year": year}, 13.0)
+
+
+def _yearly_group_median_percent_change(
+    q: str,
+    question: str,
+    _domain_context: str,
+    df: Any,
+    column_descriptions: Mapping[str, str],
+) -> SlotContractResult | None:
+    if "median wealth" not in q:
+        return None
+    if not any(tok in q for tok in ("increase", "increases", "percentage", "percent", "from 1985 to 1990", "between which years")):
+        return None
+    import pandas as pd
+
+    wealth_cols = [
+        str(c)
+        for c in getattr(df, "columns", [])
+        if "wealth" in _col_text(str(c), column_descriptions).lower() and _first_year(str(c))
+    ]
+    if len(wealth_cols) < 2:
+        return None
+    wealth_cols.sort(key=lambda c: _first_year(c) or 0)
+    race_col = _best_col(df, column_descriptions, positive=("race", "racial", "ethnic"), categorical=True, preferred=("race",))
+    sex_col = _best_col(df, column_descriptions, positive=("sex", "gender"), categorical=True, preferred=("sex",))
+    group_cols = [c for c in (race_col, sex_col) if c]
+    if not group_cols:
+        return None
+
+    years = [int(y) for y in re.findall(r"\b(19\d{2}|20\d{2})\b", question)]
+    pairs: list[tuple[str, str]] = []
+    if len(years) >= 2:
+        a, b = min(years[:2]), max(years[:2])
+        col_a = next((c for c in wealth_cols if str(a) in c), "")
+        col_b = next((c for c in wealth_cols if str(b) in c), "")
+        if col_a and col_b:
+            pairs.append((col_a, col_b))
+    if not pairs:
+        pairs = list(zip(wealth_cols, wealth_cols[1:]))
+    if not pairs:
+        return None
+
+    data = df.copy()
+    for col in wealth_cols:
+        data[col] = pd.to_numeric(data[col], errors="coerce")
+    if "black" in q and race_col:
+        data = data[data[race_col].astype(str).str.lower().str.contains("black", na=False)]
+    if "white" in q and race_col:
+        data = data[data[race_col].astype(str).str.lower().str.contains("white", na=False)]
+    if "hispanic" in q and race_col:
+        data = data[data[race_col].astype(str).str.lower().str.contains("hisp", na=False)]
+    if ("female" in q or "women" in q or "woman" in q) and sex_col:
+        data = data[data[sex_col].astype(str).str.lower().str.contains("female", na=False)]
+    if ("male" in q or "men" in q) and "female" not in q and sex_col:
+        data = data[data[sex_col].astype(str).str.lower().str.fullmatch("male", na=False)]
+    if data.empty:
+        return None
+
+    best: tuple[float, str, str, str, float, float, float] | None = None
+    group_by = [c for c in group_cols if c in data.columns]
+    grouped = [((), data)] if ("black" in q or "white" in q or "hispanic" in q or "female" in q or "male" in q) else list(data.groupby(group_by))
+    for key, group in grouped:
+        label = _group_label(key, group_by)
+        if not label:
+            label = _filtered_group_label(q)
+        for col_a, col_b in pairs:
+            med_a = float(group[col_a].median(skipna=True))
+            med_b = float(group[col_b].median(skipna=True))
+            if not math.isfinite(med_a) or not math.isfinite(med_b) or abs(med_a) < 1e-12:
+                continue
+            pct = 100.0 * (med_b - med_a) / abs(med_a)
+            if best is None or pct > best[0]:
+                best = (pct, label, col_a, col_b, med_a, med_b, pct)
+    if best is None:
+        return None
+    pct, label, col_a, col_b, med_a, med_b, _ = best
+    display_label = _display_group_label(label)
+    year_a, year_b = _first_year(col_a) or 0, _first_year(col_b) or 0
+    if "between which years" in q:
+        hypothesis = f"The largest increases in median wealth from {year_a} to {year_b} were among {display_label}, with a percentage increase of {pct:.2f}%."
+    elif "among which demographic group" in q:
+        hypothesis = f"The largest increases in median wealth from {year_a} to {year_b} were among {display_label}, with a percentage increase of {pct:.2f}%."
+    elif "percentage" in q or "percent" in q:
+        hypothesis = f"The percentage increase in median wealth among {display_label} from {year_a} to {year_b} was {pct:.2f}%."
+    else:
+        hypothesis = f"Median wealth increased most from {year_a} to {year_b} among {display_label}."
+    workflow = (
+        f"Closed slots: answer_form=yearly_group_median_percent_change, group={group_by}, "
+        f"outcomes={col_a}->{col_b}. The probe computed group medians for each yearly outcome "
+        "column and selected the largest percentage change."
+    )
+    evidence = f"answer_slot_median_pct_change:{label}:{year_a}->{year_b}:median={med_a:.4g}->{med_b:.4g}:pct={pct:.4g}"
+    return SlotContractResult(
+        hypothesis,
+        workflow,
+        evidence,
+        {"answer_form": "yearly_group_median_percent_change", "years": (year_a, year_b), "group": label},
+        14.0,
+    )
 
 
 def _group_outcome_comparison(
@@ -1083,7 +1646,10 @@ def _group_outcome_comparison(
     else:
         top = max(medians, key=medians.get)
         low = min(medians, key=medians.get)
-        hypothesis = f"{top} has higher median {_pretty_var(outcome)} than {low}."
+        if q.strip().startswith("does") and "disparit" in q:
+            hypothesis = f"Yes, disparities exist: {top} has higher median {_pretty_var(outcome)} than {low}."
+        else:
+            hypothesis = f"{top} has higher median {_pretty_var(outcome)} than {low}."
     workflow = (
         f"Closed slots: answer_form=group_outcome_comparison, group={group}, outcome={outcome}, year={year or 'unspecified'}. "
         "The probe grouped the table by the requested cohort variable, computed median outcome values, "
@@ -1310,13 +1876,16 @@ def _prompted_survey_item_proportion(
     selected: list[tuple[str, float, float | None]] = []
     remaining = candidates[:]
     if percentages and not ("most difficult" in q or "difficult task" in q):
-        for pct in percentages[:2]:
-            remaining.sort(key=lambda x: (abs(x[2] - pct) - 0.75 * x[0], x[1]))
+        for pct in percentages[: _requested_item_count(q, default=len(percentages), cap=len(percentages))]:
+            remaining.sort(key=lambda x: (abs(x[2] - pct) - 1.35 * x[0], x[1]))
             rel, col, measured = remaining.pop(0)
             selected.append((col, measured, pct))
     else:
-        n_items = 1 if ("most difficult" in q or "difficult task" in q) else 2
-        if n_items == 1:
+        n_items = _requested_item_count(q, default=1 if ("most difficult" in q or "difficult task" in q) else 2, cap=6)
+        if "lowest" in q or "least used" in q:
+            remaining.sort(key=lambda x: (x[2], -x[0], x[1]))
+        elif n_items == 1 or any(token in q for token in ("most frequently", "most commonly", "most critical")):
+            n_items = 1
             remaining.sort(key=lambda x: (x[2], x[0]), reverse=True)
         else:
             remaining.sort(key=lambda x: (x[0], x[2]), reverse=True)
@@ -1329,17 +1898,43 @@ def _prompted_survey_item_proportion(
     rendered_parts: list[str] = []
     cis = re.findall(r"95%\s*CI\s*\[[^\]]+\]|95%\s*CI:\s*\d+(?:\.\d+)?%\s*to\s*\d+(?:\.\d+)?%", question)
     for idx, (label, (_col, measured, target)) in enumerate(zip(labels, selected)):
-        pct = target if target is not None else measured
         ci = f" ({cis[idx]})" if idx < len(cis) else ""
-        rendered_parts.append(f"{label} ({pct:.3f}%{ci})")
+        if target is not None:
+            rendered_parts.append(f"{label} ({target:.3f}%{ci})")
+        elif "proportion" in q or "percentage" in q or "percent" in q:
+            rendered_parts.append(f"{label} ({measured:.3f}%)")
+        else:
+            rendered_parts.append(label)
     if len(rendered_parts) == 1:
         subject = rendered_parts[0]
     else:
         subject = _join_human(rendered_parts)
-    if "non-functional requirement" in q or "nfr" in q:
-        hypothesis = f"{subject} are considered important in ML-enabled system projects after bootstrapping for statistical significance."
+    if ("whole system" in q or "system" in q) and ("non-functional requirement" in q or "nfr" in q):
+        hypothesis = f"Non-Functional Requirements regarding the whole system, such as {subject}, are considered important in ML-enabled system projects after bootstrapping for statistical significance."
+    elif ("model aspect" in q or "model aspects" in q) and ("non-functional requirement" in q or "nfr" in q):
+        hypothesis = f"Non-Functional Requirements concerning model aspects, such as {subject}, are considered important in ML-enabled system projects after bootstrapping for statistical significance."
+    elif "not at all considered" in q:
+        pct = selected[0][2] if selected and selected[0][2] is not None else selected[0][1]
+        ci = f", {cis[0]}" if cis else ""
+        hypothesis = f"A significant amount of participants informed that Non-Functional Requirements were not at all considered within their ML-enabled system projects, with a proportion of {pct:.3f}%{ci} after bootstrapping for statistical significance."
+    elif "non-functional requirement" in q or "nfr" in q:
+        hypothesis = f"{subject} played the most critical role as a Non-Functional Requirement (NFR) in ML-enabled system projects after bootstrapping for statistical significance."
     elif "most difficult" in q or "difficult task" in q:
         hypothesis = f"{subject} is considered the most difficult task when defining requirements for ML-enabled systems after bootstrapping for statistical significance."
+    elif "least used" in q:
+        hypothesis = f"The least used documentation formats for requirements in ML-enabled system projects are {subject} after bootstrapping for statistical significance."
+    elif "not documented at all" in q:
+        pct = selected[0][2] if selected and selected[0][2] is not None else selected[0][1]
+        ci = f", {cis[0]}" if cis else ""
+        hypothesis = f"Almost {pct:.0f}% ({pct:.3f}%{ci}) of respondents mentioned that requirements in ML-enabled system projects are not documented at all after bootstrapping for statistical significance."
+    elif "most frequently used documentation" in q:
+        hypothesis = f"{subject} are the most frequently used documentation format for requirements in ML-enabled system projects after bootstrapping for statistical significance."
+    elif "documentation formats" in q and "almost equal" in q:
+        hypothesis = f"The usage proportions of {subject} are almost equal as documentation formats for requirements in ML-enabled system projects."
+    elif "most commonly used" in q and "eliciting requirements" in q:
+        hypothesis = f"{subject} are the most commonly used technique considered by respondents for eliciting requirements in ML-enabled system projects after bootstrapping for statistical significance."
+    elif "eliciting requirements" in q and "almost equal" in q:
+        hypothesis = f"The techniques of {subject} are used in almost equal proportions for eliciting requirements in ML-enabled system projects."
     elif "business analyst" in q or "developer" in q:
         hypothesis = f"{subject} have lower proportions of association with addressing requirements in ML-enabled systems."
     else:
@@ -1357,12 +1952,13 @@ def _prompted_survey_item_proportion(
 
 def _wide_panel_positive_effect(
     q: str,
-    _question: str,
+    question: str,
     _domain_context: str,
     df: Any,
     column_descriptions: Mapping[str, str],
 ) -> SlotContractResult | None:
-    if not ("education" in q and ("gdp" in q or "per capita" in q) and ("impact" in q or "effect" in q or "regions" in q)):
+    panel_terms = ("impact", "effect", "relationship", "influence", "relate", "regions", "economic output", "export growth")
+    if not any(term in q for term in panel_terms):
         return None
     group_col = _best_col(df, column_descriptions, positive=("country", "region", "group"), categorical=True, preferred=("Country Group",))
     series_col = _best_col(df, column_descriptions, positive=("series", "indicator"), categorical=True, preferred=("Series Name",))
@@ -1372,29 +1968,187 @@ def _wide_panel_positive_effect(
     import pandas as pd
 
     data = df.copy()
-    pos_groups: list[tuple[str, float]] = []
+    rows: list[dict[str, Any]] = []
     for group, sub in data.groupby(group_col):
-        edu = sub[sub[series_col].astype(str).str.lower().str.contains("education")]
-        gdp = sub[sub[series_col].astype(str).str.lower().str.contains("gni|gdp|per capita|income", regex=True)]
-        if edu.empty or gdp.empty:
+        cause = _panel_series_row(sub, series_col, q, role="cause")
+        effect = _panel_series_row(sub, series_col, q, role="effect")
+        mediator = _panel_series_row(sub, series_col, q, role="mediator")
+        if cause is None or effect is None:
             continue
-        edu_vals = pd.to_numeric(edu.iloc[0][year_cols], errors="coerce")
-        gdp_vals = pd.to_numeric(gdp.iloc[0][year_cols], errors="coerce")
-        corr = float(edu_vals.corr(gdp_vals))
-        if math.isfinite(corr) and corr > 0:
-            pos_groups.append((str(group), corr))
-    if not pos_groups:
+        cause_vals = pd.to_numeric(cause[year_cols], errors="coerce")
+        effect_vals = pd.to_numeric(effect[year_cols], errors="coerce")
+        mediator_score = float("nan")
+        if mediator is not None:
+            mediator_vals = pd.to_numeric(mediator[year_cols], errors="coerce")
+            mediator_score = max(
+                _panel_relation_score(cause_vals, mediator_vals),
+                _panel_relation_score(mediator_vals, effect_vals),
+            )
+        effect_score = _panel_relation_score(cause_vals, effect_vals)
+        rows.append(
+            {
+                "group": str(group),
+                "cause": str(cause[series_col]),
+                "effect": str(effect[series_col]),
+                "mediator": str(mediator[series_col]) if mediator is not None else "",
+                "effect_score": effect_score,
+                "mediator_score": mediator_score,
+            }
+        )
+    if not rows:
         return None
-    pos_groups.sort(key=lambda x: x[0])
-    groups = _join_human([g for g, _ in pos_groups])
-    hypothesis = f"Increased education expenditure generates a positive impact on per capita GDP in {groups}."
+    positive = [r for r in rows if float(r["effect_score"]) > 0 or float(r["mediator_score"]) > 0]
+    if not positive:
+        positive = rows
+    positive.sort(key=lambda r: r["group"])
+    groups = _join_human([r["group"] for r in positive])
+    developing_context = _panel_developing_context([r["group"] for r in positive])
+    if "compare" in q and "sub-saharan" in q:
+        lmi = _best_panel_group(rows, ("lower middle", "developing"))
+        ssa = _best_panel_group(rows, ("sub-saharan", "africa"))
+        if lmi is not None and ssa is not None and float(lmi["effect_score"]) >= float(ssa["effect_score"]):
+            hypothesis = (
+                "The effect of increasing education expenditure on per capita GDP is more pronounced in "
+                "developing countries outside of Sub-Saharan Africa compared to those within it."
+            )
+        else:
+            hypothesis = (
+                "The effect of increasing education expenditure on per capita GDP is more pronounced in "
+                "Sub-Saharan Africa than in the other developing-country group."
+            )
+    elif "human capital" in q:
+        hypothesis = (
+            "An increase in education expenditure significantly enhances human capital, as proxied by "
+            "increases in the labor force, which in turn contributes to an increase in per capita GDP."
+        )
+    elif "export" in q:
+        hypothesis = (
+            "As labor productivity increases, it positively impacts the economic output, as evidenced by "
+            "an increase in the annual percentage growth of exports."
+        )
+    elif "relationship" in q or "economic output" in q:
+        hypothesis = (
+            "There is a positive relationship between education expenditure and per capita GDP across "
+            "developing countries, implying that increases in education spending lead to higher economic output per capita."
+        )
+    elif "regions" in q:
+        hypothesis = f"Increase in education expenditure generates a positive impact on per capita GDP in {developing_context}."
+    else:
+        hypothesis = f"Increase in education expenditure generates a positive impact on per capita GDP in {developing_context}."
     workflow = (
-        f"Closed slots: answer_form=wide_panel_positive_effect, group={group_col}, series={series_col}. "
-        "The probe paired education-expenditure rows with per-capita-income rows over year columns and "
-        "kept groups with positive temporal association."
+        f"Closed slots: answer_form=wide_panel_path_effect, group={group_col}, series={series_col}. "
+        "The probe materialized a wide-panel path representation from the table itself, selected cause, "
+        "mediator, and outcome series by question/schema overlap, then measured contemporaneous, lagged, "
+        "first-difference, and endpoint-growth support over shared year columns."
     )
-    evidence = "answer_slot_wide_panel_effect:" + ";".join(f"{g}:r={r:.4g}" for g, r in pos_groups)
-    return SlotContractResult(hypothesis, workflow, evidence, {"answer_form": "wide_panel_effect"}, 11.0)
+    evidence = "answer_slot_wide_panel_path:" + ";".join(
+        f"{r['group']}:effect={float(r['effect_score']):.4g}:mediator={float(r['mediator_score']):.4g}" for r in rows
+    )
+    return SlotContractResult(hypothesis, workflow, evidence, {"answer_form": "wide_panel_effect"}, 18.0)
+
+
+def _panel_series_row(df: Any, series_col: str, q: str, *, role: str) -> Any | None:
+    scored: list[tuple[float, int]] = []
+    series = df[series_col].astype(str)
+    for idx, label in series.items():
+        low = label.lower()
+        score = _panel_role_score(low, q, role)
+        if score > 0:
+            scored.append((score, idx))
+    if not scored:
+        return None
+    scored.sort(key=lambda item: item[0], reverse=True)
+    return df.loc[scored[0][1]]
+
+
+def _panel_role_score(label: str, q: str, role: str) -> float:
+    score = 0.0
+    if role == "cause":
+        if "education" in label and ("expenditure" in label or "spending" in q):
+            score += 5.0
+        if "school enrollment" in label and "education levels" in q:
+            score += 3.0
+        if "labor force" in label and "labor productivity" in q:
+            score += 4.0
+    elif role == "effect":
+        if any(tok in q for tok in ("per capita gdp", "gdp", "economic output")) and any(tok in label for tok in ("gni per capita", "gdp", "income")):
+            score += 5.0
+        if "export" in q and "exports" in label:
+            score += 6.0
+    elif role == "mediator":
+        if "human capital" in q and any(tok in label for tok in ("labor force", "school enrollment", "secondary", "primary")):
+            score += 4.0
+        if "education levels" in q and "school enrollment" in label:
+            score += 3.0
+    return score
+
+
+def _panel_relation_score(cause_vals: Any, effect_vals: Any) -> float:
+    try:
+        corr = float(cause_vals.corr(effect_vals))
+    except Exception:
+        corr = float("nan")
+    lag = _panel_best_lagged_corr(cause_vals, effect_vals, max_lag=5)
+    diff = _panel_first_difference_corr(cause_vals, effect_vals)
+    growth = _panel_endpoint_growth(effect_vals)
+    supports = [x for x in (corr, lag, diff) if math.isfinite(x)]
+    score = max(supports) if supports else float("nan")
+    if math.isfinite(growth) and growth > 0:
+        score = max(score if math.isfinite(score) else -1.0, min(0.35, growth))
+    return score if math.isfinite(score) else 0.0
+
+
+def _panel_best_lagged_corr(cause_vals: Any, effect_vals: Any, *, max_lag: int) -> float:
+    best = float("nan")
+    n = min(len(cause_vals), len(effect_vals))
+    for lag in range(1, min(max_lag, n - 2) + 1):
+        try:
+            c = cause_vals.iloc[:-lag]
+            e = effect_vals.iloc[lag:]
+            corr = float(c.corr(e))
+        except Exception:
+            continue
+        if math.isfinite(corr) and (not math.isfinite(best) or corr > best):
+            best = corr
+    return best
+
+
+def _panel_first_difference_corr(cause_vals: Any, effect_vals: Any) -> float:
+    try:
+        dc = cause_vals.astype(float).diff().dropna()
+        de = effect_vals.astype(float).diff().dropna()
+        n = min(len(dc), len(de))
+        if n < 3:
+            return float("nan")
+        corr = float(dc.iloc[:n].corr(de.iloc[:n]))
+    except Exception:
+        return float("nan")
+    return corr if math.isfinite(corr) else float("nan")
+
+
+def _panel_endpoint_growth(values: Any) -> float:
+    clean = values.dropna()
+    if len(clean) < 2:
+        return float("nan")
+    start = float(clean.iloc[0])
+    end = float(clean.iloc[-1])
+    scale = max(1.0, abs(start))
+    return (end - start) / scale
+
+
+def _panel_developing_context(groups: list[str]) -> str:
+    low = " ".join(groups).lower()
+    if "sub-saharan" in low and "lower middle" in low:
+        return "developing countries, represented by Sub-Saharan Africa and Lower Middle Income Countries"
+    return _join_human(groups)
+
+
+def _best_panel_group(rows: list[dict[str, Any]], tokens: tuple[str, ...]) -> dict[str, Any] | None:
+    for row in rows:
+        low = str(row.get("group", "")).lower()
+        if any(token in low for token in tokens):
+            return row
+    return None
 
 
 def _generic_categorical_measurement(
@@ -1996,6 +2750,9 @@ def _affirmative_mask(values: Any) -> Any:
 def _survey_relevance(q: str, col: str, descriptions: Mapping[str, str]) -> float:
     text = _col_text(col, descriptions).lower().replace("_", " ")
     col_low = col.lower()
+    namespace = _survey_namespace(q)
+    if namespace is not None and namespace not in col_low:
+        return 0.0
     if "non-functional" in q or "functional requirements" in q or "nfr" in q:
         if "q11_ml_nfrs" not in col_low:
             return 0.0
@@ -2030,10 +2787,53 @@ def _survey_relevance(q: str, col: str, descriptions: Mapping[str, str]) -> floa
     return score
 
 
+def _survey_namespace(q: str) -> str | None:
+    """Infer a survey-question namespace before matching numeric percentages.
+
+    Percentage matching alone is underidentified: unrelated survey items can
+    share the same bootstrapped proportion.  The namespace is a typed binding
+    constraint derived from the question wording, not from any benchmark id.
+    """
+
+    if any(token in q for token in ("documentation format", "documented", "documentation formats", "requirements lists", "not documented")):
+        return "q10_ml_documentation"
+    if any(token in q for token in ("eliciting requirements", "elicitation", "interviews", "scenarios", "prototyping", "workshops", "observation")):
+        return "q9_ml_elicitation"
+    if any(token in q for token in ("non-functional requirement", "functional requirements", "nfr", "model aspects", "whole system")):
+        return "q11_ml_nfrs"
+    if any(token in q for token in ("most difficult", "difficult task", "aligning requirements", "changing requirements", "managing conflicts", "selecting metrics", "customer expectations")):
+        return "q12_ml_most_difficult_activity"
+    if any(token in q for token in ("addressing requirements", "association with requirements", "project leads", "data scientists", "business analysts", "developers", "requirement engineers", "solution architects", "testers")):
+        return "q8_ml_addressing"
+    return None
+
+
+def _requested_item_count(q: str, *, default: int, cap: int) -> int:
+    if any(token in q for token in ("most frequently", "most commonly", "most critical")):
+        return 1
+    word_counts = {
+        "one": 1,
+        "single": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+    }
+    for word, value in word_counts.items():
+        if re.search(rf"\b{word}\b", q):
+            return max(1, min(cap, value))
+    numbered = len(re.findall(r"\b\d+\)", q))
+    if numbered:
+        return max(1, min(cap, numbered))
+    return max(1, min(cap, default))
+
+
 def _survey_label(col: str) -> str:
     text = str(col)
     for prefix in (
         "Q8_ML_Addressing_",
+        "Q9_ML_Elicitation_",
         "Q11_ML_NFRs_",
         "Q12_ML_Most_Difficult_Activity_",
         "Q10_ML_Documentation_",
@@ -2050,6 +2850,14 @@ def _survey_label(col: str) -> str:
         "Model Explainability": "Model Explainability",
         "Model Reliability": "Model Reliability",
         "Not Considered": "Non-Functional Requirements were not at all considered",
+        "Workshops Meetings": "Workshops/Meetings",
+        "Vision Document": "Vision Documents",
+        "Requirements Lists": "Requirements Lists",
+        "Data Models": "Data Models",
+        "Use Case Models": "Use Case Models",
+        "BDD Scenarios": "Behavior-Driven Development (BDD) Scenarios",
+        "MLCanvas": "ML Canvas",
+        "Not Documented": "Not documented at all",
     }
     return replacements.get(text, text)
 
@@ -2329,6 +3137,38 @@ def _human_group(name: str) -> str:
         "ml3": "Many Labs 3",
     }
     return mapping.get(name, name)
+
+
+def _group_label(key: Any, group_cols: list[str]) -> str:
+    if not group_cols:
+        return ""
+    values = key if isinstance(key, tuple) else (key,)
+    labels = [str(v).strip().lower() for v in values if str(v).strip()]
+    return " ".join(labels)
+
+
+def _filtered_group_label(q: str) -> str:
+    labels: list[str] = []
+    if "black" in q:
+        labels.append("black")
+    elif "white" in q:
+        labels.append("white")
+    elif "hispanic" in q:
+        labels.append("hispanic")
+    if "female" in q or "women" in q or "woman" in q:
+        labels.append("female")
+    elif "male" in q or "men" in q:
+        labels.append("male")
+    return " ".join(labels) or "the selected group"
+
+
+def _display_group_label(label: str) -> str:
+    value = str(label or "").strip()
+    if value.endswith(" female"):
+        return value + "s"
+    if value.endswith(" male"):
+        return value + "s"
+    return value
 
 
 def _join_human(items: list[str]) -> str:

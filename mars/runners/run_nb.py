@@ -41,15 +41,13 @@ _PROJ = Path(__file__).resolve().parent.parent.parent
 if str(_PROJ) not in sys.path:
     sys.path.insert(0, str(_PROJ))
 
-# CRITICAL: load API keys from .env.local with override=True BEFORE any LLM
-# client is constructed. The shell may carry a stale/expired OPENAI_API_KEY;
-# without this the Generator silently uses the bad key → empty completions →
-# 0 actions → 0 score. (UH runner gets this via its adapter's import-time load.)
+# Load API keys from .env.local only as a fallback. Explicit run-time
+# environment variables must win when rotating OpenRouter keys.
 try:
     from dotenv import load_dotenv
     _env_path = _PROJ / "autodiscovery" / ".env.local"
     if _env_path.exists():
-        load_dotenv(_env_path, override=True)
+        load_dotenv(_env_path, override=False)
 except ImportError:
     pass
 

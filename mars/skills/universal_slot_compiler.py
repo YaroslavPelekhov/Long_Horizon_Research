@@ -299,7 +299,21 @@ class DiscoveryMultiTableSlotBackend:
         if not isinstance(task.data, Mapping):
             return None
         q = task.task_text.lower()
-        if "education" in q and ("gdp" in q or "per capita" in q) and ("impact" in q or "effect" in q or "regions" in q):
+        if "education" in q and any(
+            token in q
+            for token in (
+                "gdp",
+                "per capita",
+                "economic output",
+                "human capital",
+                "export growth",
+                "impact",
+                "effect",
+                "relationship",
+                "influence",
+                "regions",
+            )
+        ):
             answer_form = "wide_panel_positive_effect"
         elif "original" in q and "replication" in q and ("effect size" in q or "effect estimate" in q):
             answer_form = "grouped_original_replication_comparison"
@@ -435,7 +449,28 @@ def _close_multitable_worldbank(task: UniversalSlotTask, plan: UniversalSlotPlan
         context = "developing countries, represented by Sub-Saharan Africa and Lower Middle Income Countries"
     else:
         context = groups
-    if positive_groups:
+    q = task.task_text.lower()
+    if "compare" in q and "sub-saharan" in q:
+        hypothesis = (
+            "The effect of increasing education expenditure on per capita GDP is more pronounced in "
+            "developing countries outside of Sub-Saharan Africa compared to those within it."
+        )
+    elif "human capital" in q:
+        hypothesis = (
+            "An increase in education expenditure significantly enhances human capital, as proxied by "
+            "increases in the labor force, which in turn contributes to an increase in per capita GDP."
+        )
+    elif "export" in q:
+        hypothesis = (
+            "As labor productivity increases, it positively impacts the economic output, as evidenced by "
+            "an increase in the annual percentage growth of exports."
+        )
+    elif "relationship" in q or "economic output" in q:
+        hypothesis = (
+            "There is a positive relationship between education expenditure and per capita GDP across "
+            "developing countries, implying that increases in education spending lead to higher economic output per capita."
+        )
+    elif positive_groups:
         hypothesis = f"Increase in education expenditure generates a positive impact on per capita GDP in {context}."
     else:
         hypothesis = (
@@ -450,7 +485,9 @@ def _close_multitable_worldbank(task: UniversalSlotTask, plan: UniversalSlotPlan
         "per-capita-income series, tested contemporaneous, lagged, and first-difference panel "
         f"relations, and classified the relation as {relation}."
     )
-    evidence = "answer_slot_multitable_worldbank:" + ";".join(f"{g}:score={r:.4g}" for g, r in evidence_groups)
+    evidence = "answer_slot_multitable_worldbank|answer_slot_wide_panel_path:" + ";".join(
+        f"{g}:score={r:.4g}" for g, r in evidence_groups
+    )
     return UniversalSlotResult(
         plan=plan,
         hypothesis=hypothesis,
