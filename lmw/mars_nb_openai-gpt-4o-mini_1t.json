@@ -2,7 +2,7 @@
  "generator_model": "openai/gpt-4o-mini",
  "reflector_model": "openai/gpt-4o-mini",
  "judge_model": "gpt41",
- "budget": 10.0,
+ "budget": 5.0,
  "n_tasks": 1,
  "ablations_run": [
   "MARS-full"
@@ -11,14 +11,24 @@
   "m0_gravity"
  ],
  "difficulties": [
-  "hard"
+  "easy"
  ],
+ "law_versions": [
+  "v0"
+ ],
+ "systems": [
+  "vanilla_equation"
+ ],
+ "noise": [
+  0.0
+ ],
+ "trials_per_combo": 1,
  "per_task": {
   "MARS-full": [
    {
-    "task_label": "m0_gravity/hard/v0/vanilla_equation/n=0.0/t0",
+    "task_label": "m0_gravity/easy/v0/vanilla_equation/n=0.0/t0",
     "module": "m0_gravity",
-    "difficulty": "hard",
+    "difficulty": "easy",
     "law_version": "v0",
     "system": "vanilla_equation",
     "noise_level": 0.0,
@@ -29,14 +39,15 @@
     },
     "primary": 0.0,
     "SA": 0.0,
-    "rmsle": NaN,
+    "numerical_accuracy": 0.05226873061726334,
+    "rmsle": 2.951356971662902,
     "symbolic_equivalent": false,
-    "submitted_preview": "<final_law>\ndef discovered_law(mass1, mass2, distance):\n   C = 8e-8\n   return (C * mass1 * mass2) / (distance ** 2)\n</final_law>",
+    "submitted_preview": "def discovered_law(mass1, mass2, distance):\n    return 6.674e-05 * ((distance*mass1))**-1.500000 * mass2**3.500000",
     "judge_explain": "LLM judge determined formulas are not equivalent.",
-    "n_turns": 5,
-    "n_actions": 9,
+    "n_turns": 3,
+    "n_actions": 5,
     "n_claims_active": 0,
-    "n_generator_calls": 5,
+    "n_generator_calls": 3,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -44,7 +55,8 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 55.59141302108765
+    "code_evolver_stats": {},
+    "wall_time_s": 27.52925181388855
    }
   ]
  }

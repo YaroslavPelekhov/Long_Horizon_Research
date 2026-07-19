@@ -32,7 +32,26 @@ def compile_answer_contract(task_text: str) -> AnswerContract:
     low = str(task_text).lower()
     if any(token in low for token in ("pca", "pc1", "pc2", "principal component", "principal components")):
         return AnswerContract(answer_type="relation", max_sentences=4)
-    if any(token in low for token in ("average", "proportion", "percent", "percentage", "compared", "compared to", "coefficient")):
+    if any(
+        token in low
+        for token in (
+            "average",
+            "proportion",
+            "percent",
+            "percentage",
+            "compared",
+            "compared to",
+            "coefficient",
+            "strongly",
+            "significant predictor",
+            "effect of",
+            "effect size",
+            "decreases from",
+            "increases from",
+            "changes from",
+            "degree of",
+        )
+    ):
         return AnswerContract(answer_type="measured_quantity", max_sentences=2)
     if "which century" in low or "what century" in low:
         return AnswerContract(answer_type="temporal_century")

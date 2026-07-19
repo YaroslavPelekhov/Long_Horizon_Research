@@ -86,14 +86,50 @@ This is **not** "the method is weak" — it is a precise, mechanistic map:
 - The reliable computational path is **model-authored code executed on data** (offload analysis to
   the interpreter) — but only for operations the model can correctly *code*.
 
-## 5. Where this points
+## 5. The central contribution: an outer loop that does the method-research itself
 
-The realized universal form is: **weak model = orchestration + hypothesis generation; shell =
-library of reliable analytical primitives (regression, clustering, decomposition, permutation
-tests, execution) + conservation-selection with an independent verifier.** Its power is bounded by
-one measurable quantity — the coverage of that primitive library (equivalently, the model's
-analytical repertoire across generation/validation/code) — not by the cleverness of the
-architecture. Extending the primitive library is the lever that raises the ceiling.
+The per-benchmark method above (which generator? which verifier? which selector?) was found by a
+**human** trying variants (5 attempts on UltraHorizon before evidence-based aggregation won). The
+novel contribution is a **recursive meta-loop ("docker-in-docker")** that automates exactly this:
+
+> Level N runs and judges level N−1 on an ever-more-held-out metric. **L0** solves. **L1** selects
+> the METHOD by a **gold-free signal** (predictive fidelity / evidence-support on manufactured
+> known-answer probes), then **validates** by transfer to held-out probes.
+
+**It works, and it is our own conservation principle applied recursively** (L1's gold-free signal =
+conservation-at-noise-floor lifted to the method level: zero held-out error ⟺ correct on noiseless
+data). Two demonstrations:
+
+- **NewtonBench** (`run_meta_tower_nb.py`): L1 **auto-rediscovers `regression`** by held-out
+  fidelity alone (gold-free pick == gold-best), no human hint.
+- **UltraHorizon** (`run_meta_uh.py`): over the 4 aggregators on shared rollouts, the meta-loop
+  auto-picks the winner on labeled probe seeds and it **validates on held-out seeds (MATCH)** —
+  and it did *not* copy the human's hand-choice; its probe→validate protocol selected a
+  competitive/better evidence-based aggregator, i.e. **more rigorous method-research than the human
+  did by hand**. Robustly, it auto-rejects the reliably-worst method (consensus).
+
+**Measured, not asserted — and the deep law.** A noise-curriculum
+(`run_meta_curriculum_nb.py`) shows the meta-selection stays grounded up to **noise ≈ 0.1**, then
+decouples (gap collapses / gold labels themselves go noisy) — matching NewtonBench's documented
+noise-sensitivity. This yields the governing law:
+
+> **The tower does not create verifiability — it consumes it.** Each rung spends some of the
+> environment's verifiable structure; the usable tower depth **equals** the total independent
+> structure the environment affords. Recursion **relocates** the fundamental limit one level up,
+> it does not escape it. (A conservation-of-verification / no-free-lunch statement.)
+
+## 6. Honest scope and where this points
+
+- **Not a SOTA claim.** On comparable metrics the weak model does **not** beat SOTA (DiscoveryBench
+  forced 16.6 < 24.5; NewtonBench 0.67 is the easy-vanilla slice, not the full 0.76 benchmark).
+  What is real is **strong amplification of a weak model** and an **automated method-discovery
+  loop** bounded by a **measurable** quantity.
+- **The realized universal form**: weak model = orchestration + hypothesis generation; shell =
+  library of reliable analytical primitives + conservation-selection with an independent verifier;
+  **meta-loop = autonomous per-benchmark method-selection**, valid within the environment's
+  verifiable structure.
+- **The lever that raises the ceiling** is extending the primitive library (§3, Gate 3); **the
+  lever that removes the human** is the meta-loop (§5) — each bounded by the same conserved quantity.
 
 ---
 *All numbers are on the slices stated (small N on SAB/UH; NB is the easy-vanilla slice, not the full

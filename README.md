@@ -1,117 +1,82 @@
-# MARS: Universal Self-Induced Hypothesis System
+# RG-HLI: Residual-Guided Hypothesis Language Induction
 
-MARS is a research prototype for making a smaller model behave more like a
-scientific problem solver: instead of asking the model to guess a final answer
-in prose, the system builds executable hypothesis artifacts, tests them against
-the available evidence, and ranks them with a shared posterior.
+This repository contains the current research prototype and paper artifacts for
+Residual-Guided Hypothesis Language Induction (RG-HLI), a universal
+hypothesis-induction system for scientific reasoning with small language
+models.
 
-The current version focuses on a universal layer that can run across scientific
-discovery, symbolic law induction, and long-horizon program induction
-benchmarks without writing a separate benchmark-specific solver for each task.
+RG-HLI does not treat a scientific answer as a single free-form completion. It
+turns the task into typed executable hypothesis artifacts: evidence contracts,
+slots, measurements, validators, residuals, and promoted operators. The language
+model proposes local typed objects, while execution closes uncertain slots and
+stores failures as structured residuals.
 
-## Core Idea
+## Core Method
 
-The central object is a self-building causal/program induction layer:
+The same kernel is used across tabular discovery, symbolic law induction, and
+long-horizon rule discovery:
 
-1. Compile the natural-language task and available data into typed evidence
-   contracts.
-2. Build candidate artifacts with explicit holes: variables, roles, outcomes,
-   operators, transforms, estimands, and rendering contracts.
-3. Close those holes by executable probes over the data rather than by prose
-   guessing.
-4. Validate the resulting answer with metamorphic and contract checks.
-5. Reuse only compressed abstractions that improve evidence fit under a common
-   scoring rule.
+1. Compile the task interface into a typed evidence contract.
+2. Propose a hypothesis artifact with explicit holes.
+3. Close holes with executable probes over the available data or environment.
+4. Validate the artifact with contract and metamorphic checks.
+5. Convert failures into typed residuals.
+6. Promote only operators that improve held-out evidence fit relative to their
+   complexity cost.
 
-This keeps the method different from a pure ReAct or prompt-agent loop. The
-model does not just "think longer"; it writes or selects small measurable
-objects whose outputs can be executed, falsified, and compared.
+The main novelty is the residual-guided update of the hypothesis language:
+failures are not kept as natural-language feedback; they become typed objects
+that reveal missing expressivity in the current language and drive operator
+induction.
 
-## Current Universal Stack
+## Main Paper-Safe Results
 
-The main implementation lives in:
+| Benchmark | N | Metric | RG-HLI result | Main artifact |
+|---|---:|---|---:|---|
+| DiscoveryBench | 239 | HMS / Cons-HMS | 29.94 / 34.96 | `lmw/universal_discovery_real/research_cycle_discovery_full239_scopegate_intrabundle_20260712/summary.json` |
+| NewtonBench | 324 | audited SA-all / audited SA-answered | 49.7% / 67.1% | `lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/audited_summary.json` |
+| UltraHorizon | 96 | paper-style score | 75.36 | `lmw/uh_official/uh_clean_universal_full96_20260715/summary.json` |
 
-- `mars/induction/universal_hypothesis_kernel.py` - one posterior over
-  artifact-producing operators.
-- `mars/skills/evidence_contract_compiler.py` - typed evidence contracts from a
-  task interface.
-- `mars/induction/metamorphic_estimand_kernel.py` - label-free validation of
-  answer form, scope, and role preservation.
-- `mars/induction/estimand_synthesizer.py` - executable statistical estimands
-  for tabular discovery tasks.
-- `mars/induction/role_canonicalizer.py` - query/schema role materialization
-  before fitting estimands.
-- `mars/runners/run_universal_discovery_real_eval.py` - DiscoveryBench real-data
-  evaluation runner.
-- `mars/runners/run_nb_activeprobe.py` - NewtonBench active-probe runner.
-- `mars/runners/run_uh_seq_cpi.py` - UltraHorizon sequence induction runner.
+These are the defensible full-run rows used for the current paper draft. Late
+diagnostic ceiling runs are kept for engineering analysis but are not used as
+main claims.
 
-See `MARS_UNIVERSAL_METHOD_AND_EXPERIMENTS_20260707.md` for the full method
-description, benchmark status, commands, and failure analysis.
+## Important Files
 
-## Latest Checked Results
+- `residual_guided_hli_aaai2027.tex` - current AAAI-style paper draft.
+- `residual_guided_hli_refs.bib` - bibliography for the paper.
+- `residual_guided_hli_aaai2027.pdf` - compiled draft.
+- `PAPER_SAFE_RESULTS.md` - canonical result rows and exclusions.
+- `REPRODUCIBILITY.md` - commands and artifact paths for the three canonical
+  full runs.
+- `paper_assets/figures/` - generated figures used by the draft.
+- `paper_assets/make_paper_figures.py` - figure-generation script.
+- `mars/` - implementation modules and benchmark runners.
+- `lmw/paper_safe_results/summary.json` - machine-readable paper-safe result
+  registry.
 
-| Benchmark slice | Model core | Method | Main result |
-|---|---|---|---|
-| DiscoveryBench hard buckets, 30 tasks | GPT-4o mini | UHK + MEK + EstimandSynthesizer + role layers | HMS 40.50, consistency HMS 60.50 |
-| NewtonBench hard comparable slice, 8 tasks | GPT-4o mini | Active probes + universal coordinate charts | SA all 0.625, SA answered 1.000 |
-| NewtonBench hard full slice, 24 tasks | GPT-4o mini | Active probes + universal coordinate charts | SA all 0.417, SA answered 0.833 |
-| UltraHorizon sequence hard, seed 42 | GPT-4o mini | Sequential CPI with committed rule induction | exact program fit 5/5, score 80.0 |
-| Unit tests | local | current code | 176 passed |
+## Reproducing Checks
 
-ScienceAgentBench remains an open gap for this branch: the current universal
-method needs a stronger multi-file/tool-execution assembler before claiming a
-competitive full result there.
-
-## Reproducing the Main Checks
-
-Run tests:
+Run unit tests:
 
 ```bash
 pytest -q tests
 ```
 
-DiscoveryBench hard bucket run:
+Rebuild paper figures:
 
 ```bash
-python -m mars.runners.run_universal_discovery_real_eval \
-  --run_id universal_role_layers_hard_buckets_20260707 \
-  --max_tasks 30 \
-  --datasets nls_raw,worldbank_education_gdp,introduction_pathways_non-native_plants,requirements_engineering_for_ML_enabled_systems \
-  --model openai/gpt-4o-mini \
-  --judge_model openai/gpt-4o \
-  --n_proposals 0 \
-  --max_rounds 0 \
-  --overwrite
+python3 paper_assets/make_paper_figures.py
 ```
 
-NewtonBench comparable hard slice:
+Compile the paper:
 
 ```bash
-python -m mars.runners.run_nb_activeprobe \
-  --run_id role_layers_newton_hard_comparable_20260707 \
-  --model openai/gpt-4o-mini \
-  --difficulty hard \
-  --law_versions v0,v1 \
-  --modules m0_gravity,m4_snell_law,m7_malus_law,m11_heat_transfer \
-  --overwrite
-```
-
-UltraHorizon sequence induction:
-
-```bash
-python -m mars.runners.run_uh_seq_cpi \
-  --run_id role_layers_gate_seq_hard_s42_commit_20260707 \
-  --difficulty hard \
-  --seed 42 \
-  --steps 7 \
-  --judge_model openai/gpt-4o \
-  --commit \
-  --overwrite
+latexmk -pdf -interaction=nonstopmode -halt-on-error residual_guided_hli_aaai2027.tex
 ```
 
 ## Repository Hygiene
 
 Raw benchmark repositories, private data directories, virtual environments, and
 API keys are intentionally ignored. Use environment variables for credentials
-such as OpenRouter/OpenAI keys; do not commit `.env` files.
+and do not commit `.env` files.

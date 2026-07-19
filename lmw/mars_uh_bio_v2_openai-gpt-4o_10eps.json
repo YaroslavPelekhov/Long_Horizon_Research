@@ -31,97 +31,6 @@
      "use_memory_selector": true,
      "use_futility_detector": true
     },
-    "primary": 1.0,
-    "final_score": 100.0,
-    "judge_result": {
-     "final_score": 100,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified organism as triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described gametes as haploid and diploid."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated that only triploid offspring survive."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly identified body size follows additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly identified three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 20,
-       "comment": "Correctly provided approximate values for size alleles."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly established dominance hierarchy for color."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated phenotype determined by dominant allele."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly confirmed cyclic dominance among shell shapes."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 20,
-       "comment": "Correctly identified lethal combination with all three alleles."
-      }
-     ]
-    },
-    "n_crosses": 19,
-    "submitted_preview": "Phase A: Confirmed triploidy and haploid gametes. Only triploid offspring survive. Phase B: Identified size alleles S1, S2, S3 with contributions of approximately 200, 50, and 10 units respectively. Phase C: Established dominance hierarchy: C1 (Red) > C2 (Blue) > C3 (White). Phase D: Confirmed cycli",
-    "n_turns": 19,
-    "n_actions": 26,
-    "n_claims_active": 3,
-    "n_generator_calls": 19,
-    "n_reflector_calls": 2,
-    "verdict_counts": {
-     "accept": 1,
-     "require_evidence": 1,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 62.82160425186157
-   },
-   {
-    "task_label": "uh_bio_seed43_b20",
-    "seed": 43,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
     "primary": 0.85,
     "final_score": 85.0,
     "judge_result": {
@@ -143,13 +52,13 @@
        "criterion": "Viability constraint (only triploid survives)",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly stated that only triploid offspring survive."
+       "comment": "Correctly stated that only triploid offspring are viable."
       },
       {
        "criterion": "Body size: dosage effect",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly described body size as determined by additive dosage."
+       "comment": "Correctly described body size as following an additive dosage effect."
       },
       {
        "criterion": "Body size: allele identification",
@@ -160,14 +69,14 @@
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Provided approximate values for alleles, but S1 value is outside the \u00b120% range."
+       "awarded_score": 10,
+       "comment": "Provided approximate values, but S1 value is outside the acceptable range."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly described the color dominance hierarchy."
+       "comment": "Correctly described the dominance hierarchy for color alleles."
       },
       {
        "criterion": "Color: complete dominance",
@@ -179,21 +88,21 @@
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Correctly described cyclic dominance of shell traits."
+       "comment": "Correctly described cyclic dominance among shell alleles."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Correctly identified lethal combination but lacked detail on why it is lethal."
+       "awarded_score": 20,
+       "comment": "Correctly identified the lethal combination of all three shell alleles."
       }
      ]
     },
     "n_crosses": 19,
-    "submitted_preview": "Ploidy level: Organisms are triploid. Gametes are haploid (1n). Only triploid offspring survive. Body size is determined by additive dosage with alleles S1 \u2248 150, S2 \u2248 50, S3 \u2248 10. Color dominance hierarchy is C1 (Red) > C2 (Blue) > C3 (White). Shell exhibits cyclic dominance with a lethal combinati",
+    "submitted_preview": "The complete dominance hierarchy among the color alleles is as follows: Red (C1) is dominant over Blue (C2), and Blue (C2) is dominant over White (C3). This establishes a clear dominance order: C1 > C2 > C3. The body size alleles contribute additively to the phenotype with S1 contributing approximat",
     "n_turns": 20,
-    "n_actions": 30,
-    "n_claims_active": 1,
+    "n_actions": 27,
+    "n_claims_active": 3,
     "n_generator_calls": 20,
     "n_reflector_calls": 2,
     "verdict_counts": {
@@ -202,7 +111,98 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 57.05388641357422
+    "wall_time_s": 80.55536961555481
+   },
+   {
+    "task_label": "uh_bio_seed43_b20",
+    "seed": 43,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 1.0,
+    "final_score": 100.0,
+    "judge_result": {
+     "final_score": 100,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "The agent correctly identified the organism as triploid, possessing three copies of each allele."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The agent correctly described the gametes as haploid (1n), which aligns with the offspring ploidy and viability results."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The agent correctly stated that only triploid offspring are viable, confirming the necessity of three allele copies for survival."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The agent correctly described the body size trait as following an additive dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "The agent correctly identified three distinct size alleles: S1, S2, S3."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "The agent provided approximate values for the alleles' contributions to body size: S1 (~200), S2 (~50), S3 (~10), within the \u00b120% range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The agent correctly described the dominance hierarchy for color: Red (C1) > Blue (C2) > White (C3)."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The agent correctly stated that the phenotype is determined solely by the dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "The agent correctly described the cyclic dominance observed among shell shapes."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "The agent correctly confirmed the lethal combination for offspring carrying all three shell alleles (H1, H2, H3)."
+      }
+     ]
+    },
+    "n_crosses": 17,
+    "submitted_preview": "Based on the conducted experiments, we have identified the following genetic inheritance rules: \n\n1. Ploidy Level: Each organism is triploid, possessing three copies of each allele.\n2. Gamete Ploidy: The gametes are haploid (1n), as inferred from the offspring ploidy and viability results.\n3. Viabil",
+    "n_turns": 15,
+    "n_actions": 27,
+    "n_claims_active": 0,
+    "n_generator_calls": 15,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 57.118385791778564
    },
    {
     "task_label": "uh_bio_seed44_b20",
@@ -213,10 +213,10 @@
      "use_memory_selector": true,
      "use_futility_detector": true
     },
-    "primary": 0.2,
-    "final_score": 20.0,
+    "primary": 0.3,
+    "final_score": 30.0,
     "judge_result": {
-     "final_score": 20,
+     "final_score": 30,
      "score_breakdown": [
       {
        "criterion": "Triploidy recognition",
@@ -228,7 +228,7 @@
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "The report does not describe the meiosis process or gamete ploidy."
+       "comment": "The report does not discuss the meiosis process or gamete ploidy."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
@@ -240,60 +240,60 @@
        "criterion": "Body size: dosage effect",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "The report implies an additive effect for body size, consistent with a dosage effect."
+       "comment": "The report correctly identifies that body size follows an additive dosage effect."
       },
       {
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "The report correctly identifies three distinct size alleles: S1, S2, and S3."
+       "comment": "The report identifies three distinct size alleles: S1, S2, and S3."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 0,
-       "comment": "The quantitative values provided (150, 100, 10) do not match the expected range (~200, ~50, ~10 \u00b120%)."
+       "awarded_score": 15,
+       "comment": "The report provides quantitative values for allele contributions, but S1's value (150) is outside the acceptable range (~200 \u00b1 20%)."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "The report does not mention color dominance hierarchy."
+       "comment": "The report does not mention color traits or dominance hierarchy."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "The report does not mention complete dominance for color."
+       "comment": "The report does not mention color traits or complete dominance."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 0,
-       "comment": "The report does not mention cyclic dominance for shell traits."
+       "comment": "The report does not mention shell traits or cyclic dominance."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
        "awarded_score": 0,
-       "comment": "The report does not mention lethal combinations of shell traits."
+       "comment": "The report does not mention shell traits or lethal combinations."
       }
      ]
     },
-    "n_crosses": 19,
-    "submitted_preview": "Phase B: Body Size - We have identified three distinct size alleles: S1, S2, and S3. Based on our crosses, we estimate the additive contributions to body size as follows: S1 contributes approximately 150 units, S2 contributes approximately 100 units, and S3 contributes approximately 10 units.",
-    "n_turns": 17,
-    "n_actions": 27,
-    "n_claims_active": 3,
-    "n_generator_calls": 17,
-    "n_reflector_calls": 2,
+    "n_crosses": 17,
+    "submitted_preview": "In the study of alien organism body size, we have identified three distinct alleles: S1, S2, and S3. The body size is determined by the additive contributions of these alleles. Based on the conducted crosses, we estimate the contributions as follows: S1 contributes approximately 150 units, S2 contri",
+    "n_turns": 16,
+    "n_actions": 25,
+    "n_claims_active": 0,
+    "n_generator_calls": 16,
+    "n_reflector_calls": 0,
     "verdict_counts": {
-     "accept": 1,
-     "require_evidence": 1,
+     "accept": 0,
+     "require_evidence": 0,
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 48.75094294548035
+    "wall_time_s": 59.95970845222473
    },
    {
     "task_label": "uh_bio_seed45_b20",
@@ -331,60 +331,60 @@
        "criterion": "Body size: dosage effect",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "The report implies an additive dosage effect by mentioning additive contributions."
+       "comment": "The report implies an additive effect by quantifying allele contributions."
       },
       {
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "The report identifies three distinct size alleles."
+       "comment": "The report identifies three distinct size alleles: S1, S2, and S3."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
        "awarded_score": 15,
-       "comment": "The report provides approximate values for allele contributions, but S1 is outside the \u00b120% range of the expected value."
+       "comment": "The report provides approximate values for S2 and S3 within \u00b120% but S1 is outside the range."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "The report does not mention color trait dominance hierarchy."
+       "comment": "The report does not mention color traits or dominance hierarchy."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "The report does not mention complete dominance for color traits."
+       "comment": "The report does not mention color traits or complete dominance."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 0,
-       "comment": "The report does not mention shell trait cyclic dominance."
+       "comment": "The report does not mention shell traits or cyclic dominance."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
        "awarded_score": 0,
-       "comment": "The report does not mention lethal combinations of shell traits."
+       "comment": "The report does not mention shell traits or lethal combinations."
       }
      ]
     },
     "n_crosses": 17,
-    "submitted_preview": "The body size alleles have been identified and their contributions quantified. The approximate additive contributions are: S1 \u2248 150, S2 \u2248 50, S3 \u2248 10. These values were derived from crosses between organisms with known allele compositions and measuring offspring body sizes.",
-    "n_turns": 16,
+    "submitted_preview": "The body size alleles have been identified and quantified as follows: S1 contributes approximately 150 units to body size, S2 contributes approximately 50 units, and S3 contributes approximately 10 units. These values are derived from the observed size scores of the organisms with known allele compo",
+    "n_turns": 15,
     "n_actions": 26,
-    "n_claims_active": 3,
-    "n_generator_calls": 16,
-    "n_reflector_calls": 2,
+    "n_claims_active": 1,
+    "n_generator_calls": 15,
+    "n_reflector_calls": 1,
     "verdict_counts": {
      "accept": 1,
-     "require_evidence": 1,
+     "require_evidence": 0,
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 53.424933195114136
+    "wall_time_s": 84.63547277450562
    },
    {
     "task_label": "uh_bio_seed46_b20",
@@ -395,10 +395,101 @@
      "use_memory_selector": true,
      "use_futility_detector": true
     },
-    "primary": 0.55,
-    "final_score": 55.0,
+    "primary": 0.1,
+    "final_score": 10.0,
     "judge_result": {
-     "final_score": 55,
+     "final_score": 10,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 0,
+       "comment": "The report does not mention triploidy or three alleles per locus."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not discuss the meiosis process or gamete ploidy."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not mention viability constraints related to ploidy."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not address body size or dosage effects."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "The report does not identify any alleles related to body size."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "The report does not provide quantitative values for body size."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The report discusses a partial dominance hierarchy among color alleles."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The report indicates that offspring display the color of one parent, suggesting complete dominance."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "The report does not mention shell traits or cyclic dominance."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "The report does not address lethal combinations of shell traits."
+      }
+     ]
+    },
+    "n_crosses": 19,
+    "submitted_preview": "The current research has established partial dominance hierarchy among the color alleles. The cross between C1\u00d73 (red) and C2\u00d73 (blue) resulted in offspring displaying the color of one of the parents, indicating a dominance relationship. Similarly, the cross between C2\u00d73 (blue) and C3\u00d73 (white) prov",
+    "n_turns": 21,
+    "n_actions": 29,
+    "n_claims_active": 3,
+    "n_generator_calls": 21,
+    "n_reflector_calls": 4,
+    "verdict_counts": {
+     "accept": 2,
+     "require_evidence": 2,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 86.01391172409058
+   },
+   {
+    "task_label": "uh_bio_seed47_b20",
+    "seed": 47,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.95,
+    "final_score": 95.0,
+    "judge_result": {
+     "final_score": 95,
      "score_breakdown": [
       {
        "criterion": "Triploidy recognition",
@@ -410,13 +501,13 @@
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Only mentioned 1n gametes; did not address 2n gametes due to unequal segregation."
+       "comment": "Did not mention the production of 2n gametes due to unequal segregation."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly stated that only triploid offspring are viable."
+       "comment": "Correctly stated that only triploid offspring survive."
       },
       {
        "criterion": "Body size: dosage effect",
@@ -433,53 +524,235 @@
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 10,
-       "comment": "Provided approximate values for alleles, but S1 value is outside the acceptable range."
+       "awarded_score": 20,
+       "comment": "Provided approximate values for alleles within the acceptable range."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No information provided on color dominance hierarchy."
+       "awarded_score": 5,
+       "comment": "Correctly established the color dominance hierarchy."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No information provided on complete dominance for color trait."
+       "awarded_score": 5,
+       "comment": "Correctly stated that phenotype is determined solely by the dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
-       "awarded_score": 0,
-       "comment": "No information provided on shell trait cyclic dominance."
+       "awarded_score": 10,
+       "comment": "Correctly described the cyclic dominance of shell traits."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
-       "awarded_score": 0,
-       "comment": "No information provided on lethal combination of shell traits."
+       "awarded_score": 20,
+       "comment": "Correctly identified the lethal combination of all three shell alleles."
       }
      ]
     },
     "n_crosses": 18,
-    "submitted_preview": "Phase A: Confirmed triploidy with 3 alleles per trait. Gametes are 1n (haploid). Only triploid offspring are viable. Phase B: Body size is additive with allele contributions: S1 \u2248 150, S2 \u2248 50, S3 \u2248 10. Phase C: Pending. Phase D: Pending.",
+    "submitted_preview": "Phase A: Confirmed triploidy with 3 alleles per trait. Gametes are haploid (1n). Only triploid offspring survive. Phase B: Body size is additive. Allele S1 contributes approximately 200 units, S2 approximately 50 units, and S3 approximately 10 units. Phase C: Color dominance hierarchy established: R",
     "n_turns": 18,
     "n_actions": 27,
     "n_claims_active": 3,
     "n_generator_calls": 18,
     "n_reflector_calls": 1,
     "verdict_counts": {
-     "accept": 1,
-     "require_evidence": 0,
+     "accept": 0,
+     "require_evidence": 1,
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 56.33028531074524
+    "wall_time_s": 56.53471755981445
    },
    {
-    "task_label": "uh_bio_seed47_b20",
-    "seed": 47,
+    "task_label": "uh_bio_seed48_b20",
+    "seed": 48,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.35,
+    "final_score": 35.0,
+    "judge_result": {
+     "final_score": 35,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 0,
+       "comment": "No mention of triploidy in the report."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of meiosis or gamete ploidy in the report."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of viability constraints related to ploidy in the report."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly identifies body size as determined by additive contributions from alleles."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Correctly identifies three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "Provides approximate values for allele contributions within the acceptable range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of color trait dominance hierarchy in the report."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "No mention of complete dominance in color trait in the report."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "No mention of shell trait cyclic dominance in the report."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "No mention of lethal combinations in shell trait in the report."
+      }
+     ]
+    },
+    "n_crosses": 17,
+    "submitted_preview": "Phase B findings: Body size is determined by additive contributions from three alleles. S1 contributes approximately 150 units, S2 contributes approximately 50 units, and S3 contributes approximately 10 units to body size. These findings are consistent with the results of conducted crosses and the s",
+    "n_turns": 17,
+    "n_actions": 25,
+    "n_claims_active": 3,
+    "n_generator_calls": 17,
+    "n_reflector_calls": 1,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 56.84494113922119
+   },
+   {
+    "task_label": "uh_bio_seed49_b20",
+    "seed": 49,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": true,
+     "use_memory_selector": true,
+     "use_futility_detector": true
+    },
+    "primary": 0.95,
+    "final_score": 95.0,
+    "judge_result": {
+     "final_score": 95,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organisms as triploid with 3 alleles per trait."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Incorrectly stated gametes are haploid (1n) without mentioning 2n gametes."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly stated that only triploid offspring survive."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described body size as additive with allele contributions."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Correctly identified three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "Provided approximate values for size alleles within \u00b120% range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described the color dominance hierarchy."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly stated phenotype determined solely by dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Correctly described shell shape exhibiting cyclic dominance."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "Correctly identified the combination of H1, H2, and H3 as lethal."
+      }
+     ]
+    },
+    "n_crosses": 17,
+    "submitted_preview": "The study of alien organisms revealed the following genetic inheritance patterns: 1. Ploidy level: Organisms are triploid with 3 alleles per trait. 2. Gamete ploidy: Gametes are haploid (1n). 3. Viability: Only triploid offspring survive. 4. Body size is additive with allele contributions: S1 \u2248 200 ",
+    "n_turns": 18,
+    "n_actions": 23,
+    "n_claims_active": 3,
+    "n_generator_calls": 18,
+    "n_reflector_calls": 1,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 1,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 54.811739683151245
+   },
+   {
+    "task_label": "uh_bio_seed50_b20",
+    "seed": 50,
     "budget": 20,
     "ablation": {
      "use_reflector": true,
@@ -495,13 +768,13 @@
        "criterion": "Triploidy recognition",
        "max_score": 15,
        "awarded_score": 15,
-       "comment": "Correctly identified organism as triploid with 3 copies per organism."
+       "comment": "Correctly identified organisms as triploid with three copies of each allele."
       },
       {
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Did not mention 2n gametes due to unequal segregation."
+       "comment": "Incorrectly stated gametes are diploid (2n) instead of 1n and 2n due to unequal segregation."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
@@ -519,240 +792,58 @@
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Identified three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Provided approximate values, but S1 value is outside the \u00b120% range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated the dominance hierarchy for color."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described phenotype determined by dominant allele."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly described cyclic dominance in shell trait."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Mentioned lethal combination but lacked detail on why it is lethal."
-      }
-     ]
-    },
-    "n_crosses": 17,
-    "submitted_preview": "Phase A: Confirmed triploidy with 3 copies per organism. Gametes are haploid (1n). Only triploid offspring survive. Phase B: Body size is additive. Estimated allele contributions: S1 \u2248 150, S2 \u2248 50, S3 \u2248 10. Phase C: Color dominance order: Red(C1) > Blue(C2) > White(C3). Phase D: Shell shows cyclic ",
-    "n_turns": 15,
-    "n_actions": 25,
-    "n_claims_active": 3,
-    "n_generator_calls": 15,
-    "n_reflector_calls": 1,
-    "verdict_counts": {
-     "accept": 1,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 51.846577882766724
-   },
-   {
-    "task_label": "uh_bio_seed48_b20",
-    "seed": 48,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.3,
-    "final_score": 30.0,
-    "judge_result": {
-     "final_score": 30,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 0,
-       "comment": "No mention of triploidy or three alleles per locus."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of meiosis or gamete ploidy."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints or lethal ploidy."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly describes additive contributions to body size."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Identifies three distinct size alleles: S1, S2, S3."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Provides approximate values for S2 and S3, but S1 is outside the \u00b120% range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of color trait or dominance hierarchy."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of complete dominance in color trait."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "No mention of shell trait or cyclic dominance."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "No mention of lethal combinations in shell trait."
-      }
-     ]
-    },
-    "n_crosses": 17,
-    "submitted_preview": "Body size alleles identified: S1, S2, S3. Estimated additive contributions: S1 contributes approximately 150 units, S2 contributes approximately 50 units, and S3 contributes approximately 10 units. Based on observed size scores: Line A (S1\u00d73) ~450, Line B (S1\u00d7S2\u00d7S2) ~301, Line C (S3\u00d73) ~30.",
-    "n_turns": 15,
-    "n_actions": 25,
-    "n_claims_active": 3,
-    "n_generator_calls": 15,
-    "n_reflector_calls": 1,
-    "verdict_counts": {
-     "accept": 1,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 48.840296268463135
-   },
-   {
-    "task_label": "uh_bio_seed49_b20",
-    "seed": 49,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
-    },
-    "primary": 0.85,
-    "final_score": 85.0,
-    "judge_result": {
-     "final_score": 85,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified organisms as triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Did not mention 2n gametes due to unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated that only triploid offspring are viable."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described body size as additive."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Identified three distinct size alleles."
+       "comment": "Correctly identified three distinct size alleles."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
        "awarded_score": 20,
-       "comment": "Provided approximate values for allele contributions within acceptable range."
+       "comment": "Provided approximate values within \u00b120% range."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly described color dominance hierarchy."
+       "comment": "Correctly described the dominance hierarchy for color."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly stated phenotype determined by dominant allele."
+       "comment": "Correctly stated phenotype determined solely by dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Correctly described cyclic dominance of shell traits."
+       "comment": "Correctly described cyclic dominance for shell trait."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
        "awarded_score": 10,
-       "comment": "Mentioned lethal combination but lacked detail on why it is lethal."
+       "comment": "Mentioned lethal combination but did not specify H1+H2+H3 together is lethal."
       }
      ]
     },
-    "n_crosses": 18,
-    "submitted_preview": "Phase A: The organisms are triploid, and gametes are haploid (1n). Only triploid offspring are viable. Phase B: Body size is additive with allele contributions approximately S1 \u2248 200, S2 \u2248 50, S3 \u2248 10. Phase C: Color dominance is Red(C1) > Blue(C2) > White(C3). Phase D: Shell shows cyclic dominance ",
-    "n_turns": 16,
-    "n_actions": 26,
-    "n_claims_active": 0,
-    "n_generator_calls": 16,
-    "n_reflector_calls": 0,
+    "n_crosses": 19,
+    "submitted_preview": "The genetic study of the alien organisms revealed the following inheritance rules: \n1. Ploidy level: Organisms are triploid with three copies of each allele per trait. \n2. Gamete ploidy: Gametes are diploid (2n). \n3. Viability: Only triploid offspring survive. \n4. Body size is additive, with allele ",
+    "n_turns": 19,
+    "n_actions": 27,
+    "n_claims_active": 3,
+    "n_generator_calls": 19,
+    "n_reflector_calls": 2,
     "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
+     "accept": 1,
+     "require_evidence": 1,
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 46.05463457107544
+    "wall_time_s": 61.11092138290405
    },
    {
-    "task_label": "uh_bio_seed50_b20",
-    "seed": 50,
+    "task_label": "uh_bio_seed51_b20",
+    "seed": 51,
     "budget": 20,
     "ablation": {
      "use_reflector": true,
@@ -774,7 +865,7 @@
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Did not mention gametes being 1n and 2n due to unequal segregation."
+       "comment": "Did not mention 2n gametes; only mentioned haploid (1n)."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
@@ -786,52 +877,52 @@
        "criterion": "Body size: dosage effect",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly described body size as following an additive dosage effect."
+       "comment": "Correctly described body size as following additive dosage effect."
       },
       {
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Identified three distinct size alleles."
+       "comment": "Identified three distinct size alleles S1, S2, S3."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 10,
-       "comment": "Provided approximate values, but S1 value is outside the acceptable range."
+       "awarded_score": 15,
+       "comment": "Provided approximate values for alleles, but S1 value is outside the \u00b120% range."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly described the color dominance hierarchy."
+       "comment": "Correctly established color dominance hierarchy."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly stated that phenotype is determined by the dominant allele."
+       "comment": "Correctly described phenotype determined by dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Correctly described cyclic dominance in shell shape."
+       "comment": "Correctly observed cyclic dominance in shell shapes."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
        "awarded_score": 20,
-       "comment": "Correctly identified the lethal combination of all three alleles."
+       "comment": "Confirmed lethality of H1+H2+H3 combination."
       }
      ]
     },
-    "n_crosses": 19,
-    "submitted_preview": "The color dominance hierarchy is as follows: Red (C1) is dominant over Blue (C2), and Blue (C2) is dominant over White (C3). This suggests a complete dominance hierarchy where C1 > C2 > C3. The ploidy level is triploid, gametes are haploid, and only triploid offspring are viable. Body size is additi",
-    "n_turns": 20,
-    "n_actions": 27,
+    "n_crosses": 17,
+    "submitted_preview": "Phase A: Confirmed triploidy and determined gametes are haploid (1n). Only triploid offspring are viable. Phase B: Identified size alleles S1, S2, S3 with contributions approximately 150, 50, and 10 units respectively. Phase C: Established color dominance hierarchy as Red(C1) > Blue(C2) > White(C3).",
+    "n_turns": 17,
+    "n_actions": 25,
     "n_claims_active": 3,
-    "n_generator_calls": 20,
+    "n_generator_calls": 17,
     "n_reflector_calls": 2,
     "verdict_counts": {
      "accept": 1,
@@ -839,16 +930,18 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 56.8880717754364
-   },
+    "wall_time_s": 64.72225046157837
+   }
+  ],
+  "MARS-all-off": [
    {
-    "task_label": "uh_bio_seed51_b20",
-    "seed": 51,
+    "task_label": "uh_bio_seed42_b20",
+    "seed": 42,
     "budget": 20,
     "ablation": {
-     "use_reflector": true,
-     "use_memory_selector": true,
-     "use_futility_detector": true
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
     },
     "primary": 0.3,
     "final_score": 30.0,
@@ -876,20 +969,20 @@
       {
        "criterion": "Body size: dosage effect",
        "max_score": 5,
-       "awarded_score": 0,
-       "comment": "The report does not explicitly state that body size follows an additive dosage effect."
+       "awarded_score": 5,
+       "comment": "The report implies an additive effect by mentioning contributions of alleles to size."
       },
       {
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "The report identifies three distinct size alleles with specific contributions."
+       "comment": "The report identifies three distinct size alleles with different contributions."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 20,
-       "comment": "The report provides approximate quantitative values for the size alleles within the acceptable range."
+       "awarded_score": 15,
+       "comment": "The report provides approximate values for allele contributions, but S1 is outside the \u00b120% range of the expected value."
       },
       {
        "criterion": "Color: dominance hierarchy",
@@ -901,28 +994,28 @@
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "The report does not discuss complete dominance in color traits."
+       "comment": "The report does not mention complete dominance in color trait."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 0,
-       "comment": "The report does not mention cyclic dominance in shell traits."
+       "comment": "The report does not mention shell trait or cyclic dominance."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
        "awarded_score": 0,
-       "comment": "The report does not mention lethal combinations of shell traits."
+       "comment": "The report does not mention lethal combinations in shell traits."
       }
      ]
     },
     "n_crosses": 17,
-    "submitted_preview": "Based on the conducted crosses and the observed size scores, we estimate the contributions of the body-size alleles as follows: S1 contributes approximately 200 units, S2 contributes approximately 50 units, and S3 contributes approximately 10 units. These estimates are derived from crosses between o",
-    "n_turns": 18,
-    "n_actions": 28,
-    "n_claims_active": 0,
-    "n_generator_calls": 18,
+    "submitted_preview": "Based on the conducted crosses and observed size scores, we have identified the following approximate contributions for each body size allele: S1 contributes approximately 150 units, S2 contributes approximately 50 units, and S3 contributes approximately 10 units. These findings are consistent with ",
+    "n_turns": 13,
+    "n_actions": 20,
+    "n_claims_active": 6,
+    "n_generator_calls": 13,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -930,100 +1023,7 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 54.276456117630005
-   }
-  ],
-  "MARS-all-off": [
-   {
-    "task_label": "uh_bio_seed42_b20",
-    "seed": 42,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.85,
-    "final_score": 85.0,
-    "judge_result": {
-     "final_score": 85,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified organisms as triploid with three alleles per trait."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Incorrectly stated gametes are haploid (1n) without mentioning 2n gametes."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated that only triploid offspring are viable."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described body size as additive."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly identified three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Provided approximate values for alleles, but S1 value is outside \u00b120% range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described the color dominance hierarchy."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated phenotype determined by dominant allele."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly described cyclic dominance of shell traits."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Correctly identified lethal combination but lacked detail on cyclic interaction."
-      }
-     ]
-    },
-    "n_crosses": 18,
-    "submitted_preview": "The organisms exhibit triploidy with three alleles per trait. Gametes are haploid (1n) as determined by offspring ploidy inspection. Only triploid offspring are viable. Body size is additive with allele contributions: S1 \u2248 150, S2 \u2248 50, S3 \u2248 10. The color dominance hierarchy is Red(C1) > Blue(C2) > ",
-    "n_turns": 17,
-    "n_actions": 26,
-    "n_claims_active": 1,
-    "n_generator_calls": 17,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 52.36191272735596
+    "wall_time_s": 48.42703104019165
    },
    {
     "task_label": "uh_bio_seed43_b20",
@@ -1049,6 +1049,97 @@
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
+       "comment": "The report does not discuss the meiosis process or gamete ploidy."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not mention viability constraints related to ploidy."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The report correctly identifies body size as following an additive dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "The report identifies three distinct size alleles: S1, S2, and S3."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "The report provides approximate quantitative values for the alleles: ~200, ~50, ~10."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not mention color trait or dominance hierarchy."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not mention complete dominance in color trait."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "The report does not mention shell trait or cyclic dominance."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "The report does not mention lethal combinations in shell traits."
+      }
+     ]
+    },
+    "n_crosses": 17,
+    "submitted_preview": "The body size trait in these alien organisms is controlled by three alleles: S1, S2, and S3. The data from our crosses suggest that the contribution of each allele to body size is additive. Based on the crosses conducted, we estimate the contributions to be approximately: S1 contributes around 200 u",
+    "n_turns": 16,
+    "n_actions": 26,
+    "n_claims_active": 0,
+    "n_generator_calls": 16,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 69.17269968986511
+   },
+   {
+    "task_label": "uh_bio_seed44_b20",
+    "seed": 44,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.15,
+    "final_score": 15.0,
+    "judge_result": {
+     "final_score": 15,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 0,
+       "comment": "The report does not mention triploidy or three alleles per locus."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
        "comment": "The report does not describe the meiosis process or gamete ploidy."
       },
       {
@@ -1061,7 +1152,7 @@
        "criterion": "Body size: dosage effect",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "The report correctly describes the additive dosage effect for body size."
+       "comment": "The report correctly describes body size as following an additive model."
       },
       {
        "criterion": "Body size: allele identification",
@@ -1072,8 +1163,8 @@
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 20,
-       "comment": "The report provides quantitative values for allele contributions within the acceptable range."
+       "awarded_score": 0,
+       "comment": "The report provides values outside the acceptable range (~200, ~50, ~10 \u00b120%)."
       },
       {
        "criterion": "Color: dominance hierarchy",
@@ -1101,12 +1192,12 @@
       }
      ]
     },
-    "n_crosses": 18,
-    "submitted_preview": "The body size alleles S1, S2, and S3 contribute additively to the overall body size of the organisms. Based on the crosses conducted, we estimate the contribution of each allele as follows: S1 contributes approximately 150 units, S2 contributes approximately 50 units, and S3 contributes approximatel",
-    "n_turns": 16,
-    "n_actions": 24,
-    "n_claims_active": 0,
-    "n_generator_calls": 16,
+    "n_crosses": 16,
+    "submitted_preview": "The body size trait in these alien organisms is determined by an additive model with three alleles: S1, S2, and S3. Each allele contributes independently to the overall body size. Based on the conducted crosses, the approximate size contributions are as follows: S1 contributes approximately 150 unit",
+    "n_turns": 14,
+    "n_actions": 25,
+    "n_claims_active": 3,
+    "n_generator_calls": 14,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -1114,11 +1205,284 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 53.37067103385925
+    "wall_time_s": 69.62035465240479
    },
    {
-    "task_label": "uh_bio_seed44_b20",
-    "seed": 44,
+    "task_label": "uh_bio_seed45_b20",
+    "seed": 45,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.95,
+    "final_score": 95.0,
+    "judge_result": {
+     "final_score": 95,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organisms as triploid with three copies of each allele."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Incorrectly stated gametes are haploid (1n) without mentioning 2n gametes."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly stated that only triploid offspring are viable."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described body size as additive with allele contributions."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Correctly identified three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "Provided approximate values for allele contributions within acceptable range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described the color dominance hierarchy."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly stated phenotype is determined by the dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Correctly described cyclic dominance of shell traits."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "Correctly identified the lethal combination of all three shell alleles."
+      }
+     ]
+    },
+    "n_crosses": 19,
+    "submitted_preview": "The genetic study of alien organisms revealed the following inheritance rules: 1) The organisms are triploid, with three copies of each allele per trait. 2) Gametes are haploid (1n). 3) Only triploid offspring are viable. 4) Body size is additive with allele contributions: S1 contributes approximate",
+    "n_turns": 17,
+    "n_actions": 25,
+    "n_claims_active": 5,
+    "n_generator_calls": 17,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 58.923704624176025
+   },
+   {
+    "task_label": "uh_bio_seed46_b20",
+    "seed": 46,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.1,
+    "final_score": 10.0,
+    "judge_result": {
+     "final_score": 10,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 0,
+       "comment": "The report does not mention triploidy or three alleles per locus."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not describe the meiosis process or gamete ploidy."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not mention viability constraints related to ploidy."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not address body size inheritance or dosage effects."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "The report does not identify any alleles related to body size."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "The report does not provide quantitative values for body size alleles."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The report correctly describes the dominance hierarchy among color alleles."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The report correctly states that phenotype is determined by the dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 0,
+       "comment": "The report does not mention cyclic dominance among shell traits."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 0,
+       "comment": "The report does not mention lethal combinations of shell traits."
+      }
+     ]
+    },
+    "n_crosses": 17,
+    "submitted_preview": "The dominance hierarchy among the color alleles is established as follows: Red (C1) is dominant over Blue (C2), and Blue (C2) is dominant over White (C3). This indicates a complete dominance order among the color alleles.",
+    "n_turns": 17,
+    "n_actions": 24,
+    "n_claims_active": 3,
+    "n_generator_calls": 17,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 56.70174241065979
+   },
+   {
+    "task_label": "uh_bio_seed47_b20",
+    "seed": 47,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.7,
+    "final_score": 70.0,
+    "judge_result": {
+     "final_score": 70,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "The report clearly states that the organisms are triploid."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not mention the meiosis process or the formation of 1n and 2n gametes."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not address the viability constraint of only triploid zygotes surviving."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "The report states that the body size trait is additive, indicating a dosage effect."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "The report identifies three distinct size alleles with different contributions."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 20,
+       "comment": "The report provides approximate values for the size alleles within the acceptable range."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 3,
+       "comment": "The report suggests a partial dominance hierarchy but lacks full confirmation."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "The report does not confirm complete dominance for the color trait."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "The report mentions cyclic dominance for the shell trait."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 7,
+       "comment": "The report hypothesizes a lethal combination but lacks experimental confirmation."
+      }
+     ]
+    },
+    "n_crosses": 19,
+    "submitted_preview": "The genetic inheritance study on the alien organisms has been completed to the extent possible given the laboratory constraints. The organisms are confirmed to be triploid. The body size trait is additive, with S1 contributing approximately 200 units, S2 contributing approximately 50 units, and S3 c",
+    "n_turns": 19,
+    "n_actions": 31,
+    "n_claims_active": 3,
+    "n_generator_calls": 19,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 63.489755630493164
+   },
+   {
+    "task_label": "uh_bio_seed48_b20",
+    "seed": 48,
     "budget": 20,
     "ablation": {
      "use_reflector": false,
@@ -1170,13 +1534,13 @@
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "The report correctly describes the dominance hierarchy for color alleles."
+       "comment": "The report correctly describes the color dominance hierarchy as C1 > C2 > C3."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "The report correctly describes complete dominance for color alleles."
+       "comment": "The report correctly states that the dominance is complete, with one allele fully masking the others."
       },
       {
        "criterion": "Shell: cyclic dominance",
@@ -1193,11 +1557,11 @@
      ]
     },
     "n_crosses": 19,
-    "submitted_preview": "The dominance hierarchy among the color alleles is as follows: C1 (Red) > C2 (Blue) > C3 (White). This conclusion is based on the observed phenotypes from the crosses conducted: C1\u00d73 \u00d7 C2\u00d73 resulted in red offspring, C2\u00d73 \u00d7 C3\u00d73 resulted in blue offspring, and C1\u00d73 \u00d7 C3\u00d73 resulted in red offspring. ",
-    "n_turns": 16,
-    "n_actions": 28,
-    "n_claims_active": 1,
-    "n_generator_calls": 16,
+    "submitted_preview": "The color dominance hierarchy among the alien organisms is as follows: C1 (Red) > C2 (Blue) > C3 (White). This conclusion is based on the results of the conducted crosses: C1\u00d73 \u00d7 C2\u00d73, C2\u00d73 \u00d7 C3\u00d73, and C1\u00d73 \u00d7 C3\u00d73, where the dominant color in the offspring was observed. The dominance is complete, wi",
+    "n_turns": 17,
+    "n_actions": 27,
+    "n_claims_active": 3,
+    "n_generator_calls": 17,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -1205,90 +1569,90 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 51.778799295425415
+    "wall_time_s": 55.94003987312317
    },
    {
-    "task_label": "uh_bio_seed45_b20",
-    "seed": 45,
+    "task_label": "uh_bio_seed49_b20",
+    "seed": 49,
     "budget": 20,
     "ablation": {
      "use_reflector": false,
      "use_memory_selector": false,
      "use_futility_detector": false
     },
-    "primary": 0.3,
-    "final_score": 30.0,
+    "primary": 0.8,
+    "final_score": 80.0,
     "judge_result": {
-     "final_score": 30,
+     "final_score": 80,
      "score_breakdown": [
       {
        "criterion": "Triploidy recognition",
        "max_score": 15,
-       "awarded_score": 0,
-       "comment": "No mention of triploidy or three alleles per locus."
+       "awarded_score": 15,
+       "comment": "Correctly identified organisms as triploid."
       },
       {
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "No mention of meiosis or gamete segregation."
+       "comment": "Incorrectly stated gametes are haploid (1n) instead of 1n and 2n."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
        "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints related to ploidy."
+       "awarded_score": 5,
+       "comment": "Correctly stated that only triploid offspring are viable."
       },
       {
        "criterion": "Body size: dosage effect",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Additive contributions imply dosage effect."
+       "comment": "Correctly described body size as additive."
       },
       {
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Three distinct size alleles identified: S1, S2, S3."
+       "comment": "Correctly identified three distinct size alleles."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Quantitative values provided for S2 and S3 are within \u00b120% range, but S1 is outside the range."
+       "awarded_score": 10,
+       "comment": "Provided approximate values, but S1 and S2 are outside the \u00b120% range."
       },
       {
        "criterion": "Color: dominance hierarchy",
        "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of color trait or dominance hierarchy."
+       "awarded_score": 5,
+       "comment": "Correctly established the dominance hierarchy."
       },
       {
        "criterion": "Color: complete dominance",
        "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of complete dominance in color trait."
+       "awarded_score": 5,
+       "comment": "Correctly stated phenotype is determined by the dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
-       "awarded_score": 0,
-       "comment": "No mention of shell trait or cyclic dominance."
+       "awarded_score": 10,
+       "comment": "Correctly described cyclic dominance among shell alleles."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
-       "awarded_score": 0,
-       "comment": "No mention of lethal combinations in shell trait."
+       "awarded_score": 15,
+       "comment": "Correctly identified lethal combination, but lacks detail on why it's lethal."
       }
      ]
     },
-    "n_crosses": 18,
-    "submitted_preview": "Based on the conducted crosses, we have identified the following approximate additive contributions for the body-size alleles: S1 contributes approximately 150 units, S2 contributes approximately 50 units, and S3 contributes approximately 10 units. These estimates are derived from the observed size ",
-    "n_turns": 16,
-    "n_actions": 25,
-    "n_claims_active": 0,
-    "n_generator_calls": 16,
+    "n_crosses": 19,
+    "submitted_preview": "The analysis of the genetic crosses has established the following inheritance rules: \n\n1. Ploidy Level: Organisms are triploid, confirmed by counting alleles per trait. \n2. Gamete Ploidy: Gametes are haploid (1n), as determined by offspring ploidy inspection. \n3. Viability: Only triploid offspring a",
+    "n_turns": 18,
+    "n_actions": 28,
+    "n_claims_active": 3,
+    "n_generator_calls": 18,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -1296,11 +1660,102 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 54.60147762298584
+    "wall_time_s": 59.60515308380127
    },
    {
-    "task_label": "uh_bio_seed46_b20",
-    "seed": 46,
+    "task_label": "uh_bio_seed50_b20",
+    "seed": 50,
+    "budget": 20,
+    "ablation": {
+     "use_reflector": false,
+     "use_memory_selector": false,
+     "use_futility_detector": false
+    },
+    "primary": 0.8,
+    "final_score": 80.0,
+    "judge_result": {
+     "final_score": 80,
+     "score_breakdown": [
+      {
+       "criterion": "Triploidy recognition",
+       "max_score": 15,
+       "awarded_score": 15,
+       "comment": "Correctly identified organism as triploid with 3 alleles per trait."
+      },
+      {
+       "criterion": "Meiosis process (1n/2n gametes)",
+       "max_score": 5,
+       "awarded_score": 0,
+       "comment": "Incorrectly stated gametes are 1n; should include 2n due to unequal segregation."
+      },
+      {
+       "criterion": "Viability constraint (only triploid survives)",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly noted that only triploid offspring survive."
+      },
+      {
+       "criterion": "Body size: dosage effect",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described body size as additive."
+      },
+      {
+       "criterion": "Body size: allele identification",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Identified three distinct size alleles."
+      },
+      {
+       "criterion": "Body size: quantitative values",
+       "max_score": 20,
+       "awarded_score": 10,
+       "comment": "Provided values for S2 and S3 within range, but S1 value is incorrect."
+      },
+      {
+       "criterion": "Color: dominance hierarchy",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly described color dominance hierarchy."
+      },
+      {
+       "criterion": "Color: complete dominance",
+       "max_score": 5,
+       "awarded_score": 5,
+       "comment": "Correctly noted phenotype determined by dominant allele."
+      },
+      {
+       "criterion": "Shell: cyclic dominance",
+       "max_score": 10,
+       "awarded_score": 10,
+       "comment": "Correctly described cyclic dominance of shell traits."
+      },
+      {
+       "criterion": "Shell: lethal combination",
+       "max_score": 20,
+       "awarded_score": 10,
+       "comment": "Mentioned lethal combination but lacked detail on why H1+H2+H3 is lethal."
+      }
+     ]
+    },
+    "n_crosses": 17,
+    "submitted_preview": "Phase A: Confirmed triploidy with 3 alleles per trait. Gametes are 1n (haploid) as offspring ploidy was consistent with haploid gametes. Only triploid offspring survive, confirming viability requirement. Phase B: Body size is additive. S1 contributes ~150 units per allele, S2 contributes ~50 units p",
+    "n_turns": 15,
+    "n_actions": 25,
+    "n_claims_active": 2,
+    "n_generator_calls": 15,
+    "n_reflector_calls": 0,
+    "verdict_counts": {
+     "accept": 0,
+     "require_evidence": 0,
+     "retract": 0,
+     "revise": 0
+    },
+    "wall_time_s": 51.01296520233154
+   },
+   {
+    "task_label": "uh_bio_seed51_b20",
+    "seed": 51,
     "budget": 20,
     "ablation": {
      "use_reflector": false,
@@ -1322,462 +1777,7 @@
        "criterion": "Meiosis process (1n/2n gametes)",
        "max_score": 5,
        "awarded_score": 0,
-       "comment": "Incorrectly stated gametes are haploid (1n) without mentioning 2n gametes."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated that only triploid offspring are viable."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described body size alleles as additive."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly identified three distinct size alleles."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Provided approximate values for S2 and S3 within range, but S1 value (150) is outside the \u00b120% range of 200."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly established color dominance hierarchy."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated phenotype determined by dominant allele."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly described shell shape as following a cyclic dominance pattern."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Correctly identified H1, H2, H3 combination as lethal, but did not explicitly state the cyclic nature of the interaction."
-      }
-     ]
-    },
-    "n_crosses": 19,
-    "submitted_preview": "The study confirms the following genetic inheritance rules: 1. The organisms are triploid, with three copies of each allele per trait. 2. Gametes are haploid (1n), as offspring ploidy analysis indicates. 3. Only triploid offspring are viable. 4. Body size alleles are additive: S1 contributes approxi",
-    "n_turns": 20,
-    "n_actions": 28,
-    "n_claims_active": 4,
-    "n_generator_calls": 20,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 59.43758535385132
-   },
-   {
-    "task_label": "uh_bio_seed47_b20",
-    "seed": 47,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.15,
-    "final_score": 15.0,
-    "judge_result": {
-     "final_score": 15,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 0,
-       "comment": "No mention of triploidy or three alleles per locus."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of meiosis or gamete ploidy."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of viability constraints related to ploidy."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly describes body size as additive contributions of alleles."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Identifies three distinct size alleles with contributions."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "Quantitative values provided do not match the expected approximate values."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of color trait or dominance hierarchy."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "No mention of complete dominance in color trait."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "No mention of shell trait or cyclic dominance."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "No mention of lethal combinations in shell trait."
-      }
-     ]
-    },
-    "n_crosses": 18,
-    "submitted_preview": "Body size is determined by additive contributions of alleles. The allele S1 contributes approximately 150 units per copy, S2 contributes approximately 100 units per copy, and S3 contributes approximately 10 units per copy to the body size.",
-    "n_turns": 16,
-    "n_actions": 27,
-    "n_claims_active": 1,
-    "n_generator_calls": 16,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 56.24285697937012
-   },
-   {
-    "task_label": "uh_bio_seed48_b20",
-    "seed": 48,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.85,
-    "final_score": 85.0,
-    "judge_result": {
-     "final_score": 85,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Triploidy is clearly recognized as organisms are confirmed to be triploid."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "The report mentions only 1n gametes, missing the 2n gametes due to unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly states that only triploid offspring are viable."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Body size is described as additive, indicating dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Three distinct size alleles are identified."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Values for S2 and S3 are correct, but S1 is outside the \u00b120% range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correct dominance hierarchy is provided for color trait."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Complete dominance is implied by the hierarchy description."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Cyclic dominance is correctly described for shell trait."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 15,
-       "comment": "Lethal combination is mentioned, but lacks detail on the specific alleles involved."
-      }
-     ]
-    },
-    "n_crosses": 19,
-    "submitted_preview": "Ploidy level: Triploid organisms confirmed. Gametes are 1n (haploid). Only triploid offspring are viable. Body size is additive with S1 contributing approximately 150, S2 contributing approximately 50, and S3 contributing approximately 10. Color dominance hierarchy: Red (C1) > Blue (C2) > White (C3)",
-    "n_turns": 18,
-    "n_actions": 29,
-    "n_claims_active": 3,
-    "n_generator_calls": 18,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 90.62780523300171
-   },
-   {
-    "task_label": "uh_bio_seed49_b20",
-    "seed": 49,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.95,
-    "final_score": 95.0,
-    "judge_result": {
-     "final_score": 95,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified organism as triploid with 3 alleles per trait."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Failed to mention 2n gametes due to unequal segregation."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated that only triploid offspring are viable."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly described body size as following additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly identified three distinct size alleles S1, S2, and S3."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 20,
-       "comment": "Provided approximate values for size alleles within \u00b120% range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly established color dominance hierarchy: Red > Blue > White."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "Correctly stated phenotype determined solely by dominant allele."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "Correctly described cyclic dominance in shell trait."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 20,
-       "comment": "Correctly identified lethal combination of H1, H2, and H3."
-      }
-     ]
-    },
-    "n_crosses": 17,
-    "submitted_preview": "Phase A: Confirmed triploidy with 3 alleles per trait. Gametes are haploid (1n). Only triploid offspring are viable. Phase B: Identified body size alleles S1, S2, and S3. Estimated contributions: S1 \u2248 200, S2 \u2248 50, S3 \u2248 10. Phase C: Established color dominance hierarchy: Red (C1) > Blue (C2) > White",
-    "n_turns": 15,
-    "n_actions": 26,
-    "n_claims_active": 3,
-    "n_generator_calls": 15,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 97.8928644657135
-   },
-   {
-    "task_label": "uh_bio_seed50_b20",
-    "seed": 50,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.35,
-    "final_score": 35.0,
-    "judge_result": {
-     "final_score": 35,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 0,
-       "comment": "The report does not mention triploidy or three alleles per locus."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "The report does not describe the meiosis process or gamete ploidy."
-      },
-      {
-       "criterion": "Viability constraint (only triploid survives)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "The report does not mention viability constraints related to ploidy."
-      },
-      {
-       "criterion": "Body size: dosage effect",
-       "max_score": 5,
-       "awarded_score": 5,
-       "comment": "The report correctly describes body size as following an additive dosage effect."
-      },
-      {
-       "criterion": "Body size: allele identification",
-       "max_score": 10,
-       "awarded_score": 10,
-       "comment": "The report identifies three distinct size alleles: S1, S2, and S3."
-      },
-      {
-       "criterion": "Body size: quantitative values",
-       "max_score": 20,
-       "awarded_score": 20,
-       "comment": "The report provides approximate values for allele contributions within the acceptable range."
-      },
-      {
-       "criterion": "Color: dominance hierarchy",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "The report does not mention color trait or dominance hierarchy."
-      },
-      {
-       "criterion": "Color: complete dominance",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "The report does not mention color trait or complete dominance."
-      },
-      {
-       "criterion": "Shell: cyclic dominance",
-       "max_score": 10,
-       "awarded_score": 0,
-       "comment": "The report does not mention shell trait or cyclic dominance."
-      },
-      {
-       "criterion": "Shell: lethal combination",
-       "max_score": 20,
-       "awarded_score": 0,
-       "comment": "The report does not mention shell trait or lethal combinations."
-      }
-     ]
-    },
-    "n_crosses": 18,
-    "submitted_preview": "The body size of the alien organisms is determined by three alleles: S1, S2, and S3, each contributing additively to the size. Based on the crosses conducted, the approximate contributions of these alleles are as follows: S1 contributes approximately 150 units, S2 contributes approximately 50 units,",
-    "n_turns": 16,
-    "n_actions": 26,
-    "n_claims_active": 0,
-    "n_generator_calls": 16,
-    "n_reflector_calls": 0,
-    "verdict_counts": {
-     "accept": 0,
-     "require_evidence": 0,
-     "retract": 0,
-     "revise": 0
-    },
-    "wall_time_s": 61.29782176017761
-   },
-   {
-    "task_label": "uh_bio_seed51_b20",
-    "seed": 51,
-    "budget": 20,
-    "ablation": {
-     "use_reflector": false,
-     "use_memory_selector": false,
-     "use_futility_detector": false
-    },
-    "primary": 0.85,
-    "final_score": 85.0,
-    "judge_result": {
-     "final_score": 85,
-     "score_breakdown": [
-      {
-       "criterion": "Triploidy recognition",
-       "max_score": 15,
-       "awarded_score": 15,
-       "comment": "Correctly identified organisms as triploid with three copies per trait."
-      },
-      {
-       "criterion": "Meiosis process (1n/2n gametes)",
-       "max_score": 5,
-       "awarded_score": 0,
-       "comment": "Incorrectly stated gametes are haploid (1n) without mentioning 2n gametes."
+       "comment": "Described gametes as haploid (1n) but did not mention 2n gametes due to unequal segregation."
       },
       {
        "criterion": "Viability constraint (only triploid survives)",
@@ -1795,13 +1795,13 @@
        "criterion": "Body size: allele identification",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Correctly identified three distinct size alleles."
+       "comment": "Identified three distinct size alleles contributing to body size."
       },
       {
        "criterion": "Body size: quantitative values",
        "max_score": 20,
-       "awarded_score": 10,
-       "comment": "Provided approximate values, but S1 and S2 are outside the \u00b120% range."
+       "awarded_score": 15,
+       "comment": "Provided approximate values for S2 and S3 within \u00b120% but S1 value was outside the expected range."
       },
       {
        "criterion": "Color: dominance hierarchy",
@@ -1813,28 +1813,28 @@
        "criterion": "Color: complete dominance",
        "max_score": 5,
        "awarded_score": 5,
-       "comment": "Correctly stated phenotype is determined by the dominant allele."
+       "comment": "Correctly described phenotype determined solely by the dominant allele."
       },
       {
        "criterion": "Shell: cyclic dominance",
        "max_score": 10,
        "awarded_score": 10,
-       "comment": "Correctly described shell shape as exhibiting cyclic dominance."
+       "comment": "Correctly described cyclic dominance among shell shapes."
       },
       {
        "criterion": "Shell: lethal combination",
        "max_score": 20,
-       "awarded_score": 20,
-       "comment": "Correctly identified the lethal combination of all three shell alleles."
+       "awarded_score": 15,
+       "comment": "Mentioned lethality of H1+H2+H3 combination but lacked detail on why it is lethal."
       }
      ]
     },
     "n_crosses": 19,
-    "submitted_preview": "The genetic study of the alien organisms revealed the following inheritance patterns: 1. Triploidy is confirmed with each organism having 3 copies per trait. 2. Gametes are haploid (1n), as determined by the offspring ploidy. 3. Only triploid offspring are viable. 4. Body size is additive with disti",
-    "n_turns": 18,
-    "n_actions": 27,
+    "submitted_preview": "The alien organisms exhibit triploidy, with three copies of each allele per trait. Gametes are haploid (1n), as determined by offspring ploidy from crosses. Only triploid offspring are viable. Body size is additive, with S1 contributing approximately 150, S2 approximately 50, and S3 approximately 10",
+    "n_turns": 17,
+    "n_actions": 26,
     "n_claims_active": 3,
-    "n_generator_calls": 18,
+    "n_generator_calls": 17,
     "n_reflector_calls": 0,
     "verdict_counts": {
      "accept": 0,
@@ -1842,10 +1842,10 @@
      "retract": 0,
      "revise": 0
     },
-    "wall_time_s": 60.90420842170715
+    "wall_time_s": 48.92369222640991
    }
   ]
  },
- "paired_delta_score_mean": 4.5,
- "paired_delta_score_ci95z": 26.99500282974198
+ "paired_delta_score_mean": 14.0,
+ "paired_delta_score_ci95z": 21.90372469594054
 }

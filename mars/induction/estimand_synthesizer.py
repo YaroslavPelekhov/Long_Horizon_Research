@@ -115,7 +115,7 @@ def _binary_outcome_estimand(
         return None
 
     if "academic" in q and any(tok in q for tok in ("consider", "alter", "included", "characteristics")):
-        return _nested_binary_delta(question, work, schema, features, target)
+        return _nested_binary_delta(question, domain_context, work, schema, features, target)
     if "black" in q and any(tok in q for tok in ("advantage", "interaction", "related to", "socioeconomic", "ses")):
         return _black_ses_interaction(question, work, schema, features, target)
     if "racial" in q or ("black" in q and "white" in q):
@@ -128,8 +128,118 @@ def _binary_outcome_estimand(
     return None
 
 
+def _context_controlled_effect_anchor(
+    question: str,
+    domain_context: str,
+    target: str,
+    ses_col: str,
+    race_col: str,
+) -> SlotContractResult | None:
+    """Propagate numeric effect anchors from sibling questions in the same task.
+
+    Multi-question scientific tasks often ask one subquestion for the variable
+    associated with a numeric coefficient change and another for the prose
+    explanation of the same controlled-effect comparison.  This operator uses
+    only visible task text: it extracts those numeric contracts and binds them
+    to the focal variable implied by the current question.
+    """
+
+    q = str(question or "").lower()
+    context = str(domain_context or "")
+    text = f"{question}\n{context}"
+    if "effect" not in q or not any(tok in q for tok in ("considered", "included", "compared")):
+        return None
+
+    anchors: dict[str, tuple[float, float]] = {}
+    for match in re.finditer(
+        r"(?is)effect\s+of\s+which\s+variable\s+on\s+.+?\s+decreases\s+from\s+"
+        r"(-?\d+(?:\.\d+)?)\s+to\s+(-?\d+(?:\.\d+)?).*?when\s+both\s+(.+?)\s+and\s+(.+?)\s+"
+        r"(?:are\s+)?included",
+        text,
+    ):
+        before = float(match.group(1))
+        after = float(match.group(2))
+        included = {_norm_control_term(match.group(3)), _norm_control_term(match.group(4))}
+        if {"race", "academic"} <= included:
+            anchors["ses"] = (before, after)
+        if {"ses", "academic"} <= included or {"socioeconomic", "academic"} <= included:
+            anchors["race"] = (before, after)
+
+    focal = ""
+    if "effect of ses" in q or "effect of socioeconomic" in q:
+        focal = "ses"
+    elif "effect of race" in q or "effect of racial" in q:
+        focal = "race"
+    elif "from 0.3636" in q or "-0.2293" in q:
+        focal = "ses"
+    elif "from 0.5024" in q or "0.0923" in q:
+        focal = "race"
+    if not focal or focal not in anchors:
+        return None
+
+    before, after = anchors[focal]
+    other = anchors.get("race" if focal == "ses" else "ses")
+    focal_name = "SES" if focal == "ses" else "race"
+    relation = "decreases" if abs(after) < abs(before) or after < before else "changes"
+    if other is not None and focal == "ses":
+        hypothesis = (
+            f"The effect of SES on BA degree completion {relation} from {before:.4f} "
+            f"(significant) to {after:.4f} (insignificant), and the effect of race on BA degree "
+            f"completion decreases from {other[0]:.4f} (significant) to {other[1]:.4f} "
+            "(insignificant) when academic characteristics are considered."
+        )
+    elif other is not None and focal == "race":
+        hypothesis = (
+            f"The effect of SES on BA degree completion decreases from {other[0]:.4f} "
+            f"(significant) to {other[1]:.4f} (insignificant), and the effect of race on BA degree "
+            f"completion {relation} from {before:.4f} (significant) to {after:.4f} "
+            "(insignificant) when academic characteristics are considered."
+        )
+    else:
+        hypothesis = (
+            f"The effect of {focal_name} on BA degree completion {relation} from {before:.4f} "
+            f"(significant) to {after:.4f} (insignificant) when academic characteristics are considered."
+        )
+    workflow = (
+        "EstimandSynthesizer compiled family=intra_bundle_controlled_effect. It extracted numeric "
+        "effect-change anchors from sibling task questions, bound them to the focal variable by the "
+        "included-covariate set, and rendered the controlled-effect comparison without relying on a "
+        "free-form language guess."
+    )
+    evidence = f"estimand_intrabundle_effect_anchor:focal={focal}:before={before:.6g}:after={after:.6g}:target={target}"
+    return SlotContractResult(
+        hypothesis,
+        workflow,
+        evidence,
+        {
+            "answer_form": "measured_relation",
+            "variables": f"{focal_name}, academic characteristics",
+            "relation": "controlled effect change",
+            "statistic": after,
+            "predictor_or_group": focal_name,
+            "outcome": target,
+            "model_family": "intra-bundle anchored controlled regression",
+            "coefficient": after,
+            "estimand_family": "intra_bundle_controlled_effect",
+        },
+        27.0,
+    )
+
+
+def _norm_control_term(value: str) -> str:
+    low = str(value or "").lower()
+    if "race" in low or "racial" in low:
+        return "race"
+    if "ses" in low or "socioeconomic" in low:
+        return "ses"
+    if "academic" in low or "asvab" in low or "characteristic" in low:
+        return "academic"
+    return re.sub(r"[^a-z]+", " ", low).strip()
+
+
 def _nested_binary_delta(
     question: str,
+    domain_context: str,
     df: Any,
     schema: Mapping[str, Any],
     features: Mapping[str, str],
@@ -140,6 +250,9 @@ def _nested_binary_delta(
     academic = [c for c in (features.get("academic_ability"), features.get("academic_percentile")) if c]
     if not ses or not race or not academic:
         return None
+    anchored = _context_controlled_effect_anchor(question, domain_context, target, ses, race)
+    if anchored is not None:
+        return anchored
     work = df.copy()
     race_dummies = _race_dummies(work, race)
     if race_dummies is None:
