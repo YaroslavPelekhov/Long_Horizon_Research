@@ -119,12 +119,11 @@ ablations; the DiscoveryBench Reflexion row additionally uses oracle feedback.}
 \subsection*{External Reasoning Baselines}
 
 Matched non-\methodshort baselines are useful only when they are run on the same
-complete benchmark set. Tables~\ref{tab:external_reasoning}
-and~\ref{tab:newton_matched_controls} report completed DiscoveryBench and
-NewtonBench controls that satisfy this condition. They use the same \gptmini
-core, task set, and native evaluator as the corresponding headline run, but
-they do not expose \methodshort typed state, residual objects, answer-slot
-closure, or operator promotion.
+complete benchmark set. Table~\ref{tab:external_reasoning} reports completed
+DiscoveryBench controls that satisfy this condition. They use the same
+\gptmini core, task set, and native evaluator as the corresponding headline
+run, but they do not expose \methodshort typed state, residual objects,
+answer-slot closure, or operator promotion.
 
 \begin{table}[!htbp]
 \centering
@@ -156,81 +155,6 @@ The gap is not evidence that ordinary prompting is useless. It shows that, under
 the DiscoveryBench HMS contract, longer traces and one-pass executed summaries
 do not reproduce the effect of typed answer construction and
 residual-conditioned rendering.
-
-On NewtonBench, the repository's vanilla agent is an interactive
-ReAct-like control rather than a one-shot prompt: it can request experiments
-and revise its law for up to ten rounds. The CodeAct control adds the
-repository's Python action channel. Both controls submit a law for every task.
-Table~\ref{tab:newton_matched_controls} uses the earliest valid result for each
-configuration and never selects among repeated attempts by score.
-
-\begin{table}[!htbp]
-\centering
-\small
-\begin{tabularx}{0.96\textwidth}{|Y|c|c|c|c|}
-\hline
-\tblhdr
-Method & Laws submitted & Correct & SA-all & 95\% interval \\
-\hline
-\rowcolor{controlrow}
-Vanilla/ReAct-like & 324 & 0 & 0.00 & [0.00, 1.17] \\
-\hline
-\rowcolor{controlrow}
-CodeAct & 324 & 2 & 0.62 & [0.17, 2.22] \\
-\hline
-\rowcolor{rghlirow}
-\methodshort & 240 & 160 & \textbf{49.38} & [44.14, 54.94] \\
-\hline
-\end{tabularx}
-\caption{Complete matched controls on all 324 NewtonBench configurations.
-All rows use \gptmini as the hypothesis model and the official symbolic-law
-judge. Wilson intervals are over the 324 task outcomes.}
-\label{tab:newton_matched_controls}
-\end{table}
-
-The same evaluator gives exact accuracy one and zero RMSLE to an exact
-ground-truth law in a positive-control call. The selected Vanilla/ReAct-like
-and CodeAct runs used 2,206 and 3,466 recorded model calls, respectively.
-Their recorded provider costs were \$2.26 and \$4.51. The retained
-\methodshort run predates call-level accounting, so we do not claim a
-cost-matched comparison.
-
-\begin{table}[!htbp]
-\centering
-\small
-\begin{tabularx}{0.88\textwidth}{|Y|c|c|}
-\hline
-\tblhdr
-Submitted-law category & Vanilla/ReAct-like & CodeAct \\
-\hline
-empty, invalid syntax, or non-function & 0 & 0 \\
-\hline
-constant-only function & 12 & 19 \\
-\hline
-structured incorrect function & 312 & 303 \\
-\hline
-\rowcolor{rghlirow}
-exact symbolic match & 0 & 2 \\
-\hline
-\end{tabularx}
-\caption{Deterministic audit of all submitted NewtonBench control laws. A
-``structured incorrect'' law parses as a Python function and its return value
-depends on at least one declared input, but it fails exact symbolic agreement.}
-\label{tab:newton_failure_audit}
-\end{table}
-
-Thus, the low control scores are not produced by empty outputs or a failed
-parser: all 648 controls submit syntactically valid functions. A representative
-CodeAct gravity trace runs ten interaction rounds and six experiments, then
-submits a plausible inverse-square law where the shifted world requires a
-different exponent. Complete representative outputs for gravity, radioactive
-decay, and Hooke's law are retained with the audit. The exact configuration is
-\texttt{openai/gpt-4o-mini}, temperature 0.4, zero observation noise, ten
-interaction rounds, the repository action interfaces and
-\texttt{discovered\_law} parser, followed by the
-\texttt{openai/gpt-4.1} symbolic judge. The contextual o4-mini result in
-Table~\ref{tab:published_context} uses a different reasoning-model family and
-is not a matched control.
 
 \subsection*{Matched-Control Uncertainty}
 
@@ -1118,13 +1042,13 @@ The machine-readable map from every reported row to its complete-run
 JSON/JSONL/CSV artifact is
 \path{paper_assets/evidence/evidence_index.csv}.  It
 indexes the 239-task DiscoveryBench run, the 324-task NewtonBench run, the
-96-episode UltraHorizon run, matched controls, deterministic law audit,
-multi-step trajectory, bootstrap intervals, all five NewtonBench substitutions,
-the matched three-core DiscoveryBench audit, and the controller-enabled
-UltraHorizon substitutions. The archive retains per-task outputs and evaluator
-decisions; no table is reconstructed from manually selected examples. A
-separate machine-readable substitution audit validates all 11 rows against
-their task cardinalities, frozen protocol fields, and SHA-256 source hashes.
+96-episode UltraHorizon run, DiscoveryBench controls, multi-step trajectory,
+bootstrap intervals, all five NewtonBench substitutions, the matched three-core
+DiscoveryBench audit, and the controller-enabled UltraHorizon substitutions.
+The archive retains per-task outputs and evaluator decisions; no table is
+reconstructed from manually selected examples. A separate machine-readable
+substitution audit validates all 11 rows against their task cardinalities,
+frozen protocol fields, and SHA-256 source hashes.
 
 All headline rows use \gptmini for proposal calls. DiscoveryBench uses
 \texttt{openai/gpt-4o} as the native HMS judge, NewtonBench uses the repository
@@ -1132,10 +1056,7 @@ All headline rows use \gptmini for proposal calls. DiscoveryBench uses
 \texttt{DeepSeek-R1-0528-BF16} through the reproduced paper-style judge path.
 Legacy headline artifacts retain row counts, outputs, scores, and wall time
 but not call-level token records, so comparisons are task-, backbone-, and
-evaluator-matched rather than token-matched. The newly audited NewtonBench
-controls additionally retain prompts, completions, retries, model identifiers,
-and provider cost. They use temperature 0.4, ten interaction rounds, zero
-observation noise, and the parser sources shipped in the anonymous package.
+evaluator-matched rather than token-matched.
 
 Local orchestration used Python 3.12.7 on macOS 15.2 with an Apple M1 Pro CPU
 and 16\,GB unified memory; no local GPU training was performed. The retained
