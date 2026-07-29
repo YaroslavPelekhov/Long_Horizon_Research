@@ -37,7 +37,7 @@
   "judge_model": "gpt41",
   "disable_operator_charts": false,
   "n": 324,
-  "rows_csv": "/Users/yaroslavpelehov/Downloads/Long Horizon Research/lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/rows.csv",
+  "rows_csv": "lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/rows.csv",
   "rows": [
     {
       "module": "m0_gravity",

@@ -1,0 +1,158 @@
+{
+  "protocol": "newtonbench-full-matched-backbone-v1",
+  "duplicate_resolution": "earliest valid version; failed files are never eligible",
+  "root": "lmw/newton_external/aaai27_newton_gpt4omini_matched_full324_20260724",
+  "model": "openai/gpt-4o-mini",
+  "judge": "openai/gpt-4.1",
+  "n_configurations_per_backend": 324,
+  "backends": {
+    "vanilla_agent": {
+      "backend": "vanilla_agent",
+      "complete": true,
+      "n_expected": 324,
+      "n_valid_unique": 324,
+      "n_missing": 0,
+      "missing": [],
+      "unexpected": [],
+      "n_duplicate_valid": 0,
+      "duplicate_valid": {},
+      "n_answered": 324,
+      "coverage_100": 100.0,
+      "SA_all_100": 0.0,
+      "SA_all_wilson95": [
+        0.0,
+        1.171742840125394
+      ],
+      "SA_answered_100": 0.0,
+      "mean_rounds": 5.79320987654321,
+      "mean_experiments": 32.891975308641975,
+      "judge_models": [
+        "gpt41"
+      ],
+      "terminal_status_counts": {
+        "completed": 319,
+        "max_turns_reached": 5
+      },
+      "selected_run_usage": {
+        "by_model": {
+          "openai/gpt-4.1": {
+            "calls": 324,
+            "prompt_tokens": 356762,
+            "completion_tokens": 99535,
+            "total_tokens": 456297,
+            "cost_usd": 1.505196
+          },
+          "openai/gpt-4o-mini": {
+            "calls": 1882,
+            "prompt_tokens": 5568256,
+            "completion_tokens": 360147,
+            "total_tokens": 5928403,
+            "cost_usd": 0.754322
+          }
+        },
+        "calls": 2206,
+        "prompt_tokens": 5925018,
+        "completion_tokens": 459682,
+        "total_tokens": 6384700,
+        "cost_usd": 2.259518
+      },
+      "incurred_usage_including_failed_attempts": {
+        "by_model": {
+          "openai/gpt-4.1": {
+            "calls": 324,
+            "prompt_tokens": 356762,
+            "completion_tokens": 99535,
+            "total_tokens": 456297,
+            "cost_usd": 1.505196
+          },
+          "openai/gpt-4o-mini": {
+            "calls": 1890,
+            "prompt_tokens": 5589399,
+            "completion_tokens": 363534,
+            "total_tokens": 5952933,
+            "cost_usd": 0.758748
+          }
+        },
+        "calls": 2214,
+        "prompt_tokens": 5946161,
+        "completion_tokens": 463069,
+        "total_tokens": 6409230,
+        "cost_usd": 2.263944
+      }
+    },
+    "code_assisted_agent": {
+      "backend": "code_assisted_agent",
+      "complete": true,
+      "n_expected": 324,
+      "n_valid_unique": 324,
+      "n_missing": 0,
+      "missing": [],
+      "unexpected": [],
+      "n_duplicate_valid": 0,
+      "duplicate_valid": {},
+      "n_answered": 324,
+      "coverage_100": 100.0,
+      "SA_all_100": 0.6172839506172839,
+      "SA_all_wilson95": [
+        0.16944506923207409,
+        2.2223997111386855
+      ],
+      "SA_answered_100": 0.6172839506172839,
+      "mean_rounds": 9.503086419753087,
+      "mean_experiments": 17.854938271604937,
+      "judge_models": [
+        "gpt41"
+      ],
+      "terminal_status_counts": {
+        "completed": 153,
+        "max_turns_reached": 171
+      },
+      "selected_run_usage": {
+        "by_model": {
+          "openai/gpt-4.1": {
+            "calls": 321,
+            "prompt_tokens": 354624,
+            "completion_tokens": 102097,
+            "total_tokens": 456721,
+            "cost_usd": 1.522952
+          },
+          "openai/gpt-4o-mini": {
+            "calls": 3145,
+            "prompt_tokens": 22455808,
+            "completion_tokens": 1516900,
+            "total_tokens": 23972708,
+            "cost_usd": 2.984998
+          }
+        },
+        "calls": 3466,
+        "prompt_tokens": 22810432,
+        "completion_tokens": 1618997,
+        "total_tokens": 24429429,
+        "cost_usd": 4.50795
+      },
+      "incurred_usage_including_failed_attempts": {
+        "by_model": {
+          "openai/gpt-4.1": {
+            "calls": 321,
+            "prompt_tokens": 354624,
+            "completion_tokens": 102097,
+            "total_tokens": 456721,
+            "cost_usd": 1.522952
+          },
+          "openai/gpt-4o-mini": {
+            "calls": 3279,
+            "prompt_tokens": 23312904,
+            "completion_tokens": 1595407,
+            "total_tokens": 24908311,
+            "cost_usd": 3.114529
+          }
+        },
+        "calls": 3600,
+        "prompt_tokens": 23667528,
+        "completion_tokens": 1697504,
+        "total_tokens": 25365032,
+        "cost_usd": 4.637481
+      }
+    }
+  }
+}

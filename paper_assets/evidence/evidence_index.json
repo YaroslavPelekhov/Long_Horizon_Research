@@ -1,0 +1,396 @@
+{
+  "index_version": "aaai27-paper-evidence-v1",
+  "all_sources_hashed": true,
+  "entries": [
+    {
+      "claim_id": "headline.discovery.summary",
+      "category": "headline",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/summary.json",
+      "records": 239,
+      "bytes": 6610,
+      "sha256": "0e53dbed11ec8d1a33b2542e7c102409f7143b36d76ea2c266142a8f2c4f4bea",
+      "description": "Complete 239-task headline summary"
+    },
+    {
+      "claim_id": "headline.discovery.rows",
+      "category": "headline",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/official_eval.jsonl",
+      "records": 239,
+      "bytes": 1162842,
+      "sha256": "7607b2c41b4b0fa73282a17fc0056a62f6451387a07436e188e9e249365c2a25",
+      "description": "Native HMS decisions for all 239 tasks"
+    },
+    {
+      "claim_id": "headline.newton.summary",
+      "category": "headline",
+      "benchmark": "NewtonBench",
+      "artifact": "lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/summary.json",
+      "records": 324,
+      "bytes": 1104573,
+      "sha256": "01180484d02da55d3abfeba32b2175f95757d66f1bec30b6a9c7455dbc78e6db",
+      "description": "Complete 324-task headline summary"
+    },
+    {
+      "claim_id": "headline.newton.rows",
+      "category": "headline",
+      "benchmark": "NewtonBench",
+      "artifact": "lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/rows.csv",
+      "records": 324,
+      "bytes": 54229,
+      "sha256": "c2ec263e52ac68b80b3806d3788eb023ff95529244928c37c672556d8c6ef1ea",
+      "description": "Symbolic-agreement decisions for all 324 tasks"
+    },
+    {
+      "claim_id": "headline.ultrahorizon.summary",
+      "category": "headline",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/summary.json",
+      "records": 96,
+      "bytes": 4360,
+      "sha256": "cdecd6f1191292a7e65af843d618f2a53f62542ccec6b82c644368dac3efd551",
+      "description": "Strict 96-episode headline summary"
+    },
+    {
+      "claim_id": "headline.ultrahorizon.rows",
+      "category": "headline",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/run.jsonl",
+      "records": 96,
+      "bytes": 24901610,
+      "sha256": "4481ffe4bf17f3c479ae8f97ced7c53b55ddd7aadac0b441db974437689bc51c",
+      "description": "Paper-style judge records for all 96 episodes"
+    },
+    {
+      "claim_id": "baseline.discovery.direct",
+      "category": "matched baseline",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/aaai27_mechanism_audit_20260721/direct_vs_rghli_bootstrap.json",
+      "records": null,
+      "bytes": 578,
+      "sha256": "355e532776ec6842b2ddefcda6e7d39a89e9485327306b316fc9783bc5d7ca7a",
+      "description": "Paired Direct comparison"
+    },
+    {
+      "claim_id": "baseline.discovery.react",
+      "category": "matched baseline",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/aaai27_mechanism_audit_20260721/react_vs_rghli_bootstrap.json",
+      "records": null,
+      "bytes": 588,
+      "sha256": "2bfcf19411ecdf96793e5859ba1ecb05b9464ba5aad09c7b40c6735bacb8c077",
+      "description": "Paired ReAct comparison"
+    },
+    {
+      "claim_id": "baseline.discovery.codeact",
+      "category": "matched baseline",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/aaai27_mechanism_audit_20260721/codeact_vs_rghli_bootstrap.json",
+      "records": null,
+      "bytes": 593,
+      "sha256": "5e76e3a2ab544394cae6ab2f795c303231c5e7dbe23cd67ba05b67cda1fdd3e0",
+      "description": "Paired CodeAct comparison"
+    },
+    {
+      "claim_id": "baseline.newton.summary",
+      "category": "matched baseline",
+      "benchmark": "NewtonBench",
+      "artifact": "paper_assets/evidence/newton_matched_controls/audited_summary.json",
+      "records": null,
+      "bytes": 4493,
+      "sha256": "7d9de199aafbdb73be1c604f0c959ec203c3d288fe2cf4cfc6224a8330351922",
+      "description": "Complete matched-control summary"
+    },
+    {
+      "claim_id": "baseline.newton.aggregate",
+      "category": "matched baseline",
+      "benchmark": "NewtonBench",
+      "artifact": "paper_assets/evidence/newton_matched_controls/audited_headline.csv",
+      "records": 2,
+      "bytes": 344,
+      "sha256": "a9362096ace11b325cc1624ed92a50f5bded29212fbb06aa95dec7fc7639d349",
+      "description": "Audited matched-control aggregate rows"
+    },
+    {
+      "claim_id": "baseline.newton.vanilla_rows",
+      "category": "matched baseline",
+      "benchmark": "NewtonBench",
+      "artifact": "paper_assets/evidence/newton_matched_controls/vanilla_agent_tasks.csv",
+      "records": 324,
+      "bytes": 83839,
+      "sha256": "07f49126a15ea10760c0ca151ba5496ef20b2a744fad3a5f79bfc5b9650182f3",
+      "description": "Complete 324-task Vanilla/ReAct-like control records"
+    },
+    {
+      "claim_id": "baseline.newton.codeact_rows",
+      "category": "matched baseline",
+      "benchmark": "NewtonBench",
+      "artifact": "paper_assets/evidence/newton_matched_controls/code_assisted_agent_tasks.csv",
+      "records": 324,
+      "bytes": 89211,
+      "sha256": "d3e401a862af92b70386883fa2bc46355ede028ebfc5cf3518e7db9033d6b983",
+      "description": "Complete 324-task CodeAct control records"
+    },
+    {
+      "claim_id": "mechanism.operator_usage",
+      "category": "mechanism",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/aaai27_mechanism_audit_20260721/discovery_full239_operator_usage.json",
+      "records": null,
+      "bytes": 2405,
+      "sha256": "a2d04a432c27526ec30342596dc815be39aafbb55972763b022cb001e9f5d179",
+      "description": "Operator reuse counts over the complete run"
+    },
+    {
+      "claim_id": "mechanism.language_growth.summary",
+      "category": "mechanism",
+      "benchmark": "NewtonBench",
+      "artifact": "paper_assets/evidence/newton_language_growth/summary.json",
+      "records": null,
+      "bytes": 14011,
+      "sha256": "c01532db2c18d6e50dbe186cb1b28275170f05f4f3dcaea7d8f632d38b864987",
+      "description": "Frozen-transfer and multi-step trajectory summary"
+    },
+    {
+      "claim_id": "mechanism.language_growth.trajectory",
+      "category": "mechanism",
+      "benchmark": "NewtonBench",
+      "artifact": "paper_assets/evidence/newton_language_growth/trajectory.csv",
+      "records": 4,
+      "bytes": 274,
+      "sha256": "89426e264f4dae8bf988b99e1c2021da6feed30e89b79e0c97c65bad10597b6c",
+      "description": "Accepted and rejected language updates"
+    },
+    {
+      "claim_id": "mechanism.language_growth.decisions",
+      "category": "mechanism",
+      "benchmark": "NewtonBench",
+      "artifact": "paper_assets/evidence/newton_language_growth/operator_decisions.csv",
+      "records": 3,
+      "bytes": 720,
+      "sha256": "96c32f0ec9ea44b929bae05043c736beafdf0b88aa5be5026eae1262dcf81959",
+      "description": "Promotion decision audit"
+    },
+    {
+      "claim_id": "uncertainty.headline",
+      "category": "uncertainty",
+      "benchmark": "All",
+      "artifact": "lmw/paper_safe_results/bootstrap_headline_ci_20260729.json",
+      "records": null,
+      "bytes": 2579,
+      "sha256": "43d156aa45f06e22ab829e697827ab4b4372ca3d0f34a9ca7ae7d1a8c4afc248",
+      "description": "Ten-thousand-draw headline bootstrap intervals"
+    },
+    {
+      "claim_id": "backbone.gpt4o_mini",
+      "category": "proposal-core substitution",
+      "benchmark": "NewtonBench",
+      "artifact": "lmw/nb_activeprobe/aaai27_newton_clean_20260724_seed2031_seed2031/summary.json",
+      "records": 324,
+      "bytes": 1004890,
+      "sha256": "70f4b9aa6b9908bca505c622907c1cc91e4db7c4ea68f7ff93b44a8af32b3768",
+      "description": "Complete 324-task diagnostic"
+    },
+    {
+      "claim_id": "backbone.discovery.gemini_flash_lite.summary",
+      "category": "proposal-core substitution",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/universal_discovery_real/aaai27_modelcore_gemini_flash_lite_discovery_full239_matched_20260729/summary.json",
+      "records": 239,
+      "bytes": 6551,
+      "sha256": "84b254e3796067d7c1474c889d1507c129da4dd2e4f1d5a79837f561021f0013",
+      "description": "Complete 239-task matched substitution"
+    },
+    {
+      "claim_id": "backbone.discovery.gemini_flash_lite.rows",
+      "category": "proposal-core substitution",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/universal_discovery_real/aaai27_modelcore_gemini_flash_lite_discovery_full239_matched_20260729/official_eval.jsonl",
+      "records": 239,
+      "bytes": 1135257,
+      "sha256": "bef5d81fc573ad053f3f584324114d776d31aa93d3fe8e6470957ef4c21ee170",
+      "description": "Native HMS decisions for all 239 tasks"
+    },
+    {
+      "claim_id": "backbone.discovery.qwen3_30b_a3b.summary",
+      "category": "proposal-core substitution",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/universal_discovery_real/aaai27_modelcore_qwen3_30b_discovery_full239_matched_20260729/summary.json",
+      "records": 239,
+      "bytes": 6553,
+      "sha256": "9ec8cda392abfdc78f25a725a2cf31851f3aa73da346c6e1e26e5e9c4430c209",
+      "description": "Complete 239-task matched substitution"
+    },
+    {
+      "claim_id": "backbone.discovery.qwen3_30b_a3b.rows",
+      "category": "proposal-core substitution",
+      "benchmark": "DiscoveryBench",
+      "artifact": "lmw/universal_discovery_real/aaai27_modelcore_qwen3_30b_discovery_full239_matched_20260729/official_eval.jsonl",
+      "records": 239,
+      "bytes": 1119045,
+      "sha256": "9929cc6685cb23f378f80a2588dacae68f37f41710423af736fb9d85d9a84fb6",
+      "description": "Native HMS decisions for all 239 tasks"
+    },
+    {
+      "claim_id": "backbone.gemini_flash_lite",
+      "category": "proposal-core substitution",
+      "benchmark": "NewtonBench",
+      "artifact": "lmw/nb_activeprobe/aaai27_modelcore_gemini_flash_lite_newton_full324_20260721/summary.json",
+      "records": 324,
+      "bytes": 1004927,
+      "sha256": "466d7637b4ec22be3c3443e32dccc2ace2a8d728148ded3147770d66b547a221",
+      "description": "Complete 324-task diagnostic"
+    },
+    {
+      "claim_id": "backbone.qwen3_30b_a3b",
+      "category": "proposal-core substitution",
+      "benchmark": "NewtonBench",
+      "artifact": "lmw/nb_activeprobe/aaai27_modelcore_qwen3_30b_newton_full324_20260721/summary.json",
+      "records": 324,
+      "bytes": 1003789,
+      "sha256": "fb939e93d84f571bab53f70c12950fb5ec2109399ba9f99cc424fd9b35ff60ad",
+      "description": "Complete 324-task diagnostic"
+    },
+    {
+      "claim_id": "backbone.gpt4o",
+      "category": "proposal-core substitution",
+      "benchmark": "NewtonBench",
+      "artifact": "lmw/nb_activeprobe/aaai27_modelcore_gpt4o_newton_full324_rghli_20260721/summary.json",
+      "records": 324,
+      "bytes": 1003050,
+      "sha256": "e11be72fd499fdd831cbcd9390bf54fa69e70fa0e9200fb3f3f1824ab50e8aef",
+      "description": "Complete 324-task diagnostic"
+    },
+    {
+      "claim_id": "backbone.deepseek_v4_flash",
+      "category": "proposal-core substitution",
+      "benchmark": "NewtonBench",
+      "artifact": "lmw/nb_activeprobe/aaai27_modelcore_deepseek_v4_flash_newton_full324_rghli_20260721/summary.json",
+      "records": 324,
+      "bytes": 1004654,
+      "sha256": "f586eeb0e48282ef62d78abbf88f3f9863851bb82e438d0d640a370b0e2dd510",
+      "description": "Complete 324-task diagnostic"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.gpt4o_mini",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/uh_clean_universal_full96_20260715/summary.json",
+      "records": 96,
+      "bytes": 4214,
+      "sha256": "d41654ea0591d958929120619a665cf6fca5094d9150be9c4eac933ba9413d23",
+      "description": "Complete 96-episode controller-enabled substitution"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.gpt4o_mini.grid",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/uh_clean_universal_grid_full32_20260715/summary.json",
+      "records": 32,
+      "bytes": 1436,
+      "sha256": "2e9d041394749660caa82165bc41b0990a5856694acc4dcc66efff0c792da469",
+      "description": "Complete 32-seed Grid substitution source"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.gpt4o_mini.seq",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/uh_clean_universal_seq_full32_20260715/summary.json",
+      "records": 32,
+      "bytes": 1414,
+      "sha256": "26b6e5b29229bb5df053eb16d89fc8f580692c1ac4d2a6443df47bebc6359a28",
+      "description": "Complete 32-seed Seq substitution source"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.gpt4o_mini.bio",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/uh_clean_universal_bio_full32_20260715/summary.json",
+      "records": 32,
+      "bytes": 1425,
+      "sha256": "4d1a9602cc670fed9f779061b7f052cd0be1c193cf783b27b05203587a110366",
+      "description": "Complete 32-seed Bio substitution source"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.gemini.grid",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_modelcore_gemini_uh_grid_full32_20260721/summary.json",
+      "records": 32,
+      "bytes": 1500,
+      "sha256": "9ad48d08d50d2264d03de02560dfe409926e73ef46b9dc70a589f2ed053e37ad",
+      "description": "Complete 32-seed Grid substitution"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.gemini.seq",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_modelcore_gemini_uh_seq_full32_20260721/summary.json",
+      "records": 32,
+      "bytes": 1480,
+      "sha256": "1f009b130c97cc6cf7ac3d3e9c03a1ba664fc8aaa7dac4db9a3a0cc853d88377",
+      "description": "Complete 32-seed Seq substitution"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.gemini.bio",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_modelcore_gemini_uh_bio_full32_20260721/summary.json",
+      "records": 32,
+      "bytes": 1499,
+      "sha256": "760a32c50cdb2356c1c1417cf39171c1c8119ea0aac1795e3c599144e2c0a441",
+      "description": "Complete 32-seed Bio substitution"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.qwen.grid",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_modelcore_qwen_uh_grid_full32_20260721/summary.json",
+      "records": 32,
+      "bytes": 1519,
+      "sha256": "95ed621e77dc3dd04c1a061f17d218398558df75edb42fc0b37303c8c4caf538",
+      "description": "Complete 32-seed Grid substitution"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.qwen.seq",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_modelcore_qwen_uh_seq_full32_20260721/summary.json",
+      "records": 32,
+      "bytes": 1495,
+      "sha256": "5ef83d3adeefee3a76ec26a173227108acc2740b928da5ba719fce11d96e3ced",
+      "description": "Complete 32-seed Seq substitution"
+    },
+    {
+      "claim_id": "backbone.ultrahorizon.qwen.bio",
+      "category": "proposal-core substitution",
+      "benchmark": "UltraHorizon",
+      "artifact": "lmw/uh_official/aaai27_modelcore_qwen_uh_bio_full32_20260721/summary.json",
+      "records": 32,
+      "bytes": 1499,
+      "sha256": "ae2309101158896a9e8bf5bbc5009570e757e3175e91f2134573f899afaf11a9",
+      "description": "Complete 32-seed Bio substitution"
+    },
+    {
+      "claim_id": "audit.model_substitution.csv",
+      "category": "audit",
+      "benchmark": "All",
+      "artifact": "paper_assets/evidence/model_substitution_audit.csv",
+      "records": 11,
+      "bytes": 4025,
+      "sha256": "baaa68e1a1e5cd2b6a2611a004acded2f4155eb0216c286d61033ad39f5edc03",
+      "description": "Protocol-validated model-substitution table"
+    },
+    {
+      "claim_id": "audit.model_substitution.json",
+      "category": "audit",
+      "benchmark": "All",
+      "artifact": "paper_assets/evidence/model_substitution_audit.json",
+      "records": 11,
+      "bytes": 6676,
+      "sha256": "7d8f0532ec52825429712c03dbe78a57299001216b8d5cd947fa205480ad8ceb",
+      "description": "Source hashes and validated model-substitution rows"
+    }
+  ]
+}

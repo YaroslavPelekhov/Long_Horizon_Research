@@ -1,0 +1,479 @@
+{
+  "protocol": "residual-guided-language-trajectory-v1",
+  "run_id": "aaai27_newton_language_growth_trajectory_final_v2_20260724",
+  "model": "openai/gpt-4o-mini",
+  "difficulty": "hard",
+  "law_version": "v0",
+  "system": "vanilla_equation",
+  "source_seed": 13,
+  "promotion_seed": 31,
+  "transfer_seed": 57,
+  "redundancy_seed": 73,
+  "beta": 0.001,
+  "min_net_gain": 0.0,
+  "module_geometry": {
+    "m0_gravity": "positive_log_structured",
+    "m1_coulomb_force": "positive_log_structured",
+    "m2_magnetic_force": "positive_log_structured",
+    "m3_fourier_law": "positive_log_structured",
+    "m5_radioactive_decay": "positive_log_structured",
+    "m6_underdamped_harmonic": "positive_nonlog_structured",
+    "m7_malus_law": "positive_nonlog_structured",
+    "m8_sound_speed": "positive_nonlog_structured",
+    "m9_hooke_law": "positive_log_structured",
+    "m10_be_distribution": "positive_nonlog_structured",
+    "m11_heat_transfer": "positive_log_structured"
+  },
+  "skipped_modules": {
+    "m4_snell_law": "RuntimeError: m4_snell_law: too few observable rows"
+  },
+  "waves": [
+    {
+      "geometry": "positive_log_structured",
+      "source": [
+        "m0_gravity",
+        "m1_coulomb_force"
+      ],
+      "promotion": [
+        "m2_magnetic_force",
+        "m3_fourier_law"
+      ],
+      "transfer": [
+        "m5_radioactive_decay",
+        "m9_hooke_law",
+        "m11_heat_transfer"
+      ]
+    },
+    {
+      "geometry": "positive_nonlog_structured",
+      "source": [
+        "m6_underdamped_harmonic",
+        "m7_malus_law"
+      ],
+      "promotion": [
+        "m8_sound_speed"
+      ],
+      "transfer": [
+        "m10_be_distribution"
+      ]
+    }
+  ],
+  "selection_rule": "accept iff mean held-out loss reduction - beta*log(1+AST nodes) > min_net_gain",
+  "leakage_guards": [
+    "partitions are generated from residual geometry and module index",
+    "source, promotion, and transfer module sets are disjoint per wave",
+    "source, promotion, and transfer use distinct random seeds",
+    "operator code receives no module identifier or gold law",
+    "transfer tasks cannot mutate the language"
+  ],
+  "decisions": [
+    {
+      "wave": 1,
+      "from_language": "L0",
+      "to_language": "L1",
+      "geometry": "positive_log_structured",
+      "operator": "residual_class_typed_positive_monomial_lattice_e4865174001daff5",
+      "source_hash": "e4865174001daff5",
+      "source": [
+        {
+          "module": "m0_gravity",
+          "loss": 0.20066343620416438,
+          "winner": "inverse_square_law",
+          "tags": [
+            "proposed"
+          ],
+          "n_valid": 2,
+          "candidate_won": false,
+          "residual_notes": []
+        },
+        {
+          "module": "m1_coulomb_force",
+          "loss": 0.38321028008918184,
+          "winner": "inverse_distance_scaling",
+          "tags": [
+            "proposed"
+          ],
+          "n_valid": 2,
+          "candidate_won": false,
+          "residual_notes": []
+        }
+      ],
+      "promotion_modules": [
+        "m2_magnetic_force",
+        "m3_fourier_law"
+      ],
+      "promotion_baseline": [
+        {
+          "module": "m2_magnetic_force",
+          "loss": 1.0,
+          "winner": null,
+          "tags": [],
+          "n_valid": 0
+        },
+        {
+          "module": "m3_fourier_law",
+          "loss": 1.0,
+          "winner": null,
+          "tags": [],
+          "n_valid": 0
+        }
+      ],
+      "promotion_augmented": [
+        {
+          "module": "m2_magnetic_force",
+          "loss": 0.5344640880917422,
+          "winner": "typed_monomial_lattice_2",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5",
+            "candidate"
+          ],
+          "n_valid": 4,
+          "candidate_won": true,
+          "residual_notes": []
+        },
+        {
+          "module": "m3_fourier_law",
+          "loss": 0.2545848859258488,
+          "winner": "typed_monomial_lattice_0",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5",
+            "candidate"
+          ],
+          "n_valid": 4,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "promotion_gain": 0.6054755129912045,
+      "complexity": {
+        "source_chars": 3919,
+        "ast_nodes": 805,
+        "K": 6.692083742506628
+      },
+      "complexity_penalty": 0.006692083742506628,
+      "net_gain": 0.5987834292486979,
+      "decision": "accepted",
+      "transfer_modules": [
+        "m5_radioactive_decay",
+        "m9_hooke_law",
+        "m11_heat_transfer"
+      ],
+      "transfer_before": [
+        {
+          "module": "m5_radioactive_decay",
+          "loss": 1.0,
+          "winner": null,
+          "tags": [],
+          "n_valid": 0
+        },
+        {
+          "module": "m9_hooke_law",
+          "loss": 1.0,
+          "winner": null,
+          "tags": [],
+          "n_valid": 0
+        },
+        {
+          "module": "m11_heat_transfer",
+          "loss": 1.0,
+          "winner": null,
+          "tags": [],
+          "n_valid": 0
+        }
+      ],
+      "transfer_after": [
+        {
+          "module": "m5_radioactive_decay",
+          "loss": 0.37321054533514103,
+          "winner": "typed_monomial_lattice_3",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 4,
+          "candidate_won": true,
+          "residual_notes": []
+        },
+        {
+          "module": "m9_hooke_law",
+          "loss": 0.2060284996357513,
+          "winner": "typed_monomial_lattice_0",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 4,
+          "candidate_won": true,
+          "residual_notes": []
+        },
+        {
+          "module": "m11_heat_transfer",
+          "loss": 0.6594472817895266,
+          "winner": "typed_monomial_lattice_0",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 4,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "transfer_gain": 0.587104557746527
+    },
+    {
+      "wave": 2,
+      "from_language": "L1",
+      "to_language": "L2",
+      "geometry": "positive_nonlog_structured",
+      "operator": "residual_class_typed_positive_additive_lattice_f28beb401689be49",
+      "source_hash": "f28beb401689be49",
+      "source": [
+        {
+          "module": "m6_underdamped_harmonic",
+          "loss": 0.2751689500863291,
+          "winner": "scalar_output_law_1",
+          "tags": [
+            "proposed"
+          ],
+          "n_valid": 6,
+          "candidate_won": false,
+          "residual_notes": []
+        },
+        {
+          "module": "m7_malus_law",
+          "loss": 0.4241349853415712,
+          "winner": "typed_monomial_lattice_1",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 6,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "promotion_modules": [
+        "m8_sound_speed"
+      ],
+      "promotion_baseline": [
+        {
+          "module": "m8_sound_speed",
+          "loss": 0.432642734149111,
+          "winner": "typed_monomial_lattice_0",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 4,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "promotion_augmented": [
+        {
+          "module": "m8_sound_speed",
+          "loss": 0.4184246040591482,
+          "winner": "typed_additive_pair",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_additive_lattice_f28beb401689be49",
+            "candidate"
+          ],
+          "n_valid": 8,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "promotion_gain": 0.014218130089962755,
+      "complexity": {
+        "source_chars": 2472,
+        "ast_nodes": 396,
+        "K": 5.983936280687191
+      },
+      "complexity_penalty": 0.005983936280687191,
+      "net_gain": 0.008234193809275564,
+      "decision": "accepted",
+      "transfer_modules": [
+        "m10_be_distribution"
+      ],
+      "transfer_before": [
+        {
+          "module": "m10_be_distribution",
+          "loss": 0.35349299245653515,
+          "winner": "typed_monomial_lattice_0",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 4,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "transfer_after": [
+        {
+          "module": "m10_be_distribution",
+          "loss": 0.25389874211196467,
+          "winner": "typed_additive_pair",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_additive_lattice_f28beb401689be49_f28beb401689be49",
+            "trusted"
+          ],
+          "n_valid": 7,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "transfer_gain": 0.09959425034457048
+    },
+    {
+      "wave": 3,
+      "from_language": "L2",
+      "to_language": "L2",
+      "geometry": "positive_log_structured",
+      "operator": "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+      "source_hash": "e4865174001daff5",
+      "proposal_origin": "repeat occurrence of an already covered residual class",
+      "deduplicated_by_source_hash": true,
+      "promotion_modules": [
+        "m2_magnetic_force",
+        "m3_fourier_law"
+      ],
+      "promotion_baseline": [
+        {
+          "module": "m2_magnetic_force",
+          "loss": 0.5089714753003141,
+          "winner": "typed_monomial_lattice_0",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 8,
+          "candidate_won": true,
+          "residual_notes": []
+        },
+        {
+          "module": "m3_fourier_law",
+          "loss": 0.22318041332300928,
+          "winner": "typed_monomial_lattice_1",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 9,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "promotion_augmented": [
+        {
+          "module": "m2_magnetic_force",
+          "loss": 0.5089714753003141,
+          "winner": "typed_monomial_lattice_0",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 8,
+          "candidate_won": true,
+          "residual_notes": []
+        },
+        {
+          "module": "m3_fourier_law",
+          "loss": 0.22318041332300928,
+          "winner": "typed_monomial_lattice_1",
+          "tags": [
+            "self_layer_program",
+            "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+            "trusted"
+          ],
+          "n_valid": 9,
+          "candidate_won": true,
+          "residual_notes": []
+        }
+      ],
+      "promotion_gain": 0.0,
+      "complexity": {
+        "source_chars": 3919,
+        "ast_nodes": 805,
+        "K": 6.692083742506628
+      },
+      "complexity_penalty": 0.006692083742506628,
+      "net_gain": -0.006692083742506628,
+      "decision": "rejected",
+      "reason": "semantic duplicate has no marginal held-out value",
+      "transfer_modules": [],
+      "transfer_before": [],
+      "transfer_after": [],
+      "transfer_gain": 0.0
+    }
+  ],
+  "trajectory": [
+    {
+      "language": "L0",
+      "trusted_operators": 0,
+      "trusted_hashes": []
+    },
+    {
+      "language": "L1",
+      "trusted_operators": 1,
+      "trusted_hashes": [
+        "e4865174001daff5"
+      ],
+      "promotion_gain": 0.6054755129912045,
+      "transfer_gain": 0.587104557746527
+    },
+    {
+      "language": "L2",
+      "trusted_operators": 2,
+      "trusted_hashes": [
+        "e4865174001daff5",
+        "f28beb401689be49"
+      ],
+      "promotion_gain": 0.014218130089962755,
+      "transfer_gain": 0.09959425034457048
+    },
+    {
+      "language": "L2",
+      "trusted_operators": 2,
+      "trusted_hashes": [
+        "e4865174001daff5",
+        "f28beb401689be49"
+      ],
+      "promotion_gain": 0.0,
+      "transfer_gain": 0.0,
+      "decision": "rejected_redundant_operator"
+    }
+  ],
+  "accepted": 2,
+  "rejected": 1,
+  "trusted_operator_sources": [
+    {
+      "name": "residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5",
+      "source_hash": "e4865174001daff5",
+      "sha256": "83a1cf81879b2abcac3fcc499860e75325598768d86d085b68d26a0510d8ac65",
+      "source_task_identifier_hits": []
+    },
+    {
+      "name": "residual_class_typed_positive_additive_lattice_f28beb401689be49_f28beb401689be49",
+      "source_hash": "f28beb401689be49",
+      "sha256": "0fa394a4468034f51edc45f4c6e22f1778d565059f27a0d37b78e0a212c04154",
+      "source_task_identifier_hits": []
+    }
+  ],
+  "wall_time_s": 19.461,
+  "official_score_used": false
+}

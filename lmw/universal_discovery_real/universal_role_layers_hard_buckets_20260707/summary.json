@@ -76,6 +76,6 @@
     0.0
   ],
   "wall_time_s": 538.516,
-  "predictions_path": "/Users/yaroslavpelehov/Downloads/Long Horizon Research/lmw/universal_discovery_real/universal_role_layers_hard_buckets_20260707/predictions.jsonl",
-  "official_eval_path": "/Users/yaroslavpelehov/Downloads/Long Horizon Research/lmw/universal_discovery_real/universal_role_layers_hard_buckets_20260707/official_eval.jsonl"
+  "predictions_path": "lmw/universal_discovery_real/universal_role_layers_hard_buckets_20260707/predictions.jsonl",
+  "official_eval_path": "lmw/universal_discovery_real/universal_role_layers_hard_buckets_20260707/official_eval.jsonl"
 }

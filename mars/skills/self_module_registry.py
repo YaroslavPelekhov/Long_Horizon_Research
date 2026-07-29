@@ -62,6 +62,8 @@ class TrustedSelfModuleRecord:
     mean_loss: float
     mean_exact_rate: float
     promoted_at: float
+    probe_validation_keys: tuple[str, ...] = ()
+    mean_probe_relative_gain: float = 0.0
 
 
 def _safe_slug(raw: str, fallback: str = "module") -> str:
@@ -211,6 +213,8 @@ class SelfModuleRegistry:
         min_validation_keys: int = 2,
         min_mean_exact_rate: float = 0.5,
         max_mean_loss: float = 0.12,
+        min_probe_validation_keys: int = 0,
+        min_mean_probe_relative_gain: float | None = None,
     ) -> list[TrustedSelfModuleRecord]:
         """Return modules that pass cross-task/seed promotion gates.
 
@@ -230,6 +234,35 @@ class SelfModuleRegistry:
             }
             validation_keys.discard("")
             if len(validation_keys) < min_validation_keys:
+                continue
+            # A source task may create a candidate, but it cannot establish
+            # transfer.  When requested, require independent probe tasks
+            # before this source is admitted to the reusable language.
+            probe_validation_keys = {
+                str(r.score.get("validation_key") or r.score.get("task_key") or "")
+                for r in records
+                if r.score.get("evidence_phase") == "promotion_probe"
+            }
+            probe_validation_keys.discard("")
+            if len(probe_validation_keys) < min_probe_validation_keys:
+                continue
+            probe_relative_gains: list[float] = []
+            for record in records:
+                if record.score.get("evidence_phase") != "promotion_probe":
+                    continue
+                try:
+                    probe_relative_gains.append(float(record.score.get("relative_gain")))
+                except (TypeError, ValueError):
+                    continue
+            mean_probe_relative_gain = (
+                sum(probe_relative_gains) / len(probe_relative_gains)
+                if probe_relative_gains
+                else 0.0
+            )
+            if (
+                min_mean_probe_relative_gain is not None
+                and mean_probe_relative_gain < min_mean_probe_relative_gain
+            ):
                 continue
             losses = []
             exacts = []
@@ -265,6 +298,8 @@ class SelfModuleRegistry:
                     mean_loss=mean_loss,
                     mean_exact_rate=mean_exact,
                     promoted_at=time.time(),
+                    probe_validation_keys=tuple(sorted(probe_validation_keys)),
+                    mean_probe_relative_gain=mean_probe_relative_gain,
                 )
             )
         trusted.sort(key=lambda r: (r.mean_loss, -r.mean_exact_rate, r.name))
@@ -277,6 +312,8 @@ class SelfModuleRegistry:
         min_validation_keys: int = 2,
         min_mean_exact_rate: float = 0.5,
         max_mean_loss: float = 0.12,
+        min_probe_validation_keys: int = 0,
+        min_mean_probe_relative_gain: float | None = None,
     ) -> list[TrustedSelfModuleRecord]:
         """Recompute and persist the trusted-skill manifest for a namespace."""
 
@@ -285,6 +322,8 @@ class SelfModuleRegistry:
             min_validation_keys=min_validation_keys,
             min_mean_exact_rate=min_mean_exact_rate,
             max_mean_loss=max_mean_loss,
+            min_probe_validation_keys=min_probe_validation_keys,
+            min_mean_probe_relative_gain=min_mean_probe_relative_gain,
         )
         ns_dir = self._namespace_dir(namespace)
         ns_dir.mkdir(parents=True, exist_ok=True)
@@ -294,6 +333,7 @@ class SelfModuleRegistry:
                 payload = {
                     **rec.__dict__,
                     "validation_keys": list(rec.validation_keys),
+                    "probe_validation_keys": list(rec.probe_validation_keys),
                 }
                 f.write(json.dumps(payload, ensure_ascii=False) + "\n")
         return trusted

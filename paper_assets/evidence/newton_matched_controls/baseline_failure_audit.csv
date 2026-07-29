@@ -1,0 +1,13 @@
+backend,category,count,total
+vanilla_agent,empty,0,324
+vanilla_agent,invalid_syntax,0,324
+vanilla_agent,non_function,0,324
+vanilla_agent,constant_only,12,324
+vanilla_agent,valid_but_incorrect,312,324
+vanilla_agent,exact,0,324
+code_assisted_agent,empty,0,324
+code_assisted_agent,invalid_syntax,0,324
+code_assisted_agent,non_function,0,324
+code_assisted_agent,constant_only,19,324
+code_assisted_agent,valid_but_incorrect,303,324
+code_assisted_agent,exact,2,324

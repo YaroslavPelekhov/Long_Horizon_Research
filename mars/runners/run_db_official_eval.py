@@ -259,6 +259,79 @@ def load_official_real_tasks(
     return rows
 
 
+def load_official_train_tasks(
+    repo: Path,
+    *,
+    max_tasks: int | None,
+    datasets: set[str] | None,
+    task_keys: set[str] | None,
+    start_index: int = 0,
+) -> list[OfficialDBTask]:
+    """Load the released DiscoveryBench development tasks.
+
+    The development metadata contains its reference hypothesis and workflow,
+    so it can be used for operator induction and promotion without touching
+    the official test answer key.  Task keys deliberately retain the official
+    ``dataset:metadata:query`` form; the split is recorded separately by every
+    experiment manifest.
+    """
+
+    base = repo / "discoverybench" / "real" / "train"
+    if not base.exists():
+        raise FileNotFoundError(base)
+    rows: list[OfficialDBTask] = []
+    for metadata_path in sorted(base.glob("*/metadata_*.json")):
+        dataset_name = metadata_path.parent.name
+        if datasets and dataset_name not in datasets:
+            continue
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        try:
+            metadata_id = int(metadata_path.stem.rsplit("_", 1)[-1])
+        except ValueError:
+            continue
+        files = _resolve_files(metadata_path.parent, metadata)
+        if not files:
+            continue
+        for fallback_qid, query_obj in enumerate(_metadata_queries(metadata)):
+            try:
+                query_id = int(query_obj.get("qid", fallback_qid))
+            except (TypeError, ValueError):
+                query_id = fallback_qid
+            key = f"{dataset_name}:{metadata_id}:{query_id}"
+            if task_keys and key not in task_keys:
+                continue
+            gold_hypothesis = str(
+                query_obj.get("true_hypothesis")
+                or ((metadata.get("hypotheses") or {}).get("main") or [{}])[0].get("text", "")
+            )
+            task = DBTask(
+                task_id=f"train/{dataset_name}/metadata_{metadata_id}/q{query_id}",
+                domain=str(metadata.get("domain", "")),
+                query=str(query_obj.get("question", "") or ""),
+                query_type=str(query_obj.get("question_type", "") or ""),
+                domain_knowledge=str(metadata.get("domain_knowledge", "") or ""),
+                datasets=metadata.get("datasets", []),
+                csv_paths=files,
+                gold_hypothesis=gold_hypothesis,
+            )
+            rows.append(
+                OfficialDBTask(
+                    task=task,
+                    dataset_name=dataset_name,
+                    metadata_id=metadata_id,
+                    query_id=query_id,
+                    metadata_path=metadata_path,
+                    metadata_type="real",
+                    gold_workflow=str(metadata.get("workflow", "") or ""),
+                )
+            )
+    if start_index:
+        rows = rows[start_index:]
+    if max_tasks is not None:
+        rows = rows[:max_tasks]
+    return rows
+
+
 def _split_submission(text: str) -> tuple[str, str]:
     text = (text or "").strip()
     if not text:

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import math
+import itertools
 import re
 from typing import Any, Mapping, Sequence
 
@@ -190,11 +191,10 @@ class ResidualKernel:
         if coeffs is None:
             return None
         intercept = coeffs[0]
-        powers = {
-            key: _snap_rational_power(coeffs[i + 1])
-            for i, key in enumerate(numeric_keys)
-            if abs(coeffs[i + 1]) > 1e-6
-        }
+        # Continuous regression is a useful proposal, but scientific laws are
+        # often sparse rational forms.  Select the compact exponent lattice by
+        # held-out log residual rather than trusting a noisy real-valued fit.
+        powers, intercept = _select_rational_lattice(rows, ys, numeric_keys, coeffs)
         if not powers:
             return None
         const = math.exp(intercept)
@@ -547,6 +547,28 @@ def _snap_rational_power(value: float) -> float:
     candidates = [-4, -3, -2.5, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 2.5, 3, 4]
     best = min(candidates, key=lambda x: abs(float(x) - value))
     return float(best) if abs(float(best) - value) <= 0.12 else float(value)
+
+
+def _select_rational_lattice(
+    rows: list[list[float]], ys: list[float], keys: list[str], coeffs: list[float]
+) -> tuple[dict[str, float], float]:
+    if len(keys) > 4:
+        return ({key: _snap_rational_power(coeffs[i + 1]) for i, key in enumerate(keys)
+                 if abs(coeffs[i + 1]) > 1e-6}, coeffs[0])
+    lattice = (-2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0)
+    best: tuple[float, int, tuple[float, ...], float] | None = None
+    for exps in itertools.product(lattice, repeat=len(keys)):
+        residuals = [y - sum(exp * row[i + 1] for i, exp in enumerate(exps)) for row, y in zip(rows, ys)]
+        residuals.sort()
+        intercept = residuals[len(residuals) // 2]
+        loss = sum(abs(value - intercept) for value in residuals) / len(residuals)
+        complexity = sum(exp != 0.0 for exp in exps)
+        candidate = (loss, complexity, exps, intercept)
+        if best is None or candidate[:2] < best[:2]:
+            best = candidate
+    if best is None:
+        return {}, coeffs[0]
+    return ({key: exp for key, exp in zip(keys, best[2]) if exp != 0.0}, best[3])
 
 
 def _power_product_term(powers: Mapping[str, float]) -> TypedTerm:

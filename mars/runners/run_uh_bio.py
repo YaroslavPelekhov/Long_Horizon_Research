@@ -6,7 +6,7 @@ organism by designing crosses and observing phenotypes. Scoring: 100-point
 LLM rubric. This is a genuine long-horizon scientific-discovery task.
 
 Published UltraHorizon human baseline: ~100/100.
-OpenManus / GPT-4o baseline: significantly lower (paper TBD; see README).
+OpenManus / GPT-4o baseline: reported separately in the benchmark comparison.
 
 ENV:
   MARS_UH_SEEDS          comma-sep int seeds, default "42,43,44"

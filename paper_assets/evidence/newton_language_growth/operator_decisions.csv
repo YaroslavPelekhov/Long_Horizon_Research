@@ -1,0 +1,4 @@
+wave,from_language,to_language,geometry,operator,promotion_gain,complexity_penalty,net_gain,decision,transfer_gain,reason
+1,L0,L1,positive_log_structured,residual_class_typed_positive_monomial_lattice_e4865174001daff5,0.6054755129912045,0.006692083742506628,0.5987834292486979,accepted,0.587104557746527,
+2,L1,L2,positive_nonlog_structured,residual_class_typed_positive_additive_lattice_f28beb401689be49,0.014218130089962755,0.005983936280687191,0.008234193809275564,accepted,0.09959425034457048,
+3,L2,L2,positive_log_structured,residual_class_typed_positive_monomial_lattice_e4865174001daff5_e4865174001daff5,0.0,0.006692083742506628,-0.006692083742506628,rejected,0.0,semantic duplicate has no marginal held-out value

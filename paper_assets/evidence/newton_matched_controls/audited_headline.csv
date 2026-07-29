@@ -1,0 +1,3 @@
+backend,complete,n_valid_unique,n_missing,coverage_100,SA_all_100,SA_answered_100,wilson95_low,wilson95_high,selected_cost_usd,selected_calls
+vanilla_agent,True,324,0,100.0,0.0,0.0,0.0,1.171742840125394,2.259518,2206
+code_assisted_agent,True,324,0,100.0,0.6172839506172839,0.6172839506172839,0.16944506923207409,2.2223997111386855,4.50795,3466
