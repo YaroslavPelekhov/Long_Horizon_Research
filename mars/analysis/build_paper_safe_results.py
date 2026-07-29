@@ -1,4 +1,4 @@
-"""Build a paper-safe benchmark table for the universal MARS method.
+"""Build a paper-safe benchmark table for RG-HLI.
 
 The goal of this script is deliberately conservative.  It separates:
 
@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import statistics as st
+import csv
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -39,27 +40,30 @@ class Artifact:
 ARTIFACTS = [
     Artifact(
         benchmark="DiscoveryBench",
-        tier="main_universal",
-        metric="HMS / HMS-consistency",
+        tier="headline",
+        metric="HMS / consistency-HMS",
         path=ROOT
-        / "lmw/universal_discovery_real/research_cycle_discovery_full239_scopegate_intrabundle_20260712/summary.json",
-        note="Full 239-task real DiscoveryBench run with the shared slot/contract compiler; no task-specific gold labels in generation.",
+        / "lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/summary.json",
+        note=(
+            "Complete 239-task native-HMS evaluation with four per-task "
+            "proposals and a frozen hypothesis language."
+        ),
     ),
     Artifact(
         benchmark="NewtonBench",
-        tier="main_universal",
+        tier="headline",
         metric="SA-all / SA-answered",
         path=ROOT
-        / "lmw/nb_activeprobe/nb_full324_asymptotic_lift_v5_20260713/summary.json",
-        note="Full 324-task NewtonBench run with the shared universal equation-induction stack.",
+        / "lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/summary.json",
+        note="Complete 324-configuration frozen-kernel evaluation; 240 submitted laws and 84 abstentions.",
     ),
     Artifact(
         benchmark="UltraHorizon",
-        tier="main_universal_clean",
-        metric="paper-style judge score",
+        tier="headline strict",
+        metric="paper-style score",
         path=ROOT
-        / "lmw/uh_official/uh_clean_universal_full96_20260715/summary.json",
-        note="Full 96-task hard UltraHorizon run with paper-style judge, no env hints, and measurement bootstraps disabled.",
+        / "lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/summary.json",
+        note="Complete 96-episode hard run: 50 steps, no hints, fallback commits, or measurement bootstraps.",
     ),
     Artifact(
         benchmark="UltraHorizon",
@@ -91,9 +95,17 @@ def _score_for_artifact(artifact: Artifact, data: dict[str, Any]) -> dict[str, A
         }
 
     if artifact.benchmark == "NewtonBench":
+        rows_path = Path(str(data.get("rows_csv", "")))
+        if not rows_path.is_file():
+            raise FileNotFoundError(f"NewtonBench rows are required for exact SA: {rows_path}")
+        with rows_path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        if len(rows) != 324:
+            raise ValueError(f"NewtonBench rows must contain 324 configurations: {rows_path}")
+        answered_rows = [row for row in rows if row.get("status") == "ANSWER"]
         return {
-            "primary": data.get("SA_all"),
-            "secondary": data.get("SA_answered"),
+            "primary": 100.0 * sum(float(row["SA"]) for row in rows) / len(rows),
+            "secondary": 100.0 * sum(float(row["SA"]) for row in answered_rows) / len(answered_rows),
             "n": data.get("n"),
             "status": "ok",
             "answered": data.get("answered"),
@@ -198,7 +210,7 @@ def build() -> dict[str, Any]:
 
 def write_markdown(result: dict[str, Any]) -> None:
     lines = [
-        "# Paper-Safe MARS Results",
+        "# Paper-Safe RG-HLI Results",
         "",
         "This file separates defensible universal-method results from late diagnostic ceiling runs.",
         "",
@@ -231,8 +243,8 @@ def write_markdown(result: dict[str, Any]) -> None:
         "## Paper Wording",
         "",
         (
-            "For the main paper, describe MARS as a universal hypothesis-induction "
-            "system and report the three full-run rows above. Do not present the "
+            "For the main paper, describe RG-HLI as a residual-guided hypothesis-language "
+            "induction system and report the three headline rows above. Do not present the "
             "diagnostic ceiling as SOTA."
         ),
         "",

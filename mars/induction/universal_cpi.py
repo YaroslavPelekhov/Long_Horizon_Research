@@ -29,6 +29,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import math
 import os
 import re
 import time
@@ -38,9 +39,14 @@ from pathlib import Path
 from typing import Any, Callable
 
 from mars.agents.base import call_llm, make_openai_client
+from mars.skills.residual_class_ledger import ResidualClassLedger
 from mars.skills.residual_kernel import ResidualKernel
 from mars.skills.self_layer_registry import SelfLayerRegistry, validate_self_layer_source
 from mars.skills.self_module_registry import SelfModuleRegistry
+from mars.skills.typed_operator_plan import (
+    admissible_families,
+    compile_typed_operator_plan,
+)
 
 _ZERO_LOSS_EPS = 1e-9
 
@@ -501,17 +507,129 @@ class UniversalCPI:
     def _self_modules_enabled(self) -> bool:
         return self._env_enabled("MARS_SELF_WRITE_MODULES", "1")
 
+    def _trusted_self_modules_enabled(self) -> bool:
+        """Whether previously promoted hypothesis programs may be loaded.
+
+        Historically ``MARS_SELF_WRITE_MODULES`` controlled both reading and
+        writing.  The split flag keeps that behaviour by default while making
+        a frozen-language evaluation possible: load the development library,
+        but do not mutate it on evaluation tasks.
+        """
+
+        if "MARS_LOAD_TRUSTED_MODULES" in os.environ:
+            return self._env_enabled("MARS_LOAD_TRUSTED_MODULES", "1")
+        return self._self_modules_enabled()
+
+    def _promote_self_modules_enabled(self) -> bool:
+        if "MARS_PROMOTE_SELF_MODULES" in os.environ:
+            return self._env_enabled("MARS_PROMOTE_SELF_MODULES", "1")
+        return self._self_modules_enabled()
+
     def _candidate_self_modules_enabled(self) -> bool:
         return self._env_enabled("MARS_LOAD_CANDIDATE_MODULES", "0")
+
+    def _quarantine_promotions_enabled(self) -> bool:
+        """Persist safe source-task candidates without trusting them yet."""
+
+        return self._env_enabled("MARS_QUARANTINE_PROMOTION", "0")
+
+    def _promotion_probe_enabled(self) -> bool:
+        """Record transfer evidence from held-out development tasks only."""
+
+        return self._env_enabled("MARS_PROMOTION_PROBE", "0")
 
     def _self_layers_enabled(self) -> bool:
         return self._env_enabled("MARS_SELF_WRITE_LAYERS", "1")
 
+    def _trusted_self_layers_enabled(self) -> bool:
+        if "MARS_LOAD_TRUSTED_LAYERS" in os.environ:
+            return self._env_enabled("MARS_LOAD_TRUSTED_LAYERS", "1")
+        return self._self_layers_enabled()
+
+    def _propose_self_layers_enabled(self) -> bool:
+        if "MARS_PROPOSE_SELF_LAYERS" in os.environ:
+            return self._env_enabled("MARS_PROPOSE_SELF_LAYERS", "1")
+        return self._self_layers_enabled()
+
+    def _promote_self_layers_enabled(self) -> bool:
+        if "MARS_PROMOTE_SELF_LAYERS" in os.environ:
+            return self._env_enabled("MARS_PROMOTE_SELF_LAYERS", "1")
+        return self._self_layers_enabled()
+
     def _candidate_self_layers_enabled(self) -> bool:
         return self._env_enabled("MARS_LOAD_CANDIDATE_LAYERS", "0")
 
+    @staticmethod
+    def _bounded_candidate_records(records: list[Any], env_key: str) -> list[Any]:
+        """Keep quarantine exploration bounded before candidates are trusted.
+
+        Candidate artifacts are only hypotheses about reusable computation.  A
+        fixed, score-ranked budget prevents an early noisy library from
+        consuming the complete search budget.  Trusted records are deliberately
+        not passed through this function.
+        """
+
+        try:
+            limit = max(0, int(os.environ.get(env_key, "8")))
+        except ValueError:
+            limit = 8
+        if limit == 0:
+            return []
+        best_by_hash: dict[str, Any] = {}
+        for record in records:
+            source_hash = str(getattr(record, "source_hash", ""))
+            key = source_hash or str(getattr(record, "name", ""))
+            previous = best_by_hash.get(key)
+            score = dict(getattr(record, "score", {}) or {})
+            quality = (
+                float(score.get("loss_mean", 1.0)),
+                -float(score.get("exact_rate", score.get("gain", 0.0))),
+                float(getattr(record, "created_at", 0.0)),
+            )
+            if previous is None:
+                best_by_hash[key] = record
+                continue
+            prev_score = dict(getattr(previous, "score", {}) or {})
+            prev_quality = (
+                float(prev_score.get("loss_mean", 1.0)),
+                -float(prev_score.get("exact_rate", prev_score.get("gain", 0.0))),
+                float(getattr(previous, "created_at", 0.0)),
+            )
+            if quality < prev_quality:
+                best_by_hash[key] = record
+        ranked = sorted(
+            best_by_hash.values(),
+            key=lambda record: (
+                float(dict(getattr(record, "score", {}) or {}).get("loss_mean", 1.0)),
+                -float(dict(getattr(record, "score", {}) or {}).get("exact_rate", dict(getattr(record, "score", {}) or {}).get("gain", 0.0))),
+                str(getattr(record, "source_hash", "")),
+            ),
+        )
+        return ranked[:limit]
+
     def _residual_operator_layers_enabled(self) -> bool:
         return self._env_enabled("MARS_RESIDUAL_OPERATOR_LAYERS", "1")
+
+    def _typed_priors_enabled(self) -> bool:
+        """Allow a fixed-language ablation without changing an adapter."""
+
+        return self._env_enabled("MARS_TYPED_PRIORS", "1")
+
+    def _residual_kernel_enabled(self) -> bool:
+        """Allow residual-kernel features to be isolated from later growth."""
+
+        return self._env_enabled("MARS_RESIDUAL_KERNEL", "1")
+
+    def _residual_class_only_promotion_enabled(self) -> bool:
+        """Keep a mechanism experiment free of legacy winner memorization.
+
+        The historical self-module path lifts a strong single-task program into
+        a registry.  It remains a useful baseline, but it is not evidence that
+        a recurring residual induced a reusable operator.  This switch makes
+        those two causal paths independently measurable.
+        """
+
+        return self._env_enabled("MARS_RESIDUAL_CLASS_ONLY_PROMOTION", "0")
 
     def _dpsr_enabled(self) -> bool:
         return self._env_enabled("MARS_DPSR", "1")
@@ -584,12 +702,19 @@ class UniversalCPI:
         rescored on the current task before it can affect the result.
         """
 
-        if not self._self_modules_enabled():
+        if not (
+            self._trusted_self_modules_enabled()
+            or self._candidate_self_modules_enabled()
+        ):
             return [], []
         registry = self._registry()
         records: list[Any] = list(registry.load_trusted(adapter.name))
         if self._candidate_self_modules_enabled():
-            records.extend(registry.load(adapter.name))
+            records.extend(
+                self._bounded_candidate_records(
+                    registry.load(adapter.name), "MARS_CANDIDATE_MODULE_BUDGET"
+                )
+            )
         programs: list[HypothesisProgram] = []
         errors: list[str] = []
         sg = adapter.sandbox_globals()
@@ -661,6 +786,23 @@ class UniversalCPI:
                         k: _truncate_repr(v, 240)
                         for k, v in obs.context.items()
                         if not k.startswith("__")
+                    },
+                }
+                for obs in observations[:12]
+            ],
+            # The textual view above is safe for prompts and logs.  Executable
+            # layers also need a typed runtime view: serializing a numeric
+            # mapping into a string prevents a generic measurement operator
+            # from ever reading its keys or values.  This view exists only in
+            # the sandbox call; it is never embedded in a persisted layer.
+            "observations_typed": [
+                {
+                    "inputs": obs.inputs,
+                    "target": obs.target,
+                    "context": {
+                        key: value
+                        for key, value in obs.context.items()
+                        if not key.startswith("__")
                     },
                 }
                 for obs in observations[:12]
@@ -910,7 +1052,7 @@ class UniversalCPI:
             return [], [f"self_layer:{layer_name}: output is not dict"], None
         output["_layer_name"] = layer_name
         output["_layer_origin"] = layer_origin
-        if layer_origin == "proposed":
+        if layer_origin in {"proposed", "candidate"}:
             self._runtime_layer_sources[layer_name] = {
                 "code": code,
                 "metadata": dict(metadata or {}),
@@ -923,7 +1065,26 @@ class UniversalCPI:
             layer_name=layer_name,
             layer_origin=layer_origin,
         )
-        return programs, errors, output
+        # Parsing an emitted program is not enough: weak models often write a
+        # function that closes over ``context`` or ``observations`` although
+        # neither belongs to its declared signature.  Execute each source on
+        # the available interface values before it can enter quarantine.
+        runnable: list[HypothesisProgram] = []
+        for program in programs:
+            try:
+                ran = False
+                for observation in train_observations[:3]:
+                    adapter.execute(program, observation)
+                    ran = True
+            except Exception as exc:
+                errors.append(
+                    f"self_layer:{layer_name}:{program.name}: runtime failed: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+                continue
+            if ran:
+                runnable.append(program)
+        return runnable, errors, output
 
     def _load_self_layer_programs(
         self,
@@ -933,12 +1094,19 @@ class UniversalCPI:
     ) -> tuple[list[HypothesisProgram], list[str], list[dict[str, Any]]]:
         """Run trusted self-written layers and compile their emitted programs."""
 
-        if not self._self_layers_enabled():
+        if not (
+            self._trusted_self_layers_enabled()
+            or self._candidate_self_layers_enabled()
+        ):
             return [], [], []
         registry = self._layer_registry()
         records: list[Any] = list(registry.load_trusted(self._layer_namespace()))
         if self._candidate_self_layers_enabled():
-            records.extend(registry.load(self._layer_namespace()))
+            records.extend(
+                self._bounded_candidate_records(
+                    registry.load(self._layer_namespace()), "MARS_CANDIDATE_LAYER_BUDGET"
+                )
+            )
         programs: list[HypothesisProgram] = []
         errors: list[str] = []
         outputs: list[dict[str, Any]] = []
@@ -963,6 +1131,12 @@ class UniversalCPI:
                 failure_context=failure_context,
                 metadata={"record": str(getattr(rec, "name", "self_layer"))},
             )
+            # A loaded operator is a structural hypothesis, not a fully fitted
+            # answer.  Apply the adapter's local data calibration exactly as we
+            # do for newly proposed executable programs; otherwise an induced
+            # law cannot recover task-local constants at all.
+            layer_programs = [adapter.calibrate(program, train_observations)
+                              for program in layer_programs]
             programs.extend(layer_programs)
             errors.extend(layer_errors)
             if output is not None:
@@ -1035,7 +1209,7 @@ Return ONLY JSON:
         observations: list[Observation],
         failure_context: str = "",
     ) -> tuple[list[HypothesisProgram], list[dict], list[str], list[dict[str, Any]]]:
-        if not self._self_layers_enabled() or self.n_proposals <= 0:
+        if not self._propose_self_layers_enabled() or self.n_proposals <= 0:
             return [], [], [], []
         n_layers = int(os.environ.get("MARS_SELF_LAYER_PROPOSALS", "2"))
         if n_layers <= 0:
@@ -1114,14 +1288,23 @@ Return ONLY JSON:
         adapter: CPIAdapter,
         winners: list[tuple[HypothesisProgram, ProgramScore]],
         observations: list[Observation],
+        baseline_loss: float | None = None,
     ) -> list[str]:
         """Promote winning programs into reusable layer generators."""
 
-        if not self._self_layers_enabled() or not winners:
+        if not self._promote_self_layers_enabled() or not winners:
             return []
         registry = self._layer_registry()
         validation_key = self._validation_key(adapter, observations)
         notes: list[str] = []
+        if self._promotion_probe_enabled():
+            winners = [
+                (program, score)
+                for program, score in winners
+                if "self_layer_program" in program.tags
+                and len(program.tags) > 2
+                and str(program.tags[2]).startswith("candidate")
+            ]
         for program, score in winners[:2]:
             if "self_layer_program" in program.tags:
                 layer_name = program.tags[1] if len(program.tags) > 1 else ""
@@ -1162,7 +1345,18 @@ Return ONLY JSON:
                 "exact_rate": score.exact_rate,
                 "validation_key": validation_key,
                 "source_program": program.name,
+                "relative_gain": (
+                    float(baseline_loss) - float(score.loss_mean)
+                    if baseline_loss is not None
+                    else None
+                ),
+                "evidence_phase": (
+                    "promotion_probe" if self._promotion_probe_enabled() else "induction"
+                ),
             }
+            candidate_thresholds = (
+                self._quarantine_promotions_enabled() or self._promotion_probe_enabled()
+            )
             record = registry.promote(
                 namespace=self._layer_namespace(),
                 name=name,
@@ -1171,8 +1365,14 @@ Return ONLY JSON:
                 contract=contract,
                 description=description,
                 score=payload,
-                min_gain=float(os.environ.get("MARS_SELF_LAYER_MIN_GAIN", "0.25")),
-                max_loss_mean=float(os.environ.get("MARS_SELF_LAYER_MAX_LOSS", "0.05")),
+                min_gain=float(os.environ.get(
+                    "MARS_CANDIDATE_LAYER_MIN_GAIN" if candidate_thresholds else "MARS_SELF_LAYER_MIN_GAIN",
+                    "0" if candidate_thresholds else "0.25",
+                )),
+                max_loss_mean=float(os.environ.get(
+                    "MARS_CANDIDATE_LAYER_MAX_LOSS" if candidate_thresholds else "MARS_SELF_LAYER_MAX_LOSS",
+                    "1" if candidate_thresholds else "0.05",
+                )),
             )
             if record is None:
                 continue
@@ -1183,6 +1383,14 @@ Return ONLY JSON:
                 min_validation_keys=int(os.environ.get("MARS_SELF_LAYER_MIN_KEYS", "2")),
                 min_mean_gain=float(os.environ.get("MARS_SELF_LAYER_TRUSTED_MIN_GAIN", "0.25")),
                 max_mean_loss=float(os.environ.get("MARS_SELF_LAYER_TRUSTED_MAX_LOSS", "0.05")),
+                min_probe_validation_keys=int(
+                    os.environ.get("MARS_SELF_LAYER_MIN_PROBE_KEYS", "0")
+                ),
+                min_mean_probe_relative_gain=(
+                    float(os.environ["MARS_SELF_LAYER_MIN_PROBE_RELATIVE_GAIN"])
+                    if "MARS_SELF_LAYER_MIN_PROBE_RELATIVE_GAIN" in os.environ
+                    else None
+                ),
             )
             if trusted:
                 notes.append(
@@ -1195,14 +1403,21 @@ Return ONLY JSON:
         adapter: CPIAdapter,
         winners: list[tuple[HypothesisProgram, ProgramScore]],
         observations: list[Observation],
+        baseline_loss: float | None = None,
     ) -> list[str]:
         """Persist high-scoring hypotheses as future reusable modules."""
 
-        if not self._self_modules_enabled() or not winners:
+        if not self._promote_self_modules_enabled() or not winners:
             return []
         registry = self._registry()
         validation_key = self._validation_key(adapter, observations)
         notes: list[str] = []
+        if self._promotion_probe_enabled():
+            winners = [
+                (program, score)
+                for program, score in winners
+                if "self_module_candidate" in program.tags
+            ]
         for program, score in winners[:3]:
             if "self_module_trusted" in program.tags:
                 continue
@@ -1213,15 +1428,32 @@ Return ONLY JSON:
                 "complexity": score.complexity,
                 "n_scored": score.n_scored,
                 "validation_key": validation_key,
+                "relative_gain": (
+                    float(baseline_loss) - float(score.loss_mean)
+                    if baseline_loss is not None
+                    else None
+                ),
+                "evidence_phase": (
+                    "promotion_probe" if self._promotion_probe_enabled() else "induction"
+                ),
             }
+            candidate_thresholds = (
+                self._quarantine_promotions_enabled() or self._promotion_probe_enabled()
+            )
             record = registry.promote(
                 namespace=adapter.name,
                 name=program.name,
                 code=program.code,
                 description=program.description,
                 score=payload,
-                min_exact_rate=float(os.environ.get("MARS_SELF_MODULE_MIN_EXACT", "0.75")),
-                max_loss_mean=float(os.environ.get("MARS_SELF_MODULE_MAX_LOSS", "0.05")),
+                min_exact_rate=float(os.environ.get(
+                    "MARS_CANDIDATE_MODULE_MIN_EXACT" if candidate_thresholds else "MARS_SELF_MODULE_MIN_EXACT",
+                    "0" if candidate_thresholds else "0.75",
+                )),
+                max_loss_mean=float(os.environ.get(
+                    "MARS_CANDIDATE_MODULE_MAX_LOSS" if candidate_thresholds else "MARS_SELF_MODULE_MAX_LOSS",
+                    "1" if candidate_thresholds else "0.05",
+                )),
             )
             if record is None:
                 continue
@@ -1232,10 +1464,259 @@ Return ONLY JSON:
                 min_validation_keys=int(os.environ.get("MARS_SELF_MODULE_MIN_KEYS", "2")),
                 min_mean_exact_rate=float(os.environ.get("MARS_SELF_MODULE_TRUSTED_MIN_EXACT", "0.75")),
                 max_mean_loss=float(os.environ.get("MARS_SELF_MODULE_TRUSTED_MAX_LOSS", "0.05")),
+                min_probe_validation_keys=int(
+                    os.environ.get("MARS_SELF_MODULE_MIN_PROBE_KEYS", "0")
+                ),
+                min_mean_probe_relative_gain=(
+                    float(os.environ["MARS_SELF_MODULE_MIN_PROBE_RELATIVE_GAIN"])
+                    if "MARS_SELF_MODULE_MIN_PROBE_RELATIVE_GAIN" in os.environ
+                    else None
+                ),
             )
             if trusted:
                 notes.append(f"trusted library size for {adapter.name}: {len(trusted)}")
         return notes
+
+    # ----- Cross-task residual-class induction ---------------------------
+    def _residual_class_ledger(self) -> ResidualClassLedger:
+        raw_root = os.environ.get("MARS_RESIDUAL_LEDGER_ROOT")
+        root = Path(raw_root) if raw_root else self._layer_registry().root / "residual_classes"
+        return ResidualClassLedger(root)
+
+    def _residual_fingerprint(
+        self,
+        adapter: CPIAdapter,
+        observations: list[Observation],
+        best: tuple[HypothesisProgram, ProgramScore] | None,
+    ) -> dict[str, Any]:
+        """Describe failure geometry without task text, values, or field names."""
+
+        context_shapes = sorted({
+            tuple(sorted(type(value).__name__ for value in observation.context.values()))
+            for observation in observations[:8]
+        })
+        loss = 1.0 if best is None else float(best[1].loss_mean)
+        loss_band = "high" if loss >= 0.66 else "mixed" if loss >= 0.20 else "low"
+        geometry = self._numeric_residual_geometry(adapter, observations, best[0] if best else None)
+        # Signature comments often enumerate task-local field names.  Retaining
+        # the resulting list length fragments one typed interface into a
+        # separate residual class for every arity.  Class identity needs the
+        # callable contract, while concrete fields remain runtime data.
+        signature_contract = adapter.signature_hint().split("#", 1)[0].strip()
+        return {
+            "input_type": type(observations[0].inputs).__name__ if observations else "unknown",
+            "target_type": type(observations[0].target).__name__ if observations else "unknown",
+            "signature": re.sub(
+                r"\b[A-Za-z_][A-Za-z0-9_]*\b", "slot", signature_contract
+            ),
+            "context_value_shapes": [list(shape) for shape in context_shapes[:3]],
+            "loss_band": loss_band,
+            "support_bucket": "small" if len(observations) < 8 else "medium" if len(observations) < 64 else "large",
+            "residual_geometry": geometry,
+        }
+
+    @staticmethod
+    def _numeric_residual_geometry(
+        adapter: CPIAdapter,
+        observations: list[Observation],
+        best_program: HypothesisProgram | None,
+    ) -> str:
+        """Classify an interface-level numeric residual without retaining data.
+
+        The classifier records only a coarse, permutation-invariant category.
+        It deliberately avoids variable names, task text, fitted coefficients,
+        and individual examples.  A monomial chart is useful when the observed
+        response has stable log-linear structure; an additive chart is useful
+        when it does not.
+        """
+
+        numeric_rows: list[tuple[dict[str, float], float]] = []
+        for observation in observations:
+            if not isinstance(observation.inputs, dict):
+                return "non_numeric_or_non_dict"
+            try:
+                inputs = {str(key): float(value) for key, value in observation.inputs.items()}
+                target = float(observation.target)
+            except (TypeError, ValueError):
+                return "non_numeric_or_non_dict"
+            if not inputs or not math.isfinite(target):
+                return "non_numeric_or_non_dict"
+            numeric_rows.append((inputs, target))
+        if len(numeric_rows) < 4:
+            return "insufficient_numeric_support"
+
+        positives = (
+            all(target > 0 for _, target in numeric_rows)
+            and all(value > 0 for inputs, _ in numeric_rows for value in inputs.values())
+        )
+        if not positives:
+            return "additive_or_signed_numeric"
+
+        common_keys = sorted(set.intersection(*(set(inputs) for inputs, _ in numeric_rows)))
+        log_targets = [math.log(target) for _, target in numeric_rows]
+
+        def correlation(left: list[float], right: list[float]) -> float:
+            if len(left) != len(right) or len(left) < 2:
+                return 0.0
+            mean_left = sum(left) / len(left)
+            mean_right = sum(right) / len(right)
+            numerator = sum((x - mean_left) * (y - mean_right) for x, y in zip(left, right))
+            denom_left = sum((x - mean_left) ** 2 for x in left)
+            denom_right = sum((y - mean_right) ** 2 for y in right)
+            if denom_left <= 1e-12 or denom_right <= 1e-12:
+                return 0.0
+            return numerator / math.sqrt(denom_left * denom_right)
+
+        max_log_correlation = max(
+            (abs(correlation([math.log(inputs[key]) for inputs, _ in numeric_rows], log_targets))
+             for key in common_keys),
+            default=0.0,
+        )
+        if best_program is not None:
+            log_ratio_residuals: list[float] = []
+            for observation, (_, target) in zip(observations, numeric_rows):
+                try:
+                    prediction = float(adapter.execute(best_program, observation))
+                except Exception:
+                    continue
+                if prediction > 0 and math.isfinite(prediction):
+                    log_ratio_residuals.append(math.log(target / prediction))
+            if len(log_ratio_residuals) >= 4:
+                spread = max(log_ratio_residuals) - min(log_ratio_residuals)
+                if spread <= 0.15:
+                    return "multiplicative_scale_only"
+        return (
+            "positive_log_structured"
+            if max_log_correlation >= 0.55
+            else "positive_nonlog_structured"
+        )
+
+    def _induce_residual_class_layer(
+        self,
+        adapter: CPIAdapter,
+        observations: list[Observation],
+        ranked: list[tuple[HypothesisProgram, ProgramScore]],
+    ) -> list[str]:
+        """Propose one parameter-free operator after a residual class recurs.
+
+        The proposal context intentionally excludes task identifiers, natural
+        language questions, raw observations, and answers.  Consequently the
+        induced source must operate through the generic runtime ``context``.
+        It is still only a quarantine candidate until independent probes show
+        it improves over the base language.
+        """
+
+        if (
+            not self._quarantine_promotions_enabled()
+            or self._promotion_probe_enabled()
+            or not self._env_enabled("MARS_RESIDUAL_CLASS_INDUCTION", "0")
+        ):
+            return []
+        fingerprint = self._residual_fingerprint(
+            adapter, observations, ranked[0] if ranked else None
+        )
+        ledger = self._residual_class_ledger()
+        validation_key = self._validation_key(adapter, observations)
+        class_id, support = ledger.observe(
+            validation_key=validation_key, fingerprint=fingerprint
+        )
+        try:
+            min_support = max(2, int(os.environ.get("MARS_RESIDUAL_CLASS_MIN_SUPPORT", "2")))
+        except ValueError:
+            min_support = 2
+        if support < min_support or not ledger.claim(class_id):
+            return []
+        prior = ledger.latest_outcome(class_id) or {}
+        prior_feedback = str(prior.get("detail", "none"))[:400]
+        families = admissible_families(
+            input_type=str(fingerprint["input_type"]),
+            target_type=str(fingerprint["target_type"]),
+            signature_hint=adapter.signature_hint(),
+        )
+        if not families:
+            ledger.record_outcome(class_id, "no_typed_family", "no compatible typed operator family")
+            return [f"residual class {class_id}: no compatible typed family"]
+        prompt = f"""Choose one reusable typed operator plan for a recurring
+scientific residual class. You select a plan; a trusted compiler, not you,
+will turn it into code and execute it on unseen tasks.
+
+Residual class: {json.dumps(fingerprint, sort_keys=True)}
+Admissible operator families: {json.dumps(families)}
+Prior compiler feedback: {prior_feedback}
+
+For numeric dict-to-scalar interfaces, choose positive_monomial_lattice only
+for residual geometry `positive_log_structured` or `multiplicative_scale_only`;
+choose positive_additive_lattice for `positive_nonlog_structured` or
+`additive_or_signed_numeric`. Choose exactly one family from the admissible list. Do not name a dataset,
+field, task, source value, or answer. Return only:
+{{"plans": [{{"family": "one admissible family", "description": "short generic role"}}]}}"""
+        raw = call_llm(
+            self._client_lazy(),
+            model=self.model,
+            system="You select only a typed, domain-agnostic executable operator family. Return valid JSON.",
+            user=prompt,
+            max_tokens=300,
+            temperature=min(0.35, max(0.1, self.temperature)),
+        )
+        plans = _parse_operator_plans(raw)
+        item = compile_typed_operator_plan(
+            plans[0] if plans else {},
+            input_type=str(fingerprint["input_type"]),
+            target_type=str(fingerprint["target_type"]),
+            signature_hint=adapter.signature_hint(),
+        )
+        if item is None:
+            ledger.record_outcome(class_id, "invalid_typed_plan", str(raw))
+            return [f"residual class {class_id}: invalid typed operator plan"]
+        code = str(item.get("code", "")).strip()
+        safe, reason = validate_self_layer_source(code)
+        if not safe:
+            ledger.record_outcome(class_id, "static_reject", reason)
+            return [f"residual class {class_id}: rejected operator ({reason})"]
+        emitted, emitted_errors, output = self._execute_layer_source(
+            adapter,
+            observations,
+            layer_name=f"residual_class_{class_id}",
+            code=code,
+            layer_origin="proposed",
+            metadata=item,
+        )
+        if output is None or not emitted:
+            detail = "; ".join(emitted_errors[:3]) or "no executable hypotheses emitted"
+            ledger.record_outcome(class_id, "semantic_reject", detail)
+            return [f"residual class {class_id}: rejected non-executable operator"]
+        name = _safe_name(str(item.get("name", f"residual_class_{class_id}")))
+        record = self._layer_registry().promote(
+            namespace=self._layer_namespace(),
+            name=f"residual_class_{name}",
+            layer_type="residual_class_operator",
+            code=code,
+            contract={
+                "input": "context: dict",
+                "output": "dict(program_sources, operator_sources, signals, residual_hints, metadata)",
+                "scope": "typed_residual_class",
+                "class_id": class_id,
+            },
+            description=str(item.get("description", "operator induced from a recurring typed residual class")),
+            score={
+                "gain": 0.0,
+                "loss_mean": 1.0,
+                "validation_key": validation_key,
+                "evidence_phase": "induction",
+                "residual_class_id": class_id,
+                "residual_class_support": support,
+            },
+            min_gain=0.0,
+            max_loss_mean=1.0,
+        )
+        if record is None:
+            ledger.record_outcome(class_id, "persistence_reject")
+            return [f"residual class {class_id}: operator persistence rejected"]
+        ledger.record_outcome(class_id, "quarantined", record.name)
+        return [
+            f"quarantined residual-class operator {record.name} "
+            f"(class={class_id}, support={support})"
+        ]
 
     def _finalize_result(
         self,
@@ -1251,10 +1732,50 @@ Return ONLY JSON:
     ) -> CPIResult:
         ranked_full = self._rank(programs, observations, adapter) if programs else []
         winners = ranked_full[:5]
-        layer_notes = self._promote_self_layers(adapter, winners, observations)
-        promotion_notes = self._promote_self_modules(adapter, winners, observations)
+        promotion_pool = winners
+        baseline_loss: float | None = None
+        if self._promotion_probe_enabled():
+            def is_candidate(program: HypothesisProgram) -> bool:
+                tags = set(program.tags)
+                return (
+                    "self_module_candidate" in tags
+                    or (
+                        "self_layer_program" in tags
+                        and any(str(tag).startswith("candidate") for tag in program.tags)
+                    )
+                )
+
+            base_scores = [score for program, score in ranked_full if not is_candidate(program)]
+            baseline_loss = base_scores[0].loss_mean if base_scores else None
+            try:
+                evidence_budget = max(
+                    1, int(os.environ.get("MARS_PROMOTION_EVIDENCE_CANDIDATES", "8"))
+                )
+            except ValueError:
+                evidence_budget = 8
+            promotion_pool = [
+                (program, score)
+                for program, score in ranked_full
+                if is_candidate(program)
+            ][:evidence_budget]
+        if (
+            self._residual_class_only_promotion_enabled()
+            and not self._promotion_probe_enabled()
+        ):
+            layer_notes = []
+            promotion_notes = []
+        else:
+            layer_notes = self._promote_self_layers(
+                adapter, promotion_pool, observations, baseline_loss=baseline_loss
+            )
+            promotion_notes = self._promote_self_modules(
+                adapter, promotion_pool, observations, baseline_loss=baseline_loss
+            )
+        residual_class_notes = self._induce_residual_class_layer(
+            adapter, observations, ranked_full
+        )
         report = adapter.render_report(winners, observations) if winners else ""
-        all_errors = errors + layer_notes + promotion_notes
+        all_errors = errors + layer_notes + promotion_notes + residual_class_notes
         wall_time_s = time.time() - t0
         try:
             from mars.skills.supermetrics import compute_cpi_supermetrics
@@ -1547,7 +2068,7 @@ def build_layer(context: dict) -> dict:
         failure_context: str = "",
     ) -> tuple[list[HypothesisProgram], list[dict], list[str], list[dict[str, Any]]]:
         if (
-            not self._self_layers_enabled()
+            not self._propose_self_layers_enabled()
             or not self._residual_operator_layers_enabled()
             or not observations
         ):
@@ -2917,18 +3438,18 @@ def build_layer(context: dict) -> dict:
     def _rank_key(
         cls,
         item: tuple[HypothesisProgram, ProgramScore],
-    ) -> tuple[float, int, float, float]:
+    ) -> tuple[float, float, float, float]:
         program, score = item
         if score.loss_mean <= _ZERO_LOSS_EPS:
             return (
+                0.0,
+                float(cls._rank_tag_priority(program)),
                 score.loss_mean,
-                cls._rank_tag_priority(program),
                 score.mdl_score,
-                program.complexity,
             )
         return (
+            1.0,
             score.loss_mean,
-            2,
             score.mdl_score,
             program.complexity,
         )
@@ -2942,9 +3463,11 @@ def build_layer(context: dict) -> dict:
             return 0
         if "trusted_composition" in tags:
             return 1
+        if "nova" in tags:
+            return 2
         if "self_layer_program" in tags:
-            return 3
-        return 2
+            return 4
+        return 3
 
     def _failure_examples(
         self,
@@ -3099,11 +3622,17 @@ def build_layer(context: dict) -> dict:
         seeded, seed_errors = self._seed_programs(adapter, train_obs)
         all_programs.extend(seeded)
         all_errors.extend(seed_errors)
-        typed_priors, typed_errors = self._typed_prior_programs(adapter, train_obs)
+        typed_priors, typed_errors = (
+            self._typed_prior_programs(adapter, train_obs)
+            if self._typed_priors_enabled()
+            else ([], [])
+        )
         all_programs.extend(typed_priors)
         all_errors.extend(typed_errors)
         residual_kernel_programs, residual_kernel_errors, residual_kernel_proposals = (
             self._residual_kernel_programs(adapter, train_obs)
+            if self._residual_kernel_enabled()
+            else ([], [], [])
         )
         all_programs.extend(residual_kernel_programs)
         all_errors.extend(residual_kernel_errors)
@@ -3141,7 +3670,11 @@ def build_layer(context: dict) -> dict:
         all_errors.extend(branch_errors)
         if layer_programs or self_modules or seeded or typed_priors or composed or branched:
             ranked_seed = self._rank(all_programs, hold_obs, adapter)
-            if ranked_seed and ranked_seed[0][1].loss_mean <= _ZERO_LOSS_EPS:
+            if (
+                ranked_seed
+                and ranked_seed[0][1].loss_mean <= _ZERO_LOSS_EPS
+                and not self._nova_enabled()
+            ):
                 best_seed, _seed_score = ranked_seed[0]
                 if not (
                     _uninformative_angle_numeric_task(adapter, train_obs)
@@ -3468,6 +4001,30 @@ def _parse_layers(raw: str) -> list[dict]:
                         return obj[key]
         except Exception:
             pass
+    return []
+
+
+def _parse_operator_plans(raw: str) -> list[dict]:
+    """Parse the intentionally small JSON protocol for typed plan selection."""
+
+    if not raw:
+        return []
+    text = raw.strip()
+    if text.startswith("```"):
+        lines = text.split("\n")
+        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:]).lstrip()
+    try:
+        value = json.loads(text)
+    except Exception:
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if not match:
+            return []
+        try:
+            value = json.loads(match.group())
+        except Exception:
+            return []
+    if isinstance(value, dict) and isinstance(value.get("plans"), list):
+        return [item for item in value["plans"] if isinstance(item, dict)]
     return []
 
 

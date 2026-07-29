@@ -22,23 +22,25 @@ path exposed by `mars.runners.run_uh_official`.
 
 Canonical result:
 
-- HMS: `29.943879922959418`
-- Cons-HMS: `34.96480042505147`
+- HMS: `28.698944012751546`
+- Cons-HMS: `34.5566845985256`
 - N: `239`
-- Summary: `lmw/universal_discovery_real/research_cycle_discovery_full239_scopegate_intrabundle_20260712/summary.json`
-- Predictions: `lmw/universal_discovery_real/research_cycle_discovery_full239_scopegate_intrabundle_20260712/predictions.jsonl`
-- Official evaluation: `lmw/universal_discovery_real/research_cycle_discovery_full239_scopegate_intrabundle_20260712/official_eval.jsonl`
+- Summary: `lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/summary.json`
+- Predictions: `lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/predictions.jsonl`
+- Official evaluation: `lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/official_eval.jsonl`
 
 Reproduction command:
 
 ```bash
-python3 -m mars.runners.run_universal_discovery_real_eval \
-  --run_id research_cycle_discovery_full239_scopegate_intrabundle_20260712 \
+MARS_PROMOTE_SELF_MODULES=0 MARS_PROMOTE_SELF_LAYERS=0 \
+python3 -m mars.runners.run_discovery_chunked_eval \
+  --run_id aaai27_language_growth_protocol_v1_fixed_l0_test239 \
+  --data_split test \
   --model openai/gpt-4o-mini \
   --judge_model openai/gpt-4o \
-  --n_proposals 0 \
-  --max_rounds 0 \
-  --discovery_modules full \
+  --n_proposals 4 \
+  --max_rounds 1 \
+  --workers 8 \
   --overwrite
 ```
 
@@ -46,67 +48,106 @@ python3 -m mars.runners.run_universal_discovery_real_eval \
 
 Canonical result:
 
-- Audited SA-all: `0.49691358024691357`
-- Audited SA-answered: `0.6708333333333333`
-- Raw single-run SA-all: `0.4444444444444444`
+- SA-all: `0.49382716049382713`
+- SA-answered: `0.6666666666666666`
 - N: `324`
 - Answered: `240`
 - Abstained/no-answer: `84`
-- Summary: `lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/summary.json`
-- Audit summary: `lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/audited_summary.json`
-- Rejudge file: `lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/rejudge_regressions_gpt41_openrouter_x3.json`
-- Rows: `lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/rows.csv`
+- Summary: `lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/summary.json`
+- Rows: `lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/rows.csv`
 
 Reproduction command:
 
 ```bash
 python3 -m mars.runners.run_nb_activeprobe \
-  --run_id nb_full324_compression_tournament_v9_20260713 \
+  --run_id aaai27_newton_full324_no_promotion_gates_20260717 \
   --model openai/gpt-4o-mini \
   --modules m0_gravity,m1_coulomb_force,m2_magnetic_force,m3_fourier_law,m4_snell_law,m5_radioactive_decay,m6_underdamped_harmonic,m7_malus_law,m8_sound_speed,m9_hooke_law,m10_be_distribution,m11_heat_transfer \
   --difficulties easy,medium,hard \
   --law_versions v0,v1,v2 \
   --systems vanilla_equation,simple_system,complex_system \
+  --disable_promotion_gates \
   --overwrite
 ```
 
-The audit uses the official NewtonBench `evaluate_law` symbolic prompt/model
-path and reruns only the 19 v9-v5 regressions affected by judge/API
-instability, with 3x majority voting. The audited count is `161 / 324`.
+This is the retained single-pass evaluator result. The flag disables optional
+inference-time residual-risk holds; it is distinct from the development-time
+held-out operator-promotion protocol, which is frozen during headline
+evaluation.
 
 ## UltraHorizon
 
 Canonical result:
 
-- Mean score: `75.36458333333333`
+- Mean score: `51.041666666666664`
 - N: `96`
-- Grid: `54.375`
-- Seq: `81.25`
-- Bio: `90.46875`
-- Summary: `lmw/uh_official/uh_clean_universal_full96_20260715/summary.json`
-- Combined run log: `lmw/uh_official/uh_clean_universal_full96_20260715/run.jsonl`
-- Source env logs:
-  - `lmw/uh_official/uh_clean_universal_grid_full32_20260715/run.jsonl`
-  - `lmw/uh_official/uh_clean_universal_seq_full32_20260715/run.jsonl`
-  - `lmw/uh_official/uh_clean_universal_bio_full32_20260715/run.jsonl`
+- Grid: `59.375`
+- Seq: `93.75`
+- Bio: `0.0`
+- Summary: `lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/summary.json`
+- Combined run log: `lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/run.jsonl`
 
 Reproduction command:
 
 ```bash
 python3 -m mars.runners.run_uh_official \
-  --run_id uh_clean_universal_full96_20260715 \
+  --run_id aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717 \
   --env all \
   --seeds 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 \
   --difficulty hard \
   --steps 50 \
-  --action_budget 220 \
   --generator_model openai/gpt-4o-mini \
   --reflector_model openai/gpt-4o-mini \
   --paper_style_judge \
   --require_paper_judge \
   --disable_env_hints \
+  --disable_fallback_commit \
   --overwrite
 ```
 
-The excluded 100.0 UltraHorizon diagnostic ceiling is not a paper result. It is
-kept only as an engineering note in `PAPER_SAFE_RESULTS.md`.
+The 75.36 public-terminal-controller run and excluded 100.0 ceiling are not
+headline architecture results. Their role is documented in
+`PAPER_SAFE_RESULTS.md`.
+
+## Headline manifest
+
+Before packaging a submission, rebuild the source-hashed manifest that checks
+the retained benchmark cardinalities and strict UltraHorizon settings:
+
+```bash
+python3 -m mars.analysis.build_submission_manifest \
+  --discovery lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/summary.json \
+  --newton lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/summary.json \
+  --ultrahorizon lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/summary.json \
+  --output_dir paper_assets/evidence/headline_manifest
+```
+
+The manifest recomputes NewtonBench SA from the retained 324-row evaluator log
+rather than the rounded fields in its run summary. It does not execute model
+calls or modify benchmark results.
+
+## Proposal-core substitutions
+
+The provider-robustness audit changes only the proposal endpoint within each
+benchmark and keeps the task set, frozen language, executable interfaces,
+parser, and native evaluator fixed. DiscoveryBench includes GPT-4o-mini,
+Gemini 2.5 Flash Lite, and Qwen3-30B-A3B-Instruct on all 239 test tasks.
+NewtonBench includes those three endpoints plus GPT-4o and DeepSeek V4 Flash
+on all 324 configurations. UltraHorizon includes the first three endpoints on
+the same 96 controller-enabled hard episodes and exact paper-style judge.
+This latter diagnostic is reported separately from the strict headline row.
+
+Validate and export the 11 complete rows:
+
+```bash
+python -m mars.analysis.build_model_substitution_audit
+python -m mars.analysis.build_paper_evidence_index
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest \
+  tests/test_model_substitution_audit.py \
+  tests/test_paper_evidence_index.py -q
+```
+
+The resulting `paper_assets/evidence/model_substitution_audit.json` stores the
+protocol label, task cardinality, metric, source path, and SHA-256 digest for
+every row. The evidence index additionally includes the complete
+DiscoveryBench native-evaluator JSONL records for both new endpoints.

@@ -46,8 +46,18 @@ Thumbs.db
 
 # generated paper/demo build artifacts
 *.aux
+*.bbl
+*.blg
 *.fdb_latexmk
 *.fls
 *.log
 *.out
 _deck/
+
+# local paper QA renders and export bundles
+.paper_audit_*/
+.render_*/
+overleaf_*/
+overleaf_*.zip
+submission_release_*/
+/ReproducibilityChecklist.pdf

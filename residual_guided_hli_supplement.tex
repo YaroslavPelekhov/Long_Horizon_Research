@@ -26,6 +26,8 @@
 \definecolor{rghlirow}{RGB}{229,245,237}
 \definecolor{controlrow}{RGB}{246,248,251}
 \definecolor{cautionrow}{RGB}{255,248,226}
+\definecolor{gridline}{RGB}{198,207,219}
+\arrayrulecolor{gridline}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcommand{\tblhdr}{\rowcolor{headerrow}}
 \newcommand{\method}{\emph{residual-guided hypothesis-language induction}\xspace}
@@ -46,8 +48,14 @@
 \author{Anonymous Submission}
 \affiliations{}
 \begin{document}
-\maketitle
 \onecolumn
+
+\begin{center}
+{\Large\bfseries Supplementary Material}\\[3pt]
+{\large\bfseries Residual-Guided Hypothesis Language Induction for Scientific
+Reasoning with Small Language Models}\\[3pt]
+{\normalsize Anonymous Submission}
+\end{center}
 
 \section*{Appendix: Experimental Details and Ablations}
 
@@ -55,57 +63,98 @@ This appendix is deliberately more explicit than the main text. The main paper
 reports compact benchmark-level claims; the appendix separates four questions:
 which complete runs support the headline table, how external reasoning controls
 are separated from \methodshort variants, which components account for the
-DiscoveryBench gain, and which diagnostic deltas remain ambiguous.
+DiscoveryBench gain, and how the frozen-transfer and multi-step audits isolate
+residual-conditioned language growth.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Complete-run audit used for the headline results. Each row uses the
-benchmark-native evaluator and preserves the corresponding run artifacts.}
+benchmark-native evaluator.}
 \label{tab:appendix_fullrun_audit}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}lclYYY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|c|c|Y|Y|}
+\hline
 \tblhdr
-Benchmark & Tasks & Core model & Evaluator / judge & Benchmark result & Retained evidence \\
-\midrule
-DiscoveryBench & 239 & \gptmini & official real-test HMS; \gptfour judge & 28.09 HMS; 36.04 C-HMS & predictions, official eval JSONL, summary \\
-NewtonBench & 324 & \gptmini & official symbolic-law judge; audited regressions & 49.7\% SA-all; 67.1\% SA-answered & row CSV, raw summary, audited summary \\
-UltraHorizon & 96 & \gptmini & paper-style environment score & 75.36 full-system score; 51.04 strict-agent score & per-run environment outputs, strict/full summaries \\
-\bottomrule
+Benchmark & Tasks & Core model & Evaluator & Result \\
+\hline
+DiscoveryBench & 239 & \gptmini & HMS judge & 28.70 HMS; 34.56 Cons-HMS \\
+\hline
+NewtonBench & 324 & \gptmini & symbolic-law judge & 49.38\% SA-all; 66.67\% SA-answered \\
+\hline
+UltraHorizon & 96 & \gptmini & environment score & 51.04 strict \\
+\hline
+\end{tabularx}
+\end{table}
+
+For NewtonBench, the complete run answered 240 of 324 tasks and abstained on
+84, yielding 74.1\% coverage and a 25.9\% abstention rate. SA-all assigns zero
+to abstentions; SA-answered is computed only over the 240 submitted laws. The
+49.38/66.67 row is the retained single-pass evaluator result and does not use
+selective rejudging. This canonical benchmark run uses the frozen typed
+executable kernel with development-time promotion gates disabled; it is
+therefore evidence for per-task hypothesis construction, not for the promotion
+mechanism. Frozen-transfer and multi-step experiments below evaluate promotion
+separately.
+
+\begin{table}[!htbp]
+\centering
+\caption{Published contextual references under their native reported
+protocols. These rows use different model families and are not matched
+ablations; the DiscoveryBench Reflexion row additionally uses oracle feedback.}
+\label{tab:published_context}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{0.90\textwidth}{|l|Y|c|}
+\hline
+\tblhdr
+Benchmark & Reported system / model & Native score \\
+\hline
+DiscoveryBench & Reflexion with oracle feedback / GPT-4o & 24.5 HMS \\
+\hline
+NewtonBench & repository vanilla agent / o4-mini & 47.8\% SA \\
+\hline
+NewtonBench & repository vanilla agent / GPT-5 & 75.9\% SA \\
+\hline
+UltraHorizon & reported best free-step LLM & 14.33 \\
+\hline
 \end{tabularx}
 \end{table}
 
 \subsection*{External Reasoning Baselines}
 
 Matched non-\methodshort baselines are useful only when they are run on the same
-complete benchmark set. Table~\ref{tab:external_reasoning} reports the completed
-DiscoveryBench controls that satisfy this condition. They use the same
-\gptmini core, the same 239 real-test tasks, and the same HMS evaluator as the
-headline DiscoveryBench run, but they do not expose \methodshort typed state,
-residual objects, answer-slot closure, or operator promotion.
+complete benchmark set. Tables~\ref{tab:external_reasoning}
+and~\ref{tab:newton_matched_controls} report completed DiscoveryBench and
+NewtonBench controls that satisfy this condition. They use the same \gptmini
+core, task set, and native evaluator as the corresponding headline run, but
+they do not expose \methodshort typed state, residual objects, answer-slot
+closure, or operator promotion.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
-\caption{Matched external reasoning controls on DiscoveryBench. All rows are
-complete 239-task runs scored by the same official HMS evaluator.}
+\caption{Matched external reasoning controls on DiscoveryBench. All rows use
+the same task set and HMS evaluator.}
 \label{tab:external_reasoning}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.90\textwidth}{@{}lccY@{}}
-\toprule
+\begin{tabularx}{0.90\textwidth}{|l|c|c|Y|}
+\hline
 \tblhdr
-Method & Tasks & HMS & Interface available to the model \\
-\midrule
+Method & Tasks & HMS & Interface \\
+\hline
 \rowcolor{controlrow}
-Direct \gptmini & 239 & 9.54 & table snapshots and metadata in one prompt \\
+Direct \gptmini & 239 & 9.54 & single prompt \\
+\hline
 \rowcolor{controlrow}
-\react \gptmini & 239 & 11.68 & explicit thought/check/observation trace over the same context \\
+\react \gptmini & 239 & 11.68 & thought-check trace \\
+\hline
 \rowcolor{controlrow}
-CodeAct \gptmini & 239 & 12.31 & executed pandas summaries and one-pass answer rendering \\
+CodeAct \gptmini & 239 & 12.31 & executed summaries \\
+\hline
 \rowcolor{rghlirow}
-\methodshort \gptmini & 239 & 28.09 & typed contracts, executable probes, residual state, and renderers \\
-\bottomrule
+\methodshort \gptmini & 239 & 28.70 & typed language state \\
+\hline
 \end{tabularx}
 \end{table}
 
@@ -114,139 +163,205 @@ the DiscoveryBench HMS contract, longer traces and one-pass executed summaries
 do not reproduce the effect of typed answer construction and
 residual-conditioned rendering.
 
-\begin{table}[H]
+On NewtonBench, the repository's vanilla agent is an interactive
+ReAct-like control rather than a one-shot prompt: it can request experiments
+and revise its law for up to ten rounds. The CodeAct control adds the
+repository's Python action channel. Both controls submit a law for every task.
+Table~\ref{tab:newton_matched_controls} uses the earliest valid result for each
+configuration and never selects among repeated attempts by score.
+
+\begin{table}[!htbp]
 \centering
-\caption{Reserved matched backbone-scaling matrix for \methodshort. Each filled
-row must use the same frozen \methodshort language, benchmark split, evaluator,
-and budget as the corresponding headline \gptmini run. Blank cells are reserved
-for future complete runs, not for slice or smoke results.}
-\label{tab:backbone_scaling_reserved}
+\caption{Complete matched controls on all 324 NewtonBench configurations.
+All rows use \gptmini as the hypothesis model and the official symbolic-law
+judge. Wilson intervals are over the 324 task outcomes.}
+\label{tab:newton_matched_controls}
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{tabularx}{0.96\textwidth}{@{}lcccY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|Y|c|c|c|c|}
+\hline
 \tblhdr
-Benchmark & \methodshort/\gptmini & \methodshort/\gptfour & \methodshort/\deepseek & Metric \\
-\midrule
-DiscoveryBench & 28.09 & -- & -- & HMS, full239 \\
-NewtonBench & 49.7 & -- & -- & SA-all, full324 \\
-UltraHorizon & 75.36 & -- & -- & paper-style score, full96 \\
-\bottomrule
+Method & Laws submitted & Correct & SA-all & 95\% interval \\
+\hline
+\rowcolor{controlrow}
+Vanilla/ReAct-like & 324 & 0 & 0.00 & [0.00, 1.17] \\
+\hline
+\rowcolor{controlrow}
+CodeAct & 324 & 2 & 0.62 & [0.17, 2.22] \\
+\hline
+\rowcolor{rghlirow}
+\methodshort & 240 & 160 & \textbf{49.38} & [44.14, 54.94] \\
+\hline
 \end{tabularx}
 \end{table}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.48\textwidth]{paper_assets/figures/discovery_external_controls_chart.pdf}
-\caption{Matched external controls on DiscoveryBench. All bars are complete
-239-task runs with the same \gptmini core and official HMS evaluator.}
-\label{fig:external_controls}
-\end{figure}
+The same evaluator gives exact accuracy one and zero RMSLE to an exact
+ground-truth law in a positive-control call. The selected Vanilla/ReAct-like
+and CodeAct runs used 2,206 and 3,466 recorded model calls, respectively.
+Their recorded provider costs were \$2.26 and \$4.51. The retained
+\methodshort run predates call-level accounting, so we do not claim a
+cost-matched comparison.
 
-\subsection*{Component Ablations}
-
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
-\caption{Full-run component ablations with interpretation. All rows are
-complete benchmark runs or complete official grids.}
-\label{tab:ablations}
+\caption{Deterministic audit of all submitted NewtonBench control laws. A
+``structured incorrect'' law parses as a Python function and its return value
+depends on at least one declared input, but it fails exact symbolic agreement.}
+\label{tab:newton_failure_audit}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}llcYY@{}}
-\toprule
+\begin{tabularx}{0.88\textwidth}{|Y|c|c|}
+\hline
 \tblhdr
-Benchmark & Condition & Tasks & Score & Interpretation \\
-\midrule
-\rowcolor{controlrow}
-DiscoveryBench & fixed-language-none & 239 & 0.68 HMS & removes typed Discovery contracts and renderers \\
+Submitted-law category & Vanilla/ReAct-like & CodeAct \\
+\hline
+empty, invalid syntax, or non-function & 0 & 0 \\
+\hline
+constant-only function & 12 & 19 \\
+\hline
+structured incorrect function & 312 & 303 \\
+\hline
 \rowcolor{rghlirow}
-DiscoveryBench & \methodshort full & 239 & 28.09 HMS / 36.04 C-HMS & full typed contract, validation, and residual stack \\
-\midrule
-\rowcolor{controlrow}
-NewtonBench & chart-diagnostic control & 324 & 47.5\% SA-all / 64.7\% SA-answered & residual-born chart recombination removed \\
-\rowcolor{controlrow}
-NewtonBench & promotion-gate-off & 324 & 49.4\% SA-all / 66.7\% SA-answered & held-out promotion gate disabled \\
-\rowcolor{rghlirow}
-NewtonBench & consistency-audited v9 & 324 & 49.7\% SA-all / 67.1\% SA-answered & final audited Newton run \\
-\midrule
-\rowcolor{controlrow}
-UltraHorizon & all-off strict & 96 & 0.00 & induction and protocol support disabled \\
-\rowcolor{controlrow}
-UltraHorizon & strict agent-only & 96 & 51.04 & no terminal protocol controller \\
-\rowcolor{rghlirow}
-UltraHorizon & full \methodshort & 96 & 75.36 & public terminal protocol controller enabled \\
-\bottomrule
+exact symbolic match & 0 & 2 \\
+\hline
 \end{tabularx}
 \end{table}
 
-\begin{table}[H]
+Thus, the low control scores are not produced by empty outputs or a failed
+parser: all 648 controls submit syntactically valid functions. A representative
+CodeAct gravity trace runs ten interaction rounds and six experiments, then
+submits a plausible inverse-square law where the shifted world requires a
+different exponent. Complete representative outputs for gravity, radioactive
+decay, and Hooke's law are retained with the audit. The exact configuration is
+\texttt{openai/gpt-4o-mini}, temperature 0.4, zero observation noise, ten
+interaction rounds, the repository action interfaces and
+\texttt{discovered\_law} parser, followed by the
+\texttt{openai/gpt-4.1} symbolic judge. The contextual o4-mini result in
+Table~\ref{tab:published_context} uses a different reasoning-model family and
+is not a matched control.
+
+\subsection*{Matched-Control Uncertainty}
+
+The complete DiscoveryBench controls admit a task-paired comparison because
+all four methods use the same 239 rows and evaluator. Table~\ref{tab:paired_db}
+reports the gain of \methodshort over each external control. All three
+intervals exclude zero; this is stronger evidence than comparing only
+aggregate point estimates.
+
+\begin{table}[!htbp]
 \centering
-\caption{Diagnostic deltas derived from Table~\ref{tab:ablations}. Positive
-values indicate that the second condition scores higher than the first under
-the listed metric.}
-\label{tab:ablation_deltas}
+\caption{Paired DiscoveryBench gains. Intervals use 10,000 nonparametric
+bootstrap draws over common task rows with seed 20260721.}
+\label{tab:paired_db}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}lYcY@{}}
-\toprule
+\begin{tabularx}{0.92\textwidth}{|l|c|c|c|}
+\hline
 \tblhdr
-Benchmark & Comparison & Delta & Reading \\
-\midrule
-\rowcolor{rghlirow}
-DiscoveryBench & fixed-language-none $\rightarrow$ full \methodshort & +27.41 HMS & typed contracts and rendering are necessary on the full set \\
-\midrule
-\rowcolor{cautionrow}
-NewtonBench & chart-diagnostic control $\rightarrow$ audited \methodshort & +2.20 SA-all & final gain is not explained by chart recombination alone \\
-\rowcolor{cautionrow}
-NewtonBench & chart-diagnostic control $\rightarrow$ audited \methodshort & +2.40 SA-answered & same diagnostic on answered tasks \\
-\rowcolor{cautionrow}
-NewtonBench & promotion-gate-off $\rightarrow$ audited \methodshort & +0.30 SA-all & promotion gating is useful but not the sole Newton driver \\
-\rowcolor{cautionrow}
-NewtonBench & promotion-gate-off $\rightarrow$ audited \methodshort & +0.40 SA-answered & same diagnostic on answered tasks \\
-\midrule
-\rowcolor{rghlirow}
-UltraHorizon & all-off strict $\rightarrow$ strict agent-only & +51.04 & executable induction and validation recover nontrivial reasoning \\
-\rowcolor{rghlirow}
-UltraHorizon & strict agent-only $\rightarrow$ full \methodshort & +24.32 & terminal protocol control converts induced evidence into valid submissions \\
-\bottomrule
+Control & Control HMS & \methodshort gain & 95\% interval \\
+\hline
+\rowcolor{controlrow}
+Direct & 9.54 & +19.16 & [12.81, 25.68] \\
+\hline
+\rowcolor{controlrow}
+\react & 11.68 & +17.01 & [10.99, 23.12] \\
+\hline
+\rowcolor{controlrow}
+CodeAct & 12.31 & +16.39 & [9.87, 23.01] \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection*{Operator Reuse in the Frozen Language}
+
+The retained DiscoveryBench trace records which named operator family produced
+each final artifact. Table~\ref{tab:operator_reuse} includes every named family
+selected on at least three tasks. The same family is reused across task rows
+and, in several cases, across scientific domains. These counts describe use of
+the frozen language; causal benefit is evaluated separately by the paired
+controls above and the frozen-transfer experiment below. Every family in this
+table is selected and task-parameterized from frozen $L^\star$; none is
+synthesized or promoted during reported evaluation.
+
+\begin{table}[!htbp]
+\centering
+\caption{Reuse of selected, task-parameterized operator families in the
+complete 239-task DiscoveryBench run. Domain counts use the benchmark metadata
+taxonomy.}
+\label{tab:operator_reuse}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{0.88\textwidth}{|Y|c|c|}
+\hline
+\tblhdr
+Operator family & Tasks selected & Domains \\
+\hline
+answer plan & 39 & 5 \\
+\hline
+universal slot closure & 34 & 3 \\
+\hline
+estimand synthesizer & 25 & 3 \\
+\hline
+evidence contract & 25 & 4 \\
+\hline
+contrastive world & 3 & 2 \\
+\hline
+slot contract & 3 & 2 \\
+\hline
 \end{tabularx}
 \end{table}
 
 \subsection*{Failure Modes by Benchmark}
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Residual types exposed by the complete runs. These categories guide
 future operator induction; they are not separate benchmark-specific solvers.}
 \label{tab:failure_modes}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}lYY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
+\hline
 \tblhdr
 Benchmark & Dominant residual type & Practical consequence \\
-\midrule
-DiscoveryBench & semantic and structural residuals: wrong table, population, denominator, or answer facet & measured evidence can be useful but rendered in the wrong scientific facet \\
-NewtonBench & algebraic residuals: missing coordinate transforms, constants, exponents, or unit-compatible charts & executable checking works after the right representation appears, but abstentions remain \\
-UltraHorizon & temporal and protocol residuals: failed replay, local-only invariants, missing exploration evidence, unmet terminal preconditions & sequence is strong; Bio needs terminal contract control; grid remains limited by state abstraction and exploration \\
-\bottomrule
+\hline
+DiscoveryBench & semantic role residuals & evidence may be rendered in the wrong scientific facet \\
+\hline
+NewtonBench & algebraic representation residuals & checking works after the right chart appears, but abstentions remain \\
+\hline
+UltraHorizon & temporal protocol residuals & replay and terminal conditions remain separate bottlenecks \\
+\hline
 \end{tabularx}
 \end{table}
 
-The DiscoveryBench ablation is the clearest positive component test:
-single-stage probes, the hypothesis workbench, and slot contracts alone are
-insufficient, while answer-slot closure and the full evidence-contract stack
-produce large gains. The NewtonBench ablations have a narrower diagnostic
-meaning. Removing residual-born operator charts lowers the full grid, while
-turning off the promotion gate leaves a near-headline score. The reported
-Newton result should therefore not be attributed to one benchmark-specific
-chart library or one promotion threshold; it is carried by the shared
-active-probe, residual representation, and symbolic-verification kernel.
-UltraHorizon
-adds a different diagnostic: the strict agent-only row shows that hypothesis
-induction can be present while official terminal conditions remain unmet. The
-full-system UltraHorizon result should therefore be read as the score of the
-complete \methodshort pipeline, not as a raw-agent score.
+\begin{table}[!htbp]
+\centering
+\caption{Environment decomposition of the single strict UltraHorizon
+configuration used for the headline result. Each environment contains 32
+seeds; no terminal fallback, hints, or measurement bootstrap is enabled.}
+\label{tab:uh_strict_breakdown}
+\small
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{|l|c|c|}
+\hline
+\tblhdr
+Environment & Seeds & Score \\
+\hline
+Grid & 32 & 59.38 \\
+\hline
+Seq & 32 & 93.75 \\
+\hline
+Bio & 32 & 0.00 \\
+\hline
+\rowcolor{rghlirow}
+Overall & 96 & 51.04 \\
+\hline
+\end{tabular}
+\end{table}
+
+The frozen residual-to-language transfer experiment below is the causal test
+of residual-conditioned operator-family selection. It is separate from
+inference-time risk control and from environment-specific terminal handling.
 
 \subsection*{Protocol Controls}
 
@@ -257,7 +372,7 @@ tables and papers, symbolic-law rows, and interactive trajectories. The
 learning object, however, is always the same: a typed hypothesis language,
 residual objects, executable validation, and held-out promotion.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Controls separating the universal method from benchmark-specific
 engineering. The interface changes only to expose observations and native
@@ -265,21 +380,25 @@ validators; the residual language and promotion rule are shared.}
 \label{tab:protocol_controls}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}lYY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
+\hline
 \tblhdr
 Control & Fixed across benchmarks & Why it matters \\
-\midrule
+\hline
 Core model & \gptmini for the headline \methodshort runs & isolates whether the external hypothesis-language layer helps a small model \\
+\hline
 Hypothesis state & typed artifacts, holes, contracts, validators, residuals & prevents the method from becoming only longer prompting \\
+\hline
 Failure signal & structured residual object rather than free-form critique & makes errors clusterable and promotable across future tasks \\
+\hline
 Promotion rule & held-out gain minus complexity penalty & limits memorization and uncontrolled library growth \\
+\hline
 Evaluator & benchmark-native judge or environment score & keeps reported numbers in the metric used by each benchmark \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{How the same residual-to-operator loop appears in the three benchmark
 families. These are not separate solvers; they are domain-specific observations
@@ -287,15 +406,17 @@ fed into the same state machine.}
 \label{tab:shared_loop}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}lYYY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|Y|Y|Y|}
+\hline
 \tblhdr
 Benchmark & Observation exposed to the kernel & Residual object & Promotable operator class \\
-\midrule
+\hline
 DiscoveryBench & tables, text snippets, requested scientific claim & missing role, wrong denominator, wrong answer facet & answer-slot closure, evidence renderer, consistency check \\
+\hline
 NewtonBench & numerical rows, candidate variables, target expression & wrong exponent, constant, transform, or abstention & executable probe, symbolic fit, unit-compatible verifier \\
+\hline
 UltraHorizon & trajectory, action log, rule feedback, replay state & failed replay, local invariant, missing exploration evidence & exploration policy, replay validator, temporal abstraction \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -308,7 +429,30 @@ residual. Table~\ref{tab:prompt_contracts} gives the prompt contracts used by
 the kernel. The same contract structure is used across all three benchmarks;
 only the observation serializer and native validator differ.
 
-\begin{table}[H]
+\begin{table}[!htbp]
+\centering
+\caption{Fixed energy configuration of the shared hypothesis kernel. These
+implementation constants are held fixed across the reported benchmark runs.}
+\label{tab:energy_configuration}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{0.82\textwidth}{|l|Y|c|c|}
+\hline
+\tblhdr
+Term & Definition & Range & Weight \\
+\hline
+$E$ & executable fit or local score & $[0,1]$ & 24 \\
+\hline
+Cover & contract slots covered & $[0,1]$ & 34 \\
+\hline
+$V$ & metamorphic validation loss & $[0,1]$ & 32 \\
+\hline
+$K_h$ & artifact/search complexity & $\geq 0$ & 2 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
 \centering
 \caption{Prompt contracts used by \methodshort. Each prompt returns a typed
 object with an attached validation path rather than an unconstrained chain of
@@ -316,17 +460,21 @@ thought.}
 \label{tab:prompt_contracts}
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{tabularx}{0.96\textwidth}{@{}lYYY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|Y|Y|Y|}
+\hline
 \tblhdr
 Call & Input state & Required output & Rejection rule \\
-\midrule
+\hline
 Contract compiler & task observation, available tools, current $L^\star$ & roles, admissible answer form, measurable holes, validator names & missing target role or non-executable hole \\
+\hline
 Probe writer & contract, hole, evidence table or trajectory & short executable measurement with declared inputs and expected type & code fails, reads forbidden fields, or returns wrong type \\
+\hline
 Hypothesis composer & closed holes, evidence objects, active operators & artifact $h$: law, claim, program, or rule mapping & artifact cannot be replayed or violates contract \\
-Residual compiler & failed validation trace & typed residual $(\tau,\ell,c,e,v,\eta)$ & free-text criticism without location, evidence, and failed validator \\
+\hline
+Residual compiler & failed validation trace & typed residual $(\tau,\ell,c,e,v)$ & free-text criticism without location, evidence, and failed validator \\
+\hline
 Operator proposer & recurring residual class $R_k$ and held-out tasks & candidate operator $o^\star$ with scope, cost, and validator hooks & no residual class closed, no executable hook, or excessive complexity \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -343,10 +491,18 @@ operator.id: stable name;\\
 operator.scope: residual types and artifact slots where it is admissible;\\
 operator.precondition(state, contract) -> bool;\\
 operator.apply(state, contract) -> artifact/evidence/residual update;\\
-operator.cost -> nonnegative complexity;\\
+operator.cost -> $\beta K_o$, where $K_o=\log(1+n_{\mathrm{AST}})$ and $\beta=10^{-3}$;\\
 operator.validators -> executable checks that must pass;\\
-promote iff heldout\_gain(operator) $>$ lambda * operator.cost.
+promote iff heldout\_utility\_gain(operator) $-\beta K_o>0$.
 \end{quote}
+
+All promotable operators are serialized into the same executable Python
+intermediate representation before validation; declarative schemas and
+policies are first compiled to this representation. Thus,
+$n_{\mathrm{AST}}$ always counts nodes in one canonical executable form.
+Predefined interface components are part of $L_0$ and are not retrospectively
+charged as promoted operators. We fixed $\beta=10^{-3}$ before the reported
+trajectory and did not tune it on transfer interfaces.
 
 This interface is the main difference between residual-conditioned language
 growth and ordinary prompt iteration. A failed hypothesis does not merely
@@ -354,6 +510,112 @@ produce another instruction for the model. It produces a typed residual with a
 location and failed validator; only repeated residuals can ask for a new
 operator, and the operator is not retained unless it improves held-out tasks
 under the same validator stack.
+
+\begin{algorithm}[H]
+\caption{Per-task executable search in a frozen language}
+\label{alg:frozen_search}
+\begin{algorithmic}[1]
+\REQUIRE task $x$, frozen language $L^\star=(\mathcal{Y},\mathcal{O})$, budget $B$
+\ENSURE rendered answer $R_x(h^\star)$
+\STATE compile evidence contract $C_x$ and initialize context $\mathcal{M}_x$
+\FOR{$t=1,\ldots,B$}
+  \STATE select type-admissible operator $O_t\in\mathcal{O}$
+  \STATE execute $O_t(\mathcal{M}_x,x)$ to obtain $(h,e,\rho,\Delta\mathcal{M})$
+  \STATE write evidence, closed holes, and any residual to $\mathcal{M}_x$
+  \STATE update $h^\star$ using evidence, coverage, validation, and $K_h$
+\ENDFOR
+\STATE validate and render $R_x(h^\star)$
+\STATE log residuals for audit without changing $L^\star$
+\RETURN $R_x(h^\star)$
+\end{algorithmic}
+\end{algorithm}
+
+Residual clustering is rule-based in the reported audit. The canonical
+signature is
+\[
+ \sigma(\rho)=
+ (\tau_\rho,\operatorname{canon}(\ell_\rho),
+ \operatorname{role}(c_\rho),\operatorname{geometry}(e_\rho)),
+\]
+where canonicalization removes task-local names and function signatures, and
+evidence geometry records typed properties such as positive/log-structured or
+positive/non-log-structured data. We set $\rho_i\sim\rho_j$ iff their signatures
+match exactly and call a class recurrent when it contains at least
+$m_{\min}=2$ source residuals. For promotion,
+$r(O')=\sum_{x\in\mathcal{D}_{prom}}
+\mathbb{1}[U_x(h^\star_{O'})>U_x(h^\star)]$ and the reported trajectory
+requires $r(O')\geq r_{\min}=1$. Source, promotion, and transfer interfaces are
+disjoint; transfer utility is recorded only after the decision and cannot
+change it.
+
+\begin{algorithm}[H]
+\caption{Residual-conditioned language growth on development tasks}
+\label{alg:language_growth}
+\begin{algorithmic}[1]
+\REQUIRE language $L_t$, disjoint sets $\mathcal{D}_{ind}$,
+$\mathcal{D}_{prom}$, and $\mathcal{D}_{transfer}$
+\ENSURE $L_{t+1}$
+\STATE $L_{\mathrm{new}}\leftarrow L_t$
+\STATE solve $\mathcal{D}_{ind}$ with Algorithm~\ref{alg:frozen_search} and collect residuals
+\STATE group residuals by canonical signature $\sigma(\rho)$
+\FOR{each recurrent residual class $\mathcal{R}_k$}
+  \STATE propose executable operator $O'$ with declared scope and validators
+  \IF{$O'$ fails typing, sandbox execution, or validator checks}
+    \STATE discard $O'$ and continue
+  \ENDIF
+  \STATE measure held-out utility gain $G(O')$ on $\mathcal{D}_{prom}$
+  \STATE compute $K_o(O')=\log(1+n_{\mathrm{AST}}(O'))$
+  \IF{$G(O')-\beta K_o(O')>0$ and $r(O')\geq r_{\min}$}
+    \STATE $L_{\mathrm{new}}\leftarrow L_{\mathrm{new}}\cup\{O'\}$
+  \ENDIF
+\ENDFOR
+\STATE freeze $L_{t+1}\leftarrow L_{\mathrm{new}}$
+\STATE audit transfer on $\mathcal{D}_{transfer}$ without updating $L_{t+1}$
+\RETURN $L_{t+1}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection*{State-Mutation Invariants}
+
+The two algorithms expose all persistent writes. A proposal may be stochastic,
+but the transition is admitted only after deterministic type, execution, and
+validator checks. Table~\ref{tab:state_mutation_invariants} makes the mutation
+boundary explicit: task-local search can enrich evidence and close holes,
+whereas only the development-time promotion procedure can change the operator
+language. Native benchmark scores are terminal observations and have no write
+path into either state.
+
+\begin{table}[!htbp]
+\centering
+\caption{Mutation invariants enforced by the shared implementation. ``Reject''
+means that the attempted transition is converted into a typed residual and the
+previous valid state is retained.}
+\label{tab:state_mutation_invariants}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
+\hline
+\tblhdr
+Invariant & Admissible write & Rejected transition \\
+\hline
+Type preservation & close a hole with an artifact of its declared type & missing type, incompatible slot, or invalid renderer \\
+\hline
+Evidence monotonicity & append a probe result with source and validator trace & overwrite retained evidence or read a forbidden field \\
+\hline
+Executable closure & commit only sandboxed code or a compiled declarative transform & free-form repair with no executable semantics \\
+\hline
+Frozen evaluation & select and parameterize operators already in $L^\star$ & synthesize or promote from a reported test row \\
+\hline
+Score isolation & emit the final rendered artifact to the native evaluator & use benchmark score or gold output as an internal update \\
+\hline
+\end{tabularx}
+\end{table}
+
+These constraints also identify the source of every capability change. Better
+search with fixed $L^\star$ is an inference effect; a new constructible
+artifact family requires a separately logged promotion event. This distinction
+is what lets the mechanism audit attribute transfer to language growth rather
+than to an unrecorded prompt or state mutation.
 
 \subsection*{Worked Hypothesis Construction Trace}
 
@@ -364,7 +626,18 @@ measurements close slots, and only the rendered artifact is sent to the native
 evaluator. A failure is not stored as prose feedback; it is stored as the
 violated slot or validator.
 
-\begin{table}[H]
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{paper_assets/figures/concrete_language_growth_step.png}
+\caption{Worked construction of a language-growth step, included to expose the
+typed objects rather than as a benchmark result. A failed constant transition
+hypothesis is converted into a typed residual; repeated residuals induce a
+threshold-split operator; the expanded language then makes the correct
+conditional transition artifact easy to construct and validate.}
+\label{fig:concrete_language_growth}
+\end{figure}
+
+\begin{table}[!htbp]
 \centering
 \caption{A per-task trace of typed hypothesis construction. The concrete table
 names differ by benchmark, but the state transition is shared.}
@@ -372,19 +645,58 @@ names differ by benchmark, but the state transition is shared.}
 \footnotesize
 \setlength{\tabcolsep}{5pt}
 \renewcommand{\arraystretch}{0.96}
-\begin{tabularx}{0.96\textwidth}{@{}lYY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
+\hline
 \tblhdr
 Stage & Object committed to state & Check performed \\
-\midrule
+\hline
 Task observation & query, tables, metadata, admissible answer form & no gold label or judge feedback is available \\
+\hline
 Evidence contract & roles, target slot, measurable holes, rendering constraints & every hole must have a declared data source \\
+\hline
 Executable closure & small probes estimate denominators, groups, trends, or constants & code returns typed evidence rather than prose justification \\
+\hline
 Artifact rendering & hypothesis text plus workflow grounded in closed slots & native evaluator sees only the final artifact \\
-Residualization & failed slot, location, evidence, validator, environment & recurring residuals can induce an operator after held-out promotion \\
-\bottomrule
+\hline
+Residualization & failed slot, location, evidence, and validator & recurring residuals can induce an operator after held-out promotion \\
+\hline
 \end{tabularx}
 \end{table}
+
+\subsection*{Retained UltraHorizon Trace}
+
+The following record is a strict Seq episode retained from the UltraHorizon
+evaluation artifact. It makes the long-horizon interface concrete: the system
+must infer a program from interventions, preserve the resulting rules across a
+50-step interaction horizon, and finally render the rules for the paper-style
+judge.
+
+\begin{figure}[!htbp]
+\centering
+\setlength{\fboxsep}{6pt}
+\fcolorbox{gridline}{controlrow}{%
+\begin{minipage}{0.92\textwidth}
+\footnotesize
+\textbf{A retained strict UltraHorizon Seq episode}\\[-1pt]
+\rule{\linewidth}{0.25pt}\\[-2pt]
+\textsc{First intervention.} $\mathrm{main}=\texttt{ABCDE}$ and
+$\mathrm{vice}=\texttt{DECBA}$ produce $\texttt{ADBECCDBEA}$ after the first transformation.\\[-1pt]
+\textsc{Typed trace slot.} The system records an \emph{interleave-step-parity}
+rule: interleave the two strings; main leads on odd experiment steps and vice
+leads on even steps.\\[-1pt]
+\textsc{Additional executable slots.} The final program contains five rules,
+including a reverse-and-shift composition, a step-indexed copy operation, a
+history-dependent alphabetic sum, and a prime-step frequency replacement.\\[-1pt]
+\textsc{Commit and verification.} $50$ observations, $27$ planning turns, and
+$54$ environment actions yield all five exact rule matches under the
+paper-style judge. No hint, measurement bootstrap, or fallback commit was
+exercised.
+\end{minipage}}
+\caption{A concrete long-horizon artifact. The retained state is a typed,
+replayable rule program assembled from interventions, not a prose summary of
+the trajectory.}
+\label{fig:uh_text_exhibit}
+\end{figure}
 
 \subsection*{Qualitative Operator-Induction Example}
 
@@ -398,7 +710,7 @@ dataset answer. It added a reusable repair interface: conservative aliases for
 original/replication roles, paired-column completion, binary complement
 closure, and contrastive rendering of the selected role.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Example of a residual-induced operator. The operator is described as a
 repair interface over typed residuals, not as a benchmark answer template.}
@@ -406,19 +718,177 @@ repair interface over typed residuals, not as a benchmark answer template.}
 \footnotesize
 \setlength{\tabcolsep}{5pt}
 \renewcommand{\arraystretch}{0.96}
-\begin{tabularx}{0.96\textwidth}{@{}lY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|Y|}
+\hline
 \tblhdr
 Element & Description \\
-\midrule
+\hline
 Observed failures & repeated wrong-role and wrong-complement answers in study-design tables \\
+\hline
 Residual object & $(\tau_\rho=\text{role-closure},\ell_\rho=\text{answer slot},c_\rho=\text{study role},e_\rho=\text{paired columns},v_\rho=\text{consistency check})$ \\
+\hline
 Candidate operator & close original/replication roles with conservative aliases, paired-column completion, binary complements, and contrastive rendering \\
+\hline
 Promotion evidence & the operator must pass held-out promotion before inclusion in the frozen language \\
-Known regressions & plant introduction and some NLS cases regress because denominator alignment and semantic rendering remain separate residuals \\
-\bottomrule
+\hline
+Declared scope & study-design role closure; denominator alignment and nonlinear regression use separate typed interfaces \\
+\hline
 \end{tabularx}
 \end{table}
+
+\subsection*{Strict Frozen-Language Transfer Diagnostic}
+
+The complete-run controls above establish benchmark-level differences, but a
+second diagnostic isolates the narrower causal question: can a residual-induced
+operator improve later tasks when no additional free-form search is allowed?
+We use NewtonBench in its hard, \texttt{v0}, vanilla-equation setting. Two
+source law interfaces (gravity and Coulomb force) are used only to produce a
+recurring \texttt{dict}$\rightarrow$\texttt{float} residual class. The
+induction phase classifies the residual geometry as
+\texttt{positive\_log\_structured} and selects a generic
+positive-monomial lattice from two contract-compatible numerical families
+(monomial and additive). It stores neither source observations nor source task
+identifiers; a provenance audit checks the persisted operator source for both
+identifiers.
+
+For the held-out phase, the language is frozen and evaluated on magnetic force,
+Fourier law, radioactive decay, and Hooke law. $L_0$ contains the same minimal
+typed execution state but disables typed priors, residual kernels,
+decompose--plan--stage--recombine (DPSR), stored
+candidate layers, language writes, and free-form LLM rounds. $L_1=L_0\cup
+\{o^\star\}$ adds only the frozen residual-induced operator. Both conditions
+receive the same 24 observations and the same train/hold-out split per task;
+the operator may calibrate a scalar only from the current task's training
+observations. Thus, the held-out comparison adds neither model calls nor new
+operators. This diagnostic reports internal executable loss, not the official
+symbolic-agreement metric.
+
+\begin{table}[!htbp]
+\centering
+\caption{Frozen residual-to-language transfer diagnostic on four held-out
+NewtonBench law interfaces per split. $L_1$ contains the residual-selected
+monomial operator; the control contains an additive operator generated by the
+same typed compiler. Lower executable loss is better.}
+\label{tab:strict_language_transfer}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabularx}{0.98\textwidth}{|c|c|c|c|c|Y|}
+\hline
+\tblhdr
+Seed & $L_0$ & selected $L_1$ & additive control & selection gain & audit \\
+\hline
+13 & 1.000 & 0.308 & 0.488 & 0.179 & monomial; identifiers absent \\
+\hline
+31 & 1.000 & 0.351 & 0.528 & 0.177 & monomial; identifiers absent \\
+\hline
+57 & 1.000 & 0.339 & 0.496 & 0.157 & monomial; identifiers absent \\
+\hline
+\rowcolor{rghlirow}
+Mean & 1.000 & $0.333 \pm 0.022$ & $0.504 \pm 0.021$ & $0.171 \pm 0.012$ & 12 / 12; all audits pass \\
+\hline
+\end{tabularx}
+\end{table}
+
+The language trajectory is $L_0\xrightarrow{\,2\;\mathrm{residuals}\,}
+L_1=L_0\cup\{o^\star\}$: each residual class is supported by two disjoint
+source interfaces before the operator is quarantined, then the operator is
+frozen and reused on four new interfaces. Across the three fixed splits, the
+selected operator reduces held-out loss by $0.667\pm0.022$, compared with
+$0.496\pm0.021$ for the type-compatible additive control. Thus, adding any
+executable code helps, but residual-conditioned family selection accounts for
+an additional $0.171\pm0.012$ reduction under the same held-out protocol.
+All ``$\pm$'' values in Table~\ref{tab:strict_language_transfer} are sample
+standard deviations over the three fixed data splits.
+
+This diagnostic complements the headline NewtonBench SA comparison by removing
+new LLM proposals and online language mutation from the held-out phase while
+preserving the standard executable calibration interface. The observed
+advantage is therefore attributable to the frozen language extension and its
+residual-conditioned family choice, rather than a longer reasoning trace or an
+additional search budget.
+
+\subsection*{Audited Multi-Step Language Growth}
+
+We next trace two consecutive language updates rather than evaluating a single
+frozen extension. Modules are partitioned only by coarse residual geometry and
+module index. Within each update, source, promotion, and transfer modules are
+disjoint and use seeds 13, 31, and 57, respectively. Operator source receives
+neither module identifiers nor gold laws, and transfer evaluation cannot mutate
+the language. Selection follows the promotion rule in the main paper with
+$K(o)=\log(1+\text{AST-nodes}(o))$ and $\beta=10^{-3}$. No official benchmark
+score is used for induction or promotion.
+
+\begin{table}[!htbp]
+\centering
+\caption{A complete residual-guided trajectory from $L_0$ to $L_2$. Gain is
+the reduction in mean executable loss on the disjoint promotion or transfer
+partition; higher is better. The final row tests whether a repeated residual
+class can inflate an already sufficient language.}
+\label{tab:multistep_language_growth}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{0.98\textwidth}{|c|Y|c|c|c|c|}
+\hline
+\tblhdr
+Update & Proposed operator & held-out gain & $\beta K(o)$ & net gain & transfer gain \\
+\hline
+\rowcolor{rghlirow}
+$L_0\!\rightarrow\!L_1$ & positive-monomial lattice & 0.6055 & 0.0067 & $+0.5988$; accept & 0.5871 \\
+\hline
+\rowcolor{rghlirow}
+$L_1\!\rightarrow\!L_2$ & positive-additive pair & 0.0142 & 0.0060 & $+0.0082$; accept & 0.0996 \\
+\hline
+\rowcolor{controlrow}
+$L_2\!\rightarrow\!L_2$ & repeated monomial operator & 0.0000 & 0.0067 & $-0.0067$; reject & 0.0000 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Post-hoc complexity sensitivity using the already measured held-out
+gains. No operator is re-fit and transfer interfaces remain unused.}
+\label{tab:beta_sensitivity}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{0.88\textwidth}{|c|c|c|c|Y|}
+\hline
+\tblhdr
+$\beta$ & $L_0\!\rightarrow L_1$ net & $L_1\!\rightarrow L_2$ net & duplicate net & decisions \\
+\hline
+$5\!\times\!10^{-4}$ & $+0.6021$ & $+0.0112$ & $-0.0033$ & accept, accept, reject \\
+\hline
+$10^{-3}$ & $+0.5988$ & $+0.0082$ & $-0.0067$ & accept, accept, reject \\
+\hline
+$2\!\times\!10^{-3}$ & $+0.5921$ & $+0.0023$ & $-0.0134$ & accept, accept, reject \\
+\hline
+\end{tabularx}
+\end{table}
+
+The first operator is induced from gravity and Coulomb residuals, promoted on
+magnetic-force and Fourier-law interfaces, and transferred to radioactive
+decay, Hooke's law, and heat transfer. The second is induced from
+underdamped-harmonic and Malus-law residuals, promoted on sound speed, and
+transferred to the Bose--Einstein distribution interface. Its promotion margin
+is small but positive after complexity, and the frozen operator reduces loss by
+0.0996 on the unseen transfer interface. A third occurrence of the first
+residual class produces the same source hash. Because it adds no marginal
+held-out value, the gate leaves the language at $L_2$. Both retained sources
+pass a provenance scan with zero source-task identifier matches. This trajectory
+therefore exhibits the full claimed mechanism: recurring failures induce
+executable structure, independently measured utility grows the language, and
+the same criterion suppresses redundant growth.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.94\textwidth]{paper_assets/figures/language_growth_audit.pdf}
+\caption{Task-level held-out evidence for the audited language trajectory.
+Each dot is an executable loss measured before and after a proposed operator;
+points below the diagonal improve. Promotion and transfer partitions are
+disjoint. The final panel shows that the two useful operators are admitted and
+the re-proposed monomial operator is rejected by the same net-utility gate.}
+\label{fig:language_growth_audit}
+\end{figure}
 
 \subsection*{Leakage and Freeze Controls}
 
@@ -429,57 +899,314 @@ is frozen: the system may search within $L^\star$ for each task, but it does
 not use the task's benchmark score to update $L^\star$ for later reported
 tasks. Table~\ref{tab:freeze_controls} summarizes the protocol.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Protocol controls for residual-conditioned language growth.}
 \label{tab:freeze_controls}
 \small
 \setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}lYY@{}}
-\toprule
+\begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
+\hline
 \tblhdr
 Phase & Allowed & Disallowed \\
-\midrule
+\hline
 Development induction & collect residuals, propose operators, held-out promotion & using final reported test scores as promotion targets \\
+\hline
 Headline evaluation & per-task search, execution, validation, rendering in frozen $L^\star$ & changing $L^\star$ from future test rows or gold labels \\
+\hline
 Post-run analysis & cluster failures and plan future operators & retroactively changing the reported score \\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
-\subsection*{Compute Receipts}
+\subsection*{Uncertainty and Coverage}
 
-The artifact set preserves row-level outputs for the headline runs and
-full-run ablations. Because the three benchmark harnesses differ in native tool
-use, environment runtime, and judge calls, compute is reported at the harness
-level rather than collapsed into a single cross-benchmark token number.
+Table~\ref{tab:bootstrap_ci} reports deterministic percentile-bootstrap
+intervals over completed evaluation units. DiscoveryBench and NewtonBench
+resample task rows. UltraHorizon resamples the 32 seeds independently within
+each environment and then averages the three environment means. These
+intervals quantify evaluation-set variation; they do not replace independent
+model-call replications.
+
+\begin{table}[!htbp]
+\centering
+\caption{Headline point estimates and 95\% nonparametric bootstrap intervals.
+All intervals use 10,000 draws and random seed 2027.}
+\label{tab:bootstrap_ci}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{0.92\textwidth}{|Y|c|c|c|}
+\hline
+\tblhdr
+Metric & Units & Estimate & 95\% interval \\
+\hline
+DiscoveryBench HMS & 239 tasks & 28.70 & [23.24, 34.28] \\
+\hline
+DiscoveryBench Cons-HMS & 239 tasks & 34.56 & [28.84, 40.33] \\
+\hline
+NewtonBench SA-all & 324 tasks & 49.38\% & [44.14, 54.94] \\
+\hline
+NewtonBench SA-answered & 240 answers & 66.67\% & [60.83, 72.50] \\
+\hline
+UltraHorizon strict & 96 episodes & 51.04 & [44.79, 56.88] \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{paper_assets/figures/discovery_score_profile.pdf}
+\caption{Recorded per-task evaluator outcomes from the complete 239-row
+DiscoveryBench run. The left panel compares native HMS with consistency-HMS;
+the right panel shows the empirical score distribution. This figure is an
+audit view, not an additional selection or promotion signal.}
+\label{fig:discovery_score_profile}
+\end{figure}
+
+\subsection*{Operator Provenance}
+
+The implementation distinguishes four operator origins. \emph{Predefined}
+operators implement the universal typed interface and sandbox primitives.
+\emph{Selected} operators are chosen from type-compatible families by residual
+geometry. \emph{Parameterized} operators fit task-local constants from
+observations without changing the language. \emph{Synthesized} operators are
+new executable transforms proposed from recurrent development residuals and
+must pass Algorithm~\ref{alg:language_growth}. Reported test tasks may select
+and parameterize frozen operators, but they may not synthesize or promote new
+ones. The strict transfer diagnostic specifically compares two selected,
+type-compatible families while holding parameter fitting and test-time compute
+fixed.
+
+\begin{table}[!htbp]
+\centering
+\caption{Operator provenance in the reported evidence. The table separates
+fixed interfaces, evaluation-time reuse, a measured development-time language
+extension, and the pedagogical construction in
+Figure~\ref{fig:concrete_language_growth}.}
+\label{tab:operator_provenance}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{0.96\textwidth}{|Y|Y|Y|}
+\hline
+\tblhdr
+Object & Origin and language effect & Reported evidence \\
+\hline
+typed contract, slot, verifier, and residual interfaces & predefined
+universal interface; part of $L_0$ & shared implementation across all three
+benchmarks \\
+\hline
+named DiscoveryBench operator families & selected and parameterized from
+frozen $L^\star$; no evaluation-time language write & reuse counts in
+Table~\ref{tab:operator_reuse} \\
+\hline
+positive-monomial lattice instance & selected by development residual geometry
+and added to $L_1$ before evaluation & 12 interface-split evaluations
+(4 interfaces $\times$ 3 splits); additional
+$0.171\pm0.012$ loss reduction \\
+\hline
+threshold-split probe & synthesized operator in a worked construction & visual
+type trace only; not used as a benchmark-result row \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection*{Proposal-Core Substitution}
+
+We vary the proposal endpoint while freezing each benchmark's task set,
+hypothesis language, executable interfaces, parser, and native evaluator.
+These are complete provider-substitution audits rather than parameter-scaling
+experiments: endpoint size and training data are not consistently disclosed,
+and no operator is added during evaluation.
+
+\paragraph{DiscoveryBench substitution.}
+Table~\ref{tab:discovery_backbone_swap} uses the same 239 test tasks, four
+proposals, one search round, frozen language, and GPT-4o HMS judge for all
+three endpoints. HMS spans only 0.56 points; Cons-HMS spans 1.14 points.
+Thus the full DiscoveryBench result is not tied to one proposal provider.
 
 \begin{table}[H]
 \centering
-\caption{Available full-run artifact receipts. Each row points to a retained
-row-level output used for the corresponding table entry; the short receipt IDs
-map directly to experiment directories in the released artifact tree.}
-\label{tab:compute_receipts}
+\caption{Complete DiscoveryBench proposal-core substitution under the matched
+frozen protocol. Each row contains all 239 native evaluator decisions.}
+\label{tab:discovery_backbone_swap}
 \small
-\setlength{\tabcolsep}{5pt}
-\begin{tabularx}{0.96\textwidth}{@{}lclY@{}}
-\toprule
+\setlength{\tabcolsep}{6pt}
+\begin{tabularx}{0.86\textwidth}{|Y|c|c|c|}
+\hline
 \tblhdr
-Benchmark & Tasks & Score & Artifact \\
-\midrule
-DiscoveryBench fixed-language-none & 239 & 0.68 HMS & \fileid{DB-none-full239} \\
-DiscoveryBench Direct \gptmini & 239 & 9.54 HMS & \fileid{DB-direct-full239} \\
-DiscoveryBench ReAct \gptmini & 239 & 11.68 HMS & \fileid{DB-react-full239} \\
-DiscoveryBench CodeAct \gptmini & 239 & 12.31 HMS & \fileid{DB-codeact-full239} \\
-DiscoveryBench full \methodshort & 239 & 28.09 HMS & \fileid{DB-RG-HLI-full239} \\
-NewtonBench chart-control & 324 & 47.5\% SA-all & \fileid{NB-chart-control-full324} \\
-NewtonBench promotion-gate-off & 324 & 49.4\% SA-all & \fileid{NB-no-gate-full324} \\
-NewtonBench full \methodshort & 324 & 49.7\% SA-all & \fileid{NB-RG-HLI-full324} \\
-UltraHorizon strict agent-only & 96 & 51.04 & \fileid{UH-strict-full96} \\
-UltraHorizon full \methodshort & 96 & 75.36 & \fileid{UH-full-system-full96} \\
-\bottomrule
+Proposal core & Tasks & HMS & Cons-HMS \\
+\hline
+\rowcolor{rghlirow}
+GPT-4o-mini & 239 & 28.70 & 34.56 \\
+\hline
+Gemini 2.5 Flash Lite & 239 & \textbf{29.14} & 35.00 \\
+\hline
+Qwen3-30B-A3B-Instruct & 239 & 28.58 & \textbf{35.69} \\
+\hline
 \end{tabularx}
 \end{table}
 
+\paragraph{NewtonBench substitution.}
+We substitute five endpoints while holding the complete 324-task set,
+executable probe library, operator charts, parser, abstention rule, and
+symbolic-law judge fixed. Table~\ref{tab:backbone_swap} reports one complete
+run per endpoint. Correct-law counts vary by at most one task, despite
+substantial differences among the proposal models. In this controlled setting,
+most accepted laws are therefore determined by executable measurement and
+validation rather than by endpoint identity.
+
+\begin{table}[H]
+\centering
+\caption{Full NewtonBench proposal-core substitution under one frozen
+diagnostic kernel. Coverage is the fraction of tasks on which a law is
+submitted. This diagnostic tests provider robustness; it is not a
+model-size-scaling experiment.}
+\label{tab:backbone_swap}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{0.96\textwidth}{|Y|c|c|c|c|c|}
+\hline
+\tblhdr
+Proposal core & Answered & Coverage & Correct & SA-all & SA-answered \\
+\hline
+\rowcolor{controlrow}
+GPT-4o-mini & 248 & 76.5\% & 94 & 29.01 & 37.90 \\
+\hline
+Gemini 2.5 Flash Lite & 248 & 76.5\% & 95 & 29.32 & 38.31 \\
+\hline
+Qwen3-30B-A3B-Instruct & 247 & 76.2\% & 95 & 29.32 & 38.46 \\
+\hline
+GPT-4o & 246 & 75.9\% & 95 & 29.32 & 38.62 \\
+\hline
+DeepSeek V4 Flash & 248 & 76.5\% & 94 & 29.01 & 37.90 \\
+\hline
+\end{tabularx}
+\end{table}
+
+The absolute values in Table~\ref{tab:backbone_swap} are not substituted for
+the 49.38\% headline result.  The retained headline artifact is the frozen
+July~17 configuration with development-time promotion disabled; the
+proposal-core audit uses the later diagnostic kernel with its fixed charts
+and gate configuration.  Mixing the two would confound a backbone change with
+an implementation change.  The intended conclusion is narrower and directly
+supported: within the diagnostic kernel, the complete-task result is stable
+across all five proposal endpoints.  Because provider parameter counts and
+training mixtures are not consistently disclosed, the table also makes no
+claim about scaling with model size.
+
+\paragraph{UltraHorizon substitution.}
+We also completed a second proposal-core substitution under the
+controller-enabled UltraHorizon protocol.  All rows use the same 96 hard
+episodes (32 seeds in each environment), 50-step horizon, action budget of
+220, disabled environment hints, enabled public terminal controller, and
+exact paper-style judge.  Table~\ref{tab:uh_backbone_swap} is deliberately
+separate from the 51.04 strict headline row, which disables that controller.
+It tests whether the same long-horizon state and execution protocol remains
+operational when the proposal endpoint changes.
+
+\begin{table}[H]
+\centering
+\caption{Complete UltraHorizon proposal-core substitution under the
+controller-enabled protocol.  Each overall score averages Grid, Seq, and Bio
+over the same 32 seeds per environment.}
+\label{tab:uh_backbone_swap}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{0.92\textwidth}{|Y|c|c|c|c|}
+\hline
+\tblhdr
+Proposal core & Grid & Seq & Bio & Overall \\
+\hline
+\rowcolor{rghlirow}
+GPT-4o-mini & 54.38 & 81.25 & 90.47 & \textbf{75.36} \\
+\hline
+\rowcolor{controlrow}
+Gemini 2.5 Flash Lite & 80.63 & 100.00 & 15.63 & 65.42 \\
+\hline
+\rowcolor{controlrow}
+Qwen3-30B-A3B-Instruct & 33.13 & 37.50 & 3.28 & 24.64 \\
+\hline
+\end{tabularx}
+\end{table}
+
+The substitution exposes genuine environment--core interaction rather than a
+uniform scaling effect: the compact Gemini endpoint is strongest on Grid and
+Seq, whereas GPT-4o-mini is substantially stronger on Bio.  More importantly
+for the architecture claim, all three endpoints use the identical typed state,
+executor, controller, and judge configuration; no environment-specific prompt
+or operator library is selected by model identity.
+
+\FloatBarrier
+
+\subsection*{Artifact Manifest and Compute Accounting}
+
+The machine-readable map from every reported row to its complete-run
+JSON/JSONL/CSV artifact is
+\path{paper_assets/evidence/evidence_index.csv}.  It
+indexes the 239-task DiscoveryBench run, the 324-task NewtonBench run, the
+96-episode UltraHorizon run, matched controls, deterministic law audit,
+multi-step trajectory, bootstrap intervals, all five NewtonBench substitutions,
+the matched three-core DiscoveryBench audit, and the controller-enabled
+UltraHorizon substitutions. The archive retains per-task outputs and evaluator
+decisions; no table is reconstructed from manually selected examples. A
+separate machine-readable substitution audit validates all 11 rows against
+their task cardinalities, frozen protocol fields, and SHA-256 source hashes.
+
+All headline rows use \gptmini for proposal calls. DiscoveryBench uses
+\texttt{openai/gpt-4o} as the native HMS judge, NewtonBench uses the repository
+\texttt{gpt41} symbolic-law judge, and UltraHorizon uses
+\texttt{DeepSeek-R1-0528-BF16} through the reproduced paper-style judge path.
+Legacy headline artifacts retain row counts, outputs, scores, and wall time
+but not call-level token records, so comparisons are task-, backbone-, and
+evaluator-matched rather than token-matched. The newly audited NewtonBench
+controls additionally retain prompts, completions, retries, model identifiers,
+and provider cost. They use temperature 0.4, ten interaction rounds, zero
+observation noise, and the parser sources shipped in the anonymous package.
+
+Local orchestration used Python 3.12.7 on macOS 15.2 with an Apple M1 Pro CPU
+and 16\,GB unified memory; no local GPU training was performed. The retained
+environment uses NumPy 1.26.4, pandas 2.2.2, SciPy 1.13.1, and OpenAI Python
+client 1.109.1. Foundation-model inference was served through the named API
+endpoints, whose provider-side hardware is not exposed. Model identifiers,
+judge identifiers, seeds, task cardinalities, and complete outputs are stored
+with the evidence index.
+
+\paragraph{Complete-run integrity checks.}
+Every aggregate is keyed by the benchmark's native evaluation unit, and the
+packaging audit fails if a key is missing or duplicated.
+Table~\ref{tab:run_integrity} records the cardinality and frozen controls
+checked before the corresponding row is admitted to the paper.
+
+\begin{table}[H]
+\centering
+\caption{Machine-checked integrity conditions for complete reported runs.}
+\label{tab:run_integrity}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{0.96\textwidth}{|l|c|Y|Y|}
+\hline
+\tblhdr
+Benchmark & Units & Native key & Frozen controls \\
+\hline
+DiscoveryBench & 239 & dataset, metadata id, query id &
+test split, four proposals, one round, language, HMS judge \\
+\hline
+NewtonBench & 324 & module, difficulty, law version, system &
+module grid, executable charts, parser, abstention rule, law judge \\
+\hline
+UltraHorizon & 96 & environment, seed &
+32 seeds per environment, horizon, action budget, hints, controller mode,
+paper judge \\
+\hline
+\end{tabularx}
+\end{table}
+
+Provider interruptions are resumed by native task key. Completed evaluator
+rows are immutable; a prediction written immediately before an interrupted
+judge call is accepted only after the matching evaluator row is produced.
+Aggregation then checks exact cardinality, unique keys, frozen-language state,
+and protocol equality before hashing the result. This permits transport-level
+recovery without selecting attempts by score or changing any scientific
+artifact after evaluation.
 
 \end{document}

@@ -1,0 +1,12 @@
+datasets==4.0.0
+matplotlib==3.9.2
+numpy==1.26.4
+openai==1.109.1
+pandas==2.2.2
+Pillow==10.4.0
+pypdf==6.7.5
+pytest==7.4.4
+python-dotenv==1.2.2
+scikit-learn==1.5.1
+scipy==1.13.1
+statsmodels==0.14.2

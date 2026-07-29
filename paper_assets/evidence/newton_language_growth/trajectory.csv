@@ -1,0 +1,5 @@
+step,language,trusted_operators,decision,promotion_gain,transfer_gain
+0,L0,0,initial_or_accepted,,
+1,L1,1,initial_or_accepted,0.6054755129912045,0.587104557746527
+2,L2,2,initial_or_accepted,0.014218130089962755,0.09959425034457048
+3,L2,2,rejected_redundant_operator,0.0,0.0

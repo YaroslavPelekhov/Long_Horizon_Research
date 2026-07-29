@@ -33,23 +33,62 @@ induction.
 
 | Benchmark | N | Metric | RG-HLI result | Main artifact |
 |---|---:|---|---:|---|
-| DiscoveryBench | 239 | HMS / Cons-HMS | 29.94 / 34.96 | `lmw/universal_discovery_real/research_cycle_discovery_full239_scopegate_intrabundle_20260712/summary.json` |
-| NewtonBench | 324 | audited SA-all / audited SA-answered | 49.7% / 67.1% | `lmw/nb_activeprobe/nb_full324_compression_tournament_v9_20260713/audited_summary.json` |
-| UltraHorizon | 96 | paper-style score | 75.36 | `lmw/uh_official/uh_clean_universal_full96_20260715/summary.json` |
+| DiscoveryBench | 239 | HMS / Cons-HMS | 28.70 / 34.56 | `lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/summary.json` |
+| NewtonBench | 324 | SA-all / SA-answered | 49.38% / 66.67% | `lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/summary.json` |
+| UltraHorizon | 96 | strict paper-style score | 51.04 | `lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/summary.json` |
 
-These are the defensible full-run rows used for the current paper draft. Late
-diagnostic ceiling runs are kept for engineering analysis but are not used as
-main claims.
+These are the complete single-pass artifacts used by the submission. The
+headline language is frozen before evaluation; development-time promotion is
+tested separately by the frozen-transfer and multi-step mechanism audits.
+
+The supplement also reports complete proposal-core substitutions under frozen
+protocols: three endpoints on all 239 DiscoveryBench tasks, five endpoints on
+all 324 NewtonBench configurations, and three endpoints on all 96
+controller-enabled UltraHorizon episodes. The validated 11-row registry is
+`paper_assets/evidence/model_substitution_audit.json`.
+
+## Submission Experiments
+
+Prepare the causal language-growth protocol without making API calls:
+
+```bash
+python3 -m mars.runners.run_language_growth_experiment \
+  --run_id aaai27_language_growth_protocol_v1 --overwrite_protocol
+```
+
+The generated protocol fixes GPT-4o-mini, the official evaluator, the per-task
+budget, and the full Discovery stack. It compares fixed `L0`, ungated
+promotion, and gated language growth. Operator induction uses only the released
+train split; the library is frozen before the complete 239-task test run.
+
+Prepare four clean full-grid NewtonBench repetitions:
+
+```bash
+python3 -m mars.runners.run_newton_clean_multirun \
+  --run_id aaai27_newton_clean_protocol_v1
+```
+
+Both commands prepare manifests by default. Add `--execute` only when the model
+and judge credentials are configured. Newton aggregation rejects partial grids,
+judge mismatches, and selective-rejudge artifacts.
 
 ## Important Files
 
-- `residual_guided_hli_aaai2027.tex` - current AAAI-style paper draft.
+- `residual_guided_hli_submission.tex` - current AAAI-style paper source.
+- `residual_guided_hli_supplement.tex` - supplementary material.
 - `residual_guided_hli_refs.bib` - bibliography for the paper.
-- `residual_guided_hli_aaai2027.pdf` - compiled draft.
+- `draft.pdf` - compiled submission draft.
 - `PAPER_SAFE_RESULTS.md` - canonical result rows and exclusions.
 - `REPRODUCIBILITY.md` - commands and artifact paths for the three canonical
   full runs.
 - `paper_assets/figures/` - generated figures used by the draft.
+- `paper_assets/evidence/HEADLINE_CLAIM_AUDIT.md` - internal mapping from every
+  headline claim to its retained full-run artifact, evaluator, interval, and
+  controlled language-growth evidence.
+- `paper_assets/evidence/evidence_index.csv` - source-hashed registry for every
+  quantitative artifact cited in the paper and supplement.
+- `paper_assets/evidence/model_substitution_audit.json` - protocol validation
+  for the complete multi-backbone experiments.
 - `paper_assets/make_paper_figures.py` - figure-generation script.
 - `mars/` - implementation modules and benchmark runners.
 - `lmw/paper_safe_results/summary.json` - machine-readable paper-safe result
@@ -60,7 +99,7 @@ main claims.
 Run unit tests:
 
 ```bash
-pytest -q tests
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests
 ```
 
 Rebuild paper figures:
@@ -72,7 +111,14 @@ python3 paper_assets/make_paper_figures.py
 Compile the paper:
 
 ```bash
-latexmk -pdf -interaction=nonstopmode -halt-on-error residual_guided_hli_aaai2027.tex
+latexmk -pdf -interaction=nonstopmode -halt-on-error residual_guided_hli_submission.tex
+```
+
+Build clean, compile-verified Overleaf, checklist, and anonymous-code archives:
+
+```bash
+python -m mars.analysis.build_submission_packages \
+  --output_root submission_release
 ```
 
 ## Repository Hygiene

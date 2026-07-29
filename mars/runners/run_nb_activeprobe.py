@@ -2622,6 +2622,18 @@ def discover_law(client, model, module, params, sig, entry, rows, difficulty="ea
     return src, rm, "model"
 
 
+def _load_resume_checkpoint(path: Path) -> dict[str, dict]:
+    checkpoint = json.loads(path.read_text(encoding="utf-8"))
+    loaded_results = checkpoint.get("results", {})
+    if not isinstance(loaded_results, dict):
+        raise ValueError("checkpoint.results must be an object")
+    return {
+        str(key): value
+        for key, value in loaded_results.items()
+        if isinstance(value, dict)
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run_id", default="nbap_v1")
@@ -2666,14 +2678,35 @@ def main():
         default="gpt41",
         help="NewtonBench symbolic-equivalence judge model; official runner uses gpt41.",
     )
-    ap.add_argument("--overwrite", action="store_true")
+    ap.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help=(
+            "Optional global RNG seed. Omit to reproduce the legacy runner "
+            "behavior; set it to make a new run reproducible."
+        ),
+    )
+    output_mode = ap.add_mutually_exclusive_group()
+    output_mode.add_argument("--overwrite", action="store_true")
+    output_mode.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Resume an interrupted run from its task-keyed summary.json. "
+            "Completed configurations are reused and never evaluated twice."
+        ),
+    )
     args = ap.parse_args()
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
     out_dir = _PROJ / "lmw" / "nb_activeprobe" / args.run_id
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "summary.json"
     rows_csv_path = out_dir / "rows.csv"
-    if out_path.exists() and not args.overwrite:
-        raise SystemExit("exists; --overwrite")
+    if out_path.exists() and not (args.overwrite or args.resume):
+        raise SystemExit("exists; use --overwrite or --resume")
 
     client = make_openai_client()
     difficulties = [x.strip() for x in (args.difficulties or args.difficulty).split(",") if x.strip()]
@@ -2682,19 +2715,55 @@ def main():
     modules = [x.strip() for x in args.modules.split(",") if x.strip()]
 
     results = {}
-    rows_out = []
-    sa_list = []
-    n_ans = n_abs = 0
+    if args.resume and out_path.exists():
+        try:
+            results = _load_resume_checkpoint(out_path)
+        except Exception as exc:
+            raise SystemExit(f"cannot resume invalid checkpoint: {exc}") from exc
+
+    rows_out = list(results.values())
+    sa_list = [
+        float(row.get("SA", 0.0))
+        for row in rows_out
+        if row.get("status") == "ANSWER"
+    ]
+    n_ans = sum(row.get("status") == "ANSWER" for row in rows_out)
+    n_abs = len(rows_out) - n_ans
+
+    def write_progress() -> None:
+        payload = {
+            "run_status": "in_progress",
+            "model": args.model,
+            "judge_model": args.judge_model,
+            "seed": args.seed,
+            "disable_operator_charts": bool(args.disable_operator_charts),
+            "disable_promotion_gates": bool(args.disable_promotion_gates),
+            "modules": modules,
+            "difficulties": difficulties,
+            "law_versions": law_versions,
+            "systems": systems,
+            "completed": len(results),
+            "expected": len(modules) * len(difficulties) * len(law_versions) * len(systems),
+            "results": results,
+            "rows": rows_out,
+        }
+        out_path.write_text(json.dumps(payload, indent=2, default=str))
 
     print(f"=== NewtonBench: Universal Active Probing — {args.model} ===\n")
     if args.disable_operator_charts:
         print("ablation=disable_operator_charts\n")
     if args.disable_promotion_gates:
         print("ablation=disable_promotion_gates\n")
+    if results:
+        print(f"resume={len(results)} completed configurations\n")
     for mod_name in modules:
         for difficulty in difficulties:
             for law_version in law_versions:
                 for system in systems:
+                    key = f"{mod_name}/{difficulty}/{law_version}/{system}"
+                    if key in results:
+                        print(f"  {key}: cached")
+                        continue
                     module = importlib.import_module(f"modules.{mod_name}")
                     sig = str(module.FUNCTION_SIGNATURE).strip()
                     entry = sig[4:sig.index("(")].strip()
@@ -2713,7 +2782,6 @@ def main():
                     if len(rows) < 10:
                         rows = collect_active(module, params, difficulty=difficulty,
                                               law_version=law_version, system=system)
-                    key = f"{mod_name}/{difficulty}/{law_version}/{system}"
                     if len(rows) < 10:
                         row = {"module": mod_name, "difficulty": difficulty,
                                "law_version": law_version, "system": system,
@@ -2722,6 +2790,7 @@ def main():
                         results[key] = row
                         rows_out.append(row)
                         n_abs += 1
+                        write_progress()
                         continue
 
                     print(f"  {key}:")
@@ -2743,6 +2812,7 @@ def main():
                         rows_out.append(row)
                         n_abs += 1
                         print(f"      → ABSTAIN (rmsle={rm:.3f})")
+                        write_progress()
                         continue
 
                     try:
@@ -2781,7 +2851,7 @@ def main():
                     results[key] = row
                     rows_out.append(row)
                     print(f"      → SA={sa:.2f} rmsle={rm:.4f} [{method}] | {law_snip[:50]}")
-                    out_path.write_text(json.dumps({"results": results, "rows": rows_out}, indent=2, default=str))
+                    write_progress()
 
     n = n_ans + n_abs
     mean_ans = sum(sa_list) / len(sa_list) if sa_list else 0.0
@@ -2800,12 +2870,15 @@ def main():
             writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
             writer.writeheader()
             writer.writerows(rows_out)
-    out_path.write_text(json.dumps({"model": args.model, "answered": n_ans, "abstained": n_abs,
+    out_path.write_text(json.dumps({"run_status": "complete",
+                                    "model": args.model, "answered": n_ans, "abstained": n_abs,
                                     "SA_answered": round(mean_ans, 3), "SA_all": round(mean_all, 3),
                                     "modules": modules, "difficulties": difficulties,
                                     "law_versions": law_versions, "systems": systems,
                                     "system": args.system,
                                     "judge_model": args.judge_model,
+                                    "seed": args.seed,
+                                    "global_rng_seeded": args.seed is not None,
                                     "disable_operator_charts": bool(args.disable_operator_charts),
                                     "disable_promotion_gates": bool(args.disable_promotion_gates),
                                     "n": n, "rows_csv": str(rows_csv_path),

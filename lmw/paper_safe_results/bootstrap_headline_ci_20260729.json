@@ -1,0 +1,83 @@
+{
+  "protocol": {
+    "method": "nonparametric percentile bootstrap over evaluation units",
+    "seed": 2027,
+    "draws": 10000,
+    "ultrahorizon": "stratified by environment, 32 seeds per stratum",
+    "sources": {
+      "discovery": "lmw/universal_discovery_real/aaai27_language_growth_protocol_v1_fixed_l0_test239/official_eval.jsonl",
+      "newton": "lmw/nb_activeprobe/aaai27_newton_full324_no_promotion_gates_20260717/summary.json",
+      "ultrahorizon": "lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/run.jsonl"
+    }
+  },
+  "discoverybench_hms": {
+    "n": 239,
+    "mean": 28.698944012751543,
+    "ci95_low": 23.237547320183303,
+    "ci95_high": 34.275901574018725,
+    "bootstrap_draws": 10000
+  },
+  "discoverybench_consistency_hms": {
+    "n": 239,
+    "mean": 34.5566845985256,
+    "ci95_low": 28.842373978880254,
+    "ci95_high": 40.334130304841594,
+    "bootstrap_draws": 10000
+  },
+  "discoverybench_paired_controls": {
+    "direct": {
+      "n": 239,
+      "mean": 19.155210201235306,
+      "ci95_low": 12.81022946138009,
+      "ci95_high": 25.682987979013078,
+      "bootstrap_draws": 10000,
+      "treatment_mean": 28.698944012751543,
+      "control_mean": 9.543733811516239
+    },
+    "react": {
+      "n": 239,
+      "mean": 17.014456177636095,
+      "ci95_low": 10.989393084058356,
+      "ci95_high": 23.121034513293925,
+      "bootstrap_draws": 10000,
+      "treatment_mean": 28.698944012751543,
+      "control_mean": 11.68448783511545
+    },
+    "codeact": {
+      "n": 239,
+      "mean": 16.385236102809326,
+      "ci95_low": 9.871127216577008,
+      "ci95_high": 23.00757122932855,
+      "bootstrap_draws": 10000,
+      "treatment_mean": 28.698944012751543,
+      "control_mean": 12.313707909942218
+    }
+  },
+  "newtonbench_sa_all": {
+    "n": 324,
+    "mean": 0.49382716049382713,
+    "ci95_low": 0.44135802469135804,
+    "ci95_high": 0.5493827160493827,
+    "bootstrap_draws": 10000
+  },
+  "newtonbench_sa_answered": {
+    "n": 240,
+    "mean": 0.6666666666666666,
+    "ci95_low": 0.6083333333333333,
+    "ci95_high": 0.725,
+    "bootstrap_draws": 10000
+  },
+  "newtonbench_coverage": {
+    "answered": 240,
+    "total": 324,
+    "rate": 0.7407407407407407
+  },
+  "ultrahorizon_strict_score": {
+    "n": 96,
+    "strata": 3,
+    "mean": 51.041666666666664,
+    "ci95_low": 44.791666666666664,
+    "ci95_high": 56.875,
+    "bootstrap_draws": 10000
+  }
+}

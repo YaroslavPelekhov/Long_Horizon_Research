@@ -1,0 +1,18 @@
+{
+  "n_pairs": 239,
+  "baseline_mean": 12.313707909942218,
+  "treatment_mean": 28.090699785260455,
+  "mean_delta": 15.776991875318235,
+  "ci95": [
+    9.355393947444156,
+    22.463582829691617
+  ],
+  "improved_tasks": 76,
+  "regressed_tasks": 34,
+  "tied_tasks": 129,
+  "bootstrap_samples": 10000,
+  "seed": 20260721,
+  "baseline": "lmw/discovery_external/aaai27_discovery_external_codeact_full239_v2_combined_20260718/official_eval.jsonl",
+  "treatment": "lmw/universal_discovery_real/research_cycle_discovery_full239_panelpath_ranked_20260712/official_eval.jsonl",
+  "score_key": "HMS_100"
+}

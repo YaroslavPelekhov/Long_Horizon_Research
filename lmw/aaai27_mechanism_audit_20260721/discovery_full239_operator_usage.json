@@ -1,0 +1,105 @@
+{
+  "n_joined_tasks": 239,
+  "operators": [
+    {
+      "operator": "other",
+      "tasks_selected": 109,
+      "mean_HMS_100": 20.81913499344692,
+      "nonzero_HMS_tasks": 28,
+      "domains": [
+        "biology",
+        "economics",
+        "engineering",
+        "humanities",
+        "meta science",
+        "sociology"
+      ],
+      "n_domains": 6
+    },
+    {
+      "operator": "answer_plan",
+      "tasks_selected": 39,
+      "mean_HMS_100": 30.256410256410255,
+      "nonzero_HMS_tasks": 12,
+      "domains": [
+        "biology",
+        "economics",
+        "humanities",
+        "meta science",
+        "sociology"
+      ],
+      "n_domains": 5
+    },
+    {
+      "operator": "universal_slot",
+      "tasks_selected": 34,
+      "mean_HMS_100": 45.96949891067538,
+      "nonzero_HMS_tasks": 19,
+      "domains": [
+        "engineering",
+        "meta science",
+        "sociology"
+      ],
+      "n_domains": 3
+    },
+    {
+      "operator": "estimand_synthesizer",
+      "tasks_selected": 25,
+      "mean_HMS_100": 26.0,
+      "nonzero_HMS_tasks": 7,
+      "domains": [
+        "biology",
+        "engineering",
+        "sociology"
+      ],
+      "n_domains": 3
+    },
+    {
+      "operator": "evidence_contract",
+      "tasks_selected": 25,
+      "mean_HMS_100": 30.057142857142857,
+      "nonzero_HMS_tasks": 8,
+      "domains": [
+        "economics",
+        "humanities",
+        "meta science",
+        "sociology"
+      ],
+      "n_domains": 4
+    },
+    {
+      "operator": "contrastive_world",
+      "tasks_selected": 3,
+      "mean_HMS_100": 33.333333333333336,
+      "nonzero_HMS_tasks": 1,
+      "domains": [
+        "economics",
+        "humanities"
+      ],
+      "n_domains": 2
+    },
+    {
+      "operator": "slot_contract",
+      "tasks_selected": 3,
+      "mean_HMS_100": 66.66666666666667,
+      "nonzero_HMS_tasks": 2,
+      "domains": [
+        "humanities",
+        "sociology"
+      ],
+      "n_domains": 2
+    },
+    {
+      "operator": "problem_frame",
+      "tasks_selected": 1,
+      "mean_HMS_100": 0.0,
+      "nonzero_HMS_tasks": 0,
+      "domains": [
+        "economics"
+      ],
+      "n_domains": 1
+    }
+  ],
+  "predictions": "lmw/universal_discovery_real/research_cycle_discovery_full239_panelpath_ranked_20260712/predictions.jsonl",
+  "official": "lmw/universal_discovery_real/research_cycle_discovery_full239_panelpath_ranked_20260712/official_eval.jsonl"
+}

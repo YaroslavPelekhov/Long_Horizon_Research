@@ -1,0 +1,243 @@
+{
+  "by_env": {
+    "bio": {
+      "committed": 30,
+      "distribution": {
+        "0.0": 3,
+        "95.0": 1,
+        "100.0": 28
+      },
+      "fallback_committed": 32,
+      "mean_score": 90.46875,
+      "n": 32,
+      "non100": [
+        [
+          9,
+          0.0,
+          false,
+          true
+        ],
+        [
+          10,
+          0.0,
+          false,
+          true
+        ],
+        [
+          17,
+          95.0,
+          true,
+          true
+        ],
+        [
+          23,
+          0.0,
+          true,
+          true
+        ]
+      ],
+      "source": "lmw/uh_official/uh_clean_universal_bio_full32_20260715/run.jsonl"
+    },
+    "grid": {
+      "committed": 20,
+      "distribution": {
+        "0.0": 14,
+        "80.0": 3,
+        "100.0": 15
+      },
+      "fallback_committed": 17,
+      "mean_score": 54.375,
+      "n": 32,
+      "non100": [
+        [
+          2,
+          0.0,
+          true,
+          false
+        ],
+        [
+          5,
+          80.0,
+          true,
+          false
+        ],
+        [
+          7,
+          80.0,
+          true,
+          false
+        ],
+        [
+          9,
+          80.0,
+          true,
+          false
+        ],
+        [
+          11,
+          0.0,
+          true,
+          false
+        ],
+        [
+          20,
+          0.0,
+          false,
+          true
+        ],
+        [
+          21,
+          0.0,
+          false,
+          true
+        ],
+        [
+          22,
+          0.0,
+          false,
+          true
+        ],
+        [
+          23,
+          0.0,
+          false,
+          true
+        ],
+        [
+          24,
+          0.0,
+          false,
+          true
+        ],
+        [
+          25,
+          0.0,
+          false,
+          true
+        ],
+        [
+          26,
+          0.0,
+          false,
+          true
+        ],
+        [
+          27,
+          0.0,
+          false,
+          true
+        ],
+        [
+          28,
+          0.0,
+          false,
+          true
+        ],
+        [
+          29,
+          0.0,
+          false,
+          true
+        ],
+        [
+          30,
+          0.0,
+          false,
+          true
+        ],
+        [
+          31,
+          0.0,
+          false,
+          true
+        ]
+      ],
+      "source": "lmw/uh_official/uh_clean_universal_grid_full32_20260715/run.jsonl"
+    },
+    "seq": {
+      "committed": 26,
+      "distribution": {
+        "0.0": 6,
+        "100.0": 26
+      },
+      "fallback_committed": 9,
+      "mean_score": 81.25,
+      "n": 32,
+      "non100": [
+        [
+          26,
+          0.0,
+          false,
+          true
+        ],
+        [
+          27,
+          0.0,
+          false,
+          true
+        ],
+        [
+          28,
+          0.0,
+          false,
+          true
+        ],
+        [
+          29,
+          0.0,
+          false,
+          true
+        ],
+        [
+          30,
+          0.0,
+          false,
+          true
+        ],
+        [
+          31,
+          0.0,
+          false,
+          true
+        ]
+      ],
+      "source": "lmw/uh_official/uh_clean_universal_seq_full32_20260715/run.jsonl"
+    }
+  },
+  "committed": 76,
+  "distribution": {
+    "0.0": 23,
+    "80.0": 3,
+    "95.0": 1,
+    "100.0": 69
+  },
+  "fallback_committed": 58,
+  "mean_score": 75.36458333333333,
+  "n": 96,
+  "protocol": {
+    "action_budget": 220,
+    "benchmark": "UltraHorizon",
+    "difficulty": "hard",
+    "disable_env_hints": true,
+    "envs": [
+      "grid",
+      "seq",
+      "bio"
+    ],
+    "generator_model": "openai/gpt-4o-mini",
+    "judge": "paper_style_judge",
+    "measurement_bootstrap": false,
+    "n_expected": 96,
+    "reflector_model": "openai/gpt-4o-mini",
+    "require_paper_judge": true,
+    "seeds": "0..31 per env",
+    "steps": 50,
+    "universal_method": "MARS universal induction stack; no env hints; no measurement bootstrap"
+  },
+  "run_id": "uh_clean_universal_full96_20260715",
+  "source_runs": {
+    "bio": "lmw/uh_official/uh_clean_universal_bio_full32_20260715/run.jsonl",
+    "grid": "lmw/uh_official/uh_clean_universal_grid_full32_20260715/run.jsonl",
+    "seq": "lmw/uh_official/uh_clean_universal_seq_full32_20260715/run.jsonl"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "purpose": "Evaluator-only positive control; not a benchmark prediction.",
+  "module": "m2_magnetic_force",
+  "difficulty": "easy",
+  "law_version": "v0",
+  "judge_model": "openai/gpt-4.1",
+  "rmsle": 0.0,
+  "exact_accuracy": 1.0,
+  "symbolic_equivalent": true,
+  "error": null
+}

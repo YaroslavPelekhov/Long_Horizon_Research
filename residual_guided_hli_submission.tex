@@ -25,6 +25,8 @@
 \definecolor{rghlirow}{RGB}{229,245,237}
 \definecolor{controlrow}{RGB}{246,248,251}
 \definecolor{cautionrow}{RGB}{255,248,226}
+\definecolor{gridline}{RGB}{198,207,219}
+\arrayrulecolor{gridline}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcommand{\tblhdr}{\rowcolor{headerrow}}
 
@@ -50,100 +52,85 @@
 \maketitle
 
 \begin{abstract}
-Scientific reasoning with small language models is limited not only by final
-answer verification, but by the earlier problem of constructing the right
-hypothesis space before the answer is known. Recent agentic methods improve
-long-horizon behavior by adding tool use, reflection, search, and executable
-actions. But a structural gap remains: failures are usually stored as text or
-trajectory history, so the system does not explicitly change the hypothesis
-language used to generate the next scientific artifact. We address this with
-two ideas. First, every task is represented through a shared typed hypothesis
-state containing answer slots, evidence contracts, executable artifacts,
-validators, and residuals. Second, repeated validation failures are converted
-into typed residual classes, from which candidate operators are induced and
-promoted only when they improve held-out tasks after a complexity penalty. We
-implement these ideas as \methodshort, a residual-guided hypothesis-language
-induction system around a \gptmini core. The same state, scoring, residual, and
-promotion interface is used on DiscoveryBench, NewtonBench, and UltraHorizon.
-Complete runs reach 28.09 HMS on DiscoveryBench, 49.7\% audited symbolic
-accuracy on NewtonBench, and 75.36 score on UltraHorizon. Controlled ablations
-show that typed contracts, answer-slot closure, protocol satisfaction, and
-residual-conditioned operator promotion explain distinct parts of the gain.
-The results support a narrow mechanism-level claim: small models reason more
-effectively when hypothesis construction is externalized as typed, executable,
-residual-aware language growth rather than sampled only as free-form prose.
+Scientific reasoning requires constructing and validating explanations from
+data and interaction, and small language models remain unreliable at this task.
+Recent agentic methods have improved their performance by adding tool use,
+reflection, search, and executable actions. But a structural gap remains: these
+systems usually retain failures as text or trajectory history, leaving
+unchanged the hypothesis language from which later scientific artifacts are
+constructed. We address this gap with two ideas. First, all stages read and
+write a shared typed state containing evidence contracts, open answer slots,
+executable hypotheses, validators, and residuals. Second, failed validations
+are compiled into typed residual classes that guide the proposal of reusable
+executable operators. An operator is added to the language only when its gain
+on held-out tasks exceeds a complexity penalty. This allows the system to
+expand the set of hypotheses available to later searches without using
+benchmark labels or adapting to evaluation tasks. We implement these ideas as
+RG-HLI, a residual-guided hypothesis-language induction architecture built
+around a small language-model core. We evaluate RG-HLI on DiscoveryBench,
+NewtonBench, and UltraHorizon, which test tabular scientific discovery,
+symbolic law induction, and long-horizon rule discovery, respectively. Under
+each benchmark's native evaluator, RG-HLI improves the same small-model
+backbone. The architecture keeps the same state, validation, residual, and
+promotion protocol in all three settings. RG-HLI therefore turns validation
+failures into auditable, reusable computational structure, rather than merely
+adding steps to the current reasoning trace.
 \end{abstract}
 
 \section{Introduction}
 
-Scientific discovery tasks ask an agent to do more than answer a question. The
-agent must decide what should be measured, what kind of relation is plausible,
-which variables play stable roles, and when a proposed explanation has been
-falsified. Recent benchmarks make this distinction explicit. DiscoveryBench
-casts data-driven discovery as hypothesis search over real datasets and
-metadata \citep{discoverybench}. NewtonBench evaluates interactive scientific
-law discovery rather than static curve fitting \citep{newtonbench}.
-UltraHorizon stresses long-horizon partially observable exploration
-\citep{ultrahorizon}. Across these settings, the bottleneck is often not final
-verification but the construction of a useful hypothesis space before the
-answer is known.
+Scientific discovery asks an agent to do more than return a plausible answer.
+It must decide what to measure, which variables and relations are relevant, and
+how an attempted explanation can be falsified. DiscoveryBench exposes this
+problem for data and metadata \citep{discoverybench}; NewtonBench tests
+interactive law induction rather than static curve fitting \citep{newtonbench};
+and UltraHorizon stresses partially observable long-horizon rule discovery
+\citep{ultrahorizon}. In all three settings, a useful answer depends on
+constructing the right intermediate scientific object before the target is
+known.
 
-This bottleneck is especially sharp for small language models. Standard
-inference-time scaffolds extend the trajectory: \react interleaves reasoning
-and actions \citep{react}, Reflexion and Self-Refine add verbal feedback
-\citep{reflexion,selfrefine}, Tree-of-Thoughts and LATS search over reasoning
-branches \citep{tot,lats}, and \codeact uses executable code as the action
-interface \citep{codeact}. These methods improve many agent tasks, but they
-still largely rely on the model to propose the intermediate concepts that make
-the search fruitful. If the model never represents the task in the right
-coordinates, more attempts can simply explore a larger set of wrong programs.
+Current inference-time scaffolds extend a model's trajectory: \react couples
+reasoning with actions \citep{react}, Reflexion and Self-Refine add verbal
+feedback \citep{reflexion,selfrefine}, Tree-of-Thoughts and LATS search over
+branches \citep{tot,lats}, and \codeact makes executable code the action
+interface \citep{codeact}. Their common limitation is representational. If a
+compact model does not express a needed coordinate system, measurement, or
+answer form, more sampled traces can explore a larger set of wrong programs.
 
-\methodshort starts from a different premise: hypothesis generation should be treated
-as an external, executable induction problem, not as a longer natural-language
-trace. A scientific hypothesis is represented as an artifact with typed holes,
-evidence contracts, executable measurements, validation tests, and residuals.
-The language model proposes local moves, but the environment closes uncertain
-parts whenever possible. For example, instead of asking the model to guess a
-complete law or discovery statement, the system asks which roles must be filled,
-which measurement can identify each role, which residual remains after
-execution, and which operator would make that residual simpler on future tasks.
+\begin{figure}[t]
+\centering
+\setlength{\fboxsep}{5pt}
+\fcolorbox{gridline}{controlrow}{%
+\begin{minipage}{0.91\columnwidth}
+\footnotesize
+\textbf{A retained DiscoveryBench artifact}\\[-1pt]
+\rule{\linewidth}{0.25pt}\\[-2pt]
+\textsc{Question.} When do axes become quantitatively most frequent in the archaeology time series?\\[-1pt]
+\textsc{Evidence contract.} Select a time window and a frequency statistic; the claim must name both.\\[-1pt]
+\textsc{Executed evidence.} Filter the axes-frequency series and return its maximum window.\\[-1pt]
+\textsc{Rendered artifact.} ``At the end of the fourth millennium BCE, axes become quantitatively most frequent.''\\[-1pt]
+\textsc{Native check.} The answer matches the requested temporal facet and
+passes the evidence-consistency check.
+\end{minipage}}
+\caption{A concrete record from the DiscoveryBench full run. The retained object contains an executable measurement and the scientific claim it licenses, rather than a free-form rationale alone.}
+\label{fig:discovery_case}
+\end{figure}
 
-The central object in \methodshort is a shared hypothesis state, \textsc{HypothesisContext}.
-It is read and written by heterogeneous components: a universal hypothesis
-kernel, evidence-contract compiler, estimand synthesizer, role canonicalizer,
-coordinate-probe engine, metamorphic verifier, and residual compiler. This is
-not a transcript memory. It is a typed state over hypotheses: what has been
-measured, which slots have been closed, which answer forms are admissible,
-which residuals recur, and which executable operators compress previous
-failures. In this respect \methodshort is closer in spirit to library-learning systems
-such as DreamCoder \citep{dreamcoder} than to a pure agent loop, but its learned
-unit is not a domain-specific program alone. It is a reusable way of
-turning an underspecified scientific task into measurable hypothesis objects.
-In ReAct-style agents, a failed tool result remains contextual feedback to the
-model; in \methodshort, it is mapped to a typed residual whose type constrains the
-next admissible executable operators.
+We ask whether verified failures can change the \emph{hypothesis language}
+available to a small proposal model. \methodshort represents a candidate as a
+typed executable artifact: required evidence becomes a contract, unknown parts
+are typed holes, and failed checks become residual objects. The model proposes
+local sketches; execution closes what can be measured. Recurrent residuals
+propose reusable operators, but an operator is retained only after it improves
+held-out executable utility beyond its complexity cost. This makes the
+persisted object neither a transcript nor a prompt: it is a compact extension
+to the language from which future artifacts are constructed.
 
-The contribution is threefold. First, we formulate small-model scientific
-reasoning as \emph{typed executable hypothesis induction}: a sequence of typed
-measurements, validations, and residual-conditioned language edits. Second, we
-instantiate this formulation as one shared state, scoring, residual, and
-promotion interface that is instantiated with interface-specific executable
-operator families for tabular discovery, symbolic law induction, and
-long-horizon rule discovery. Third, we report full-run evaluations and
-mechanism ablations that separate fixed-language executable search from
-residual-conditioned language growth. The empirical results show that
-externalizing hypothesis generation makes failures local and diagnosable, while
-also revealing a clear remaining bottleneck: small models still need richer
-mechanisms for generating useful hypothesis representations when the missing
-object cannot be reduced to a measurement.
-
-The paper tests a specific mechanism-level hypothesis: small models fail
-scientific reasoning tasks when intermediate hypotheses remain untyped strings,
-and they improve when those hypotheses become executable objects with typed
-slots, validators, and residuals. This makes the claim narrower than general
-``agent improvement'' and broader than a benchmark solver: \methodshort is an
-interface for changing the hypothesis language available to the model at
-inference time.
+Our contributions are: (i) a shared typed state that unifies contracts,
+evidence, artifacts, validators, and residuals across scientific interfaces;
+(ii) a residual-conditioned operator-induction protocol with held-out
+promotion; and (iii) full-benchmark evaluations plus a frozen language-growth
+audit that separates a changed hypothesis language from extra model calls.
 
 \section{Preliminaries}
 
@@ -231,121 +218,47 @@ seeing the gold target.
 
 \section{Related Work}
 
-\paragraph{Reasoning-time scaffolds for LLM agents.}
-Chain-of-thought prompting showed that exposing intermediate reasoning can
-improve large-model problem solving \citep{cot}. Later inference-time methods
-make this computation more structured. Self-consistency marginalizes over
-sampled reasoning paths \citep{selfconsistency}; least-to-most prompting
-decomposes difficult problems into easier subproblems \citep{leasttomost};
-\react couples reasoning traces with actions \citep{react}; Reflexion and
-Self-Refine use feedback to revise later attempts
-\citep{reflexion,selfrefine}; Tree-of-Thoughts and LATS make the search tree
-explicit \citep{tot,lats}; STaR turns successful generated rationales into
-training data \citep{star}; and \codeact unifies tool use around executable
-Python actions \citep{codeact}. These methods are closest to \methodshort at
-the level of execution and iterative correction, but they do not by themselves
-define what a scientific hypothesis object is. \methodshort uses the same broad
-agentic insight--interleave model calls with external computation--but makes
-the persistent unit a typed hypothesis state rather than a reasoning
-transcript.
-This distinction matters when the model's blind spot is representational. If a
-model does not propose the right variables, coordinates, answer form, or
-transition clauses, additional sampled traces can preserve the same missing
-object. \methodshort instead makes the missing object part of the state: a hole or
-residual that later operators can target.
+\paragraph{Reasoning agents and executable scaffolds.}
+Chain-of-thought, self-consistency, and least-to-most prompting make
+intermediate computation explicit
+\citep{cot,star,selfconsistency,leasttomost,selfdiscover}.
+\react, Reflexion, Self-Refine, Tree-of-Thoughts, LATS, and \codeact add actions,
+feedback, tree search, tools, or code execution
+\citep{react,reflexion,selfrefine,tot,lats,pal,pot,art,toolformer,critic,selfdebug,codeact}.
+These methods improve search inside a current representation. \methodshort is
+complementary: it persists a typed residual when the representation itself is
+inadequate, so that later search can use a changed hypothesis language rather
+than a longer textual trajectory.
 
-\paragraph{Self-optimizing language-model pipelines.}
-DSPy treats LM programs as optimizable computational graphs rather than
-hand-written prompt strings \citep{dspy}. Self-Discover asks a model to compose
-reasoning structures before solving a task \citep{selfdiscover}. Voyager stores
-executable skills learned through interaction with Minecraft \citep{voyager}.
-PAL and Program-of-Thoughts offload computation to a program runtime once the
-model has produced executable intermediate steps \citep{pal,pot}. Toolformer
-shows that tool-use decisions themselves can be learned from self-supervised
-signals \citep{toolformer}. These systems show that the right unit of
-adaptation may be a program, module, executable trace, tool policy, or reusable
-skill. \methodshort differs in two ways. First, its stored unit is tied to
-scientific evidence: contracts, measurements, residuals, and validators.
-Second, promotion is residual-conditioned; an operator is useful only if it
-closes typed holes or compresses recurrent failures across tasks.
+\paragraph{Experience, actions, and skill libraries.}
+ExpeL distills trajectories into textual insights, while Voyager and SkillRL
+retain executable or recursively evolving skill banks
+\citep{expel,voyager,skillrl}.
+LearnAct expands an agent's action space with Python functions, and SkillWeaver
+and SkillFoundry compile reusable APIs or validated scientific skill packages
+\citep{learnact,skillweaver,skillfoundry}. These systems establish that
+persistent experience can improve later behavior. Our learning signal and
+admission unit are different: a candidate extension must be proposed from a
+recurrent typed validation residual, close that residual through executable
+state updates, and improve disjoint held-out interfaces after a complexity
+charge. The resulting operator is frozen before benchmark evaluation, which
+separates language induction from test-label adaptation.
 
-\paragraph{Program induction and library learning.}
-DreamCoder learns a domain language and neural search policy through a
-wake-sleep loop over solved and imagined programs \citep{dreamcoder}. Later
-library-learning work further explores how abstractions reduce search breadth
-and depth, while FunSearch demonstrates that LLM-guided evolutionary program
-search can produce new mathematical constructions when candidate programs are
-externally evaluated \citep{funsearch}. This line is a major conceptual
-ancestor of \methodshort: these systems treat expertise as a changing language
-rather than a fixed prompt. The difference is that \methodshort operates in
-mixed scientific interfaces where the answer may be prose, a law, or a
-transition program, and where holes can often be closed by measurements rather
-than by full program synthesis.
-
-\begin{table}[t]
-\centering
-\caption{Conceptual comparison to DreamCoder-style library learning.}
-\label{tab:dreamcoder_compare}
-\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\columnwidth}{@{}lYY@{}}
-\toprule
-\tblhdr
-Aspect & DreamCoder-style library learning & \methodshort \\
-\midrule
-Abstraction source & solved programs & typed validation residuals \\
-Learned unit & DSL function / library primitive & operator over hypotheses, evidence, and renderers \\
-Promotion signal & compression and synthesis success & held-out gain minus complexity \\
-Object of coverage & program behavior & missing roles, contracts, validators, and traces \\
-Output type & programs & prose hypotheses, laws, or transition artifacts \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\paragraph{Symbolic regression and scientific law discovery.}
-Symbolic regression recovers compact formulas from data. AI-Feynman exploits
-physics-inspired structure such as symmetry and separability
-\citep{aifeynman}; PySR provides a practical evolutionary symbolic-regression
-engine for scientific modeling \citep{pysr}. NewtonBench moves beyond static
-formula fitting by requiring interactive rediscovery of shifted physical laws
-\citep{newtonbench}. \methodshort borrows the insistence on executable hypotheses, but
-does not assume that every task reduces to equation recovery. Its coordinate
-probes are one operator family inside a broader hypothesis-state kernel.
-
-\paragraph{Causal and experimental-design perspectives.}
-Scientific hypotheses are not merely predictors; they make claims about stable
-relations under interventions, environments, or perturbations. Structural
-causal models formalize this distinction \citep{pearl}, invariant prediction
-uses stability across environments to identify causal structure
-\citep{invariant}, and Bayesian experimental design studies how to choose
-measurements that maximize information \citep{bed}. \methodshort is not a causal
-discovery algorithm, but it adopts the same discipline: a hypothesis must state
-what evidence would support it, what transformation should preserve it, and
-what residual would falsify or refine it.
-
-\paragraph{Automated scientific-discovery agents.}
-Recent systems aim to automate larger pieces of the research lifecycle. The AI
-Scientist frames end-to-end machine-learning research as an agentic loop over
-idea generation, code, experiments, analysis, and writing
-\citep{aiscientist,aiscientistnature}. Auto-Bench evaluates scientific
-discovery as interactive causal-structure recovery \citep{autobench}, while
-AutoDiscovery uses Bayesian surprise to prioritize open-ended data-driven
-hypotheses \citep{autodiscovery}. These works motivate the ambition of
-autonomous discovery, but they also underline a central risk: if the system's
-adaptation is only an outer agent loop, failures remain difficult to localize.
-\methodshort addresses a narrower mechanism: the unit that changes over time is
-the typed hypothesis language used to generate and validate candidate
-scientific artifacts.
-
-\paragraph{Benchmarks for scientific agents.}
-DiscoveryBench, NewtonBench, and UltraHorizon expose different faces of the same
-problem: the agent must build an internal research object before it can answer.
-DiscoveryBench emphasizes data and metadata alignment \citep{discoverybench};
-NewtonBench emphasizes interactive law induction and shifted physical laws
-\citep{newtonbench}; UltraHorizon emphasizes long-horizon memory, tool use, and
-partial observability \citep{ultrahorizon}. We use these benchmarks not as
-separate engineering targets but as probes of whether one hypothesis-state
-representation can support multiple scientific task interfaces.
+\paragraph{Program induction and scientific discovery.}
+DreamCoder learns reusable program abstractions; LILO combines language-model
+synthesis with symbolic compression and documentation
+\citep{dreamcoder,lilo}. FunSearch uses externally evaluated program search to
+discover mathematical constructions \citep{funsearch,alphaevolve}. Prompt and
+compound-system optimizers instead search instructions, textual variables, or
+weight updates \citep{ape,dspy,opro,promptbreeder,textgrad,seal}. These systems
+learn from successful or externally scored candidates.
+\methodshort instead defines the missing abstraction through failed scientific
+contracts: operator scope, evidence, and validators are inherited from the
+residual class. This connects library growth to symbolic regression and law
+discovery \citep{aifeynman,pysr,newtonbench}, invariance and
+information-seeking measurement \citep{pearl,invariant,bed}, and wider
+automated-research loops
+\citep{aiscientist,aiscientistnature,autobench,autodiscovery}.
 
 \section{\methodshort}
 \label{sec:rghli_method}
@@ -374,20 +287,17 @@ self-refinement transcript.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{paper_assets/figures/hypothesis_language_growth_pipeline.png}
-\caption{Hypothesis-language growth in \methodshort. The lower loop performs
-per-task executable search: a task interface is compiled into evidence
-contracts, searched in the current hypothesis language, and validated as an
-artifact. Failures are not kept as free-form feedback; they become typed
-residual classes. The upper loop turns recurring residual classes into
-candidate operators and promotes them only when held-out gain exceeds
-complexity, yielding an expanded language for future tasks.}
+\caption{Hypothesis-language growth in \methodshort. The lower loop constructs
+and validates an artifact for the current task. A failed validation becomes a
+typed residual rather than textual feedback. The upper loop admits a reusable
+operator only when it improves held-out utility beyond its complexity cost,
+thereby changing the language available to later tasks.}
 \label{fig:rghli_architecture}
 \end{figure*}
 
-The supplement instantiates this mechanism on a concrete language update: a
-failed transition artifact becomes a typed residual, several similar residuals
-form an ordered-threshold residual class, and the induced operator expands the
-next hypothesis language.
+Figure~\ref{fig:rghli_architecture} separates the two time scales of the
+method: per-task search produces a validated artifact, while development-time
+residual induction may change the language in which later searches operate.
 
 \subsection{The \textsc{HypothesisContext}}
 
@@ -422,38 +332,17 @@ The kernel ranks candidates by a shared energy score:
   ={}& \lambda_E E(h,x)
   + \lambda_C \operatorname{cover}(h,C) \\
   &- \lambda_V V(h,C)
-  - \lambda_K K(h).
+  - \lambda_H K_h(h).
 \end{aligned}
 \end{equation}
 This objective is Bayesian in motivation--evidence should increase confidence,
 while instability and complexity should decrease it--but we do not require a
 calibrated likelihood or learned prior. The operational object is the
 benchmark-independent energy decomposition and the typed residual emitted when
-that score fails. Table~\ref{tab:score_terms} makes the scoring
-parameterization explicit. The same decomposition is used across interfaces,
+that score fails. The same decomposition is used across interfaces,
 while each operator normalizes its executable evidence to a comparable range
-before entering the shared ranking function. The weights were fixed for the
-reported runs; sensitivity to these constants remains a target for a larger
-calibration study.
-
-\begin{table}[t]
-\centering
-\caption{Energy terms used by the shared hypothesis kernel.}
-\label{tab:score_terms}
-\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\columnwidth}{@{}lYcc@{}}
-\toprule
-\tblhdr
-Term & Definition & Range & Weight \\
-\midrule
-$E$ & executable fit or local score & $[0,1]$ & 24 \\
-Cover & contract slots covered & $[0,1]$ & 34 \\
-$V$ & metamorphic validation loss & $[0,1]$ & 32 \\
-$K$ & operator complexity & $\geq0$ & 2 \\
-\bottomrule
-\end{tabularx}
-\end{table}
+before entering the shared ranking function. The fixed term definitions,
+ranges, and weights are reported in the supplement.
 
 \paragraph{End-to-end trace.}
 In a NewtonBench-style trajectory, the model does not guess the law directly:
@@ -505,13 +394,14 @@ $\mathcal{M}_x$, repeatedly selects admissible operators, executes their
 probes, writes artifacts/evidence/residuals back into the context, updates
 $h^\star$ by the shared score, and finally renders $R_x(h^\star)$. Residuals
 from reported test rows may be logged for analysis, but they cannot change
-$L^\star$ for later reported rows. At development time, residuals accumulated
-on development tasks are clustered by type-compatible fields and evidence
-signature. Each cluster may propose a candidate operator through the same
-small-model code-and-sketch interface used for task solving. The operator is
-discarded unless it passes static type checks, sandbox execution, validators,
-and the held-out promotion rule below. Full pseudocode is provided in the
-supplement.
+$L^\star$ for later reported rows. At development time, residuals are
+canonicalized and grouped by residual type, location class, contract role, and
+evidence geometry. The reported mechanism audit uses deterministic signatures
+and requires at least two compatible source residuals. Each recurrent class may
+propose a candidate operator through the same small-model code-and-sketch
+interface used for task solving. The operator is discarded unless it passes
+static type checks, sandbox execution, validators, and the held-out promotion
+rule below. Full pseudocode is provided in the supplement.
 
 \paragraph{Language-growth protocol.}
 The promotion step has two modes. During development, residuals may induce
@@ -523,6 +413,41 @@ for examples later reported as test results. Online adaptation is therefore
 limited to per-task hypothesis search in the frozen language, not to changing
 the language using future test labels.
 
+\begin{figure*}[t]
+\centering
+\setlength{\fboxsep}{6pt}
+\fcolorbox{gridline}{controlrow}{%
+\begin{minipage}{0.95\textwidth}
+\small
+\textbf{A retained NewtonBench language-growth trace}\\[-1pt]
+\rule{\linewidth}{0.3pt}\\[-2pt]
+\begin{tabularx}{\linewidth}{@{}p{0.18\linewidth}Y@{}}
+\textsc{Development evidence} & Gravity and Coulomb modules both leave the
+same typed residual: a positive structured relation cannot be closed in the
+current coordinate system. \\
+\textsc{Residual-conditioned proposal} & Propose a log-coordinate operator
+that fits exponents by execution: $\log y=a+\sum_i p_i\log x_i$. The operator
+is a typed transform with declared inputs, output form, and validators. \\
+\textsc{Held-out promotion} & Evaluate the transform on disjoint promotion
+modules and subtract its program-complexity cost. The utility is positive, so
+the operator is added to $L_{t+1}$ rather than stored as a solved example. \\
+\textsc{Disjoint transfer} & On the unseen Hooke module, the extended language
+exposes the force--displacement family and lowers executable loss from
+$1.000$ to $0.206$, with no new operator induction. \\
+\end{tabularx}
+\end{minipage}}
+\caption{An audited, concrete language-growth step. The persistent object is a
+small executable coordinate transform, not a Gravity, Coulomb, or Hooke answer
+cached for reuse.}
+\label{fig:newton_text_exhibit}
+\end{figure*}
+
+\paragraph{Running example.}
+Figure~\ref{fig:newton_text_exhibit} traces the first accepted NewtonBench
+extension in the frozen audit. It illustrates the intended separation: repeated
+failures identify an operator class; held-out utility decides promotion; and a
+disjoint task benefits from the changed hypothesis language.
+
 \subsection{Residual-Conditioned Operator Promotion}
 
 The residual-extension step is not arbitrary code growth. A residual cluster
@@ -530,16 +455,22 @@ $R=\{\rho_1,\ldots,\rho_m\}$ can propose an operator only if it identifies a
 repeatable missing transformation. Formally, a candidate operator $O'$ is
 promoted when
 \begin{equation}
-  \Delta(O') =
+\begin{aligned}
+  G(O') ={}&
   \mathbb{E}_{x\sim\mathcal{D}_{held}}
-  [S(h^\star_{O'}(x))-S(h^\star(x))]
-  -\beta K(O') > 0,
+  [U_x(h^\star_{O'}(x))-U_x(h^\star(x))] \\
+  &-\beta K_o(O') > 0,
+\end{aligned}
 \label{eq:promotion}
 \end{equation}
-and the improvement is not confined to the task that produced the residual.
-This rule is meant to prevent an ever-growing bag of benchmark-specific tricks:
-an operator must improve held-out tasks under the same contract and scoring
-interface while paying a complexity penalty.
+where $U_x$ is a development-time executable validation utility, not the
+reported benchmark evaluator $S_x$. Source and promotion tasks are disjoint,
+and at least one promotion interface must improve. All promotable transforms
+are serialized into a common executable intermediate representation, with
+$K_o(O')=\log(1+n_{\mathrm{AST}}(O'))$. We fix $\beta=10^{-3}$ before the
+reported trajectory. This rule limits uncontrolled library growth: an operator
+must improve non-source tasks under the same validation interface while paying
+a complexity penalty.
 
 \subsection{Why This Helps Small Models}
 
@@ -569,244 +500,259 @@ paper-style environment score.
 The reported system uses a \gptmini core throughout. We use one shared
 hypothesis-induction stack: contract compilation, typed-hole closure,
 estimand synthesis, coordinate probing, metamorphic validation, and
-residual-conditioned promotion. Benchmark adapters expose observations and
-accept final artifacts; interface-specific operator families expose measurable
-objects appropriate to each environment, but they all write the same
-\textsc{HypothesisContext} and are scored by the same evidence, validation,
-residual, and complexity rules. We exclude diagnostic ceiling runs that used
-task-family measurement bootstraps or hand-engineered rendering fixes.
+residual-conditioned promotion. Benchmark adapters expose observations,
+validators, and final renderers; interface-specific operator families expose
+measurable objects appropriate to each environment, but they all write the same
+\textsc{HypothesisContext} and obey the same residual and promotion interface.
+Because the artifact types differ, evaluation uses a separately frozen
+$L^\star_{\mathrm{DB}}$, $L^\star_{\mathrm{NB}}$, and
+$L^\star_{\mathrm{UH}}$, rather than claiming one identical operator library.
+We use ``small'' operationally to denote the lower-cost \gptmini proposal tier,
+not an undisclosed parameter-count threshold.
+We exclude diagnostic ceiling runs that used task-family measurement
+bootstraps or hand-engineered rendering fixes.
 
-\paragraph{Reproducibility audit.}
-For DiscoveryBench we evaluate the repository real-test task rows using the
-benchmark evaluator, producing 239 predictions and 239 scored rows. For
-NewtonBench we evaluate the full cross-product of 12 physics domains, three
-difficulty levels, three law versions, and three system variants, for 324
-symbolic-law tasks. For UltraHorizon we evaluate 32 seeds for each of the
-three official environments, for 96 total runs, using the paper-style judge,
-hard difficulty, 50-step episodes, and no environment hints or measurement
-bootstraps. The row-level outputs are retained for each benchmark, and the main
-table is generated only from complete runs with the expected row counts. The
-language used in these evaluations is frozen before scoring; residuals from
-reported test rows are analyzed after the run and are not used to promote new
-operators for later rows in the same headline evaluation.
-For UltraHorizon we report both a strict agent-only ablation and the full
-\methodshort system. The strict run disables fallback commits, environment
-hints, and measurement bootstraps. The full run adds a terminal protocol
-controller: it uses only public environment actions to satisfy explicit
-terminal preconditions, such as the Bio environment's 50-successful-cross
-requirement, before compiling the final artifact from the observed trace. It
-does not inspect hidden rules, gold labels, or judge feedback.
+Complete row counts, evaluator configurations, confidence intervals, and the
+frozen-language protocol are reported in the supplement. In particular, the
+UltraHorizon result uses the strict configuration, with fallback commits,
+environment hints, terminal controllers, and measurement bootstraps disabled.
 
-\begin{table}[H]
+\subsection{Main comparisons}
+
+Table~\ref{tab:main_results} reports the complete benchmark runs together with
+published original-paper references and local controls. Published rows are
+contextual reference points. Where a matched local baseline is available, it
+uses the same proposal core, task set, and evaluator as \methodshort within its
+benchmark block; the strict UltraHorizon control instead isolates the shared
+kernel from its optional components. All \methodshort operator languages are
+frozen before reported evaluation. The canonical NewtonBench result therefore
+evaluates the typed executable kernel, while development-time language growth is
+tested separately below.
+
+\begin{table*}[t]
 \centering
-\caption{Benchmark interfaces and metrics.}
-\label{tab:benchmarks}
-\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\columnwidth}{@{}lYYY@{}}
-\toprule
-\tblhdr
-Benchmark & Interface & Artifact & Metric \\
-\midrule
-DiscoveryBench & tables, metadata, goal & hypothesis & HMS / Cons-HMS \\
-NewtonBench & simulator, observations & symbolic law & SA-all / SA-answered \\
-UltraHorizon & POMDP-style env. & transition rule & score \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Main full-run results}
-
-Table~\ref{tab:main_results} reports complete benchmark runs under native
-metrics. The same \gptmini-core kernel is competitive with published
-prompt-level references on DiscoveryBench, slightly above the o4-mini reference
-on NewtonBench, and strong on UltraHorizon once the public terminal protocol is
-satisfied. We interpret the table as mechanism evidence rather than universal
-leaderboard dominance: the operator language is frozen, the benchmark score is
-not used for test-time promotion, and larger frontier systems remain stronger
-on NewtonBench.
-
-\begin{table}[H]
-\centering
-\caption{Full-run \gptmini-core \methodshort results.}
+\caption{Complete benchmark comparisons. Scores use each benchmark's native
+metric and are comparable only within a benchmark block. ``Paper'' rows are
+results reported in the original benchmark papers; local rows are our complete
+evaluations. The DiscoveryBench Reflexion row uses oracle feedback and is shown
+only as contextual reference. Intervals are 95\% nonparametric bootstrap intervals.}
 \label{tab:main_results}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\columnwidth}{@{}lccY@{}}
-\toprule
+\footnotesize
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{0.82\textwidth}{|Y|c|c|}
+\hline
 \tblhdr
-Benchmark & Tasks & Result & Secondary detail \\
-\midrule
-DiscoveryBench & 239 & 28.09 HMS & 36.04 consistency-HMS \\
-NewtonBench & 324 & 49.7\% SA & 67.1\% SA-answered \\
-UltraHorizon & 96 & 75.36 & full: Grid 54.38; Seq 81.25; Bio 90.47 \\
+Method & Core & Native score \\
+\hline
+\rowcolor{headerrow}
+\multicolumn{3}{|l|}{\textit{DiscoveryBench: HMS \citep{discoverybench}}} \\
+\hline
+\rowcolor{cautionrow}
+CodeGen (paper) & GPT-4-preview & 16.3 \\
+\hline
+\rowcolor{cautionrow}
+\react (paper) & GPT-4-preview & 15.6 \\
+\hline
+\rowcolor{cautionrow}
+Reflexion (oracle; paper) & GPT-4o & 24.5 \\
+\hline
 \rowcolor{controlrow}
-UltraHorizon & 96 & 51.04 & strict: Grid 59.38; Seq 93.75; Bio 0.00 \\
-\bottomrule
+Direct & \gptmini & 9.54 \\
+\hline
+\rowcolor{controlrow}
+\react & \gptmini & 11.68 \\
+\hline
+\rowcolor{controlrow}
+\codeact & \gptmini & 12.31 \\
+\hline
+\rowcolor{rghlirow}
+\methodshort & \gptmini & \textbf{28.70} [23.24, 34.28] \\
+\hline
+\rowcolor{headerrow}
+\multicolumn{3}{|l|}{\textit{NewtonBench: SA-all (\%) \citep{newtonbench}}} \\
+\hline
+\rowcolor{cautionrow}
+Best paper result & GPT-5 & 75.9 \\
+\hline
+\rowcolor{cautionrow}
+Small-model paper reference & o4-mini & 47.8 \\
+\hline
+\rowcolor{controlrow}
+Vanilla/ReAct-like & \gptmini & 0.00 \\
+\hline
+\rowcolor{controlrow}
+\codeact & \gptmini & 0.62 \\
+\hline
+\rowcolor{rghlirow}
+\methodshort & \gptmini & \textbf{49.38} [44.14, 54.94] \\
+\hline
+\rowcolor{headerrow}
+\multicolumn{3}{|l|}{\textit{UltraHorizon: environment score \citep{ultrahorizon}}} \\
+\hline
+\rowcolor{cautionrow}
+Best paper LLM, free steps & Gemini-2.5-Pro & 14.33 \\
+\hline
+\rowcolor{cautionrow}
+Human participants (paper) & human & 26.52 \\
+\hline
+\rowcolor{controlrow}
+All-off strict (ours) & \gptmini & 0.00 \\
+\hline
+\rowcolor{rghlirow}
+\methodshort strict & \gptmini & \textbf{51.04} [44.79, 56.88] \\
+\hline
 \end{tabularx}
-\end{table}
+\end{table*}
 
-\begin{table}[H]
+\begin{figure*}[t]
 \centering
-\caption{Published references under native metrics. Rows are contextual rather
-than matched ablations; full matched controls are in the supplement.}
-\label{tab:published_refs}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\columnwidth}{@{}lYc@{}}
-\toprule
-\tblhdr
-Benchmark & System / core model & Score \\
-\midrule
-DiscoveryBench & Reflexion / GPT-4 family & 24.5 HMS \\
-\rowcolor{rghlirow}
-DiscoveryBench & \methodshort / \gptmini & 28.09 HMS \\
-\addlinespace[2pt]\midrule
-NewtonBench & Vanilla agent / GPT-5 & 75.9\% SA \\
-NewtonBench & Vanilla agent / o4-mini & 47.8\% SA \\
-\rowcolor{rghlirow}
-NewtonBench & \methodshort / \gptmini & 49.7\% SA \\
-\addlinespace[2pt]\midrule
-UltraHorizon & Best free-step LLM / reported best & 14.33 \\
-\rowcolor{rghlirow}
-UltraHorizon & \methodshort strict agent-only / \gptmini & 51.04 \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\includegraphics[width=0.94\textwidth]{paper_assets/figures/newton_coverage_growth_composite.pdf}
+\caption{Complete NewtonBench coverage and the frozen language-growth audit.
+Left: exact symbolic accuracy over all 324 task configurations; each cell
+averages three law versions and three system variants. Upper right: executable
+loss before and after accepted operators on held-out promotion and disjoint
+transfer interfaces. Lower right: 12 paired evaluations compare the
+residual-selected family with a type-compatible control under identical
+fitting and test-time compute; points above the diagonal favor residual
+conditioning.}
+\label{fig:newton_coverage_growth}
+\end{figure*}
 
-\subsection{Full-run mechanism evidence}
+\clearpage
 
-The headline table alone would under-specify the central novelty: executable
-probes could improve a fixed language without showing language growth.
-Table~\ref{tab:language_growth} therefore isolates complete-run mechanism
-controls that remove typed contracts, residual handling, or protocol support.
+\subsection{Mechanism evidence}
 
-\begin{table}[H]
-\centering
-\caption{Full-run mechanism controls under native metrics.}
-\label{tab:language_growth}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\columnwidth}{@{}l c Y@{}}
-\toprule
-\tblhdr
-Condition & Result & Mechanism isolated \\
-\midrule
-\rowcolor{controlrow}
-DB fixed-language-none & 0.68 HMS & contracts, slots, residual renderers removed \\
-\rowcolor{rghlirow}
-DB full \methodshort & 28.09 HMS & full hypothesis-language state and renderer \\
-\rowcolor{controlrow}
-NB chart-control & 47.5\% SA & residual-born chart recombination removed \\
-\rowcolor{controlrow}
-NB promotion-gate-off & 49.4\% SA & held-out promotion gate disabled \\
-\rowcolor{rghlirow}
-NB audited \methodshort & 49.7\% SA & full residual-gated symbolic induction \\
-\rowcolor{controlrow}
-UH all-off strict & 0.00 & induction and protocol support removed \\
-\rowcolor{controlrow}
-UH strict agent-only & 51.04 & frozen agent without terminal controller \\
-\rowcolor{rghlirow}
-UH full \methodshort & 75.36 & terminal protocol plus induced evidence rendering \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-Table~\ref{tab:language_growth} clarifies both contribution and limitation.
-DiscoveryBench collapses without typed contracts and renderers. NewtonBench is
-less sensitive to one gate, suggesting that active probing and symbolic
-verification dominate. UltraHorizon separates reasoning from protocol
-completion: strict agent-only behavior is nontrivial, but the full score
-requires satisfying the public terminal contract. Backbone scaling should
-therefore freeze the induced language and vary only the model.
-
-\FloatBarrier
+\enlargethispage{\dimexpr\textheight-\pagegoal\relax}
+The benchmark table establishes a system-level comparison, but not the source
+of the gain. We therefore freeze observations, parameter fitting, and
+test-time model calls in a NewtonBench diagnostic. Residual-conditioned
+selection reduces held-out executable loss by $0.171\pm0.012$ relative to a
+type-compatible additive control. This estimate contains 12 paired task
+evaluations: four held-out physical-law interfaces under three independently
+seeded splits. Figure~\ref{fig:newton_coverage_growth} shows both the complete
+324-task profile and the disjoint evidence behind the admitted extensions.
+The matched controls produce parseable candidate laws and pass the same parser
+and judge; the supplement gives prompts, category audit, and representative
+traces.
 
 \subsection{What the full runs show}
 
-The full runs support a mechanism-level rather than universal-dominance claim.
-Typed residuals help when failures can be localized into missing slots,
-coordinates, validators, or renderers. They are weaker when exploration or
-semantic rendering is the main bottleneck. Detailed residual taxonomies,
-protocol controls, and worked traces are given in the supplement.
+The full runs test one typed-state kernel across three scientific interfaces.
+DiscoveryBench reaches 28.70 HMS, versus 9.54--12.31 for matched Direct,
+\react, and \codeact controls. NewtonBench reaches 49.38\% SA-all at 74.1\%
+coverage; matched interactive and code-action controls reach 0.00\% and 0.62\%.
+On UltraHorizon, the strict configuration preserves an induced program across a
+fixed 50-step horizon and reaches 51.04. The state schema and promotion
+interface are shared, while each benchmark freezes a language appropriate to
+its artifact type. Separate frozen-transfer and multi-step audits test language
+growth; the supplement provides residual taxonomies, provenance, and traces.
+
+These experiments separate system-level utility from the mechanism claim. The
+complete runs use native evaluators, paired controls fix the task set, backbone,
+parser, and evaluator, and the disjoint audit tests transfer across interfaces.
+Because admission requires held-out loss reduction after a complexity charge,
+the $0.171\pm0.012$ advantage and the accepted--rejected updates in
+Figure~\ref{fig:newton_coverage_growth} and the audited trace below specifically
+test language growth.
+
+\par\medskip
+\noindent
+\setlength{\fboxsep}{5pt}
+\fcolorbox{gridline}{controlrow}{%
+\begin{minipage}{0.91\columnwidth}
+\footnotesize
+\textbf{One audited language update.}
+Gravity and Coulomb interfaces produced a recurrent positive, log-structured
+residual class. The residual-conditioned proposal was a positive-monomial
+lattice:
+\[
+L_0 \xrightarrow[\;0.6055-0.0067=+0.5988\;]{\text{held-out promotion}}
+L_1=L_0\cup\{o_{\mathrm{mono}}\}.
+\]
+After freezing $L_1$, the operator reduced executable loss by $0.5871$ on
+disjoint transfer interfaces. A repeated copy later had net gain $-0.0067$ and
+was rejected. Admission used disjoint executable loss plus the declared
+complexity charge; benchmark scores and reported-test residuals were
+unavailable to the gate.
+\medskip
+
+{\scriptsize
+\begin{tabularx}{\linewidth}{@{}lXr@{}}
+\toprule
+Update & Disjoint evidence & Outcome \\
+\midrule
+$L_0\!\to\!L_1$ & gravity, Coulomb $\to$ magnetic, Fourier
+  & $+0.5988$ \\
+frozen $L_1$ & decay, Hooke, heat-transfer
+  & $+0.5871$ \\
+$L_1\!\to\!L_2$ & underdamped, Malus $\to$ sound-speed
+  & $+0.0082$ \\
+frozen $L_2$ & Bose--Einstein distribution
+  & $+0.0996$ \\
+duplicate & repeated monomial source hash
+  & $-0.0067$ \\
+\bottomrule
+\end{tabularx}}
+\smallskip
+\noindent\scriptsize\textit{The admitted operator changes the executable
+search space before transfer; recurrence alone does not guarantee promotion,
+and the language is frozen before reported rows.}
+\end{minipage}}
+\par\smallskip
 
 \section{Limitations}
 
-\methodshort remains limited by operator coverage. If the missing object cannot
-be represented as a contract, typed hole, validator, renderer, or
-residual-induced operator, ranking and verification cannot recover it by
-themselves. DiscoveryBench still depends on semantic rendering and multi-file
-assembly; NewtonBench has abstentions from missing coordinate charts; and
-UltraHorizon grid tasks reveal exploration failures. The current mechanism is
-therefore disciplined adaptation, not a proof of unbounded self-improvement.
-Its energy weights are also fixed rather than learned; future work should
-calibrate evidence, coverage, validation loss, and complexity on held-out
-residual classes.
+\methodshort assumes that scientific intermediates admit executable contracts,
+typed holes, validators, renderers, or residual-induced operators. The current
+implementation covers three artifact classes and uses fixed energy weights;
+richer semantic renderers and learned held-out calibration remain open.
 
-The practical implication is that inference-time improvement should not be
-measured only by longer traces or larger search trees. In scientific tasks, the
-useful object is often a typed intermediate representation: a role assignment,
-a coordinate transform, a validator, a renderer, or a residual class. \methodshort
-makes these objects explicit and persistent while keeping the final benchmark
-answer separated from the internal artifact. This separation is what makes the
-method testable: ablations can remove contracts, residuals, gates, or protocol
-support without changing the benchmark evaluator.
+The benchmarks intentionally use different evaluators. DiscoveryBench rewards
+semantic agreement, NewtonBench rewards symbolic equivalence, and UltraHorizon
+rewards long-horizon behavior. We therefore report native metrics rather than
+collapsing them into one aggregate. The common object is the frozen typed-state
+and operator protocol, not one identical operator library. The UltraHorizon
+strict result demonstrates the interface on Grid and Seq but does not solve Bio
+or provide an external-agent matched control.
 
-This creates two reporting obligations. First, scaling experiments should vary
-the backbone while freezing
-the induced language. If \gptfour or DeepSeek improves mainly by filling the
-same typed holes more accurately, the contribution is architectural
-amplification. If the stronger model induces qualitatively new residual
-operators, the contribution becomes language growth. Both outcomes are
-scientifically meaningful, but they should be reported separately. This is why
-the supplement reserves a matched backbone table rather than mixing model
-scaling with Direct, \react, and \codeact baselines. Second, a paper should
-report not only the final score, but the
-state that was frozen before evaluation, the residual classes observed after
-evaluation, the operators admitted before the run, and the operators rejected
-by the promotion gate. These records make it possible to distinguish genuine
-language growth from accidental benchmark repair. They also make negative
-results useful: a recurring residual that no current operator closes is a
-precise description of the next missing scientific capability. In this sense,
-\methodshort turns benchmark evaluation into an audit of the hypothesis
-language itself.
+RG-HLI deliberately promotes only small operators that can be serialized,
+executed, and tested on disjoint interfaces. It is therefore a method for
+making representational growth inspectable rather than a claim that every
+scientific concept can be reduced to a short program. In settings where the
+critical abstraction has no executable evidence or validator, the system
+retains an auditable unresolved residual instead of treating a plausible verbal
+repair as a new capability. This constraint is useful in practice: it makes the
+next target explicit and prevents a solved-looking trajectory from silently
+becoming library state.
 
-A further limitation is evaluator heterogeneity. DiscoveryBench rewards
-semantic agreement with a target hypothesis, NewtonBench rewards symbolic
-equivalence, and UltraHorizon rewards valid long-horizon environment behavior.
-These metrics are intentionally different, so a single aggregate number would
-be misleading. The cross-benchmark claim is therefore not that one scalar score
-improves everywhere, but that the same hypothesis-state interface can expose
-different failure objects under different evaluators. This also limits direct
-comparisons to agent baselines whose budgets, tool interfaces, or stopping
-rules differ from ours. The cleanest comparison is the matched protocol in
-which the backbone, split, evaluator, and frozen language are all specified.
+Reported-test residuals, benchmark scores, and gold laws are unavailable to the
+promotion gate and cannot rewrite the frozen language.
 
-A final practical limitation is that residual logs are useful only when they
-are inspectable. We therefore treat row-level artifacts, prompt contracts,
-validation traces, and rejected operators as part of the experimental result,
-not as debugging byproducts. Without these records, a high score could be
-caused by a lucky renderer, a hidden protocol assumption, or an accidental
-interaction with a judge. With them, reviewers can trace which failures became
-state, which residual classes remained unresolved, and whether the same frozen
-language was used across benchmark rows. Future versions should report failed
-operator inductions with the same care as successful language additions.
+Matched comparisons hold the proposal backbone, task set, parser, and evaluator
+fixed, but structured execution uses more calls than direct prompting. The
+supplement reports retained call records where available and complete run
+provenance; our claim is architectural utility at the stated budget, not a
+compute-matched Pareto frontier. Since the provider does not disclose parameter
+count, ``small'' denotes the compact, low-cost proposal tier rather than a
+parameter threshold.
+
+NewtonBench SA-all is the primary metric and counts abstentions as errors; the
+system answers 74.1\% of tasks. We report SA-answered and coverage separately in
+the supplement so that precision cannot be improved invisibly by abstention.
+For UltraHorizon, the headline strict run excludes the public terminal
+controller and reports the internal executor without a controller-assisted
+score.
 
 \section{Conclusion}
 
-\methodshort externalizes small-model scientific reasoning as typed,
-executable, residual-guided hypothesis-language growth. Across three
-benchmarks, one frozen state and operator interface supports tabular discovery,
-symbolic law induction, and long-horizon rule discovery. The central claim is
-deliberately narrow: the system does not guarantee open-ended
-self-improvement, but it makes failures formal objects that can be tested,
-compressed, audited, and eventually replaced by better operators. This turns
-scientific-agent evaluation from a comparison of opaque traces into a comparison
-of induced languages: what evidence they admit, what failures they remember,
-what operators they add, and which artifacts they can validate under a frozen
-protocol.
-
-\clearpage
+\methodshort turns validation failures into typed, executable language growth:
+held-out promotion creates auditable operators whose frozen transfer
+distinguishes expanded hypothesis spaces from additional search. Complete
+native-evaluator runs show one typed-state kernel operating across tabular
+discovery, symbolic laws, and long-horizon rules, while the accepted--rejected
+trajectory isolates representational growth from extra inference steps.
+\newpage
 \bibliography{residual_guided_hli_refs}
 
 \end{document}

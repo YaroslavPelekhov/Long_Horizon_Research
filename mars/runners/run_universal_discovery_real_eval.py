@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -17,6 +18,8 @@ import re
 import statistics as st
 import sys
 import time
+import signal
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -47,6 +50,7 @@ from mars.runners.run_db_official_eval import (  # noqa: E402
     _run_official_eval,
     _split_submission,
     load_official_real_tasks,
+    load_official_train_tasks,
 )
 
 
@@ -58,6 +62,8 @@ def _parse_optional_modules(value: str) -> set[str] | None:
     items = {x.strip() for x in value.split(",") if x.strip()}
     if not items:
         return None
+    if items == {"full"}:
+        return None
     if items == {"none"}:
         return set()
     if "none" in items:
@@ -65,10 +71,44 @@ def _parse_optional_modules(value: str) -> set[str] | None:
     return items
 
 
+def _language_state_snapshot() -> dict[str, Any]:
+    """Hash the experiment-local language stores without exposing contents."""
+
+    roots = {
+        "modules": os.environ.get("MARS_SELF_MODULE_ROOT", ""),
+        "layers": os.environ.get("MARS_SELF_LAYER_ROOT", ""),
+    }
+    digest = hashlib.sha256()
+    n_files = 0
+    n_bytes = 0
+    for kind, raw_root in sorted(roots.items()):
+        if not raw_root:
+            continue
+        root = Path(raw_root)
+        if not root.exists():
+            continue
+        for path in sorted(item for item in root.rglob("*") if item.is_file()):
+            payload = path.read_bytes()
+            digest.update(kind.encode("utf-8"))
+            digest.update(str(path.relative_to(root)).encode("utf-8"))
+            digest.update(payload)
+            n_files += 1
+            n_bytes += len(payload)
+    return {
+        "sha256": digest.hexdigest(),
+        "n_files": n_files,
+        "n_bytes": n_bytes,
+        "roots_configured": {kind: bool(value) for kind, value in roots.items()},
+    }
+
+
 def _load_df(path: Path):
     import pandas as pd
 
-    df = pd.read_csv(path)
+    if path.suffix.lower() == ".dta":
+        df = pd.read_stata(path)
+    else:
+        df = pd.read_csv(path)
     if len(df.columns) == 1:
         only = str(df.columns[0])
         if "\t" in only:
@@ -198,6 +238,17 @@ def _run_one_task(
                 "n_valid": result.n_valid,
                 "n_observations": result.n_observations,
                 "winner_names": [h.name for h, _s in result.winners[:5]],
+                "winner_details": [
+                    {
+                        "name": program.name,
+                        "tags": list(program.tags),
+                        "source_hash": hashlib.sha256(program.code.encode("utf-8")).hexdigest()[:16],
+                        "loss_mean": score.loss_mean,
+                        "exact_rate": score.exact_rate,
+                        "mdl_score": score.mdl_score,
+                    }
+                    for program, score in result.winners[:5]
+                ],
                 "report": result.report[:1200],
                 "wall_time_s": round(time.time() - started, 3),
                 "errors": result.errors[:5],
@@ -960,6 +1011,41 @@ def _write_jsonl(handle, row: dict[str, Any]) -> None:
     handle.flush()
 
 
+@contextmanager
+def _task_timeout(seconds: int):
+    """Bound one task, including provider calls, so a run can make progress."""
+
+    if seconds <= 0 or not hasattr(signal, "SIGALRM"):
+        yield
+        return
+
+    def _raise_timeout(_signum, _frame):
+        raise TimeoutError(f"task exceeded timeout of {seconds}s")
+
+    previous_handler = signal.signal(signal.SIGALRM, _raise_timeout)
+    signal.setitimer(signal.ITIMER_REAL, float(seconds))
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous_handler)
+
+
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            try:
+                value = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(value, dict):
+                rows.append(value)
+    return rows
+
+
 def _normalized_hypothesis_text(text: Any) -> str:
     normalized = re.sub(r"[^\w\s]+", "", str(text or "").lower())
     return " ".join(normalized.strip().split())
@@ -979,6 +1065,12 @@ def main() -> None:
     parser.add_argument("--start_index", type=int, default=0)
     parser.add_argument("--datasets", default="")
     parser.add_argument("--task_keys", nargs="*", default=None)
+    parser.add_argument(
+        "--data_split",
+        choices=("train", "test"),
+        default="test",
+        help="Released DiscoveryBench split. Test remains the default headline protocol.",
+    )
     parser.add_argument("--model", default=os.environ.get("MARS_GENERATOR_MODEL", "openai/gpt-4o-mini"))
     parser.add_argument("--judge_model", default=os.environ.get("MARS_DB_OFFICIAL_JUDGE_MODEL", "openai/gpt-4o"))
     parser.add_argument("--n_proposals", type=int, default=0)
@@ -987,11 +1079,27 @@ def main() -> None:
         "--discovery_modules",
         default="",
         help=(
-            "Comma-separated Discovery render modules. Empty uses full stack; 'none' disables add-on modules. "
+            "Comma-separated Discovery render modules. Empty or 'full' uses the default full stack; 'none' disables add-on modules. "
             "Known: universal_kernel,evidence_contract,answer_plan,contrastive_world,problem_frame,answer_slot,slot_contract,temporal,workbench,llm_synthesis"
         ),
     )
     parser.add_argument("--skip_official_eval", action="store_true")
+    parser.add_argument(
+        "--fail_on_eval_error",
+        action="store_true",
+        help="Abort instead of converting an evaluator/API failure into a zero score.",
+    )
+    parser.add_argument(
+        "--task_timeout_s",
+        type=int,
+        default=300,
+        help="Hard wall-clock limit for one task, including generation and official judging; 0 disables it.",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume from completed task rows already present in predictions/official_eval JSONL files.",
+    )
     parser.add_argument(
         "--disable_promotion_gate",
         action="store_true",
@@ -1006,7 +1114,8 @@ def main() -> None:
     repo = _PROJ / "discoverybench_repo"
     datasets = set(_parse_csv(args.datasets)) or None
     task_keys = {x.strip() for x in args.task_keys or [] if x.strip()} or None
-    tasks = load_official_real_tasks(
+    task_loader = load_official_train_tasks if args.data_split == "train" else load_official_real_tasks
+    tasks = task_loader(
         repo,
         max_tasks=args.max_tasks if args.max_tasks > 0 else None,
         datasets=datasets,
@@ -1022,33 +1131,82 @@ def main() -> None:
     eval_path = out_dir / "official_eval.jsonl"
     trace_path = out_dir / "eval_trace.log"
     summary_path = out_dir / "summary.json"
-    for path in (pred_path, eval_path, trace_path, summary_path):
-        if path.exists() and not args.overwrite:
-            raise SystemExit(f"output exists; pass --overwrite: {path}")
-        if path.exists():
-            path.unlink()
+    existing_pred_rows = _read_jsonl(pred_path) if args.resume else []
+    existing_eval_rows = _read_jsonl(eval_path) if args.resume else []
+    if args.resume:
+        if not pred_path.exists() or not eval_path.exists():
+            raise SystemExit("--resume requires existing predictions.jsonl and official_eval.jsonl")
+    else:
+        for path in (pred_path, eval_path, trace_path, summary_path):
+            if path.exists() and not args.overwrite:
+                raise SystemExit(f"output exists; pass --overwrite: {path}")
+            if path.exists():
+                path.unlink()
 
     print("=== UniversalCPI DiscoveryBench real-data eval ===")
-    print(f"run_id={args.run_id} N={len(tasks)} model={args.model} judge={args.judge_model}")
+    print(
+        f"run_id={args.run_id} split={args.data_split} N={len(tasks)} "
+        f"model={args.model} judge={args.judge_model}"
+    )
     print(f"out_dir={out_dir}")
     discovery_modules = _parse_optional_modules(args.discovery_modules)
     if discovery_modules is not None:
         print(f"discovery_modules={sorted(discovery_modules)}")
+    if args.resume:
+        print(f"resume_completed={len(existing_eval_rows)}")
+    print(f"task_timeout_s={args.task_timeout_s}")
+    language_state_before = _language_state_snapshot()
 
-    pred_rows: list[dict[str, Any]] = []
-    eval_rows: list[dict[str, Any]] = []
+    pred_rows: list[dict[str, Any]] = list(existing_pred_rows)
+    eval_rows: list[dict[str, Any]] = list(existing_eval_rows)
+    completed_task_keys = {
+        str(row.get("task_key"))
+        for row in existing_eval_rows
+        if row.get("task_key")
+    }
     started = time.time()
-    with pred_path.open("w", encoding="utf-8") as pred_f, eval_path.open("w", encoding="utf-8") as eval_f, trace_path.open("w", encoding="utf-8") as trace_f:
+    pred_mode = "a" if args.resume else "w"
+    eval_mode = "a" if args.resume else "w"
+    trace_mode = "a" if args.resume else "w"
+    with pred_path.open(pred_mode, encoding="utf-8") as pred_f, eval_path.open(eval_mode, encoding="utf-8") as eval_f, trace_path.open(trace_mode, encoding="utf-8") as trace_f:
         for i, task in enumerate(tasks, 1):
-            row = _run_one_task(
-                task,
-                model=args.model,
-                judge_model=args.judge_model,
-                n_proposals=args.n_proposals,
-                max_rounds=args.max_rounds,
-                discovery_modules=discovery_modules,
-                disable_promotion_gate=args.disable_promotion_gate,
-            )
+            if task.task_key in completed_task_keys:
+                print(f"[{i}/{len(tasks)}] {task.task_key} resumed", flush=True)
+                continue
+            try:
+                with _task_timeout(args.task_timeout_s):
+                    previous_validation_key = os.environ.get("MARS_VALIDATION_KEY")
+                    os.environ["MARS_VALIDATION_KEY"] = f"{args.data_split}:{task.task_key}"
+                    try:
+                        row = _run_one_task(
+                            task,
+                            model=args.model,
+                            judge_model=args.judge_model,
+                            n_proposals=args.n_proposals,
+                            max_rounds=args.max_rounds,
+                            discovery_modules=discovery_modules,
+                            disable_promotion_gate=args.disable_promotion_gate,
+                        )
+                    finally:
+                        if previous_validation_key is None:
+                            os.environ.pop("MARS_VALIDATION_KEY", None)
+                        else:
+                            os.environ["MARS_VALIDATION_KEY"] = previous_validation_key
+            except TimeoutError as exc:
+                row = {
+                    "task_key": task.task_key,
+                    "task_id": task.task.task_id,
+                    "dataset": task.dataset_name,
+                    "metadata_id": task.metadata_id,
+                    "query_id": task.query_id,
+                    "query": task.task.query,
+                    "model": args.model,
+                    "judge_model": args.judge_model,
+                    "error": f"TimeoutError: {exc}",
+                    "pred_hypo": "",
+                    "pred_workflow": "",
+                    "dataset_runs": [],
+                }
             pred_rows.append(row)
             _write_jsonl(pred_f, row)
 
@@ -1060,7 +1218,7 @@ def main() -> None:
                 "official_eval_skipped": bool(args.skip_official_eval),
                 "judge_model": args.judge_model,
             }
-            if not args.skip_official_eval:
+            if not args.skip_official_eval and not row.get("error"):
                 try:
                     ev = _run_official_eval(
                         task,
@@ -1074,12 +1232,23 @@ def main() -> None:
                     eval_row["HMS_raw_100"] = eval_row["HMS_100"]
                     eval_row["HMS_consistency_100"] = _consistency_corrected_hms(eval_row)
                 except Exception as exc:
+                    if args.fail_on_eval_error:
+                        raise RuntimeError(
+                            f"official evaluator failed for {task.task_key}: {exc}"
+                        ) from exc
                     eval_row.update({
                         "error": f"{type(exc).__name__}: {exc}",
                         "HMS_100": 0.0,
                         "HMS_raw_100": 0.0,
                         "HMS_consistency_100": 0.0,
                     })
+            elif row.get("error"):
+                eval_row.update({
+                    "error": row["error"],
+                    "HMS_100": 0.0,
+                    "HMS_raw_100": 0.0,
+                    "HMS_consistency_100": 0.0,
+                })
             eval_rows.append(eval_row)
             _write_jsonl(eval_f, eval_row)
             score = "skip" if args.skip_official_eval else f"{float(eval_row.get('HMS_100', 0.0)):.1f}"
@@ -1093,10 +1262,12 @@ def main() -> None:
     ]
     summary = {
         "run_id": args.run_id,
+        "data_split": args.data_split,
         "score_type": "universal-cpi-real-discovery",
         "model": args.model,
         "judge_model": args.judge_model,
-        "n_tasks": len(tasks),
+        "n_tasks": len(eval_rows),
+        "n_tasks_requested": len(tasks),
         "n_proposals": args.n_proposals,
         "max_rounds": args.max_rounds,
         "discovery_modules": sorted(discovery_modules) if discovery_modules is not None else "full",
@@ -1108,9 +1279,22 @@ def main() -> None:
         "scores": scores,
         "consistency_scores": consistency_scores,
         "wall_time_s": round(time.time() - started, 3),
+        "task_timeout_s": args.task_timeout_s,
+        "resumed": bool(args.resume),
+        "language_protocol": {
+            "load_trusted_modules": os.environ.get("MARS_LOAD_TRUSTED_MODULES"),
+            "load_trusted_layers": os.environ.get("MARS_LOAD_TRUSTED_LAYERS"),
+            "promote_modules": os.environ.get("MARS_PROMOTE_SELF_MODULES"),
+            "promote_layers": os.environ.get("MARS_PROMOTE_SELF_LAYERS"),
+            "propose_layers": os.environ.get("MARS_PROPOSE_SELF_LAYERS"),
+        },
         "predictions_path": str(pred_path),
         "official_eval_path": str(eval_path),
     }
+    language_state_after = _language_state_snapshot()
+    summary["language_state_before"] = language_state_before
+    summary["language_state_after"] = language_state_after
+    summary["language_mutated"] = language_state_before != language_state_after
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(f"summary → {summary_path}")
     if scores:

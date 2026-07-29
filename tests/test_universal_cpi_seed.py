@@ -1,5 +1,6 @@
 import unittest
 import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
 from mars.induction.universal_cpi import (
@@ -9,6 +10,8 @@ from mars.induction.universal_cpi import (
     UniversalCPI,
     _sandbox_compile,
 )
+from mars.skills.typed_operator_plan import compile_typed_operator_plan
+from mars.skills.self_layer_registry import SelfLayerRegistry
 
 
 class SeedAdapter(CPIAdapter):
@@ -295,6 +298,131 @@ class GeneratedOperatorLayerEngine(UniversalCPI):
 
 
 class UniversalCPISeedTests(unittest.TestCase):
+    def test_layer_runtime_gate_rejects_program_with_undefined_closure(self):
+        engine = UniversalCPI(model="unused", max_rounds=0, n_proposals=0)
+        code = (
+            "def build_layer(context: dict) -> dict:\n"
+            "    return {'program_sources': [{\n"
+            "        'name': 'bad_closure',\n"
+            "        'description': 'invalid hidden closure',\n"
+            "        'complexity': 1.0,\n"
+            "        'code': \"def rule(current: str, context: dict) -> str:\\n"
+            "    return current + observations[0]\\n\",\n"
+            "    }]}\n"
+        )
+        programs, errors, output = engine._execute_layer_source(
+            SeedAdapter(),
+            SeedAdapter().collect_observations(),
+            layer_name="bad_closure_layer",
+            code=code,
+            layer_origin="proposed",
+        )
+        self.assertIsNotNone(output)
+        self.assertEqual(programs, [])
+        self.assertTrue(any("runtime failed" in error for error in errors))
+
+    def test_layer_runtime_gate_keeps_self_contained_program(self):
+        engine = UniversalCPI(model="unused", max_rounds=0, n_proposals=0)
+        code = (
+            "def build_layer(context: dict) -> dict:\n"
+            "    return {'program_sources': [{\n"
+            "        'name': 'append_x_layer',\n"
+            "        'description': 'self-contained program',\n"
+            "        'complexity': 1.0,\n"
+            "        'code': \"def rule(current: str, context: dict) -> str:\\n"
+            "    return current + 'x'\\n\",\n"
+            "    }]}\n"
+        )
+        programs, errors, _ = engine._execute_layer_source(
+            SeedAdapter(),
+            SeedAdapter().collect_observations(),
+            layer_name="append_x_layer",
+            code=code,
+            layer_origin="proposed",
+        )
+        self.assertEqual(errors, [])
+        self.assertEqual([program.name for program in programs], ["append_x_layer"])
+
+    def test_typed_monomial_plan_closes_a_numeric_residual_class(self):
+        adapter = NumericTypedPriorAdapter()
+        observations = adapter.collect_observations()
+        spec = compile_typed_operator_plan(
+            {"family": "positive_monomial_lattice"},
+            input_type="dict",
+            target_type="float",
+            signature_hint=adapter.signature_hint(),
+        )
+        assert spec is not None
+        engine = UniversalCPI(model="unused", max_rounds=0, n_proposals=0)
+        programs, errors, output = engine._execute_layer_source(
+            adapter,
+            observations,
+            layer_name="typed_monomial",
+            code=spec["code"],
+            layer_origin="proposed",
+            metadata=spec,
+        )
+        self.assertIsNotNone(output)
+        self.assertEqual(errors, [])
+        ranked = engine._rank(programs, observations, adapter)
+        self.assertLess(ranked[0][1].loss_mean, 1e-9)
+
+    def test_loaded_operator_receives_adapter_calibration(self):
+        """A persisted structural program must fit local constants on reload."""
+
+        adapter = NumericTypedPriorAdapter()
+        spec = compile_typed_operator_plan(
+            {"family": "positive_monomial_lattice"},
+            input_type="dict",
+            target_type="float",
+            signature_hint=adapter.signature_hint(),
+        )
+        assert spec is not None
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            SelfLayerRegistry(root).promote(
+                namespace="universal",
+                name="typed_monomial",
+                layer_type="residual_class_operator",
+                code=spec["code"],
+                contract=spec["contract"],
+                description="test typed operator",
+                score={"gain": 1.0, "loss_mean": 0.0, "validation_key": "source"},
+                min_gain=0.0,
+                max_loss_mean=1.0,
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "MARS_SELF_LAYER_ROOT": str(root),
+                    "MARS_SELF_LAYER_NAMESPACE": "universal",
+                    "MARS_LOAD_TRUSTED_LAYERS": "0",
+                    "MARS_LOAD_CANDIDATE_LAYERS": "1",
+                    "MARS_CANDIDATE_LAYER_BUDGET": "1",
+                },
+                clear=False,
+            ):
+                engine = UniversalCPI(model="unused", max_rounds=0, n_proposals=0)
+                programs, errors, _ = engine._load_self_layer_programs(
+                    adapter, adapter.collect_observations()
+                )
+        self.assertEqual(errors, [])
+        ranked = engine._rank(programs, adapter.collect_observations(), adapter)
+        self.assertLess(ranked[0][1].loss_mean, 1e-9)
+
+    def test_fixed_language_flags_remove_numeric_prior_families(self):
+        with patch.dict(
+            "os.environ",
+            {"MARS_TYPED_PRIORS": "0", "MARS_RESIDUAL_KERNEL": "0", "MARS_DPSR": "0"},
+            clear=False,
+        ):
+            result = UniversalCPI(model="unused", max_rounds=0, n_proposals=0).run(
+                NumericTypedPriorAdapter()
+            )
+        self.assertFalse(
+            any("typed_numeric_prior" in program.tags for program, _ in result.winners)
+        )
+
     def test_trusted_seed_can_solve_without_llm_round(self):
         engine = UniversalCPI(model="unused", max_rounds=3)
         result = engine.run(SeedAdapter())
@@ -365,6 +493,15 @@ class UniversalCPISeedTests(unittest.TestCase):
         self.assertEqual(result.n_proposed, 0)
         self.assertIn("typed_numeric_product_m1_m2_over_r_square", result.winners[0][0].name)
         self.assertAlmostEqual(result.winners[0][1].loss_mean, 0.0, places=8)
+
+    def test_numeric_residual_geometry_is_identifier_free_and_log_structured(self):
+        adapter = NumericTypedPriorAdapter()
+        geometry = UniversalCPI._numeric_residual_geometry(
+            adapter,
+            adapter.collect_observations(),
+            None,
+        )
+        self.assertEqual(geometry, "positive_log_structured")
 
     def test_residual_operator_layer_repairs_bad_seed_without_llm_round(self):
         with tempfile.TemporaryDirectory() as td:
