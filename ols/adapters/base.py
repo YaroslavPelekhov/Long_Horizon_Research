@@ -133,7 +133,7 @@ class ResearchEnvAdapter(ABC):
 
         Default: empty → the Programmatic Completeness Gate is a no-op. Adapters
         that benefit from MARS-SELF's mechanical completeness enforcement
-        (UltraHorizon genetics, NewtonBench law discovery, ScienceAgentBench
+        (UltraHorizon genetics, NewtonBench law discovery, and scientific
         programs) override this to return their required sections.
         """
         return []

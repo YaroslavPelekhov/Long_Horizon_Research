@@ -29,7 +29,7 @@ failures are not kept as natural-language feedback; they become typed objects
 that reveal missing expressivity in the current language and drive operator
 induction.
 
-## Main Paper-Safe Results
+## Main Results
 
 | Benchmark | N | Metric | RG-HLI result | Main artifact |
 |---|---:|---|---:|---|
@@ -40,12 +40,6 @@ induction.
 These are the complete single-pass artifacts used by the submission. The
 headline language is frozen before evaluation; development-time promotion is
 tested separately by the frozen-transfer and multi-step mechanism audits.
-
-The supplement also reports complete proposal-core substitutions under frozen
-protocols: three endpoints on all 239 DiscoveryBench tasks, five endpoints on
-all 324 NewtonBench configurations, and three endpoints on all 96
-controller-enabled UltraHorizon episodes. The validated 11-row registry is
-`paper_assets/evidence/model_substitution_audit.json`.
 
 ## Submission Experiments
 
@@ -78,9 +72,10 @@ judge mismatches, and selective-rejudge artifacts.
 - `residual_guided_hli_supplement.tex` - supplementary material.
 - `residual_guided_hli_refs.bib` - bibliography for the paper.
 - `residual_guided_hli_submission.pdf` - compiled submission draft.
-- `PAPER_SAFE_RESULTS.md` - canonical result rows and exclusions.
+- `RESULTS.md` - retained complete benchmark rows.
 - `REPRODUCIBILITY.md` - commands and artifact paths for the three canonical
   full runs.
+- `ANONYMOUS_CODE_RELEASE.md` - reviewer map for the anonymous code archive.
 - `paper_assets/figures/` - generated figures used by the draft.
 - `paper_assets/evidence/HEADLINE_CLAIM_AUDIT.md` - internal mapping from every
   headline claim to its retained full-run artifact, evaluator, interval, and
@@ -91,8 +86,6 @@ judge mismatches, and selective-rejudge artifacts.
   for the complete multi-backbone experiments.
 - `paper_assets/make_paper_figures.py` - figure-generation script.
 - `mars/` - implementation modules and benchmark runners.
-- `lmw/paper_safe_results/summary.json` - machine-readable paper-safe result
-  registry.
 
 ## Reproducing Checks
 

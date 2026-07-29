@@ -28,26 +28,55 @@ MAIN_FIGURES = (
 SUPPLEMENT_FIGURES = (
     "concrete_language_growth_step.png",
     "language_growth_audit.pdf",
-    "discovery_score_profile.pdf",
 )
-CODE_DOCUMENTS = (
-    "ANONYMOUS_CODE_RELEASE.md",
-    "LICENSE",
-    "PAPER_SAFE_RESULTS.md",
-    "pytest.ini",
-    "README.md",
-    "REPRODUCIBILITY.md",
-    "ReproducibilityChecklist.tex",
-    "reproducibility_checklist.pdf",
-    "requirements-paper.txt",
-    "reproducibility_checklist_main.tex",
-    "residual_guided_hli_submission.pdf",
-    "residual_guided_hli_submission.tex",
-    "residual_guided_hli_supplement.pdf",
-    "residual_guided_hli_supplement.tex",
-    "residual_guided_hli_refs.bib",
-    "aaai2027.sty",
-    "aaai2027.bst",
+CODE_TESTS = (
+    "test_answer_contract.py",
+    "test_answer_plan_inducer.py",
+    "test_answer_slot_compiler.py",
+    "test_contract_baselines.py",
+    "test_estimand_synthesizer.py",
+    "test_evidence_contract_compiler.py",
+    "test_interface_profiler.py",
+    "test_main_experiment_protocols.py",
+    "test_metamorphic_estimand_kernel.py",
+    "test_metric_compiler.py",
+    "test_model_substitution_audit.py",
+    "test_nb_activeprobe_resume.py",
+    "test_newton_code_executor_timeout.py",
+    "test_operator_genome.py",
+    "test_paper_evidence_index.py",
+    "test_problem_frame_inducer.py",
+    "test_program_induction_ledger.py",
+    "test_residual_class_ledger.py",
+    "test_residual_kernel.py",
+    "test_scope_abstraction.py",
+    "test_self_induced_language.py",
+    "test_skill_grammar.py",
+    "test_slot_contract.py",
+    "test_submission_packaging.py",
+    "test_task_contract.py",
+    "test_typed_operator_plan.py",
+    "test_universal_cpi_seed.py",
+    "test_universal_discovery_real_eval.py",
+    "test_universal_hypothesis_kernel.py",
+    "test_universal_slot_compiler.py",
+)
+CODE_RUNNERS = (
+    "__init__.py",
+    "run_db_official_eval.py",
+    "run_discovery_chunked_eval.py",
+    "run_discovery_external_baselines.py",
+    "run_language_growth_experiment.py",
+    "run_nb_activeprobe.py",
+    "run_nb_fitters.py",
+    "run_nb_official_dpsr.py",
+    "run_nb_selfverify.py",
+    "run_newton_clean_multirun.py",
+    "run_newton_language_growth_trajectory.py",
+    "run_newton_language_transfer.py",
+    "run_uh_official.py",
+    "run_universal_discovery_real_eval.py",
+    "summarize_language_transfer.py",
 )
 
 
@@ -59,6 +88,28 @@ def _copy(source: Path, target: Path) -> None:
 def _copy_python_tree(source: Path, target: Path) -> None:
     for path in source.rglob("*.py"):
         _copy(path, target / path.relative_to(source))
+
+
+def _copy_reviewer_code(destination: Path) -> None:
+    for name in ("__init__.py", "coordinator.py", "smoketest.py"):
+        _copy(ROOT / "mars" / name, destination / "mars" / name)
+    for subdir in ("adapters", "agents", "analysis", "induction", "mdl", "skills"):
+        source = ROOT / "mars" / subdir
+        for path in source.rglob("*.py"):
+            if path.name in {
+                "scienceagentbench_adapter.py",
+                "build_submission_ablation_results.py",
+            }:
+                continue
+            _copy(path, destination / "mars" / path.relative_to(ROOT / "mars"))
+    for name in CODE_RUNNERS:
+        _copy(
+            ROOT / "mars" / "runners" / name,
+            destination / "mars" / "runners" / name,
+        )
+    _copy(ROOT / "tests" / "__init__.py", destination / "tests" / "__init__.py")
+    for name in CODE_TESTS:
+        _copy(ROOT / "tests" / name, destination / "tests" / name)
 
 
 def _compile(directory: Path, expected_pages: int | None = None) -> None:
@@ -205,7 +256,7 @@ def _build_supplement(destination: Path) -> None:
             ROOT / "paper_assets" / "evidence" / name,
             destination / "paper_assets" / "evidence" / name,
         )
-    _compile(destination, expected_pages=11)
+    _compile(destination, expected_pages=8)
     _clean_latex_build_files(destination)
 
 
@@ -218,13 +269,16 @@ def _build_checklist(destination: Path) -> None:
 
 
 def _build_code(destination: Path) -> None:
-    _copy_python_tree(ROOT / "mars", destination / "mars")
-    _copy_python_tree(ROOT / "tests", destination / "tests")
+    _copy_reviewer_code(destination)
     _copy_python_tree(ROOT / "openai", destination / "openai")
     if (ROOT / "ols").is_dir():
         _copy_python_tree(ROOT / "ols", destination / "ols")
-    for name in CODE_DOCUMENTS:
-        _copy(ROOT / name, destination / name)
+    _copy(ROOT / "ANONYMOUS_CODE_RELEASE.md", destination / "README.md")
+    _copy(ROOT / "REPRODUCIBILITY.md", destination / "REPRODUCIBILITY.md")
+    _copy(ROOT / "RESULTS.md", destination / "RESULTS.md")
+    _copy(ROOT / "LICENSE", destination / "LICENSE")
+    _copy(ROOT / "pytest.ini", destination / "pytest.ini")
+    _copy(ROOT / "requirements-paper.txt", destination / "requirements.txt")
     for name in (
         "README.md",
         "evidence_index.csv",
@@ -237,15 +291,6 @@ def _build_code(destination: Path) -> None:
             destination / "paper_assets" / "evidence" / name,
         )
     _copy_indexed_evidence(destination)
-    _copy(
-        ROOT / "paper_assets" / "submission_metadata.json",
-        destination / "paper_assets" / "submission_metadata.json",
-    )
-    for name in MAIN_FIGURES + SUPPLEMENT_FIGURES:
-        _copy(
-            ROOT / "paper_assets" / "figures" / name,
-            destination / "paper_assets" / "figures" / name,
-        )
     for subdir in ("newton_matched_controls", "newton_language_growth", "headline_manifest"):
         source = ROOT / "paper_assets" / "evidence" / subdir
         for path in source.rglob("*"):
