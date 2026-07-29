@@ -18,6 +18,17 @@ The paper runs use `openai/gpt-4o-mini` as the small-model core. DiscoveryBench
 uses `openai/gpt-4o` as the HMS judge. UltraHorizon uses the paper-style judge
 path exposed by `mars.runners.run_uh_official`.
 
+The official benchmark repositories are not redistributed. Clone or unpack
+them directly under the project root using the following directory names:
+
+```text
+discoverybench_repo/
+newtonbench_repo/
+ultrahorizon_repo/
+```
+
+The released runners resolve these locations relative to the project root.
+
 ## DiscoveryBench
 
 Canonical result:
@@ -81,9 +92,6 @@ Canonical result:
 
 - Mean score: `51.041666666666664`
 - N: `96`
-- Grid: `59.375`
-- Seq: `93.75`
-- Bio: `0.0`
 - Summary: `lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/summary.json`
 - Combined run log: `lmw/uh_official/aaai27_uh_full96_marsfull_strict_agent_paperjudge_20260717/run.jsonl`
 
@@ -105,9 +113,7 @@ python3 -m mars.runners.run_uh_official \
   --overwrite
 ```
 
-The 75.36 public-terminal-controller run and excluded 100.0 ceiling are not
-headline architecture results. Their role is documented in
-`PAPER_SAFE_RESULTS.md`.
+The command above is the strict, frozen-language headline configuration.
 
 ## Headline manifest
 
@@ -126,16 +132,12 @@ The manifest recomputes NewtonBench SA from the retained 324-row evaluator log
 rather than the rounded fields in its run summary. It does not execute model
 calls or modify benchmark results.
 
-## Proposal-core substitutions
+## Proposal-core portability audit
 
-The provider-robustness audit changes only the proposal endpoint within each
-benchmark and keeps the task set, frozen language, executable interfaces,
-parser, and native evaluator fixed. DiscoveryBench includes GPT-4o-mini,
-Gemini 2.5 Flash Lite, and Qwen3-30B-A3B-Instruct on all 239 test tasks.
-NewtonBench includes those three endpoints plus GPT-4o and DeepSeek V4 Flash
-on all 324 configurations. UltraHorizon includes the first three endpoints on
-the same 96 controller-enabled hard episodes and exact paper-style judge.
-This latter diagnostic is reported separately from the strict headline row.
+The portability audit changes only the proposal endpoint within a frozen
+benchmark configuration and keeps the task set, language, executable
+interfaces, parser, and native evaluator fixed. The audit is intentionally
+separate from the three headline configurations.
 
 Validate and export the 11 complete rows:
 

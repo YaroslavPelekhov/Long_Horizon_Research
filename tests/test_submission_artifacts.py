@@ -20,13 +20,13 @@ def test_main_pdf_has_seven_content_pages_and_two_reference_pages() -> None:
     assert "References" in page_eight
 
 
-def test_supplement_pdf_has_complete_model_substitution_audit() -> None:
+def test_supplement_pdf_has_mechanism_and_integrity_audits() -> None:
     reader = PdfReader(ROOT / "residual_guided_hli_supplement.pdf")
-    assert len(reader.pages) == 11
+    assert len(reader.pages) == 8
     text = "\n".join(page.extract_text() or "" for page in reader.pages)
     compact = "".join(text.split())
-    assert "DiscoveryBenchsubstitution." in compact
-    assert "UltraHorizonsubstitution." in compact
+    assert "StrictFrozen-LanguageTransferDiagnostic" in compact
+    assert "AuditedMulti-StepLanguageGrowth" in compact
     assert "Machine-checkedintegrityconditions" in compact
 
 
