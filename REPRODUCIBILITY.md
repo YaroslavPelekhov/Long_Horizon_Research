@@ -18,6 +18,17 @@ The paper runs use `openai/gpt-4o-mini` as the small-model core. DiscoveryBench
 uses `openai/gpt-4o` as the HMS judge. UltraHorizon uses the paper-style judge
 path exposed by `mars.runners.run_uh_official`.
 
+The official benchmark repositories are not redistributed. Clone or unpack
+them directly under the project root using the following directory names:
+
+```text
+discoverybench_repo/
+newtonbench_repo/
+ultrahorizon_repo/
+```
+
+The released runners resolve these locations relative to the project root.
+
 ## DiscoveryBench
 
 Canonical result:

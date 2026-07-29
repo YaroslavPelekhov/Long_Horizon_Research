@@ -77,7 +77,7 @@ judge mismatches, and selective-rejudge artifacts.
 - `residual_guided_hli_submission.tex` - current AAAI-style paper source.
 - `residual_guided_hli_supplement.tex` - supplementary material.
 - `residual_guided_hli_refs.bib` - bibliography for the paper.
-- `draft.pdf` - compiled submission draft.
+- `residual_guided_hli_submission.pdf` - compiled submission draft.
 - `PAPER_SAFE_RESULTS.md` - canonical result rows and exclusions.
 - `REPRODUCIBILITY.md` - commands and artifact paths for the three canonical
   full runs.

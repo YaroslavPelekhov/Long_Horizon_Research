@@ -50,7 +50,9 @@ are not changed.
 
 The benchmark repositories are not redistributed. Obtain DiscoveryBench,
 NewtonBench, and UltraHorizon from their cited official releases and place
-them at the paths documented in `REPRODUCIBILITY.md`.
+them directly under the extracted release root as `discoverybench_repo/`,
+`newtonbench_repo/`, and `ultrahorizon_repo/`, respectively. The runners
+resolve these three locations relative to the release root.
 
 ## Verification
 
