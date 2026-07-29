@@ -258,8 +258,8 @@ learn from successful or externally scored candidates.
 contracts: operator scope, evidence, and validators are inherited from the
 residual class. This connects library growth to symbolic regression and law
 discovery \citep{aifeynman,pysr,newtonbench}, invariance and
-information-seeking measurement \citep{pearl,invariant,bed}, and wider
-automated-research loops
+information-seeking measurement \citep{pearl,invariant,bed}, and automated
+discovery and its diagnostics
 \citep{aiscientist,aiscientistnature,autobench,autodiscovery}.
 
 \section{\methodshort}
@@ -650,17 +650,13 @@ test-time compute.}
 
 \subsection{Mechanism evidence}
 
-The benchmark table establishes a system-level comparison, but not the source
-of the gain. We therefore freeze observations, parameter fitting, and
-test-time model calls in a NewtonBench diagnostic. Residual-conditioned
-selection reduces held-out executable loss by $0.171\pm0.012$ relative to a
-type-compatible additive control. This estimate contains 12 paired task
-evaluations: four held-out physical-law interfaces under three independently
-seeded splits. Figure~\ref{fig:newton_coverage_growth} shows both the complete
-324-task profile and the disjoint evidence behind the admitted extensions.
-The matched controls produce parseable candidate laws and pass the same parser
-and judge; the supplement gives prompts, category audit, and representative
-traces.
+To isolate the mechanism, we freeze observations, parameter fitting, and
+test-time calls in a NewtonBench diagnostic. Residual-conditioned selection
+reduces held-out executable loss by $0.171\pm0.012$ against a type-compatible
+additive control across 12 paired evaluations (four interfaces and three
+seeds). Figure~\ref{fig:newton_coverage_growth} shows the complete 324-task
+profile and disjoint promotion evidence; matched controls pass the same parser
+and judge. The supplement gives prompts, category audit, and traces.
 
 \subsection{What the full runs show}
 
