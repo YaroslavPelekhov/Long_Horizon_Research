@@ -5,6 +5,7 @@
 \urlstyle{rm}
 \def\UrlFont{\rm}
 \usepackage{natbib}
+\usepackage{caption}
 \frenchspacing
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
@@ -12,16 +13,12 @@
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{colortbl}
-\usepackage{float}
-\usepackage{dblfloatfix}
 \usepackage{xspace}
 \pdfinfo{
 /TemplateVersion (2027.1)
 }
 
 \setcounter{secnumdepth}{2}
-\raggedbottom
-\renewcommand{\arraystretch}{1.05}
 \definecolor{headerrow}{RGB}{216,231,252}
 \definecolor{rghlirow}{RGB}{211,242,222}
 \definecolor{controlrow}{RGB}{222,241,252}
@@ -55,28 +52,29 @@
 
 \begin{abstract}
 Scientific reasoning requires constructing and validating explanations from
-data and interaction, and small language models remain unreliable at this task.
-Recent agentic methods have improved their performance by adding tool use,
-reflection, search, and executable actions. But a structural gap remains: these
-systems usually retain failures as text or trajectory history, leaving
-unchanged the hypothesis language from which later scientific artifacts are
-constructed. We address this gap with two ideas. First, all stages read and
-write a shared typed state containing evidence contracts, open answer slots,
-executable hypotheses, validators, and residuals. Second, failed validations
-are compiled into typed residual classes that guide the proposal of reusable
-executable operators. An operator is added to the language only when its gain
-on held-out tasks exceeds a complexity penalty. This allows the system to
-expand the set of hypotheses available to later searches without using
-benchmark labels or adapting to evaluation tasks. We implement these ideas as
-RG-HLI, a residual-guided hypothesis-language induction architecture built
-around a small language-model core. We evaluate RG-HLI on DiscoveryBench,
-NewtonBench, and UltraHorizon, which test tabular scientific discovery,
-symbolic law induction, and long-horizon rule discovery, respectively. Under
-each benchmark's native evaluator, RG-HLI improves the same small-model
-backbone. The architecture keeps the same state, validation, residual, and
-promotion protocol in all three settings. RG-HLI therefore turns validation
-failures into auditable, reusable computational structure, rather than merely
-adding steps to the current reasoning trace.
+data and interaction, yet small language models remain unreliable at this
+task. Agentic methods augment these models with tool use, reflection, search,
+and executable actions. However, they usually retain failures as text or
+trajectory history, leaving unchanged the hypothesis language from which
+subsequent scientific artifacts are constructed. We introduce RG-HLI, a
+residual-guided hypothesis-language induction architecture that converts
+validation failures into reusable computational structure. Its components
+communicate through a shared typed state containing evidence contracts, open
+answer slots, executable hypotheses, validators, and residuals. Failed
+validations are compiled into typed residual classes, which guide the synthesis
+of executable operators that target recurring deficiencies in the current
+language. A candidate operator is promoted only when its gain on held-out tasks
+exceeds a complexity penalty. RG-HLI can therefore expand the executable
+hypothesis space available to later searches without using benchmark labels
+for promotion or updating the language-model weights. We evaluate RG-HLI on
+DiscoveryBench, NewtonBench, and UltraHorizon, which test tabular scientific
+discovery, symbolic law induction, and long-horizon rule discovery,
+respectively. Under each benchmark's native evaluator, RG-HLI improves a fixed
+small-model backbone while retaining the same state, validation, residual, and
+promotion protocol across all three settings. These results show that
+structured failures can support auditable growth of a model's external
+hypothesis language, rather than merely adding steps to its current reasoning
+trace.
 \end{abstract}
 
 \section{Introduction}
@@ -101,16 +99,15 @@ answer form, more sampled traces can explore a larger set of wrong programs.
 
 \begin{figure}[t]
 \centering
-\setlength{\fboxsep}{5pt}
 \fcolorbox{gridline}{controlrow}{%
 \begin{minipage}{0.91\columnwidth}
-\footnotesize
-\textbf{A retained DiscoveryBench artifact}\\[-1pt]
-\rule{\linewidth}{0.25pt}\\[-2pt]
-\textsc{Question.} When do axes become quantitatively most frequent in the archaeology time series?\\[-1pt]
-\textsc{Evidence contract.} Select a time window and a frequency statistic; the claim must name both.\\[-1pt]
-\textsc{Executed evidence.} Filter the axes-frequency series and return its maximum window.\\[-1pt]
-\textsc{Rendered artifact.} ``At the end of the fourth millennium BCE, axes become quantitatively most frequent.''\\[-1pt]
+\small
+\textbf{A retained DiscoveryBench artifact}\\
+\rule{\linewidth}{0.25pt}\\
+\textsc{Question.} When do axes become quantitatively most frequent in the archaeology time series?\\
+\textsc{Evidence contract.} Select a time window and a frequency statistic; the claim must name both.\\
+\textsc{Executed evidence.} Filter the axes-frequency series and return its maximum window.\\
+\textsc{Rendered artifact.} ``At the end of the fourth millennium BCE, axes become quantitatively most frequent.''\\
 \textsc{Native check.} The answer matches the requested temporal facet and
 passes the evidence-consistency check.
 \end{minipage}}
@@ -223,7 +220,7 @@ seeing the gold target.
 \paragraph{Reasoning agents and executable scaffolds.}
 Chain-of-thought, self-consistency, and least-to-most prompting make
 intermediate computation explicit
-\citep{cot,star,selfconsistency,leasttomost,selfdiscover}.
+\citep{cot,selfconsistency,leasttomost,selfdiscover}.
 \react, Reflexion, Self-Refine, Tree-of-Thoughts, LATS, and \codeact add actions,
 feedback, tree search, tools, or code execution
 \citep{react,reflexion,selfrefine,tot,lats,pal,pot,art,toolformer,critic,selfdebug,codeact}.
@@ -252,7 +249,7 @@ synthesis with symbolic compression and documentation
 \citep{dreamcoder,lilo}. FunSearch uses externally evaluated program search to
 discover mathematical constructions \citep{funsearch,alphaevolve}. Prompt and
 compound-system optimizers instead search instructions, textual variables, or
-weight updates \citep{ape,dspy,opro,promptbreeder,textgrad,seal}. These systems
+weight updates \citep{ape,dspy,promptbreeder,textgrad,seal}. These systems
 learn from successful or externally scored candidates.
 \methodshort instead defines the missing abstraction through failed scientific
 contracts: operator scope, evidence, and validators are inherited from the
@@ -417,12 +414,11 @@ the language using future test labels.
 
 \begin{figure*}[t]
 \centering
-\setlength{\fboxsep}{6pt}
 \fcolorbox{gridline}{controlrow}{%
 \begin{minipage}{0.95\textwidth}
 \small
-\textbf{A retained NewtonBench language-growth trace}\\[-1pt]
-\rule{\linewidth}{0.3pt}\\[-2pt]
+\textbf{A retained NewtonBench language-growth trace}\\
+\rule{\linewidth}{0.3pt}\\
 \begin{tabularx}{\linewidth}{@{}p{0.24\linewidth}Y@{}}
 \textsc{Development evidence} & Gravity and Coulomb modules both leave the
 same typed residual: a positive structured relation cannot be closed in the
@@ -519,17 +515,9 @@ frozen-language protocol are reported in the supplement. In particular, the
 UltraHorizon result uses the strict configuration, with fallback commits,
 environment hints, terminal controllers, and measurement bootstraps disabled.
 
-\begin{table}[H]
+\begin{table}[t]
 \centering
-\caption{Complete proposal-core substitutions. Each column fixes the task set,
-executor, and evaluator while changing only the proposal endpoint. DB uses the
-matched 239-task protocol; NB uses the 324-task diagnostic kernel; UH uses the
-96-episode controller-enabled protocol. Scores are comparable down columns,
-not across metrics or with differently configured headline rows.}
-\label{tab:core_substitution}
-\scriptsize
-\renewcommand{\arraystretch}{1.10}
-\setlength{\tabcolsep}{2.8pt}
+\small
 \begin{tabularx}{\columnwidth}{|Y|r|r|r|}
 \hline
 \tblhdr
@@ -545,6 +533,12 @@ Gemini 2.5 Flash Lite & \textbf{29.14} & \textbf{29.32} & 65.42 \\
 Qwen3-30B-A3B-Instruct & 28.58 & \textbf{29.32} & 24.64 \\
 \hline
 \end{tabularx}
+\caption{Complete proposal-core substitutions. Each column fixes the task set,
+executor, and evaluator while changing only the proposal endpoint. DB uses the
+matched 239-task protocol; NB uses the 324-task diagnostic kernel; UH uses the
+96-episode controller-enabled protocol. Scores are comparable down columns,
+not across metrics or with differently configured headline rows.}
+\label{tab:core_substitution}
 \end{table}
 
 \subsection{Main comparisons}
@@ -562,15 +556,7 @@ architecture remains operational with Gemini and Qwen proposal cores.
 
 \begin{table*}[t]
 \centering
-\caption{Complete benchmark comparisons. Amber rows are original-paper reports,
-blue rows are our complete reproduced controls, and green rows are our complete
-\methodshort evaluations. Scores use each benchmark's native metric and are
-comparable only within a block. The DiscoveryBench oracle row is contextual;
-intervals are 95\% nonparametric bootstrap intervals.}
-\label{tab:main_results}
-\footnotesize
-\renewcommand{\arraystretch}{1.12}
-\setlength{\tabcolsep}{4pt}
+\small
 \begin{tabularx}{0.96\textwidth}{|Y|c|c|c|}
 \hline
 \tblhdr
@@ -634,9 +620,15 @@ Strict all-off agent & \gptmini & Reproduced & 0.00 \\
 \methodshort strict & \gptmini & Ours & \textbf{51.04} [44.79, 56.88] \\
 \hline
 \end{tabularx}
+\caption{Complete benchmark comparisons. Amber rows are original-paper reports,
+blue rows are our complete reproduced controls, and green rows are our complete
+\methodshort evaluations. Scores use each benchmark's native metric and are
+comparable only within a block. The DiscoveryBench oracle row is contextual;
+intervals are 95\% nonparametric bootstrap intervals.}
+\label{tab:main_results}
 \end{table*}
 
-\begin{figure*}[!b]
+\begin{figure*}[t]
 \centering
 \includegraphics[width=0.90\textwidth]{paper_assets/figures/newton_coverage_growth_composite.pdf}
 \caption{Complete NewtonBench coverage and the frozen language-growth audit.
@@ -690,10 +682,9 @@ interface portability and are not pooled with the strict headline protocols.
 
 \par\medskip
 \noindent
-\setlength{\fboxsep}{5pt}
 \fcolorbox{gridline}{controlrow}{%
 \begin{minipage}{0.91\columnwidth}
-\footnotesize
+\small
 \textbf{One audited language update.}
 Gravity and Coulomb interfaces produced a recurrent positive, log-structured
 residual class. The residual-conditioned proposal was a positive-monomial
@@ -709,7 +700,7 @@ complexity charge; benchmark scores and reported-test residuals were
 unavailable to the gate.
 \medskip
 
-{\scriptsize
+{\small
 \begin{tabularx}{\linewidth}{@{}lXr@{}}
 \toprule
 Update & Disjoint evidence & Outcome \\
@@ -727,7 +718,7 @@ duplicate & repeated monomial source hash
 \bottomrule
 \end{tabularx}}
 \smallskip
-\noindent\scriptsize\textit{The admitted operator changes the executable
+\noindent\small\textit{The admitted operator changes the executable
 search space before transfer; recurrence alone does not guarantee promotion,
 and the language is frozen before reported rows.}
 \end{minipage}}
@@ -782,7 +773,13 @@ prompt or provider. Most importantly, the accepted--rejected operator trajectory
 and disjoint frozen transfer test the paper's central mechanism: the system
 improves by changing an executable hypothesis language, not merely by extending
 the current reasoning trace.
-\newpage
+
+Taken together, the results establish task utility, mechanism evidence, and
+proposal-core portability. Recurrent residuals identify missing computational
+structure, while disjoint promotion prevents a solved example from being
+mistaken for a reusable operator. RG-HLI thus provides a concrete route from an
+observed failure to an inspectable language update whose effect can be measured
+on later tasks.
 \bibliography{residual_guided_hli_refs}
 
 \end{document}

@@ -16,12 +16,8 @@
 \usepackage{xspace}
 \usepackage{algorithm}
 \usepackage{algorithmic}
-\usepackage{float}
-\usepackage{placeins}
 \pdfinfo{/TemplateVersion (2027.1)}
 \setcounter{secnumdepth}{2}
-\captionsetup{font=small,labelfont=bf,labelsep=colon}
-\renewcommand{\arraystretch}{1.05}
 \definecolor{headerrow}{RGB}{216,231,252}
 \definecolor{rghlirow}{RGB}{211,242,222}
 \definecolor{controlrow}{RGB}{222,241,252}
@@ -69,11 +65,7 @@ residual-conditioned language growth.
 
 \begin{table}[!htbp]
 \centering
-\caption{Complete-run audit used for the headline results. Each row uses the
-benchmark-native evaluator.}
-\label{tab:appendix_fullrun_audit}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.96\textwidth}{|l|c|c|Y|Y|}
 \hline
 \tblhdr
@@ -86,6 +78,9 @@ NewtonBench & 324 & \gptmini & symbolic-law judge & 49.38\% SA-all; 66.67\% SA-a
 UltraHorizon & 96 & \gptmini & environment score & 51.04 strict \\
 \hline
 \end{tabularx}
+\caption{Complete-run audit used for the headline results. Each row uses the
+benchmark-native evaluator.}
+\label{tab:appendix_fullrun_audit}
 \end{table}
 
 For NewtonBench, the complete run answered 240 of 324 tasks and abstained on
@@ -100,12 +95,7 @@ separately.
 
 \begin{table}[!htbp]
 \centering
-\caption{Published contextual references under their native reported
-protocols. These rows use different model families and are not matched
-ablations; the DiscoveryBench Reflexion row additionally uses oracle feedback.}
-\label{tab:published_context}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.90\textwidth}{|l|Y|c|}
 \hline
 \tblhdr
@@ -120,6 +110,10 @@ NewtonBench & repository vanilla agent / GPT-5 & 75.9\% SA \\
 UltraHorizon & reported best free-step LLM & 14.33 \\
 \hline
 \end{tabularx}
+\caption{Published contextual references under their native reported
+protocols. These rows use different model families and are not matched
+ablations; the DiscoveryBench Reflexion row additionally uses oracle feedback.}
+\label{tab:published_context}
 \end{table}
 
 \subsection*{External Reasoning Baselines}
@@ -134,11 +128,7 @@ closure, or operator promotion.
 
 \begin{table}[!htbp]
 \centering
-\caption{Matched external reasoning controls on DiscoveryBench. All rows use
-the same task set and HMS evaluator.}
-\label{tab:external_reasoning}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.90\textwidth}{|l|c|c|Y|}
 \hline
 \tblhdr
@@ -157,6 +147,9 @@ CodeAct \gptmini & 239 & 12.31 & executed summaries \\
 \methodshort \gptmini & 239 & 28.70 & typed language state \\
 \hline
 \end{tabularx}
+\caption{Matched external reasoning controls on DiscoveryBench. All rows use
+the same task set and HMS evaluator.}
+\label{tab:external_reasoning}
 \end{table}
 
 The gap is not evidence that ordinary prompting is useless. It shows that, under
@@ -173,12 +166,7 @@ configuration and never selects among repeated attempts by score.
 
 \begin{table}[!htbp]
 \centering
-\caption{Complete matched controls on all 324 NewtonBench configurations.
-All rows use \gptmini as the hypothesis model and the official symbolic-law
-judge. Wilson intervals are over the 324 task outcomes.}
-\label{tab:newton_matched_controls}
 \small
-\setlength{\tabcolsep}{4pt}
 \begin{tabularx}{0.96\textwidth}{|Y|c|c|c|c|}
 \hline
 \tblhdr
@@ -194,6 +182,10 @@ CodeAct & 324 & 2 & 0.62 & [0.17, 2.22] \\
 \methodshort & 240 & 160 & \textbf{49.38} & [44.14, 54.94] \\
 \hline
 \end{tabularx}
+\caption{Complete matched controls on all 324 NewtonBench configurations.
+All rows use \gptmini as the hypothesis model and the official symbolic-law
+judge. Wilson intervals are over the 324 task outcomes.}
+\label{tab:newton_matched_controls}
 \end{table}
 
 The same evaluator gives exact accuracy one and zero RMSLE to an exact
@@ -205,12 +197,7 @@ cost-matched comparison.
 
 \begin{table}[!htbp]
 \centering
-\caption{Deterministic audit of all submitted NewtonBench control laws. A
-``structured incorrect'' law parses as a Python function and its return value
-depends on at least one declared input, but it fails exact symbolic agreement.}
-\label{tab:newton_failure_audit}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.88\textwidth}{|Y|c|c|}
 \hline
 \tblhdr
@@ -226,6 +213,10 @@ structured incorrect function & 312 & 303 \\
 exact symbolic match & 0 & 2 \\
 \hline
 \end{tabularx}
+\caption{Deterministic audit of all submitted NewtonBench control laws. A
+``structured incorrect'' law parses as a Python function and its return value
+depends on at least one declared input, but it fails exact symbolic agreement.}
+\label{tab:newton_failure_audit}
 \end{table}
 
 Thus, the low control scores are not produced by empty outputs or a failed
@@ -251,11 +242,7 @@ aggregate point estimates.
 
 \begin{table}[!htbp]
 \centering
-\caption{Paired DiscoveryBench gains. Intervals use 10,000 nonparametric
-bootstrap draws over common task rows with seed 20260721.}
-\label{tab:paired_db}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.92\textwidth}{|l|c|c|c|}
 \hline
 \tblhdr
@@ -271,6 +258,9 @@ Direct & 9.54 & +19.16 & [12.81, 25.68] \\
 CodeAct & 12.31 & +16.39 & [9.87, 23.01] \\
 \hline
 \end{tabularx}
+\caption{Paired DiscoveryBench gains. Intervals use 10,000 nonparametric
+bootstrap draws over common task rows with seed 20260721.}
+\label{tab:paired_db}
 \end{table}
 
 \subsection*{Operator Reuse in the Frozen Language}
@@ -286,12 +276,7 @@ synthesized or promoted during reported evaluation.
 
 \begin{table}[!htbp]
 \centering
-\caption{Reuse of selected, task-parameterized operator families in the
-complete 239-task DiscoveryBench run. Domain counts use the benchmark metadata
-taxonomy.}
-\label{tab:operator_reuse}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.88\textwidth}{|Y|c|c|}
 \hline
 \tblhdr
@@ -310,17 +295,17 @@ contrastive world & 3 & 2 \\
 slot contract & 3 & 2 \\
 \hline
 \end{tabularx}
+\caption{Reuse of selected, task-parameterized operator families in the
+complete 239-task DiscoveryBench run. Domain counts use the benchmark metadata
+taxonomy.}
+\label{tab:operator_reuse}
 \end{table}
 
 \subsection*{Failure Modes by Benchmark}
 
 \begin{table}[!htbp]
 \centering
-\caption{Residual types exposed by the complete runs. These categories guide
-future operator induction; they are not separate benchmark-specific solvers.}
-\label{tab:failure_modes}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
 \hline
 \tblhdr
@@ -333,16 +318,14 @@ NewtonBench & algebraic representation residuals & checking works after the righ
 UltraHorizon & temporal protocol residuals & replay and terminal conditions remain separate bottlenecks \\
 \hline
 \end{tabularx}
+\caption{Residual types exposed by the complete runs. These categories guide
+future operator induction; they are not separate benchmark-specific solvers.}
+\label{tab:failure_modes}
 \end{table}
 
 \begin{table}[!htbp]
 \centering
-\caption{Environment decomposition of the single strict UltraHorizon
-configuration used for the headline result. Each environment contains 32
-seeds; no terminal fallback, hints, or measurement bootstrap is enabled.}
-\label{tab:uh_strict_breakdown}
 \small
-\setlength{\tabcolsep}{7pt}
 \begin{tabular}{|l|c|c|}
 \hline
 \tblhdr
@@ -358,6 +341,10 @@ Bio & 32 & 0.00 \\
 Overall & 96 & 51.04 \\
 \hline
 \end{tabular}
+\caption{Environment decomposition of the single strict UltraHorizon
+configuration used for the headline result. Each environment contains 32
+seeds; no terminal fallback, hints, or measurement bootstrap is enabled.}
+\label{tab:uh_strict_breakdown}
 \end{table}
 
 The frozen residual-to-language transfer experiment below is the causal test
@@ -375,12 +362,7 @@ residual objects, executable validation, and held-out promotion.
 
 \begin{table}[!htbp]
 \centering
-\caption{Controls separating the universal method from benchmark-specific
-engineering. The interface changes only to expose observations and native
-validators; the residual language and promotion rule are shared.}
-\label{tab:protocol_controls}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
 \hline
 \tblhdr
@@ -397,16 +379,15 @@ Promotion rule & held-out gain minus complexity penalty & limits memorization an
 Evaluator & benchmark-native judge or environment score & keeps reported numbers in the metric used by each benchmark \\
 \hline
 \end{tabularx}
+\caption{Controls separating the universal method from benchmark-specific
+engineering. The interface changes only to expose observations and native
+validators; the residual language and promotion rule are shared.}
+\label{tab:protocol_controls}
 \end{table}
 
 \begin{table}[!htbp]
 \centering
-\caption{How the same residual-to-operator loop appears in the three benchmark
-families. These are not separate solvers; they are domain-specific observations
-fed into the same state machine.}
-\label{tab:shared_loop}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.96\textwidth}{|l|Y|Y|Y|}
 \hline
 \tblhdr
@@ -419,6 +400,10 @@ NewtonBench & numerical rows, candidate variables, target expression & wrong exp
 UltraHorizon & trajectory, action log, rule feedback, replay state & failed replay, local invariant, missing exploration evidence & exploration policy, replay validator, temporal abstraction \\
 \hline
 \end{tabularx}
+\caption{How the same residual-to-operator loop appears in the three benchmark
+families. These are not separate solvers; they are domain-specific observations
+fed into the same state machine.}
+\label{tab:shared_loop}
 \end{table}
 
 \subsection*{Prompt and Operator Interface}
@@ -432,11 +417,7 @@ only the observation serializer and native validator differ.
 
 \begin{table}[!htbp]
 \centering
-\caption{Fixed energy configuration of the shared hypothesis kernel. These
-implementation constants are held fixed across the reported benchmark runs.}
-\label{tab:energy_configuration}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.82\textwidth}{|l|Y|c|c|}
 \hline
 \tblhdr
@@ -451,16 +432,14 @@ $V$ & metamorphic validation loss & $[0,1]$ & 32 \\
 $K_h$ & artifact/search complexity & $\geq 0$ & 2 \\
 \hline
 \end{tabularx}
+\caption{Fixed energy configuration of the shared hypothesis kernel. These
+implementation constants are held fixed across the reported benchmark runs.}
+\label{tab:energy_configuration}
 \end{table}
 
 \begin{table}[!htbp]
 \centering
-\caption{Prompt contracts used by \methodshort. Each prompt returns a typed
-object with an attached validation path rather than an unconstrained chain of
-thought.}
-\label{tab:prompt_contracts}
 \small
-\setlength{\tabcolsep}{4pt}
 \begin{tabularx}{0.96\textwidth}{|l|Y|Y|Y|}
 \hline
 \tblhdr
@@ -477,6 +456,10 @@ Residual compiler & failed validation trace & typed residual $(\tau,\ell,c,e,v)$
 Operator proposer & recurring residual class $R_k$ and held-out tasks & candidate operator $o^\star$ with scope, cost, and validator hooks & no residual class closed, no executable hook, or excessive complexity \\
 \hline
 \end{tabularx}
+\caption{Prompt contracts used by \methodshort. Each prompt returns a typed
+object with an attached validation path rather than an unconstrained chain of
+thought.}
+\label{tab:prompt_contracts}
 \end{table}
 
 Operators are added through a single interface. The implementation may contain
@@ -486,7 +469,7 @@ complexity cost, and promotion evidence. In simplified form, an operator is
 accepted only if it satisfies the following contract:
 
 \begin{quote}
-\footnotesize
+\small
 \ttfamily
 operator.id: stable name;\\
 operator.scope: residual types and artifact slots where it is admissible;\\
@@ -588,12 +571,7 @@ path into either state.
 
 \begin{table}[!htbp]
 \centering
-\caption{Mutation invariants enforced by the shared implementation. ``Reject''
-means that the attempted transition is converted into a typed residual and the
-previous valid state is retained.}
-\label{tab:state_mutation_invariants}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
+\small
 \begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
 \hline
 \tblhdr
@@ -610,6 +588,10 @@ Frozen evaluation & select and parameterize operators already in $L^\star$ & syn
 Score isolation & emit the final rendered artifact to the native evaluator & use benchmark score or gold output as an internal update \\
 \hline
 \end{tabularx}
+\caption{Mutation invariants enforced by the shared implementation. ``Reject''
+means that the attempted transition is converted into a typed residual and the
+previous valid state is retained.}
+\label{tab:state_mutation_invariants}
 \end{table}
 
 These constraints also identify the source of every capability change. Better
@@ -640,12 +622,7 @@ conditional transition artifact easy to construct and validate.}
 
 \begin{table}[!htbp]
 \centering
-\caption{A per-task trace of typed hypothesis construction. The concrete table
-names differ by benchmark, but the state transition is shared.}
-\label{tab:worked_trace}
-\footnotesize
-\setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{0.96}
+\small
 \begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
 \hline
 \tblhdr
@@ -662,6 +639,9 @@ Artifact rendering & hypothesis text plus workflow grounded in closed slots & na
 Residualization & failed slot, location, evidence, and validator & recurring residuals can induce an operator after held-out promotion \\
 \hline
 \end{tabularx}
+\caption{A per-task trace of typed hypothesis construction. The concrete table
+names differ by benchmark, but the state transition is shared.}
+\label{tab:worked_trace}
 \end{table}
 
 \subsection*{Retained UltraHorizon Trace}
@@ -674,20 +654,19 @@ judge.
 
 \begin{figure}[!htbp]
 \centering
-\setlength{\fboxsep}{6pt}
 \fcolorbox{gridline}{controlrow}{%
 \begin{minipage}{0.92\textwidth}
-\footnotesize
-\textbf{A retained strict UltraHorizon Seq episode}\\[-1pt]
-\rule{\linewidth}{0.25pt}\\[-2pt]
+\small
+\textbf{A retained strict UltraHorizon Seq episode}\\
+\rule{\linewidth}{0.25pt}\\
 \textsc{First intervention.} $\mathrm{main}=\texttt{ABCDE}$ and
-$\mathrm{vice}=\texttt{DECBA}$ produce $\texttt{ADBECCDBEA}$ after the first transformation.\\[-1pt]
+$\mathrm{vice}=\texttt{DECBA}$ produce $\texttt{ADBECCDBEA}$ after the first transformation.\\
 \textsc{Typed trace slot.} The system records an \emph{interleave-step-parity}
 rule: interleave the two strings; main leads on odd experiment steps and vice
-leads on even steps.\\[-1pt]
+leads on even steps.\\
 \textsc{Additional executable slots.} The final program contains five rules,
 including a reverse-and-shift composition, a step-indexed copy operation, a
-history-dependent alphabetic sum, and a prime-step frequency replacement.\\[-1pt]
+history-dependent alphabetic sum, and a prime-step frequency replacement.\\
 \textsc{Commit and verification.} $50$ observations, $27$ planning turns, and
 $54$ environment actions yield all five exact rule matches under the
 paper-style judge. No hint, measurement bootstrap, or fallback commit was
@@ -713,12 +692,7 @@ closure, and contrastive rendering of the selected role.
 
 \begin{table}[!htbp]
 \centering
-\caption{Example of a residual-induced operator. The operator is described as a
-repair interface over typed residuals, not as a benchmark answer template.}
-\label{tab:operator_example}
-\footnotesize
-\setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{0.96}
+\small
 \begin{tabularx}{0.96\textwidth}{|l|Y|}
 \hline
 \tblhdr
@@ -735,6 +709,9 @@ Promotion evidence & the operator must pass held-out promotion before inclusion 
 Declared scope & study-design role closure; denominator alignment and nonlinear regression use separate typed interfaces \\
 \hline
 \end{tabularx}
+\caption{Example of a residual-induced operator. The operator is described as a
+repair interface over typed residuals, not as a benchmark answer template.}
+\label{tab:operator_example}
 \end{table}
 
 \subsection*{Strict Frozen-Language Transfer Diagnostic}
@@ -766,13 +743,7 @@ symbolic-agreement metric.
 
 \begin{table}[!htbp]
 \centering
-\caption{Frozen residual-to-language transfer diagnostic on four held-out
-NewtonBench law interfaces per split. $L_1$ contains the residual-selected
-monomial operator; the control contains an additive operator generated by the
-same typed compiler. Lower executable loss is better.}
-\label{tab:strict_language_transfer}
-\scriptsize
-\setlength{\tabcolsep}{3.5pt}
+\small
 \begin{tabularx}{0.98\textwidth}{|c|c|c|c|c|Y|}
 \hline
 \tblhdr
@@ -788,6 +759,11 @@ Seed & $L_0$ & selected $L_1$ & additive control & selection gain & audit \\
 Mean & 1.000 & $0.333 \pm 0.022$ & $0.504 \pm 0.021$ & $0.171 \pm 0.012$ & 12 / 12; all audits pass \\
 \hline
 \end{tabularx}
+\caption{Frozen residual-to-language transfer diagnostic on four held-out
+NewtonBench law interfaces per split. $L_1$ contains the residual-selected
+monomial operator; the control contains an additive operator generated by the
+same typed compiler. Lower executable loss is better.}
+\label{tab:strict_language_transfer}
 \end{table}
 
 The language trajectory is $L_0\xrightarrow{\,2\;\mathrm{residuals}\,}
@@ -821,13 +797,7 @@ score is used for induction or promotion.
 
 \begin{table}[!htbp]
 \centering
-\caption{A complete residual-guided trajectory from $L_0$ to $L_2$. Gain is
-the reduction in mean executable loss on the disjoint promotion or transfer
-partition; higher is better. The final row tests whether a repeated residual
-class can inflate an already sufficient language.}
-\label{tab:multistep_language_growth}
 \small
-\setlength{\tabcolsep}{4pt}
 \begin{tabularx}{0.98\textwidth}{|c|Y|c|c|c|c|}
 \hline
 \tblhdr
@@ -843,15 +813,16 @@ $L_1\!\rightarrow\!L_2$ & positive-additive pair & 0.0142 & 0.0060 & $+0.0082$; 
 $L_2\!\rightarrow\!L_2$ & repeated monomial operator & 0.0000 & 0.0067 & $-0.0067$; reject & 0.0000 \\
 \hline
 \end{tabularx}
+\caption{A complete residual-guided trajectory from $L_0$ to $L_2$. Gain is
+the reduction in mean executable loss on the disjoint promotion or transfer
+partition; higher is better. The final row tests whether a repeated residual
+class can inflate an already sufficient language.}
+\label{tab:multistep_language_growth}
 \end{table}
 
 \begin{table}[!htbp]
 \centering
-\caption{Post-hoc complexity sensitivity using the already measured held-out
-gains. No operator is re-fit and transfer interfaces remain unused.}
-\label{tab:beta_sensitivity}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.88\textwidth}{|c|c|c|c|Y|}
 \hline
 \tblhdr
@@ -864,6 +835,9 @@ $10^{-3}$ & $+0.5988$ & $+0.0082$ & $-0.0067$ & accept, accept, reject \\
 $2\!\times\!10^{-3}$ & $+0.5921$ & $+0.0023$ & $-0.0134$ & accept, accept, reject \\
 \hline
 \end{tabularx}
+\caption{Post-hoc complexity sensitivity using the already measured held-out
+gains. No operator is re-fit and transfer interfaces remain unused.}
+\label{tab:beta_sensitivity}
 \end{table}
 
 The first operator is induced from gravity and Coulomb residuals, promoted on
@@ -902,10 +876,7 @@ tasks. Table~\ref{tab:freeze_controls} summarizes the protocol.
 
 \begin{table}[!htbp]
 \centering
-\caption{Protocol controls for residual-conditioned language growth.}
-\label{tab:freeze_controls}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.96\textwidth}{|l|Y|Y|}
 \hline
 \tblhdr
@@ -918,6 +889,8 @@ Headline evaluation & per-task search, execution, validation, rendering in froze
 Post-run analysis & cluster failures and plan future operators & retroactively changing the reported score \\
 \hline
 \end{tabularx}
+\caption{Protocol controls for residual-conditioned language growth.}
+\label{tab:freeze_controls}
 \end{table}
 
 \subsection*{Uncertainty and Coverage}
@@ -931,11 +904,7 @@ model-call replications.
 
 \begin{table}[!htbp]
 \centering
-\caption{Headline point estimates and 95\% nonparametric bootstrap intervals.
-All intervals use 10,000 draws and random seed 2027.}
-\label{tab:bootstrap_ci}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.92\textwidth}{|Y|c|c|c|}
 \hline
 \tblhdr
@@ -952,6 +921,9 @@ NewtonBench SA-answered & 240 answers & 66.67\% & [60.83, 72.50] \\
 UltraHorizon strict & 96 episodes & 51.04 & [44.79, 56.88] \\
 \hline
 \end{tabularx}
+\caption{Headline point estimates and 95\% nonparametric bootstrap intervals.
+All intervals use 10,000 draws and random seed 2027.}
+\label{tab:bootstrap_ci}
 \end{table}
 
 \begin{figure}[!htbp]
@@ -980,13 +952,7 @@ fixed.
 
 \begin{table}[!htbp]
 \centering
-\caption{Operator provenance in the reported evidence. The table separates
-fixed interfaces, evaluation-time reuse, a measured development-time language
-extension, and the pedagogical construction in
-Figure~\ref{fig:concrete_language_growth}.}
-\label{tab:operator_provenance}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
+\small
 \begin{tabularx}{0.96\textwidth}{|Y|Y|Y|}
 \hline
 \tblhdr
@@ -1009,6 +975,11 @@ threshold-split probe & synthesized operator in a worked construction & visual
 type trace only; not used as a benchmark-result row \\
 \hline
 \end{tabularx}
+\caption{Operator provenance in the reported evidence. The table separates
+fixed interfaces, evaluation-time reuse, a measured development-time language
+extension, and the pedagogical construction in
+Figure~\ref{fig:concrete_language_growth}.}
+\label{tab:operator_provenance}
 \end{table}
 
 \subsection*{Proposal-Core Substitution}
@@ -1025,13 +996,9 @@ proposals, one search round, frozen language, and GPT-4o HMS judge for all
 three endpoints. HMS spans only 0.56 points; Cons-HMS spans 1.14 points.
 Thus the full DiscoveryBench result is not tied to one proposal provider.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Complete DiscoveryBench proposal-core substitution under the matched
-frozen protocol. Each row contains all 239 native evaluator decisions.}
-\label{tab:discovery_backbone_swap}
 \small
-\setlength{\tabcolsep}{6pt}
 \begin{tabularx}{0.86\textwidth}{|Y|c|c|c|}
 \hline
 \tblhdr
@@ -1047,6 +1014,9 @@ Gemini 2.5 Flash Lite & 239 & \textbf{29.14} & 35.00 \\
 Qwen3-30B-A3B-Instruct & 239 & 28.58 & \textbf{35.69} \\
 \hline
 \end{tabularx}
+\caption{Complete DiscoveryBench proposal-core substitution under the matched
+frozen protocol. Each row contains all 239 native evaluator decisions.}
+\label{tab:discovery_backbone_swap}
 \end{table}
 
 \paragraph{NewtonBench substitution.}
@@ -1058,15 +1028,9 @@ substantial differences among the proposal models. In this controlled setting,
 most accepted laws are therefore determined by executable measurement and
 validation rather than by endpoint identity.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Full NewtonBench proposal-core substitution under one frozen
-diagnostic kernel. Coverage is the fraction of tasks on which a law is
-submitted. This diagnostic tests provider robustness; it is not a
-model-size-scaling experiment.}
-\label{tab:backbone_swap}
 \small
-\setlength{\tabcolsep}{4pt}
 \begin{tabularx}{0.96\textwidth}{|Y|c|c|c|c|c|}
 \hline
 \tblhdr
@@ -1088,6 +1052,11 @@ GPT-4o & 246 & 75.9\% & 95 & 29.32 & 38.62 \\
 DeepSeek V4 Flash & 248 & 76.5\% & 94 & 29.01 & 37.90 \\
 \hline
 \end{tabularx}
+\caption{Full NewtonBench proposal-core substitution under one frozen
+diagnostic kernel. Coverage is the fraction of tasks on which a law is
+submitted. This diagnostic tests provider robustness; it is not a
+model-size-scaling experiment.}
+\label{tab:backbone_swap}
 \end{table}
 
 The absolute values in Table~\ref{tab:backbone_swap} are not substituted for
@@ -1111,14 +1080,9 @@ separate from the 51.04 strict headline row, which disables that controller.
 It tests whether the same long-horizon state and execution protocol remains
 operational when the proposal endpoint changes.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Complete UltraHorizon proposal-core substitution under the
-controller-enabled protocol.  Each overall score averages Grid, Seq, and Bio
-over the same 32 seeds per environment.}
-\label{tab:uh_backbone_swap}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.92\textwidth}{|Y|c|c|c|c|}
 \hline
 \tblhdr
@@ -1134,6 +1098,10 @@ Gemini 2.5 Flash Lite & 80.63 & 100.00 & 15.63 & 65.42 \\
 Qwen3-30B-A3B-Instruct & 33.13 & 37.50 & 3.28 & 24.64 \\
 \hline
 \end{tabularx}
+\caption{Complete UltraHorizon proposal-core substitution under the
+controller-enabled protocol.  Each overall score averages Grid, Seq, and Bio
+over the same 32 seeds per environment.}
+\label{tab:uh_backbone_swap}
 \end{table}
 
 The substitution exposes genuine environment--core interaction rather than a
@@ -1143,7 +1111,6 @@ for the architecture claim, all three endpoints use the identical typed state,
 executor, controller, and judge configuration; no environment-specific prompt
 or operator library is selected by model identity.
 
-\FloatBarrier
 
 \subsection*{Artifact Manifest and Compute Accounting}
 
@@ -1184,12 +1151,9 @@ packaging audit fails if a key is missing or duplicated.
 Table~\ref{tab:run_integrity} records the cardinality and frozen controls
 checked before the corresponding row is admitted to the paper.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Machine-checked integrity conditions for complete reported runs.}
-\label{tab:run_integrity}
 \small
-\setlength{\tabcolsep}{5pt}
 \begin{tabularx}{0.96\textwidth}{|l|c|Y|Y|}
 \hline
 \tblhdr
@@ -1206,6 +1170,8 @@ UltraHorizon & 96 & environment, seed &
 paper judge \\
 \hline
 \end{tabularx}
+\caption{Machine-checked integrity conditions for complete reported runs.}
+\label{tab:run_integrity}
 \end{table}
 
 Provider interruptions are resumed by native task key. Completed evaluator
