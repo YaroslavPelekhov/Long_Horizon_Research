@@ -545,13 +545,14 @@ not across metrics or with differently configured headline rows.}
 
 Table~\ref{tab:main_results} reports the complete benchmark runs together with
 published original-paper references and our reproduced controls. DiscoveryBench
-and NewtonBench include complete \gptmini \react/\codeact-style controls under
-the same task set and evaluator as \methodshort. The strict UltraHorizon control
-instead isolates the shared kernel from its optional components over all 96
-episodes. All \methodshort operator languages are frozen before reported
-evaluation. The canonical NewtonBench result therefore evaluates the typed
-executable kernel, while development-time language growth is tested separately
-below. Table~\ref{tab:core_substitution} additionally shows that the executable
+includes complete \gptmini Direct, \react, and \codeact controls under the same
+task set and evaluator as \methodshort. NewtonBench is compared with the
+original paper's reported agents, while the strict UltraHorizon control
+isolates the shared kernel from its optional components over all 96 episodes.
+All \methodshort operator languages are frozen before reported evaluation. The
+canonical NewtonBench result therefore evaluates the typed executable kernel,
+while development-time language growth is tested separately below.
+Table~\ref{tab:core_substitution} additionally shows that the executable
 architecture remains operational with Gemini and Qwen proposal cores.
 
 \begin{table*}[t]
@@ -594,12 +595,6 @@ Vanilla agent & GPT-5 & Published & 75.9 \\
 \hline
 \rowcolor{cautionrow}
 Vanilla agent & o4-mini & Published & 47.8 \\
-\hline
-\rowcolor{controlrow}
-Interactive \react-style agent & \gptmini & Reproduced & 0.00 \\
-\hline
-\rowcolor{controlrow}
-\codeact-style agent & \gptmini & Reproduced & 0.62 \\
 \hline
 \rowcolor{rghlirow}
 \methodshort & \gptmini & Ours & \textbf{49.38} [44.14, 54.94] \\
@@ -647,16 +642,17 @@ test-time calls in a NewtonBench diagnostic. Residual-conditioned selection
 reduces held-out executable loss by $0.171\pm0.012$ against a type-compatible
 additive control across 12 paired evaluations (four interfaces and three
 seeds). Figure~\ref{fig:newton_coverage_growth} shows the complete 324-task
-profile and disjoint promotion evidence; matched controls pass the same parser
-and judge. The supplement gives prompts, category audit, and traces.
+profile and disjoint promotion evidence; paired diagnostic controls use the
+same parser and judge. The supplement gives prompts, transfer evidence, and
+traces.
 
 \subsection{What the full runs show}
 
 The full runs test one typed-state kernel across three scientific interfaces.
 DiscoveryBench reaches 28.70 HMS, versus 9.54--12.31 for matched Direct,
 \react, and \codeact controls. NewtonBench reaches 49.38\% SA-all at 74.1\%
-coverage; matched interactive and code-action controls reach 0.00\% and 0.62\%.
-On UltraHorizon, the strict configuration preserves an induced program across a
+coverage, exceeding the original paper's reported o4-mini agent. On
+UltraHorizon, the strict configuration preserves an induced program across a
 fixed 50-step horizon and reaches 51.04. The state schema and promotion
 interface are shared, while each benchmark freezes a language appropriate to
 its artifact type. Separate frozen-transfer and multi-step audits test language
