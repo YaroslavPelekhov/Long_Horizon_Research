@@ -22,11 +22,12 @@
 \setcounter{secnumdepth}{2}
 \captionsetup{font=small,labelfont=bf,labelsep=colon}
 \renewcommand{\arraystretch}{1.05}
-\definecolor{headerrow}{RGB}{239,243,248}
-\definecolor{rghlirow}{RGB}{229,245,237}
-\definecolor{controlrow}{RGB}{246,248,251}
-\definecolor{cautionrow}{RGB}{255,248,226}
-\definecolor{gridline}{RGB}{198,207,219}
+\definecolor{headerrow}{RGB}{216,231,252}
+\definecolor{rghlirow}{RGB}{211,242,222}
+\definecolor{controlrow}{RGB}{222,241,252}
+\definecolor{cautionrow}{RGB}{255,236,190}
+\definecolor{corerow}{RGB}{238,226,251}
+\definecolor{gridline}{RGB}{112,139,176}
 \arrayrulecolor{gridline}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcommand{\tblhdr}{\rowcolor{headerrow}}
@@ -1039,8 +1040,10 @@ Proposal core & Tasks & HMS & Cons-HMS \\
 \rowcolor{rghlirow}
 GPT-4o-mini & 239 & 28.70 & 34.56 \\
 \hline
+\rowcolor{corerow}
 Gemini 2.5 Flash Lite & 239 & \textbf{29.14} & 35.00 \\
 \hline
+\rowcolor{controlrow}
 Qwen3-30B-A3B-Instruct & 239 & 28.58 & \textbf{35.69} \\
 \hline
 \end{tabularx}
@@ -1069,15 +1072,19 @@ model-size-scaling experiment.}
 \tblhdr
 Proposal core & Answered & Coverage & Correct & SA-all & SA-answered \\
 \hline
-\rowcolor{controlrow}
+\rowcolor{rghlirow}
 GPT-4o-mini & 248 & 76.5\% & 94 & 29.01 & 37.90 \\
 \hline
+\rowcolor{corerow}
 Gemini 2.5 Flash Lite & 248 & 76.5\% & 95 & 29.32 & 38.31 \\
 \hline
+\rowcolor{controlrow}
 Qwen3-30B-A3B-Instruct & 247 & 76.2\% & 95 & 29.32 & 38.46 \\
 \hline
+\rowcolor{corerow}
 GPT-4o & 246 & 75.9\% & 95 & 29.32 & 38.62 \\
 \hline
+\rowcolor{controlrow}
 DeepSeek V4 Flash & 248 & 76.5\% & 94 & 29.01 & 37.90 \\
 \hline
 \end{tabularx}
@@ -1120,7 +1127,7 @@ Proposal core & Grid & Seq & Bio & Overall \\
 \rowcolor{rghlirow}
 GPT-4o-mini & 54.38 & 81.25 & 90.47 & \textbf{75.36} \\
 \hline
-\rowcolor{controlrow}
+\rowcolor{corerow}
 Gemini 2.5 Flash Lite & 80.63 & 100.00 & 15.63 & 65.42 \\
 \hline
 \rowcolor{controlrow}

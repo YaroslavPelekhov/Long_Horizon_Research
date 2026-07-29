@@ -13,6 +13,7 @@
 \usepackage{tabularx}
 \usepackage{colortbl}
 \usepackage{float}
+\usepackage{dblfloatfix}
 \usepackage{xspace}
 \pdfinfo{
 /TemplateVersion (2027.1)
@@ -21,11 +22,12 @@
 \setcounter{secnumdepth}{2}
 \raggedbottom
 \renewcommand{\arraystretch}{1.05}
-\definecolor{headerrow}{RGB}{239,243,248}
-\definecolor{rghlirow}{RGB}{229,245,237}
-\definecolor{controlrow}{RGB}{246,248,251}
-\definecolor{cautionrow}{RGB}{255,248,226}
-\definecolor{gridline}{RGB}{198,207,219}
+\definecolor{headerrow}{RGB}{216,231,252}
+\definecolor{rghlirow}{RGB}{211,242,222}
+\definecolor{controlrow}{RGB}{222,241,252}
+\definecolor{cautionrow}{RGB}{255,236,190}
+\definecolor{corerow}{RGB}{238,226,251}
+\definecolor{gridline}{RGB}{112,139,176}
 \arrayrulecolor{gridline}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcommand{\tblhdr}{\rowcolor{headerrow}}
@@ -421,7 +423,7 @@ the language using future test labels.
 \small
 \textbf{A retained NewtonBench language-growth trace}\\[-1pt]
 \rule{\linewidth}{0.3pt}\\[-2pt]
-\begin{tabularx}{\linewidth}{@{}p{0.18\linewidth}Y@{}}
+\begin{tabularx}{\linewidth}{@{}p{0.24\linewidth}Y@{}}
 \textsc{Development evidence} & Gravity and Coulomb modules both leave the
 same typed residual: a positive structured relation cannot be closed in the
 current coordinate system. \\
@@ -497,7 +499,7 @@ non-abstained answers (SA-answered). UltraHorizon provides long-horizon
 partially observable rule-induction environments; we report the reproduced
 paper-style environment score.
 
-The reported system uses a \gptmini core throughout. We use one shared
+The headline system uses a \gptmini proposal core. We use one shared
 hypothesis-induction stack: contract compilation, typed-hole closure,
 estimand synthesis, coordinate probing, metamorphic validation, and
 residual-conditioned promotion. Benchmark adapters expose observations,
@@ -517,113 +519,137 @@ frozen-language protocol are reported in the supplement. In particular, the
 UltraHorizon result uses the strict configuration, with fallback commits,
 environment hints, terminal controllers, and measurement bootstraps disabled.
 
+\begin{table}[H]
+\centering
+\caption{Complete proposal-core substitutions. Each column fixes the task set,
+executor, and evaluator while changing only the proposal endpoint. DB uses the
+matched 239-task protocol; NB uses the 324-task diagnostic kernel; UH uses the
+96-episode controller-enabled protocol. Scores are comparable down columns,
+not across metrics or with differently configured headline rows.}
+\label{tab:core_substitution}
+\scriptsize
+\renewcommand{\arraystretch}{1.10}
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabularx}{\columnwidth}{|Y|r|r|r|}
+\hline
+\tblhdr
+Proposal core & DB HMS & NB SA-all & UH score \\
+\hline
+\rowcolor{rghlirow}
+GPT-4o-mini & 28.70 & 29.01 & \textbf{75.36} \\
+\hline
+\rowcolor{corerow}
+Gemini 2.5 Flash Lite & \textbf{29.14} & \textbf{29.32} & 65.42 \\
+\hline
+\rowcolor{controlrow}
+Qwen3-30B-A3B-Instruct & 28.58 & \textbf{29.32} & 24.64 \\
+\hline
+\end{tabularx}
+\end{table}
+
 \subsection{Main comparisons}
 
 Table~\ref{tab:main_results} reports the complete benchmark runs together with
-published original-paper references and local controls. Published rows are
-contextual reference points. Where a matched local baseline is available, it
-uses the same proposal core, task set, and evaluator as \methodshort within its
-benchmark block; the strict UltraHorizon control instead isolates the shared
-kernel from its optional components. All \methodshort operator languages are
-frozen before reported evaluation. The canonical NewtonBench result therefore
-evaluates the typed executable kernel, while development-time language growth is
-tested separately below.
+published original-paper references and our reproduced controls. DiscoveryBench
+and NewtonBench include complete \gptmini \react/\codeact-style controls under
+the same task set and evaluator as \methodshort. The strict UltraHorizon control
+instead isolates the shared kernel from its optional components over all 96
+episodes. All \methodshort operator languages are frozen before reported
+evaluation. The canonical NewtonBench result therefore evaluates the typed
+executable kernel, while development-time language growth is tested separately
+below. Table~\ref{tab:core_substitution} additionally shows that the executable
+architecture remains operational with Gemini and Qwen proposal cores.
 
 \begin{table*}[t]
 \centering
-\caption{Complete benchmark comparisons. Scores use each benchmark's native
-metric and are comparable only within a benchmark block. ``Paper'' rows are
-results reported in the original benchmark papers; local rows are our complete
-evaluations. The DiscoveryBench Reflexion row uses oracle feedback and is shown
-only as contextual reference. Intervals are 95\% nonparametric bootstrap intervals.}
+\caption{Complete benchmark comparisons. Amber rows are original-paper reports,
+blue rows are our complete reproduced controls, and green rows are our complete
+\methodshort evaluations. Scores use each benchmark's native metric and are
+comparable only within a block. The DiscoveryBench oracle row is contextual;
+intervals are 95\% nonparametric bootstrap intervals.}
 \label{tab:main_results}
 \footnotesize
 \renewcommand{\arraystretch}{1.12}
 \setlength{\tabcolsep}{4pt}
-\begin{tabularx}{0.82\textwidth}{|Y|c|c|}
+\begin{tabularx}{0.96\textwidth}{|Y|c|c|c|}
 \hline
 \tblhdr
-Method & Core & Native score \\
+Method & Core & Evidence & Native score \\
 \hline
 \rowcolor{headerrow}
-\multicolumn{3}{|l|}{\textit{DiscoveryBench: HMS \citep{discoverybench}}} \\
+\multicolumn{4}{|l|}{\textit{DiscoveryBench: HMS \citep{discoverybench}}} \\
 \hline
 \rowcolor{cautionrow}
-CodeGen (paper) & GPT-4-preview & 16.3 \\
+CodeGen & GPT-4-preview & Published & 16.3 \\
 \hline
 \rowcolor{cautionrow}
-\react (paper) & GPT-4-preview & 15.6 \\
+\react & GPT-4-preview & Published & 15.6 \\
 \hline
 \rowcolor{cautionrow}
-Reflexion (oracle; paper) & GPT-4o & 24.5 \\
+Reflexion (oracle) & GPT-4o & Published & 24.5 \\
 \hline
 \rowcolor{controlrow}
-Direct & \gptmini & 9.54 \\
+Direct & \gptmini & Reproduced & 9.54 \\
 \hline
 \rowcolor{controlrow}
-\react & \gptmini & 11.68 \\
+\react & \gptmini & Reproduced & 11.68 \\
 \hline
 \rowcolor{controlrow}
-\codeact & \gptmini & 12.31 \\
+\codeact & \gptmini & Reproduced & 12.31 \\
 \hline
 \rowcolor{rghlirow}
-\methodshort & \gptmini & \textbf{28.70} [23.24, 34.28] \\
+\methodshort & \gptmini & Ours & \textbf{28.70} [23.24, 34.28] \\
 \hline
 \rowcolor{headerrow}
-\multicolumn{3}{|l|}{\textit{NewtonBench: SA-all (\%) \citep{newtonbench}}} \\
+\multicolumn{4}{|l|}{\textit{NewtonBench: SA-all (\%) \citep{newtonbench}}} \\
 \hline
 \rowcolor{cautionrow}
-Best paper result & GPT-5 & 75.9 \\
+Vanilla agent & GPT-5 & Published & 75.9 \\
 \hline
 \rowcolor{cautionrow}
-Small-model paper reference & o4-mini & 47.8 \\
+Vanilla agent & o4-mini & Published & 47.8 \\
 \hline
 \rowcolor{controlrow}
-Vanilla/ReAct-like & \gptmini & 0.00 \\
+Interactive \react-style agent & \gptmini & Reproduced & 0.00 \\
 \hline
 \rowcolor{controlrow}
-\codeact & \gptmini & 0.62 \\
+\codeact-style agent & \gptmini & Reproduced & 0.62 \\
 \hline
 \rowcolor{rghlirow}
-\methodshort & \gptmini & \textbf{49.38} [44.14, 54.94] \\
+\methodshort & \gptmini & Ours & \textbf{49.38} [44.14, 54.94] \\
 \hline
 \rowcolor{headerrow}
-\multicolumn{3}{|l|}{\textit{UltraHorizon: environment score \citep{ultrahorizon}}} \\
+\multicolumn{4}{|l|}{\textit{UltraHorizon: environment score \citep{ultrahorizon}}} \\
 \hline
 \rowcolor{cautionrow}
-Best paper LLM, free steps & Gemini-2.5-Pro & 14.33 \\
+Best free-step LLM & Gemini-2.5-Pro & Published & 14.33 \\
 \hline
 \rowcolor{cautionrow}
-Human participants (paper) & human & 26.52 \\
+Human participants & human & Published & 26.52 \\
 \hline
 \rowcolor{controlrow}
-All-off strict (ours) & \gptmini & 0.00 \\
+Strict all-off agent & \gptmini & Reproduced & 0.00 \\
 \hline
 \rowcolor{rghlirow}
-\methodshort strict & \gptmini & \textbf{51.04} [44.79, 56.88] \\
+\methodshort strict & \gptmini & Ours & \textbf{51.04} [44.79, 56.88] \\
 \hline
 \end{tabularx}
 \end{table*}
 
-\begin{figure*}[t]
+\begin{figure*}[!b]
 \centering
-\includegraphics[width=0.94\textwidth]{paper_assets/figures/newton_coverage_growth_composite.pdf}
+\includegraphics[width=0.90\textwidth]{paper_assets/figures/newton_coverage_growth_composite.pdf}
 \caption{Complete NewtonBench coverage and the frozen language-growth audit.
-Left: exact symbolic accuracy over all 324 task configurations; each cell
-averages three law versions and three system variants. Upper right: executable
-loss before and after accepted operators on held-out promotion and disjoint
-transfer interfaces. Lower right: 12 paired evaluations compare the
-residual-selected family with a type-compatible control under identical
-fitting and test-time compute; points above the diagonal favor residual
-conditioning.}
+Left: exact symbolic accuracy over all 324 configurations. Upper right:
+executable loss before and after accepted operators on held-out and disjoint
+interfaces. Lower right: 12 paired evaluations compare residual-conditioned
+selection with a type-compatible control under identical fitting and
+test-time compute.}
 \label{fig:newton_coverage_growth}
 \end{figure*}
 
-\clearpage
-
 \subsection{Mechanism evidence}
 
-\enlargethispage{\dimexpr\textheight-\pagegoal\relax}
 The benchmark table establishes a system-level comparison, but not the source
 of the gain. We therefore freeze observations, parameter fitting, and
 test-time model calls in a NewtonBench diagnostic. Residual-conditioned
@@ -655,6 +681,16 @@ Because admission requires held-out loss reduction after a complexity charge,
 the $0.171\pm0.012$ advantage and the accepted--rejected updates in
 Figure~\ref{fig:newton_coverage_growth} and the audited trace below specifically
 test language growth.
+
+\subsection{Proposal-core portability}
+
+Table~\ref{tab:core_substitution} replaces the proposal endpoint without
+changing the typed state, executable operators, task order, or evaluator.
+Across complete runs, DiscoveryBench varies by 0.56 HMS and the frozen
+NewtonBench diagnostic by 0.31 SA-all. UltraHorizon shows stronger
+endpoint--environment interaction, but all cores complete the same 96 episodes
+without model-specific operators or prompts. These substitutions test
+interface portability and are not pooled with the strict headline protocols.
 
 \par\medskip
 \noindent
@@ -705,53 +741,51 @@ and the language is frozen before reported rows.}
 
 \methodshort assumes that scientific intermediates admit executable contracts,
 typed holes, validators, renderers, or residual-induced operators. The current
-implementation covers three artifact classes and uses fixed energy weights;
-richer semantic renderers and learned held-out calibration remain open.
+implementation covers three artifact classes and fixed energy weights; richer
+semantic renderers and learned held-out calibration remain open. Because the
+benchmarks reward semantic agreement, symbolic equivalence, and long-horizon
+behavior, respectively, we report native metrics rather than one aggregate.
+The shared object is the typed-state and promotion protocol, not an identical
+operator library. The strict UltraHorizon result succeeds on Grid and Seq but
+does not solve Bio or provide a matched external-agent control.
 
-The benchmarks intentionally use different evaluators. DiscoveryBench rewards
-semantic agreement, NewtonBench rewards symbolic equivalence, and UltraHorizon
-rewards long-horizon behavior. We therefore report native metrics rather than
-collapsing them into one aggregate. The common object is the frozen typed-state
-and operator protocol, not one identical operator library. The UltraHorizon
-strict result demonstrates the interface on Grid and Seq but does not solve Bio
-or provide an external-agent matched control.
-
-RG-HLI deliberately promotes only small operators that can be serialized,
-executed, and tested on disjoint interfaces. It is therefore a method for
-making representational growth inspectable rather than a claim that every
-scientific concept can be reduced to a short program. In settings where the
-critical abstraction has no executable evidence or validator, the system
-retains an auditable unresolved residual instead of treating a plausible verbal
-repair as a new capability. This constraint is useful in practice: it makes the
-next target explicit and prevents a solved-looking trajectory from silently
-becoming library state.
+RG-HLI promotes only operators that can be serialized, executed, and tested on
+disjoint interfaces. It makes representational growth inspectable rather than
+assuming that every scientific concept has a short program. When evidence or a
+validator is unavailable, the system retains an unresolved residual instead of
+promoting a plausible verbal repair.
 
 Reported-test residuals, benchmark scores, and gold laws are unavailable to the
 promotion gate and cannot rewrite the frozen language.
 
-Matched comparisons hold the proposal backbone, task set, parser, and evaluator
-fixed, but structured execution uses more calls than direct prompting. The
-supplement reports retained call records where available and complete run
-provenance; our claim is architectural utility at the stated budget, not a
-compute-matched Pareto frontier. Since the provider does not disclose parameter
-count, ``small'' denotes the compact, low-cost proposal tier rather than a
-parameter threshold.
+Matched comparisons fix the backbone, task set, parser, and evaluator, but
+structured execution uses more calls than direct prompting. The supplement
+reports call records and provenance; the claim is utility at the stated
+budget, not a compute-matched Pareto frontier. ``Small'' denotes the provider's
+compact, low-cost tier rather than an undisclosed parameter threshold.
 
-NewtonBench SA-all is the primary metric and counts abstentions as errors; the
-system answers 74.1\% of tasks. We report SA-answered and coverage separately in
-the supplement so that precision cannot be improved invisibly by abstention.
-For UltraHorizon, the headline strict run excludes the public terminal
-controller and reports the internal executor without a controller-assisted
-score.
+NewtonBench SA-all counts abstentions as errors; coverage is 74.1\%, and the
+supplement reports SA-answered separately. The UltraHorizon headline excludes
+the public terminal controller.
+
+The proposal-core substitutions are complete benchmark-sized runs, but they are
+not a parameter-scaling study: provider sizes and training mixtures are not
+consistently disclosed. Their supported claim is architectural portability.
+The same serialized state, executor, validators, and renderer operate when the
+proposal endpoint changes, while endpoint-dependent search quality can still
+vary by environment. Open-weight scaling and compute-matched Pareto comparisons
+are useful next tests rather than assumptions required by the present result.
 
 \section{Conclusion}
 
-\methodshort turns validation failures into typed, executable language growth:
-held-out promotion creates auditable operators whose frozen transfer
-distinguishes expanded hypothesis spaces from additional search. Complete
-native-evaluator runs show one typed-state kernel operating across tabular
-discovery, symbolic laws, and long-horizon rules, while the accepted--rejected
-trajectory isolates representational growth from extra inference steps.
+\methodshort turns validation failures into typed operators that can alter the
+hypotheses available to later searches. Complete native-evaluator runs establish
+utility across tabular discovery, symbolic laws, and long-horizon rules; matched
+controls and proposal-core substitutions separate the architecture from one
+prompt or provider. Most importantly, the accepted--rejected operator trajectory
+and disjoint frozen transfer test the paper's central mechanism: the system
+improves by changing an executable hypothesis language, not merely by extending
+the current reasoning trace.
 \newpage
 \bibliography{residual_guided_hli_refs}
 
